@@ -4,6 +4,82 @@
     fluid
     tag="section"
   >
+    <v-tabs
+      v-model="currentTab"
+      background-color="primary"
+      centered
+      dark
+      icons-and-text
+    >
+      <v-tabs-slider />
+
+      <v-tab href="#newContract">
+        Yeni Sözleşme
+        <v-icon>mdi-text-box-plus-outline</v-icon>
+      </v-tab>
+
+      <v-tab href="#allContracts">
+        Oluşturulan Sözleşmeler
+        <v-icon>mdi-text-box-multiple-outline</v-icon>
+      </v-tab>
+    </v-tabs>
+
+    <div class="py3" />
+
+    <v-tabs-items v-model="currentTab">
+      <v-tab-item value="newContract">
+        <v-form>
+          <v-container class="py-3">
+            <v-row>
+              <v-col cols="3">
+                <v-text-field
+                  disabled
+                  color="purple"
+                  label="Birim Müdürü"
+                  value="Fatih Cigeroglu"
+                />
+              </v-col>
+
+              <v-col cols="3">
+                <v-select
+                  v-model="contract"
+                  :items="contracts"
+                  item-text="orderNo"
+                  item-value="contractId"
+                  label="Talep No. veya Sipariş No."
+                  return-object
+                />
+              </v-col>
+
+              <v-col cols="3">
+                <v-file-input
+                  v-model="contractUpload"
+                  chips
+                  multiple
+                  label="Sözleşme Yükle"
+                />
+              </v-col>
+
+              <v-col cols="3">
+                <v-btn
+                  class="my-2"
+                  width="100%"
+                  color="primary"
+                  @click="createContract()"
+                >
+                  Oluştur
+                </v-btn>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-form>
+      </v-tab-item>
+
+      <v-tab-item value="allContracts">
+        <all-requests />
+      </v-tab-item>
+    </v-tabs-items>
+
     <material-card
       color="primary"
       icon="mdi-text-box-plus-outline"
@@ -343,8 +419,11 @@
     name: 'ReadyContractsView',
     data () {
       return {
+        currentTab: '',
         menu1: false, // Staring Date Picker
         menu2: false, // Ending Date Picker
+        contractUpload: null,
+        contract: { contractId: '', orderNo: '' },
         supplier: { company: '', abbr: '' },
         expenseCenter: { center: '', abbr: '' },
         jobTitle: { title: '', abbr: '' },
@@ -380,20 +459,23 @@
         contracts: [
           {
             contractId: 1,
+            orderNo: '12432240',
             supplier: { supplierId: 0, title: 'Tibula' },
             pozition: { id: 1, title: 'Sr. Software Developer' },
             candicate: { firstName: 'Murathan', lastName: 'Karayazi' },
             situation: { id: 0, label: 'Rezive Bekliyor' },
           },
           {
-            contractId: 1,
+            contractId: 2,
+            orderNo: '12432241',
             supplier: { supplierId: 0, title: 'Tibula' },
             pozition: { id: 1, title: 'Sr. Software Developer' },
             candicate: { firstName: 'Furkan', lastName: 'Reyhanlioglu' },
             situation: { id: 0, label: 'Rezive Bekliyor' },
           },
           {
-            contractId: 1,
+            contractId: 3,
+            orderNo: '12432242',
             supplier: { supplierId: 0, title: 'Tibula' },
             pozition: { id: 1, title: 'Sr. Software Developer' },
             candicate: { firstName: 'Murathan', lastName: 'Karayazi' },
@@ -403,11 +485,8 @@
       }
     },
     methods: {
-      editRequest (id) {
-        console.log('contractId - edit', id)
-      },
-      addContract (id) {
-        console.log('contractId - add', id)
+      createContract () {
+        console.log(this.contractUpload)
       },
     },
   }

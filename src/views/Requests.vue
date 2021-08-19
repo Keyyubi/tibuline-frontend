@@ -39,15 +39,8 @@
 </template>
 
 <script>
-  import NewRequest from '../components/NewRequest.vue'
-  import AllRequests from '../components/AllRequests.vue'
-
   export default {
     name: 'Talepler',
-    components: {
-      NewRequest,
-      AllRequests,
-    },
     data () {
       return { currentTab: 'newRequest' }
     },
