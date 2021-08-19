@@ -1,98 +1,40 @@
 <template>
-  <v-simple-table>
-    <thead>
-      <tr>
-        <th class="primary--text">
-          Talep No.
-        </th>
-        <th class="primary--text">
-          Tedarikçi
-        </th>
-        <th class="primary--text">
-          Pozisyon
-        </th>
-        <th class="primary--text">
-          Aday
-        </th>
-        <th class="primary--text">
-          Talep Durumu
-        </th>
-        <th class="primary--text">
-          Revize Et
-        </th>
-        <th class="primary--text">
-          Sözleşme Ekle
-        </th>
-      </tr>
-    </thead>
+  <v-card>
+    <v-card-title>
+      <v-text-field
+        v-model="searchWord"
+        append-icon="mdi-magnify"
+        label="Search"
+        single-line
+        hide-details
+      />
+    </v-card-title>
 
-    <tbody>
-      <tr
-        v-for="(item, index) in contracts"
-        :key="index + '_contract'"
-      >
-        <td>{{ item.contractId }}</td>
-        <td>{{ item.supplier.title }}</td>
-        <td>{{ item.pozition.title }}</td>
-        <td>
-          {{ item.candicate.firstName + " " + item.candicate.lastName }}
-        </td>
-        <td>
-          <v-chip
-            class="ma-2"
-            :color="item.situation.id === 0 ? 'orange' : 'green'"
-            text-color="white"
-          >
-            {{
-              item.situation.id === 0
-                ? "Revize Bekliyor"
-                : "Sözleşme Bekliyor"
-            }}
-            <v-icon
-              v-if="item.situation.id === 0"
-              right
-            >
-              mdi-pencil
-            </v-icon>
-            <v-icon
-              v-else
-              right
-            >
-              mdi-plus
-            </v-icon>
-          </v-chip>
-        </td>
-        <td>
-          <v-btn
-            class="mx-2"
-            small
-            depressed
-            dark
-            color="red"
-            @click="editRequest(item.contractId)"
-          >
-            <v-icon dark>
-              mdi-pencil
-            </v-icon>
-          </v-btn>
-        </td>
-        <td>
-          <v-btn
-            class="mx-2"
-            small
-            depressed
-            dark
-            color="green"
-            @click="addContract(item.contractId)"
-          >
-            <v-icon dark>
-              mdi-plus
-            </v-icon>
-          </v-btn>
-        </td>
-      </tr>
-    </tbody>
-  </v-simple-table>
+    <v-data-table
+      :headers="headers"
+      :items="contracts"
+      :search="searchWord"
+    >
+      <template v-slot:item.contractId="{ item }">
+        <v-chip
+          color="primary"
+          dark
+          @click="addContract(item.contractId)"
+        >
+          {{ item.contractId }}
+        </v-chip>
+      </template>
+
+      <template v-slot:item.situation.label="{ item }">
+        <v-chip
+          :color="item.situation.id === 0 ? 'orange' : 'green'"
+          dark
+        >
+          {{ item.situation.label }}
+        </v-chip>
+      </template>
+    </v-data-table>
+  </v-card>
 </template>
 
 <script>
@@ -100,26 +42,39 @@
     name: 'AllRequests',
     data () {
       return {
+        requestType: 'all',
+        searchWord: '',
+        headers: [
+          {
+            text: 'Talep No.',
+            align: 'start',
+            value: 'contractId',
+          },
+          { text: 'Tedarikçi', value: 'supplier.title' },
+          { text: 'Pozisyon', value: 'position.title' },
+          { text: 'Aday', value: 'candicate.fullName' },
+          { text: 'Talep Durumu', value: 'situation.label' },
+        ],
         contracts: [
           {
             contractId: 1,
             supplier: { supplierId: 0, title: 'Tibula' },
-            pozition: { id: 1, title: 'Sr. Software Developer' },
-            candicate: { firstName: 'Murathan', lastName: 'Karayazi' },
+            position: { id: 1, title: 'Sr. Software Developer' },
+            candicate: { id: 0, fullName: 'Murathan Karayazi' },
             situation: { id: 0, label: 'Rezive Bekliyor' },
           },
           {
-            contractId: 1,
+            contractId: 2,
             supplier: { supplierId: 0, title: 'Tibula' },
-            pozition: { id: 1, title: 'Sr. Software Developer' },
-            candicate: { firstName: 'Furkan', lastName: 'Reyhanlioglu' },
+            position: { id: 1, title: 'Sr. Software Developer' },
+            candicate: { id: 1, fullName: 'Furkan Reyhanlioglu' },
             situation: { id: 0, label: 'Rezive Bekliyor' },
           },
           {
-            contractId: 1,
+            contractId: 3,
             supplier: { supplierId: 0, title: 'Tibula' },
-            pozition: { id: 1, title: 'Sr. Software Developer' },
-            candicate: { firstName: 'Murathan', lastName: 'Karayazi' },
+            position: { id: 1, title: 'Sr. Software Developer' },
+            candicate: { id: 0, fullName: 'Murathan Karayazi' },
             situation: { id: 1, label: 'Sözleşme Bekliyor' },
           },
         ],
@@ -136,6 +91,4 @@
   }
 </script>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>

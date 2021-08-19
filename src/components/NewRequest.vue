@@ -1,240 +1,218 @@
 <template>
-  <v-dialog
-    v-model="popup"
-    persistent
-  >
-    <template v-slot:activator="{ on, attrs }">
-      <v-btn
-        color="primary"
-        dark
-        v-bind="attrs"
-        large
-        v-on="on"
-      >
-        Yeni Talep Oluştur
-      </v-btn>
-    </template>
+  <v-container>
+    <div class="py-3" />
+    <v-form>
+      <v-container class="py-0">
+        <v-row>
+          <v-col
+            cols="12"
+            md="4"
+          >
+            <v-text-field
+              disabled
+              color="purple"
+              label="Birim Müdürü"
+              value="Fatih Cigeroglu"
+            />
+          </v-col>
 
-    <material-card
-      color="primary"
-      icon="mdi-account-plus"
-    >
-      <template #title>
-        Yeni Talep Oluştur —
-        <small class="text-body-1">Talep Detaylarını Doldurun</small>
-      </template>
+          <v-col
+            cols="12"
+            md="4"
+          >
+            <v-select
+              v-model="supplier"
+              :hint="`${supplier.company}, ${supplier.abbr}`"
+              :items="suppliers"
+              item-text="company"
+              item-value="abbr"
+              label="Tedarikçi Firma"
+              persistent-hint
+              return-object
+              single-line
+            />
+          </v-col>
 
-      <v-form>
-        <v-container class="py-0">
-          <v-row>
-            <v-col
-              cols="12"
-              md="4"
+          <v-col
+            cols="12"
+            md="4"
+          >
+            <v-select
+              v-model="expenseCenter"
+              :items="expenseCenters"
+              item-text="center"
+              item-value="abbr"
+              label="Masraf Merkezi"
+              return-object
+            />
+          </v-col>
+
+          <v-col
+            cols="12"
+            md="4"
+          >
+            <v-select
+              v-model="jobTitle"
+              :items="jobTitles"
+              item-text="title"
+              item-value="abbr"
+              label="Ünvan"
+              return-object
+            />
+          </v-col>
+
+          <v-col
+            cols="12"
+            md="4"
+          >
+            <v-select
+              v-model="experience"
+              :items="experiences"
+              item-text="exp"
+              item-value="value"
+              label="Tecrübe Aralığı"
+              return-object
+            />
+          </v-col>
+
+          <v-col
+            cols="12"
+            md="4"
+          >
+            <v-text-field
+              color="purple"
+              disabled
+              label="Aylık Bütçe"
+              type="number"
+              value="16.606"
+            />
+          </v-col>
+
+          <!-- Starting Date -->
+          <v-col
+            cols="12"
+            md="4"
+          >
+            <v-menu
+              ref="menu1"
+              v-model="menu1"
+              :close-on-content-click="false"
+              transition="scale-transition"
+              offset-y
+              max-width="290px"
+              min-width="auto"
             >
-              <v-text-field
-                disabled
-                color="purple"
-                label="Birim Müdürü"
-                value="Fatih Cigeroglu"
-              />
-            </v-col>
-
-            <v-col
-              cols="12"
-              md="4"
-            >
-              <v-select
-                v-model="supplier"
-                :hint="`${supplier.company}, ${supplier.abbr}`"
-                :items="suppliers"
-                item-text="company"
-                item-value="abbr"
-                label="Tedarikçi Firma"
-                persistent-hint
-                return-object
-                single-line
-              />
-            </v-col>
-
-            <v-col
-              cols="12"
-              md="4"
-            >
-              <v-select
-                v-model="expenseCenter"
-                :items="expenseCenters"
-                item-text="center"
-                item-value="abbr"
-                label="Masraf Merkezi"
-                return-object
-              />
-            </v-col>
-
-            <v-col
-              cols="12"
-              md="4"
-            >
-              <v-select
-                v-model="jobTitle"
-                :items="jobTitles"
-                item-text="title"
-                item-value="abbr"
-                label="Ünvan"
-                return-object
-              />
-            </v-col>
-
-            <v-col
-              cols="12"
-              md="4"
-            >
-              <v-select
-                v-model="experience"
-                :items="experiences"
-                item-text="exp"
-                item-value="value"
-                label="Tecrübe Aralığı"
-                return-object
-              />
-            </v-col>
-
-            <v-col
-              cols="12"
-              md="4"
-            >
-              <v-text-field
-                color="purple"
-                disabled
-                label="Aylık Bütçe"
-                type="number"
-                value="16.606"
-              />
-            </v-col>
-
-            <!-- Starting Date -->
-            <v-col
-              cols="12"
-              md="4"
-            >
-              <v-menu
-                ref="menu1"
-                v-model="menu1"
-                :close-on-content-click="false"
-                transition="scale-transition"
-                offset-y
-                max-width="290px"
-                min-width="auto"
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-text-field
-                    v-model="startingDate"
-                    label="Başlangıç Tarihi"
-                    persistent-hint
-                    prepend-icon="mdi-calendar"
-                    v-bind="attrs"
-                    v-on="on"
-                  />
-                </template>
-                <v-date-picker
+              <template v-slot:activator="{ on, attrs }">
+                <v-text-field
                   v-model="startingDate"
-                  no-title
-                  @input="menu1 = false"
+                  label="Başlangıç Tarihi"
+                  persistent-hint
+                  prepend-icon="mdi-calendar"
+                  v-bind="attrs"
+                  v-on="on"
                 />
-              </v-menu>
-            </v-col>
+              </template>
+              <v-date-picker
+                v-model="startingDate"
+                no-title
+                @input="menu1 = false"
+              />
+            </v-menu>
+          </v-col>
 
-            <!-- Due Date -->
-            <v-col
-              cols="12"
-              md="4"
+          <!-- Due Date -->
+          <v-col
+            cols="12"
+            md="4"
+          >
+            <v-menu
+              ref="menu2"
+              v-model="menu2"
+              :close-on-content-click="false"
+              transition="scale-transition"
+              offset-y
+              max-width="290px"
+              min-width="auto"
             >
-              <v-menu
-                ref="menu2"
-                v-model="menu2"
-                :close-on-content-click="false"
-                transition="scale-transition"
-                offset-y
-                max-width="290px"
-                min-width="auto"
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-text-field
-                    v-model="endingDate"
-                    label="Bitiş Tarihi"
-                    persistent-hint
-                    prepend-icon="mdi-calendar"
-                    v-bind="attrs"
-                    v-on="on"
-                  />
-                </template>
-                <v-date-picker
+              <template v-slot:activator="{ on, attrs }">
+                <v-text-field
                   v-model="endingDate"
-                  no-title
-                  @input="menu2 = false"
+                  label="Bitiş Tarihi"
+                  persistent-hint
+                  prepend-icon="mdi-calendar"
+                  v-bind="attrs"
+                  v-on="on"
                 />
-              </v-menu>
-            </v-col>
-
-            <v-col
-              cols="12"
-              md="4"
-            >
-              <v-text-field
-                color="purple"
-                disabled
-                label="Toplam Bütçe"
-                type="number"
-                value="16.606"
+              </template>
+              <v-date-picker
+                v-model="endingDate"
+                no-title
+                @input="menu2 = false"
               />
-            </v-col>
+            </v-menu>
+          </v-col>
 
-            <v-col
-              cols="6"
-              class="text-right"
+          <v-col
+            cols="12"
+            md="4"
+          >
+            <v-text-field
+              color="purple"
+              disabled
+              label="Toplam Bütçe"
+              type="number"
+              value="16.606"
+            />
+          </v-col>
+
+          <v-col
+            cols="6"
+            class="text-right"
+          >
+            <v-select
+              v-model="project"
+              :items="projects"
+              item-text="label"
+              item-value="code"
+              label="Hedef Proje"
+              return-object
+            />
+          </v-col>
+
+          <v-col cols="2" />
+
+          <v-col
+            cols="2"
+            class="text-right"
+          >
+            <v-btn
+              color="primary"
+              min-width="150"
+              x-large
+              depressed
             >
-              <v-select
-                v-model="project"
-                :items="projects"
-                item-text="label"
-                item-value="code"
-                label="Proje"
-                return-object
-              />
-            </v-col>
+              Oluştur
+            </v-btn>
+          </v-col>
 
-            <v-col cols="2" />
-
-            <v-col
-              cols="2"
-              class="text-right"
+          <v-col
+            cols="2"
+            class="text-right"
+          >
+            <v-btn
+              x-large
+              color="error"
+              min-width="150"
+              depressed
+              @click="popup = false"
             >
-              <v-btn
-                color="primary"
-                min-width="150"
-                x-large
-              >
-                Oluştur
-              </v-btn>
-            </v-col>
-
-            <v-col
-              cols="2"
-              class="text-right"
-            >
-              <v-btn
-                x-large
-                color="error"
-                min-width="150"
-                @click="popup = false"
-              >
-                Vazgeç
-              </v-btn>
-            </v-col>
-          </v-row>
-        </v-container>
-      </v-form>
-    </material-card>
-  </v-dialog>
+              Vazgeç
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-form>
+  </v-container>
 </template>
 
 <script>
