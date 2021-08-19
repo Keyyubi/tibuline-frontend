@@ -167,6 +167,7 @@
 
           <v-col
             cols="6"
+            md="4"
             class="text-right"
           >
             <v-select
@@ -179,15 +180,14 @@
             />
           </v-col>
 
-          <v-col cols="2" />
-
           <v-col
-            cols="2"
+            cols="3"
+            md="4"
             class="text-right"
           >
             <v-btn
               color="primary"
-              min-width="150"
+              width="100%"
               x-large
               depressed
             >
@@ -196,13 +196,14 @@
           </v-col>
 
           <v-col
-            cols="2"
+            cols="3"
+            md="4"
             class="text-right"
           >
             <v-btn
               x-large
               color="error"
-              min-width="150"
+              width="100%"
               depressed
               @click="popup = false"
             >

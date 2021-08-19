@@ -43,7 +43,7 @@
   import AllRequests from '../components/AllRequests.vue'
 
   export default {
-    name: 'UserProfileView',
+    name: 'Talepler',
     components: {
       NewRequest,
       AllRequests,
