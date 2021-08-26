@@ -25,7 +25,7 @@ const state = {
     {
       title: 'Projeler',
       icon: 'mdi-folder-table-outline',
-      to: '/components/typography/',
+      to: '/projects',
     },
     {
       title: 'Danışmanlar',
