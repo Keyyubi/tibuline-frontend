@@ -24,7 +24,7 @@ const state = {
     },
     {
       title: 'Projeler',
-      icon: 'mdi-card-account-details',
+      icon: 'mdi-folder-table-outline',
       to: '/components/typography/',
     },
     {
