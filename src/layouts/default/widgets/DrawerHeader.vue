@@ -2,8 +2,9 @@
   <v-list-item class="mb-0 justify-space-between pl-3">
     <v-list-item-avatar>
       <v-img
+        contain
         :src="
-          require('@/assets/vmd.svg')"
+          require('@/assets/logo.png')"
       />
     </v-list-item-avatar>
 
@@ -11,7 +12,7 @@
       <v-list-item-title class="text-h3">
         <strong class="mr-1 font-weight-black">OMS</strong>
 
-        <span class="primary--text">Tibula</span>
+        <span class="primary--text">Tibuline</span>
       </v-list-item-title>
     </v-list-item-content>
   </v-list-item>
