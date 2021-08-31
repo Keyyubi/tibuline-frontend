@@ -30,7 +30,7 @@ const state = {
     {
       title: 'Danışmanlar',
       icon: 'mdi-account-group',
-      to: '/components/icons/',
+      to: '/consultants',
     },
     {
       title: 'Aktiviteler ve Masraflar',

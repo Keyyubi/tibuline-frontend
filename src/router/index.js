@@ -31,6 +31,9 @@ const router = new Router({
       // Projects
       route('Projects', null, 'projects'),
 
+      // Consultants
+      route('Consultants', null, 'consultants'),
+
       // Components
       route('Notifications', null, 'components/notifications'),
       route('Icons', null, 'components/icons'),
