@@ -24,13 +24,13 @@ const state = {
     },
     {
       title: 'Projeler',
-      icon: 'mdi-card-account-details',
-      to: '/components/typography/',
+      icon: 'mdi-folder-table-outline',
+      to: '/projects',
     },
     {
       title: 'Danışmanlar',
       icon: 'mdi-account-group',
-      to: '/components/icons/',
+      to: '/consultants',
     },
     {
       title: 'Aktiviteler ve Masraflar',

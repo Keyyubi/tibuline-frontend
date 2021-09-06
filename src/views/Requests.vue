@@ -4,80 +4,45 @@
     fluid
     tag="section"
   >
-    <material-card
-      icon="mdi-account-multiple"
-      icon-small
-      title="Talepler"
-      color="primary"
+    <v-tabs
+      v-model="currentTab"
+      background-color="primary"
+      centered
+      dark
+      icons-and-text
     >
-      <v-row
-        class="justify-xs"
-        justify-xl="space-between"
-        justify-lg="space-between"
-        justify-md="space-around"
-        justify-sm="center"
-      >
-        <v-col
-          cols="4"
-          align-self="center"
-        >
-          <v-btn-toggle
-            v-model="requestType"
-            tile
-            color="primary"
-            group
-          >
-            <v-btn
-              small
-              value="all"
-            >
-              Hepsi
-            </v-btn>
+      <v-tabs-slider />
 
-            <v-btn
-              small
-              value="pending"
-            >
-              Revize Bekleyen
-            </v-btn>
+      <v-tab href="#newRequest">
+        Yeni Talep
+        <v-icon>mdi-account-plus</v-icon>
+      </v-tab>
 
-            <v-btn
-              small
-              value="ready"
-            >
-              Sözleşme Bekleyen
-            </v-btn>
-          </v-btn-toggle>
-        </v-col>
+      <v-tab href="#allRequests">
+        Açık Talepler
+        <v-icon>mdi-account-multiple</v-icon>
+      </v-tab>
+    </v-tabs>
 
-        <v-col cols="2">
-          <new-request />
-        </v-col>
-      </v-row>
+    <div class="py3" />
 
-      <v-row>
-        <v-col cols="12">
-          <all-requests />
-        </v-col>
-      </v-row>
-    </material-card>
+    <v-tabs-items v-model="currentTab">
+      <v-tab-item value="newRequest">
+        <new-request />
+      </v-tab-item>
+
+      <v-tab-item value="allRequests">
+        <all-requests />
+      </v-tab-item>
+    </v-tabs-items>
   </v-container>
 </template>
 
 <script>
-  import NewRequest from '../components/NewRequest.vue'
-  import AllRequests from '../components/AllRequests.vue'
-
   export default {
-    name: 'UserProfileView',
-    components: {
-      NewRequest,
-      AllRequests,
-    },
+    name: 'Talepler',
     data () {
-      return {
-        requestType: 'all',
-      }
+      return { currentTab: 'newRequest' }
     },
   }
 </script>

@@ -28,10 +28,15 @@ const router = new Router({
       // Contracts
       route('Contracts', null, 'contracts'),
 
+      // Projects
+      route('Projects', null, 'projects'),
+
+      // Consultants
+      route('Consultants', null, 'consultants'),
+
       // Components
       route('Notifications', null, 'components/notifications'),
       route('Icons', null, 'components/icons'),
-      route('Typography', null, 'components/typography'),
 
       // Tables
       route('Regular Tables', null, 'tables/regular'),
