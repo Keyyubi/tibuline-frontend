@@ -35,7 +35,7 @@ const state = {
     {
       title: 'Aktiviteler ve Masraflar',
       icon: 'mdi-file-document-multiple',
-      to: '/maps/google/',
+      to: '/activities-costs/',
     },
     {
       title: 'Fatura Onayı',

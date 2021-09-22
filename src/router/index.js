@@ -34,6 +34,9 @@ const router = new Router({
       // Consultants
       route('Consultants', null, 'consultants'),
 
+      // ActivitiesCosts
+      route('ActivitiesCosts', null, 'activities-costs'),
+
       // Components
       route('Notifications', null, 'components/notifications'),
       route('Icons', null, 'components/icons'),
