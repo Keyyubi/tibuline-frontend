@@ -179,13 +179,17 @@
               color="error"
               dark
               v-bind="attrs"
-              v-on="on"
               depressed
+              v-on="on"
             >
               Reddet
             </v-btn>
           </template>
           <v-card>
+            <v-card-title class="text-h5 primary white--text">
+              Red Nedeni
+            </v-card-title>
+            <v-card-text>
               <v-container>
                 <v-row>
                   <v-col>
@@ -196,28 +200,27 @@
                       placeholder="Please enter the reason of deny"
                       messages="Cannot be empty"
                       :value="reasonOfDeny"
-                    ></v-textarea>
-                  </v-col>
-                </v-row>
-                <v-row justify-end>
-                  <v-col>
-                    <v-btn
-                      color="green"
-                      text
-                      @click="dialog = false"
-                    >
-                      Send
-                    </v-btn>
-                    <v-btn
-                      color="error"
-                      text
-                      @click="dialog = false"
-                    >
-                      Cancel
-                    </v-btn>
+                    />
                   </v-col>
                 </v-row>
               </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-btn
+                color="green"
+                text
+                @click="dialog = false"
+              >
+                Send
+              </v-btn>
+              <v-btn
+                color="error"
+                text
+                @click="dialog = false"
+              >
+                Cancel
+              </v-btn>
+            </v-card-actions>
           </v-card>
         </v-dialog>
       </v-col>
