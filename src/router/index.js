@@ -37,15 +37,8 @@ const router = new Router({
       // ActivitiesCosts
       route('ActivitiesCosts', null, 'activities-costs'),
 
-      // Components
-      route('Notifications', null, 'components/notifications'),
-      route('Icons', null, 'components/icons'),
-
-      // Tables
-      route('Regular Tables', null, 'tables/regular'),
-
-      // Maps
-      route('Google Maps', null, 'maps/google'),
+      // Bill Approvment
+      route('Bills', null, 'bills'),
     ]),
   ],
 })

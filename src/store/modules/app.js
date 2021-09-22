@@ -40,7 +40,7 @@ const state = {
     {
       title: 'Fatura Onayı',
       icon: 'mdi-check-decagram',
-      to: '/components/notifications/',
+      to: '/bills/',
     },
   ],
 }

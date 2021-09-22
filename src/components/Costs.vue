@@ -42,66 +42,75 @@
         <v-card-text>
           <v-container class="mt-3">
             <v-row>
-              <v-col lg="6" md="6" sm="12">
+              <v-col
+                lg="6"
+                md="6"
+                sm="12"
+              >
                 <v-row class="my-2">
                   <v-text-field
                     :value="this.selectedCost.id"
                     label="Masraf No"
                     readonly
-                  ></v-text-field>
+                  />
                 </v-row>
                 <v-row class="my-2">
                   <v-text-field
                     :value="this.selectedCost.costCenter"
                     label="Masraf Merkezi"
                     readonly
-                  ></v-text-field>
+                  />
                 </v-row>
                 <v-row class="my-2">
                   <v-text-field
                     :value="this.selectedCost.header"
                     label="Başlık"
                     readonly
-                  ></v-text-field>
+                  />
                 </v-row>
                 <v-row class="my-2">
                   <v-text-field
                     :value="this.selectedCost.billDate"
                     label="Fiş Tarihi"
                     readonly
-                  ></v-text-field>
+                  />
                 </v-row>
                 <v-row class="my-2">
                   <v-text-field
                     :value="this.selectedCost.billNumber"
                     label="Fiş Numarası"
                     readonly
-                  ></v-text-field>
+                  />
                 </v-row>
                 <v-row class="my-2">
                   <v-text-field
                     :value="this.selectedCost.cost"
                     label="Tutar"
                     readonly
-                  ></v-text-field>
+                  />
                 </v-row>
               </v-col>
-              <v-spacer></v-spacer>
-              <v-col class="d-flex justify-center" justify-center lg="6" md="6" sm="12">
+              <v-spacer />
+              <v-col
+                class="d-flex justify-center justify-center"
+                lg="6"
+                md="6"
+                sm="12"
+              >
                 <v-img
                   class="mt-2"
                   :lazy-src="this.selectedCost.imgUrl"
                   max-height="500"
                   max-width="300"
                   :src="this.selectedCost.imgUrl"
-                ></v-img>
+                />
               </v-col>
             </v-row>
           </v-container>
         </v-card-text>
 
         <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn
             color="primary"
             text
