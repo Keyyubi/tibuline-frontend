@@ -3,6 +3,7 @@
 import Vue from 'vue'
 import Vuetify from 'vuetify/lib/framework'
 import ripple from 'vuetify/lib/directives/ripple'
+import tr from 'vuetify/lib/locale/tr'
 
 Vue.use(Vuetify, { directives: { ripple } })
 
@@ -20,6 +21,15 @@ export default new Vuetify({
   breakpoint: { mobileBreakpoint: 960 },
   icons: {
     values: { expand: 'mdi-menu-down' },
+  },
+  lang: {
+    locales: { tr },
+    current: 'tr',
+  },
+  methods: {
+    changeLocale () {
+      this.$vuetify.lang.current = 'tr'
+    },
   },
   theme: {
     themes: {

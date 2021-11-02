@@ -7,14 +7,6 @@
             flat
           >
             <v-btn
-              outlined
-              class="mr-4"
-              color="grey darken-2"
-              @click="setToday"
-            >
-              Bugün
-            </v-btn>
-            <v-btn
               fab
               text
               small
@@ -46,31 +38,6 @@
               :items="consultants"
               label="Danışman"
             />
-            <v-spacer />
-            <v-btn
-              outlined
-              class="mr-4"
-              color="grey darken-2"
-              @click="type = 'day'"
-            >
-              Gün
-            </v-btn>
-            <v-btn
-              outlined
-              class="mr-4"
-              color="grey darken-2"
-              @click="type = 'week'"
-            >
-              Hafta
-            </v-btn>
-            <v-btn
-              outlined
-              class="mr-4"
-              color="grey darken-2"
-              @click="type = 'month'"
-            >
-              Ay
-            </v-btn>
           </v-toolbar>
         </v-sheet>
         <v-sheet height="600">
@@ -80,10 +47,8 @@
             color="primary"
             :events="events"
             :event-color="getEventColor"
-            :type="type"
+            type="month"
             @click:event="showEvent"
-            @click:more="viewDay"
-            @click:date="viewDay"
             @change="updateRange"
           />
           <v-menu
@@ -101,30 +66,32 @@
                 :color="selectedEvent.color"
                 dark
               >
-                <v-btn icon>
-                  <v-icon>mdi-pencil</v-icon>
-                </v-btn>
                 <v-toolbar-title v-html="selectedEvent.name" />
                 <v-spacer />
-                <v-btn icon>
-                  <v-icon>mdi-heart</v-icon>
-                </v-btn>
-                <v-btn icon>
-                  <v-icon>mdi-dots-vertical</v-icon>
-                </v-btn>
+                <v-icon>mdi-calendar-clock</v-icon>
               </v-toolbar>
               <v-card-text>
-                <span v-html="selectedEvent.details" />
-              </v-card-text>
-              <v-card-actions>
-                <v-btn
-                  text
-                  color="secondary"
-                  @click="selectedOpen = false"
+                <v-slider
+                  v-model="selectedEvent.hours"
+                  class="align-center"
+                  max="12"
+                  min="0"
+                  @change="setEventTime(selectedEvent)"
                 >
-                  Cancel
-                </v-btn>
-              </v-card-actions>
+                  <template v-slot:append>
+                    <v-text-field
+                      v-model="selectedEvent.hours"
+                      class="mt-0 pt-0"
+                      hide-details
+                      single-line
+                      min="0"
+                      max="12"
+                      type="number"
+                      style="width: 60px"
+                    ></v-text-field>
+                  </template>
+                </v-slider>
+              </v-card-text>
             </v-card>
           </v-menu>
         </v-sheet>
@@ -146,7 +113,7 @@
           label
           outlined
         >
-          Total Activities: 21 Days
+          Toplam Mesai: {{ totalWorkHours }} Saat
         </v-chip>
 
         <v-chip
@@ -155,7 +122,7 @@
           label
           outlined
         >
-          Total Day Offs: 1 Days
+          Toplam İzinler: {{ totalDaysOff }} gün
         </v-chip>
 
         <v-chip
@@ -164,7 +131,7 @@
           label
           outlined
         >
-          Total Extra Workdays: 3 Days
+          Toplam Fazla Mesai: {{ totalExtraHours }} saat
         </v-chip>
       </v-col>
       <v-col class="text-right">
@@ -237,17 +204,11 @@
 
 <script>
   export default {
-    name: 'Activities',
+    name: 'AddActivity',
     data: () => ({
       focus: '',
       dialog: false,
       reasonOfDeny: '',
-      type: 'month',
-      typeToLabel: {
-        month: 'Month',
-        week: 'Week',
-        day: 'Day',
-      },
       selectedEvent: {},
       selectedElement: null,
       selectedOpen: false,
@@ -259,79 +220,12 @@
         { value: 2, text: 'Furkan Reyhan' },
         { value: 3, text: 'John Doe ' },
       ],
+      totalWorkHours: 0,
+      totalExtraHours: 0,
+      totalDaysOff: 0,
       events: [],
-      colors: ['green', 'blue', 'orange', 'red'],
-      names: ['Workday', 'Day Off', 'Health', 'Annual Leave', 'Holiday'],
       shiftStartAt: 9, // 0-23 as o'clock of the day
       shiftHours: 8, // as working hours
-      dates: [
-        {
-          name: 'Workday',
-          start: new Date('2021-09-13'),
-          shiftType: 'workday',
-          extraHours: 0,
-        },
-        {
-          name: 'Extra',
-          start: new Date('2021-09-13'),
-          shiftType: 'extra',
-          extraHours: 3,
-        },
-        {
-          name: 'Holiday',
-          start: new Date('2021-09-14'),
-          shiftType: 'holiday',
-          extraHours: 0,
-        },
-        {
-          name: 'Day Off',
-          start: new Date('2021-09-15'),
-          shiftType: 'dayoff',
-          extraHours: 0,
-        },
-        {
-          name: 'Workday',
-          start: new Date('2021-09-16'),
-          shiftType: 'workday',
-          extraHours: 0,
-        },
-        {
-          name: 'Workday',
-          start: new Date('2021-09-17'),
-          shiftType: 'workday',
-          extraHours: 0,
-        },
-        {
-          name: 'Annual Leave',
-          start: new Date('2021-09-20'),
-          shiftType: 'annual',
-          extraHours: 0,
-        },
-        {
-          name: 'Annual Leave',
-          start: new Date('2021-09-21'),
-          shiftType: 'annual',
-          extraHours: 0,
-        },
-        {
-          name: 'Annual Leave',
-          start: new Date('2021-09-22'),
-          shiftType: 'annual',
-          extraHours: 0,
-        },
-        {
-          name: 'Annual Leave',
-          start: new Date('2021-09-23'),
-          shiftType: 'annual',
-          extraHours: 0,
-        },
-        {
-          name: 'Annual Leave',
-          start: new Date('2021-09-24'),
-          shiftType: 'annual',
-          extraHours: 0,
-        },
-      ],
     }),
     methods: {
       viewDay ({ date }) {
@@ -368,73 +262,52 @@
 
         nativeEvent.stopPropagation()
       },
-      createCalendarObject (obj) {
-        obj.start.setHours(this.shiftStartAt, 0, 0)
-        obj.end = new Date(obj.start)
-
-        // To ensure adding shift hours to hour of the beginning of the shift
-        obj.end.setTime(obj.end.getTime() + (this.shiftHours * 3600000))
-        obj.timed = true
-
-        switch (obj.shiftType) {
-          case 'workday':
-            obj.color = 'green'
-            break
-          case 'dayoff':
-            obj.color = 'orange'
-            break
-          case 'holiday':
-            obj.color = 'orange'
-            break
-          case 'extra':
-            obj.start.setHours(obj.start.getHours() + this.shiftHours)
-            obj.end.setHours(obj.end.getHours() + obj.extraHours)
-            obj.color = 'red'
-            break
-
-          case 'annual':
-            obj.color = 'cyan'
-            break
-
-          default:
-            break
-        }
-        return obj
-      },
-      updateRange ({ start, end }) {
+      updateRange ({start, end}) {
         const events = []
 
-        // const min = new Date(`${start.date}T00:00:00`)
-        // const max = new Date(`${end.date}T23:59:59`)
-        // const days = (max.getTime() - min.getTime()) / 86400000
-        // const eventCount = this.rnd(days, days + 20)
+        for (let i = 0; i < end.day; i++) {
+          const startDate = new Date(start.year, start.month - 1, i + 1)
 
-        // for (let i = 0; i < eventCount; i++) {
-        // const allDay = this.rnd(0, 3) === 0
-        // const firstTimestamp = this.rnd(min.getTime(), max.getTime())
-        // const first = new Date(firstTimestamp - (firstTimestamp % 900000))
-        // const secondTimestamp = this.rnd(2, allDay ? 288 : 8) * 900000
-        // const second = new Date(first.getTime() + secondTimestamp)
+          if(startDate.getDay() !== 0 && startDate.getDay() !== 6) {
+            const workHour = {
+              hours: this.shiftHours,
+              name: `${this.shiftHours} saat mesai`,
+              start: startDate,
+              end: startDate,
+              shiftType: 0,
+              color: 'green',
+              timed: false,
+            }
+            workHour.start.setHours(this.shiftStartAt, 0, 0)
+            workHour.end.setHours(this.shiftStartAt + this.shiftHours, 0, 0)
 
-        // events.push({
-        //   name: this.names[this.rnd(0, this.names.length - 1)],
-        //   start: first,
-        //   end: second,
-        //   color: this.colors[this.rnd(0, this.colors.length - 1)],
-        //   timed: !allDay,
-        // })
-        // }
+            const extraHour = {
+              ...workHour,
+              hours: 0,
+              name: '0 saat fazla mesai',
+              shiftType: 1,
+              color: 'red',
+            }
+            extraHour.end.setHours(extraHour.end.getHours() + extraHour.hours)
 
-        for (let i = 0; i < this.dates.length; i++) {
-          const element = this.dates[i]
-          events.push(this.createCalendarObject(element))
+            events.push(workHour, extraHour)
+          }
         }
 
         this.events = events
+        this.calculateTotalHours()
       },
-      rnd (a, b) {
-        return Math.floor((b - a + 1) * Math.random()) + a
+      setEventTime(event) {
+        event.name = event.hours + ' saat ' + (event.shiftType === 0 ? 'mesai' : 'fazla mesai')
+        this.calculateTotalHours()
       },
+      calculateTotalHours() {
+        this.totalWorkHours = 0
+        this.totalExtraHours = 0
+        this.events.forEach(e => {
+          e.shiftType === 0 ? this.totalWorkHours += e.hours : this.totalExtraHours += e.hours
+        })
+      }
     },
   }
 </script>

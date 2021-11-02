@@ -35,12 +35,17 @@ const state = {
     {
       title: 'Aktiviteler ve Masraflar',
       icon: 'mdi-file-document-multiple',
-      to: '/activities-costs/',
+      to: '/activities-costs',
     },
     {
       title: 'Fatura Onayı',
       icon: 'mdi-check-decagram',
-      to: '/bills/',
+      to: '/bills',
+    },
+    {
+      title: 'Aktivite Ekle',
+      icon: 'mdi-check',
+      to: '/add-activity',
     },
   ],
 }

@@ -39,6 +39,12 @@ const router = new Router({
 
       // Bill Approvment
       route('Bills', null, 'bills'),
+
+      // Add Activity
+      route('AddActivity', null, 'add-activity'),
+
+      route('NewFile', null, 'new-file'),
+
     ]),
   ],
 })

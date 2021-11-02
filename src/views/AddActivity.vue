@@ -1,6 +1,6 @@
 <template>
   <v-container
-    id="activities-costs-view"
+    id="add-activity-view"
     fluid
     tag="section"
   >
@@ -28,7 +28,7 @@
 
     <v-tabs-items v-model="currentTab">
       <v-tab-item value="activities">
-        <activities />
+        <add-activity />
       </v-tab-item>
 
       <v-tab-item value="costs">
@@ -40,7 +40,6 @@
 
 <script>
   export default {
-    name: 'ActivitiesCosts',
     data () {
       return {
         currentTab: 'activities',
@@ -48,3 +47,5 @@
     },
   }
 </script>
+
+<style></style>
