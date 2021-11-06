@@ -3,8 +3,12 @@ import { make } from 'vuex-pathify'
 
 // Globals
 import { IN_BROWSER } from '@/util/globals'
+// import { use } from 'vue/types/umd'
 
 const state = {
+  user: {
+    isLogged: false,
+  },
   dark: false,
   drawer: {
     image: 0,
@@ -46,6 +50,12 @@ const actions = {
 
     localStorage.setItem('vuetify@user', JSON.stringify(state))
   },
+  login: (context, user) => {
+    if (user.email === 'a@a.com' && user.password === '12341234') {
+      console.log('user true')
+      context.commit('user', { ...user, role: 'mudur', isLogged: true })
+    }
+  },
 }
 
 const getters = {
@@ -61,6 +71,7 @@ const getters = {
   image: state => {
     return state.drawer.image === '' ? state.drawer.image : state.images[state.drawer.image]
   },
+  user: state => state.user,
 }
 
 export default {

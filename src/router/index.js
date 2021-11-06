@@ -6,6 +6,7 @@ import {
   layout,
   route,
 } from '@/util/routes'
+import store from '@/store'
 
 Vue.use(Router)
 
@@ -46,11 +47,20 @@ const router = new Router({
       route('NewFile', null, 'new-file'),
 
     ]),
+    layout('Login', [
+      route('Login', null, 'login'),
+    ]),
   ],
 })
 
 router.beforeEach((to, from, next) => {
-  return to.path.endsWith('/') ? next() : next(trailingSlash(to.path))
+  const user = store.getters['user/user']
+
+  if (to.name !== 'Login' && !user.isLogged) {
+    return next({ path: 'login' })
+  } else {
+    return to.path.endsWith('/') ? next() : next(trailingSlash(to.path))
+  }
 })
 
 export default router

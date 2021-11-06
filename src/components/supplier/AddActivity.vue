@@ -88,7 +88,7 @@
                       max="12"
                       type="number"
                       style="width: 60px"
-                    ></v-text-field>
+                    />
                   </template>
                 </v-slider>
               </v-card-text>
@@ -262,13 +262,13 @@
 
         nativeEvent.stopPropagation()
       },
-      updateRange ({start, end}) {
+      updateRange ({ start, end }) {
         const events = []
 
         for (let i = 0; i < end.day; i++) {
           const startDate = new Date(start.year, start.month - 1, i + 1)
 
-          if(startDate.getDay() !== 0 && startDate.getDay() !== 6) {
+          if (startDate.getDay() !== 0 && startDate.getDay() !== 6) {
             const workHour = {
               hours: this.shiftHours,
               name: `${this.shiftHours} saat mesai`,
@@ -297,17 +297,17 @@
         this.events = events
         this.calculateTotalHours()
       },
-      setEventTime(event) {
+      setEventTime (event) {
         event.name = event.hours + ' saat ' + (event.shiftType === 0 ? 'mesai' : 'fazla mesai')
         this.calculateTotalHours()
       },
-      calculateTotalHours() {
+      calculateTotalHours () {
         this.totalWorkHours = 0
         this.totalExtraHours = 0
         this.events.forEach(e => {
           e.shiftType === 0 ? this.totalWorkHours += e.hours : this.totalExtraHours += e.hours
         })
-      }
+      },
     },
   }
 </script>
