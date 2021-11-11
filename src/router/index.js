@@ -43,9 +43,6 @@ const router = new Router({
 
       // Add Activity
       route('AddActivity', null, 'add-activity'),
-
-      route('NewFile', null, 'new-file'),
-
     ]),
     layout('Login', [
       route('Login', null, 'login'),

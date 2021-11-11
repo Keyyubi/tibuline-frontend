@@ -39,6 +39,14 @@
           <v-list-item-title v-text="p.title" />
         </app-bar-item>
       </template>
+      <v-divider class="mb-2 mt-2" />
+      <v-btn
+        depressed
+        block
+        @click="logout"
+      >
+        Log out
+      </v-btn>
     </v-list>
   </v-menu>
 </template>
@@ -51,9 +59,13 @@
       profile: [
         { title: 'Profile' },
         { title: 'Settings' },
-        { divider: true },
-        { title: 'Log out' },
       ],
     }),
+    methods: {
+      logout () {
+        this.$store.dispatch('user/logout')
+        this.$router.push({ path: '/login' })
+      },
+    },
   }
 </script>

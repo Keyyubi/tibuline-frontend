@@ -1,14 +1,14 @@
 // Utilities
 import { make } from 'vuex-pathify'
-
 // Globals
 import { IN_BROWSER } from '@/util/globals'
 // import { use } from 'vue/types/umd'
 
+// dummy data
+import { users } from '../dummy/dummy'
+
 const state = {
-  user: {
-    isLogged: false,
-  },
+  user: {},
   dark: false,
   drawer: {
     image: 0,
@@ -51,10 +51,17 @@ const actions = {
     localStorage.setItem('vuetify@user', JSON.stringify(state))
   },
   login: (context, user) => {
-    if (user.email === 'a@a.com' && user.password === '12341234') {
-      console.log('user true')
-      context.commit('user', { ...user, role: 'mudur', isLogged: true })
-    }
+    const checkUser = users.find(e => e.email === user.email && e.password === user.password)
+
+    context.dispatch('app/updateItems', checkUser.roleId, { root: true })
+
+    if (checkUser) {
+      checkUser.isLogged = true
+      context.commit('user', checkUser)
+    } else context.commit('user', {})
+  },
+  logout: ({ commit }) => {
+    commit('user', {})
   },
 }
 
