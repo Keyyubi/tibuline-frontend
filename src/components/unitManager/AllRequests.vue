@@ -15,20 +15,244 @@
       :items="requests"
       :search="searchWord"
     >
-      <template
-        v-slot:item.id="{ item }"
-        :activator="{ on, attrs }">
-        <v-chip
-          class="ma-2"
-          color="primary"
-          dark
-          @click="showRequest(item)"
+      <template v-slot:item.id="{ item }">
+        <v-dialog
+          v-model="dialog"
+          width="960"
         >
-          <b>{{ item.id }}</b>
-          <v-icon right>
-            mdi-arrow-right-bold
-          </v-icon>
-        </v-chip>
+          <template v-slot:activator="{ on, attrs }">
+            <v-chip
+              class="ma-2"
+              color="primary"
+              dark
+              @click="showRequest(item)"
+            >
+              <b>{{ item.id }}</b>
+              <v-icon right>
+                mdi-arrow-right-bold
+              </v-icon>
+            </v-chip>
+          </template>
+
+          <v-card>
+            <v-card-title class="text-h5 primary white--text">
+              Talebi Güncelle
+            </v-card-title>
+
+            <v-card-text>
+              <v-container class="py-3">
+                <v-row>
+                  <v-col
+                    cols="12"
+                    md="4"
+                  >
+                    <v-text-field
+                      disabled
+                      color="purple"
+                      label="Birim Müdürü"
+                      value="Fatih Cigeroglu"
+                    />
+                  </v-col>
+
+                  <!-- Supplier -->
+                  <v-col
+                    cols="12"
+                    md="4"
+                  >
+                    <v-select
+                      v-model="selectedRequest.supplier"
+                      :hint="`${selectedRequest.supplier.company}, ${selectedRequest.supplier.abbr}`"
+                      :items="suppliers"
+                      item-text="company"
+                      item-value="abbr"
+                      label="Tedarikçi Firma"
+                      persistent-hint
+                      return-object
+                      single-line
+                      @change="selectTarget('supplierId', supplier)"
+                    />
+                  </v-col>
+
+                  <!-- Cost Center -->
+                  <v-col
+                    cols="12"
+                    md="4"
+                  >
+                    <v-select
+                      v-model="selectedRequest.costCenter"
+                      :items="costCenters"
+                      item-text="center"
+                      item-value="abbr"
+                      label="Masraf Merkezi"
+                      return-object
+                      @change="selectTarget('costCenterId', selectedRequest.costCenter)"
+                    />
+                  </v-col>
+
+                  <!-- Job Title -->
+                  <v-col
+                    cols="12"
+                    md="4"
+                  >
+                    <v-select
+                      v-model="selectedRequest.jobTitle"
+                      :items="jobTitles"
+                      item-text="title"
+                      item-value="abbr"
+                      label="Ünvan"
+                      return-object
+                      @change="selectTarget('jobTitleId', selectedRequest.jobTitle)"
+                    />
+                  </v-col>
+
+                  <!-- Experience -->
+                  <v-col
+                    cols="12"
+                    md="4"
+                  >
+                    <v-select
+                      v-model="selectedRequest.experience"
+                      :items="experiences"
+                      item-text="exp"
+                      item-value="value"
+                      label="Tecrübe Aralığı"
+                      return-object
+                      @change="selectTarget('experienceId', selectedRequest.experience)"
+                    />
+                  </v-col>
+
+                  <!-- Monthly Budget -->
+                  <v-col
+                    cols="12"
+                    md="4"
+                  >
+                    <v-text-field
+                      color="purple"
+                      disabled
+                      label="Aylık Bütçe"
+                      type="number"
+                      :value="selectedRequest.monthlyBudget"
+                    />
+                  </v-col>
+
+                  <!-- Starting Date -->
+                  <v-col
+                    cols="12"
+                    md="4"
+                  >
+                    <v-menu
+                      ref="menu1"
+                      v-model="selectedRequest.menu1"
+                      :close-on-content-click="false"
+                      transition="scale-transition"
+                      offset-y
+                      max-width="290px"
+                      min-width="auto"
+                    >
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-text-field
+                          v-model="selectedRequest.startingDate"
+                          label="Başlangıç Tarihi"
+                          persistent-hint
+                          prepend-icon="mdi-calendar"
+                          v-bind="attrs"
+                          v-on="on"
+                        />
+                      </template>
+                      <v-date-picker
+                        v-model="selectedRequest.startingDate"
+                        no-title
+                        @input="menu1 = false"
+                      />
+                    </v-menu>
+                  </v-col>
+
+                  <!-- Due Date -->
+                  <v-col
+                    cols="12"
+                    md="4"
+                  >
+                    <v-menu
+                      ref="menu2"
+                      v-model="menu2"
+                      :close-on-content-click="false"
+                      transition="scale-transition"
+                      offset-y
+                      max-width="290px"
+                      min-width="auto"
+                    >
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-text-field
+                          v-model="selectedRequest.endingDate"
+                          label="Bitiş Tarihi"
+                          persistent-hint
+                          prepend-icon="mdi-calendar"
+                          v-bind="attrs"
+                          v-on="on"
+                        />
+                      </template>
+                      <v-date-picker
+                        v-model="selectedRequest.endingDate"
+                        no-title
+                        @input="menu2 = false"
+                      />
+                    </v-menu>
+                  </v-col>
+
+                  <!-- Total Budget -->
+                  <v-col
+                    cols="12"
+                    md="4"
+                  >
+                    <v-text-field
+                      color="purple"
+                      disabled
+                      label="Toplam Bütçe"
+                      type="number"
+                      :value="selectedRequest.totalBudget"
+                    />
+                  </v-col>
+
+                  <!-- Project -->
+                  <v-col
+                    cols="6"
+                    md="4"
+                    class="text-right"
+                  >
+                    <v-select
+                      v-model="selectedRequest.project"
+                      :items="projects"
+                      item-text="label"
+                      item-value="code"
+                      label="Hedef Proje"
+                      return-object
+                    />
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+
+            <v-divider></v-divider>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn
+                @click="updateRequest"
+                color="primary"
+                depressed
+              >
+                Güncelle
+              </v-btn>
+              <v-btn
+                @click="dialog = false"
+                color="error"
+                depressed
+              >
+                Vazgeç
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </template>
 
       <template v-slot:item.situation.label="{ item }">
@@ -40,236 +264,7 @@
         </v-chip>
       </template>
     </v-data-table>
-    <v-dialog
-      v-model="dialog"
-      max-width="960px"
-      persistent
-      class="dialog-white"
-    >
-      <v-form>
-        <v-container class="py-3">
-          <v-row>
-            <v-col
-              cols="12"
-              md="4"
-            >
-              <v-text-field
-                disabled
-                color="purple"
-                label="Birim Müdürü"
-                value="Fatih Cigeroglu"
-              />
-            </v-col>
-
-            <!-- Supplier -->
-            <v-col
-              cols="12"
-              md="4"
-            >
-              <v-select
-                v-model="selectedRequest.supplier"
-                :hint="`${selectedRequest.supplier.company}, ${selectedRequest.supplier.abbr}`"
-                :items="suppliers"
-                item-text="company"
-                item-value="abbr"
-                label="Tedarikçi Firma"
-                persistent-hint
-                return-object
-                single-line
-                @change="selectTarget('supplierId', supplier)"
-              />
-            </v-col>
-
-            <!-- Cost Center -->
-            <v-col
-              cols="12"
-              md="4"
-            >
-              <v-select
-                v-model="selectedRequest.costCenter"
-                :items="costCenters"
-                item-text="center"
-                item-value="abbr"
-                label="Masraf Merkezi"
-                return-object
-                @change="selectTarget('costCenterId', selectedRequest.costCenter)"
-              />
-            </v-col>
-
-            <!-- Job Title -->
-            <v-col
-              cols="12"
-              md="4"
-            >
-              <v-select
-                v-model="selectedRequest.jobTitle"
-                :items="jobTitles"
-                item-text="title"
-                item-value="abbr"
-                label="Ünvan"
-                return-object
-                @change="selectTarget('jobTitleId', selectedRequest.jobTitle)"
-              />
-            </v-col>
-
-            <!-- Experience -->
-            <v-col
-              cols="12"
-              md="4"
-            >
-              <v-select
-                v-model="selectedRequest.experience"
-                :items="experiences"
-                item-text="exp"
-                item-value="value"
-                label="Tecrübe Aralığı"
-                return-object
-                @change="selectTarget('experienceId', selectedRequest.experience)"
-              />
-            </v-col>
-
-            <!-- Monthly Budget -->
-            <v-col
-              cols="12"
-              md="4"
-            >
-              <v-text-field
-                color="purple"
-                disabled
-                label="Aylık Bütçe"
-                type="number"
-                :value="selectedRequest.monthlyBudget"
-              />
-            </v-col>
-
-            <!-- Starting Date -->
-            <v-col
-              cols="12"
-              md="4"
-            >
-              <v-menu
-                ref="menu1"
-                v-model="selectedRequest.menu1"
-                :close-on-content-click="false"
-                transition="scale-transition"
-                offset-y
-                max-width="290px"
-                min-width="auto"
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-text-field
-                    v-model="selectedRequest.startingDate"
-                    label="Başlangıç Tarihi"
-                    persistent-hint
-                    prepend-icon="mdi-calendar"
-                    v-bind="attrs"
-                    v-on="on"
-                  />
-                </template>
-                <v-date-picker
-                  v-model="selectedRequest.startingDate"
-                  no-title
-                  @input="menu1 = false"
-                />
-              </v-menu>
-            </v-col>
-
-            <!-- Due Date -->
-            <v-col
-              cols="12"
-              md="4"
-            >
-              <v-menu
-                ref="menu2"
-                v-model="menu2"
-                :close-on-content-click="false"
-                transition="scale-transition"
-                offset-y
-                max-width="290px"
-                min-width="auto"
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-text-field
-                    v-model="selectedRequest.endingDate"
-                    label="Bitiş Tarihi"
-                    persistent-hint
-                    prepend-icon="mdi-calendar"
-                    v-bind="attrs"
-                    v-on="on"
-                  />
-                </template>
-                <v-date-picker
-                  v-model="selectedRequest.endingDate"
-                  no-title
-                  @input="menu2 = false"
-                />
-              </v-menu>
-            </v-col>
-
-            <!-- Total Budget -->
-            <v-col
-              cols="12"
-              md="4"
-            >
-              <v-text-field
-                color="purple"
-                disabled
-                label="Toplam Bütçe"
-                type="number"
-                :value="selectedRequest.totalBudget"
-              />
-            </v-col>
-
-            <!-- Project -->
-            <v-col
-              cols="6"
-              md="4"
-              class="text-right"
-            >
-              <v-select
-                v-model="selectedRequest.project"
-                :items="projects"
-                item-text="label"
-                item-value="code"
-                label="Hedef Proje"
-                return-object
-              />
-            </v-col>
-
-            <v-col
-              cols="3"
-              md="4"
-              class="text-right"
-            >
-              <v-btn
-                @click="updateRequest"
-                color="primary"
-                width="100%"
-                x-large
-                depressed
-              >
-                Oluştur
-              </v-btn>
-            </v-col>
-            <v-col
-              cols="3"
-              md="4"
-              class="text-right"
-            >
-              <v-btn
-                @click="dialog = false"
-                color="error"
-                width="100%"
-                x-large
-                depressed
-              >
-                Vazgeç
-              </v-btn>
-            </v-col>
-          </v-row>
-        </v-container>
-      </v-form>
-    </v-dialog>
+    
   </v-card>
 </template>
 
