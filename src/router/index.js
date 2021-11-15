@@ -23,26 +23,18 @@ const router = new Router({
     layout('Default', [
       route('Dashboard'),
 
-      // Requests
+      // Unit Manager Routes
       route('unit-manager/Requests', null, '/unit-manager/requests'),
-
-      // Contracts
       route('unit-manager/Contracts', null, 'unit-manager/contracts'),
-
-      // Projects
       route('unit-manager/Projects', null, 'unit-manager/projects'),
-
-      // Consultants
       route('unit-manager/Consultants', null, 'unit-manager/consultants'),
-
-      // ActivitiesCosts
       route('unit-manager/ActivitiesCosts', null, 'unit-manager/activities-costs'),
-
-      // Bill Approvment
       route('unit-manager/Bills', null, 'unit-manager/bills'),
-
-      // Add Activity
       route('AddActivity', null, 'add-activity'),
+
+      // Supplier Routes
+      route('supplier/Requests', null, '/supplier/requests'),
+
     ]),
     layout('Login', [
       route('Login', null, 'login'),

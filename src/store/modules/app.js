@@ -11,7 +11,7 @@ const supplierItems = [
   {
     title: 'Talepler',
     icon: 'mdi-account-plus',
-    to: '/requests',
+    to: '/supplier/requests',
   },
   {
     title: 'Aktivite Ekle',

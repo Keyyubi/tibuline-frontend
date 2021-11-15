@@ -72,7 +72,7 @@
                   persistent
                   max-width="600px"
                 >
-                  <template v-slot:activator="{ on, attrs }">
+                  <template>
                     <v-btn
                       class="mx-2 white--text"
                       color="error"

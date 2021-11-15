@@ -196,11 +196,11 @@
           class="text-right"
         >
           <v-btn
-            @click="createRequest"
             color="primary"
             width="100%"
             x-large
             depressed
+            @click="createRequest"
           >
             Oluştur
           </v-btn>

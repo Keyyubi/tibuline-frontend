@@ -21,6 +21,7 @@
           width="960"
           :retain-focus="false"
         >
+          <!-- eslint-disable-next-line -->
           <template v-slot:activator="{ on, attrs }">
             <v-chip
               class="ma-2"
@@ -37,7 +38,7 @@
 
           <v-card>
             <v-card-title class="text-h5 primary white--text">
-              Talebi Güncelle
+              Talep Detayları
             </v-card-title>
 
             <v-card-text>
@@ -64,12 +65,12 @@
                       v-model="selectedRequest.supplier"
                       :items="suppliers"
                       item-text="company"
-                      item-value="abbr"
+                      item-value="id"
                       label="Tedarikçi Firma"
                       persistent-hint
                       return-object
                       single-line
-                      @change="selectTarget('supplierId', supplier)"
+                      @change="selectTarget('supplierId', selectedRequest.supplier)"
                     />
                   </v-col>
 
@@ -113,8 +114,8 @@
                     <v-select
                       v-model="selectedRequest.experience"
                       :items="experiences"
-                      item-text="exp"
-                      item-value="value"
+                      item-text="text"
+                      item-value="id"
                       label="Tecrübe Aralığı"
                       return-object
                       @change="selectTarget('experienceId', selectedRequest.experience)"
@@ -229,24 +230,40 @@
                     />
                   </v-col>
                 </v-row>
+                <v-row align="center">
+                  <v-divider class="mr-3" />Tedarikçi Bölümü<v-divider class="ml-3" />
+                </v-row>
+                <v-row class="mt-3">
+                  <v-col
+                    cols="12"
+                    sm="6"
+                    md="3"
+                  >
+                    <v-text-field
+                      v-model="selectedCandicate"
+                      label="Aday"
+                      readonly
+                    />
+                  </v-col>
+                </v-row>
               </v-container>
             </v-card-text>
 
-            <v-divider></v-divider>
+            <v-divider />
 
             <v-card-actions>
-              <v-spacer></v-spacer>
+              <v-spacer />
               <v-btn
-                @click="updateRequest"
                 color="primary"
                 depressed
+                @click="updateRequest"
               >
                 Güncelle
               </v-btn>
               <v-btn
-                @click="dialog = false"
                 color="error"
                 depressed
+                @click="dialog = false"
               >
                 Vazgeç
               </v-btn>
@@ -277,21 +294,8 @@
         requestType: 'all',
         searchWord: '',
         dialog: false,
-        selectedRequest: {
-          id: 1,
-          supplier: { supplierId: 0, title: 'Tibula' },
-          position: { id: 1, title: 'Sr. Software Developer' },
-          candicate: { id: 0, fullName: 'Murathan Karayazi' },
-          situation: { id: 0, label: 'Rezive Bekliyor' },
-          project: { code: '001', label: 'Proje 1' },
-          experince: { id: 0, exp: '2-3 Yıl', value: 0 },
-          jobTitle: { id: 2, title: 'Senior Backend Developer', abbr: 'SRB' },
-          costCenter: { id: 1, center: 'Masraf merkezi 2', abbr: 'MER1' },
-          monthlyBudget: 16.606,
-          totalBudget: '' + (Math.round((12 * 16.606) * 100) / 100),
-          startingDate: '2021-11-10',
-          endingDate: '2022-11-10',
-        },
+        selectedRequest: {},
+        selectedCandicate: '',
         headers: [
           {
             text: 'Talep No.',
@@ -306,12 +310,12 @@
         requests: [
           {
             id: 1,
-            supplier: { supplierId: 0, title: 'Tibula' },
+            supplier: { id: 0, title: 'Tibula' },
             position: { id: 1, title: 'Sr. Software Developer' },
             candicate: { id: 0, fullName: 'Murathan Karayazi' },
             situation: { id: 0, label: 'Rezive Bekliyor' },
             project: { code: '001', label: 'Proje 1' },
-            experince: { id: 0, exp: '2-3 Yıl', value: 0 },
+            experience: { id: 0, text: '2-3 Yıl' },
             jobTitle: { id: 2, title: 'Senior Backend Developer', abbr: 'SRB' },
             costCenter: { id: 1, center: 'Masraf merkezi 2', abbr: 'MER1' },
             monthlyBudget: 16.606,
@@ -321,12 +325,12 @@
           },
           {
             id: 2,
-            supplier: { supplierId: 0, title: 'Tibula' },
+            supplier: { id: 0, title: 'Tibula' },
             position: { id: 1, title: 'Sr. Software Developer' },
             candicate: { id: 1, fullName: 'Furkan Reyhanlioglu' },
             situation: { id: 0, label: 'Rezive Bekliyor' },
             project: { code: '001', label: 'Proje 1' },
-            experince: { id: 0, exp: '2-3 Yıl', value: 0 },
+            experience: { id: 0, text: '2-3 Yıl' },
             jobTitle: { id: 2, title: 'Senior Backend Developer', abbr: 'SRB' },
             costCenter: { id: 1, center: 'Masraf merkezi 2', abbr: 'MER1' },
             monthlyBudget: 16.606,
@@ -336,12 +340,12 @@
           },
           {
             id: 3,
-            supplier: { supplierId: 0, title: 'Tibula' },
+            supplier: { id: 0, title: 'Tibula' },
             position: { id: 1, title: 'Sr. Software Developer' },
             candicate: { id: 0, fullName: 'Murathan Karayazi' },
             situation: { id: 1, label: 'Sözleşme Bekliyor' },
             project: { code: '001', label: 'Proje 1' },
-            experince: { id: 0, exp: '2-3 Yıl', value: 0 },
+            experience: { id: 0, text: '2-3 Yıl' },
             jobTitle: { id: 2, title: 'Senior Backend Developer', abbr: 'SRB' },
             costCenter: { id: 1, center: 'Masraf merkezi 2', abbr: 'MER1' },
             monthlyBudget: 16.606,
@@ -367,11 +371,11 @@
           { id: 3, title: 'Junior Frontend Developer', abbr: 'JRF' },
         ],
         experiences: [
-          { id: 0, exp: '2-3 Yıl', value: 0 },
-          { id: 1, exp: '3-5 Yıl', value: 1 },
-          { id: 2, exp: '5-8 Yıl', value: 2 },
-          { id: 3, exp: '8-12 Yıl', value: 3 },
-          { id: 4, exp: '12+ Yıl', value: 4 },
+          { id: 0, text: '2-3 Yıl' },
+          { id: 1, text: '3-5 Yıl' },
+          { id: 2, text: '5-8 Yıl' },
+          { id: 3, text: '8-12 Yıl' },
+          { id: 4, text: '12+ Yıl' },
         ],
         projects: [
           { code: '001', label: 'Proje 1' },
@@ -386,13 +390,13 @@
         console.log('id', id)
       },
       showRequest (request) {
-        console.log('requ', request)
         this.selectedRequest = request
+        this.selectedCandicate = request.candicate.fullName
         this.dialog = true
       },
       selectTarget (target, obj) {
         // this.request[target] = obj.id
-        console.log('ok')
+        console.log(target, obj)
       },
       updateRequest () {
         console.log('selected', this.selectedRequest)
