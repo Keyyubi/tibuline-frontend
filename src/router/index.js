@@ -6,6 +6,7 @@ import {
   layout,
   route,
 } from '@/util/routes'
+import store from '@/store'
 
 Vue.use(Router)
 
@@ -23,32 +24,40 @@ const router = new Router({
       route('Dashboard'),
 
       // Requests
-      route('Requests', null, 'requests'),
+      route('unit-manager/Requests', null, '/unit-manager/requests'),
 
       // Contracts
-      route('Contracts', null, 'contracts'),
+      route('unit-manager/Contracts', null, 'unit-manager/contracts'),
 
       // Projects
-      route('Projects', null, 'projects'),
+      route('unit-manager/Projects', null, 'unit-manager/projects'),
 
       // Consultants
-      route('Consultants', null, 'consultants'),
+      route('unit-manager/Consultants', null, 'unit-manager/consultants'),
 
-      // Components
-      route('Notifications', null, 'components/notifications'),
-      route('Icons', null, 'components/icons'),
+      // ActivitiesCosts
+      route('unit-manager/ActivitiesCosts', null, 'unit-manager/activities-costs'),
 
-      // Tables
-      route('Regular Tables', null, 'tables/regular'),
+      // Bill Approvment
+      route('unit-manager/Bills', null, 'unit-manager/bills'),
 
-      // Maps
-      route('Google Maps', null, 'maps/google'),
+      // Add Activity
+      route('AddActivity', null, 'add-activity'),
+    ]),
+    layout('Login', [
+      route('Login', null, 'login'),
     ]),
   ],
 })
 
 router.beforeEach((to, from, next) => {
-  return to.path.endsWith('/') ? next() : next(trailingSlash(to.path))
+  const user = store.getters['user/user']
+
+  if (to.name !== 'Login' && !user.isLogged) {
+    return next({ path: 'login' })
+  } else {
+    return to.path.endsWith('/') ? next() : next(trailingSlash(to.path))
+  }
 })
 
 export default router

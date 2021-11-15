@@ -16,6 +16,11 @@ const SITUATIONS = {
   CANCELED: 10,
   FINISHED: 11,
 }
+const ROLE_IDS = {
+  ALL: 0,
+  UNIT_MANAGER: 1,
+  SUPPLIER: 2,
+}
 
 module.exports = {
   EN_LOCALE_ONLY,
@@ -23,4 +28,5 @@ module.exports = {
   IS_DEBUG,
   IS_PROD,
   SITUATIONS,
+  ROLE_IDS,
 }
