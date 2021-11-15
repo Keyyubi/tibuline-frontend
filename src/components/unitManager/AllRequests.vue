@@ -19,6 +19,7 @@
         <v-dialog
           v-model="dialog"
           width="960"
+          :retain-focus="false"
         >
           <template v-slot:activator="{ on, attrs }">
             <v-chip
@@ -61,7 +62,6 @@
                   >
                     <v-select
                       v-model="selectedRequest.supplier"
-                      :hint="`${selectedRequest.supplier.company}, ${selectedRequest.supplier.abbr}`"
                       :items="suppliers"
                       item-text="company"
                       item-value="abbr"
@@ -264,7 +264,6 @@
         </v-chip>
       </template>
     </v-data-table>
-    
   </v-card>
 </template>
 

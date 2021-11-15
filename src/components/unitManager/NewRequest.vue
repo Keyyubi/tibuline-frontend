@@ -186,6 +186,7 @@
             item-value="code"
             label="Hedef Proje"
             return-object
+            @change="selectTarget('projectId', project)"
           />
         </v-col>
 
@@ -253,6 +254,7 @@
           costCenterId: null,
           jobTitleId: null,
           experienceId: null,
+          projectId: null,
           startingDate: null,
           endingDate: null,
         },
@@ -317,7 +319,7 @@
         }
       },
       selectTarget (target, obj) {
-        this.request[target] = obj.id
+        this.request[target] = obj.id || obj.code
       },
     },
   }
