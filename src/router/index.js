@@ -30,10 +30,10 @@ const router = new Router({
       route('unit-manager/Consultants', null, 'unit-manager/consultants'),
       route('unit-manager/ActivitiesCosts', null, 'unit-manager/activities-costs'),
       route('unit-manager/Bills', null, 'unit-manager/bills'),
-      route('AddActivity', null, 'add-activity'),
 
       // Supplier Routes
       route('supplier/Requests', null, '/supplier/requests'),
+      route('supplier/AddActivity', null, '/supplier/add-activity'),
 
     ]),
     layout('Login', [

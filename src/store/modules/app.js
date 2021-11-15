@@ -16,7 +16,7 @@ const supplierItems = [
   {
     title: 'Aktivite Ekle',
     icon: 'mdi-check',
-    to: '/add-activity',
+    to: '/supplier/add-activity',
   },
 ]
 

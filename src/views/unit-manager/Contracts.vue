@@ -130,7 +130,7 @@
             orderNo: '12432240',
             supplier: { supplierId: 0, title: 'Tibula' },
             pozition: { id: 1, title: 'Sr. Software Developer' },
-            candicate: { firstName: 'Murathan', lastName: 'Karayazi' },
+            consultant: { firstName: 'Murathan', lastName: 'Karayazi' },
             situation: { id: 0, label: 'Rezive Bekliyor' },
           },
           {
@@ -138,7 +138,7 @@
             orderNo: '12432241',
             supplier: { supplierId: 0, title: 'Tibula' },
             pozition: { id: 1, title: 'Sr. Software Developer' },
-            candicate: { firstName: 'Furkan', lastName: 'Reyhanlioglu' },
+            consultant: { firstName: 'Furkan', lastName: 'Reyhanlioglu' },
             situation: { id: 0, label: 'Rezive Bekliyor' },
           },
           {
@@ -146,7 +146,7 @@
             orderNo: '12432242',
             supplier: { supplierId: 0, title: 'Tibula' },
             pozition: { id: 1, title: 'Sr. Software Developer' },
-            candicate: { firstName: 'Murathan', lastName: 'Karayazi' },
+            consultant: { firstName: 'Murathan', lastName: 'Karayazi' },
             situation: { id: 1, label: 'Sözleşme Bekliyor' },
           },
         ],

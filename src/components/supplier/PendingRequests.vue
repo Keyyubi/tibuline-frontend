@@ -286,7 +286,7 @@
 
 <script>
   export default {
-    name: 'AllRequests',
+    name: 'PendingRequests',
     data () {
       return {
         menu1: false,
