@@ -49,10 +49,10 @@
                     md="4"
                   >
                     <v-text-field
-                      disabled
+                      readonly
                       color="purple"
                       label="Birim Müdürü"
-                      value="Fatih Cigeroglu"
+                      :value="selectedManager"
                     />
                   </v-col>
 
@@ -70,7 +70,7 @@
                       persistent-hint
                       return-object
                       single-line
-                      @change="selectTarget('supplierId', selectedRequest.supplier)"
+                      disabled
                     />
                   </v-col>
 
@@ -86,7 +86,7 @@
                       item-value="abbr"
                       label="Masraf Merkezi"
                       return-object
-                      @change="selectTarget('costCenterId', selectedRequest.costCenter)"
+                      disabled
                     />
                   </v-col>
 
@@ -102,7 +102,7 @@
                       item-value="abbr"
                       label="Ünvan"
                       return-object
-                      @change="selectTarget('jobTitleId', selectedRequest.jobTitle)"
+                      disabled
                     />
                   </v-col>
 
@@ -118,7 +118,7 @@
                       item-value="id"
                       label="Tecrübe Aralığı"
                       return-object
-                      @change="selectTarget('experienceId', selectedRequest.experience)"
+                      disabled
                     />
                   </v-col>
 
@@ -158,6 +158,7 @@
                           prepend-icon="mdi-calendar"
                           v-bind="attrs"
                           v-on="on"
+                          disabled
                         />
                       </template>
                       <v-date-picker
@@ -190,6 +191,7 @@
                           prepend-icon="mdi-calendar"
                           v-bind="attrs"
                           v-on="on"
+                          disabled
                         />
                       </template>
                       <v-date-picker
@@ -226,6 +228,7 @@
                       item-text="label"
                       item-value="code"
                       label="Hedef Proje"
+                      disabled
                       return-object
                     />
                   </v-col>
@@ -234,15 +237,59 @@
                   <v-divider class="mr-3" />Tedarikçi Bölümü<v-divider class="ml-3" />
                 </v-row>
                 <v-row class="mt-3">
-                  <v-col
-                    cols="12"
-                    sm="6"
-                    md="3"
-                  >
-                    <v-text-field
-                      v-model="selectedConsultant"
+                  <v-col cols="4">
+                    <v-select
+                      v-model="selectedRequest.consultant"
+                      :items="consultants"
+                      item-text="fullName"
+                      item-value="id"
                       label="Aday"
+                      return-object
+                      disabled
+                    />
+                  </v-col>
+                  <v-col cols="4">
+                    <v-select
+                      v-model="selectedRequest.experience"
+                      :items="experiences"
+                      item-text="text"
+                      item-value="id"
+                      label="Tecrübe Aralığı"
+                      return-object
+                      disabled
+                    />
+                  </v-col>
+                  <v-col cols="4">
+                    <v-select
+                      v-model="selectedRequest.jobTitle"
+                      :items="jobTitles"
+                      item-text="title"
+                      item-value="id"
+                      label="Tecrübe Aralığı"
+                      return-object
+                      disabled
+                    />
+                  </v-col>
+                </v-row>
+                <v-row align="center">
+                  <v-divider class="mr-3" />Sözleşme Aşaması<v-divider class="ml-3" />
+                </v-row>
+                <v-row class="mt-3">
+                  <v-col cols="4">
+                    <v-text-field
+                      label="Sözleşmeyi Görüntüle"
+                      prepend-icon="mdi-eye"
                       readonly
+                      @click="showContract"
+                      @click:prepend="showContract"
+                    />
+                  </v-col>
+                  <v-col cols="4">
+                    <v-file-input
+                      v-model="selectedRequest.contractUpload"
+                      chips
+                      multiple
+                      label="İmzalı Sözleşme Yükle"
                     />
                   </v-col>
                 </v-row>
@@ -251,6 +298,7 @@
 
             <v-divider />
 
+            <!-- Card Actions -->
             <v-card-actions>
               <v-spacer />
               <v-btn
@@ -265,7 +313,7 @@
                 depressed
                 @click="dialog = false"
               >
-                Vazgeç
+                Revize İste
               </v-btn>
             </v-card-actions>
           </v-card>
@@ -295,22 +343,35 @@
         searchWord: '',
         dialog: false,
         selectedRequest: {},
-        selectedConsultant: '',
+        selectedManager: '',
+        selectedConsultant: {
+          id: 0,
+          firstName: 'John',
+          lastName: 'Doe',
+          fullName: 'John Doe',
+          birthday: '02/05/1994',
+          jobTitle: { id: 1, title: 'DevOps Uzmanı', abbr: 'DOPS' },
+          experience: { id: 1, text: '3-5 Yıl' },
+          contractUpload: null,
+        },
+        newConsultantDialog: false,
         headers: [
           {
             text: 'Talep No.',
             align: 'start',
             value: 'id',
           },
-          { text: 'Tedarikçi', value: 'supplier.title' },
+          { text: 'Birim Müdürü', value: 'unitManager.fullName' },
           { text: 'Pozisyon', value: 'position.title' },
-          { text: 'Aday', value: 'consultant.fullName' },
+          { text: 'Tecrübe Aralığı', value: 'experience.text' },
+          { text: 'Proje', value: 'project.label' },
           { text: 'Talep Durumu', value: 'situation.label' },
         ],
         requests: [
           {
             id: 1,
             supplier: { id: 0, title: 'Tibula' },
+            unitManager: { id: 1, fullName: 'Birim Müdürü 1' },
             position: { id: 1, title: 'Sr. Software Developer' },
             consultant: { id: 0, fullName: 'Murathan Karayazi' },
             situation: { id: 0, label: 'Rezive Bekliyor' },
@@ -326,6 +387,7 @@
           {
             id: 2,
             supplier: { id: 0, title: 'Tibula' },
+            unitManager: { id: 1, fullName: 'Birim Müdürü 2' },
             position: { id: 1, title: 'Sr. Software Developer' },
             consultant: { id: 1, fullName: 'Furkan Reyhanlioglu' },
             situation: { id: 0, label: 'Rezive Bekliyor' },
@@ -341,6 +403,7 @@
           {
             id: 3,
             supplier: { id: 0, title: 'Tibula' },
+            unitManager: { id: 1, fullName: 'Birim Müdürü 3' },
             position: { id: 1, title: 'Sr. Software Developer' },
             consultant: { id: 0, fullName: 'Murathan Karayazi' },
             situation: { id: 1, label: 'Sözleşme Bekliyor' },
@@ -383,6 +446,38 @@
           { code: '003', label: 'Proje 3' },
           { code: '004', label: 'Proje 4' },
         ],
+        consultants: [
+          {
+            id: 0,
+            firstName: 'John',
+            lastName: 'Doe',
+            fullName: 'John Doe',
+            birthday: '02/05/1994',
+            jobTitle: { id: 1, title: 'DevOps Uzmanı', abbr: 'DOPS' },
+            experience: { id: 1, text: '3-5 Yıl' },
+            contractUpload: null,
+          },
+          {
+            id: 2,
+            firstName: 'Jhonny',
+            lastName: 'Cash',
+            fullName: 'Jhonny Cash',
+            birthday: '04/01/1973',
+            jobTitle: { id: 2, title: 'Senior Backend Developer', abbr: 'SRB' },
+            experience: { id: 1, text: '3-5 Yıl' },
+            contractUpload: null,
+          },
+          {
+            id: 3,
+            firstName: 'Elvis',
+            lastName: 'Presley',
+            fullName: 'Elvis Presley',
+            birthday: '02/05/1940',
+            jobTitle: { id: 1, title: 'DevOps Uzmanı', abbr: 'DOPS' },
+            experience: { id: 1, text: '3-5 Yıl' },
+            contractUpload: null,
+          },
+        ],
       }
     },
     methods: {
@@ -391,7 +486,7 @@
       },
       showRequest (request) {
         this.selectedRequest = request
-        this.selectedConsultant = request.consultant.fullName
+        this.selectedManager = request.unitManager.fullName
         this.dialog = true
       },
       selectTarget (target, obj) {
@@ -400,6 +495,10 @@
       },
       updateRequest () {
         console.log('selected', this.selectedRequest)
+      },
+      showContract () {
+        console.log('ok')
+        window.open('https://via.placeholder.com/1080x1920', '_blank').focus()
       },
     },
   }
