@@ -29,32 +29,32 @@ const managerItems = [
   {
     title: 'Talepler',
     icon: 'mdi-account-plus',
-    to: '/requests',
+    to: '/unit-manager/requests',
   },
   {
     title: 'Sözleşmeler',
     icon: 'mdi-file-document',
-    to: '/contracts',
+    to: '/unit-manager/contracts',
   },
   {
     title: 'Projeler',
     icon: 'mdi-folder-table-outline',
-    to: '/projects',
+    to: '/unit-manager/projects',
   },
   {
     title: 'Danışmanlar',
     icon: 'mdi-account-group',
-    to: '/consultants',
+    to: '/unit-manager/consultants',
   },
   {
     title: 'Aktiviteler ve Masraflar',
     icon: 'mdi-file-document-multiple',
-    to: '/activities-costs/',
+    to: '/unit-manager/activities-costs/',
   },
   {
     title: 'Fatura Onayı',
     icon: 'mdi-check-decagram',
-    to: '/bills/',
+    to: '/unit-manager/bills/',
   },
 ]
 

@@ -24,22 +24,22 @@ const router = new Router({
       route('Dashboard'),
 
       // Requests
-      route('Requests', null, 'requests'),
+      route('unit-manager/Requests', null, '/unit-manager/requests'),
 
       // Contracts
-      route('Contracts', null, 'contracts'),
+      route('unit-manager/Contracts', null, 'unit-manager/contracts'),
 
       // Projects
-      route('Projects', null, 'projects'),
+      route('unit-manager/Projects', null, 'unit-manager/projects'),
 
       // Consultants
-      route('Consultants', null, 'consultants'),
+      route('unit-manager/Consultants', null, 'unit-manager/consultants'),
 
       // ActivitiesCosts
-      route('ActivitiesCosts', null, 'activities-costs'),
+      route('unit-manager/ActivitiesCosts', null, 'unit-manager/activities-costs'),
 
       // Bill Approvment
-      route('Bills', null, 'bills'),
+      route('unit-manager/Bills', null, 'unit-manager/bills'),
 
       // Add Activity
       route('AddActivity', null, 'add-activity'),
