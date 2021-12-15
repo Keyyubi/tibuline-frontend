@@ -157,8 +157,8 @@
                           persistent-hint
                           prepend-icon="mdi-calendar"
                           v-bind="attrs"
-                          v-on="on"
                           disabled
+                          v-on="on"
                         />
                       </template>
                       <v-date-picker
@@ -190,8 +190,8 @@
                           persistent-hint
                           prepend-icon="mdi-calendar"
                           v-bind="attrs"
-                          v-on="on"
                           disabled
+                          v-on="on"
                         />
                       </template>
                       <v-date-picker
@@ -327,7 +327,7 @@
           Yeni aday oluşturma formu eklenecek
         </v-card-text>
         <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn
             color="green darken-1"
             text

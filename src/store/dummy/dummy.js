@@ -37,8 +37,8 @@ export const users = [
     firstName: 'Test',
     lastName: 'User',
     email: 'a@a.com',
-    password: '12341234',
-    roleId: 1,
+    password: 'Aa.12345',
+    roleId: 0,
     isLogged: false,
   },
 ]

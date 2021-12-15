@@ -74,7 +74,6 @@
         const val = this.$refs.form.validate()
         if (val) {
           this.$store.dispatch('user/login', this.user)
-          this.$router.replace({ path: '/' })
         }
       },
     },

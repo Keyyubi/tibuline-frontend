@@ -157,8 +157,8 @@
                           persistent-hint
                           prepend-icon="mdi-calendar"
                           v-bind="attrs"
-                          v-on="on"
                           disabled
+                          v-on="on"
                         />
                       </template>
                       <v-date-picker
@@ -190,8 +190,8 @@
                           persistent-hint
                           prepend-icon="mdi-calendar"
                           v-bind="attrs"
-                          v-on="on"
                           disabled
+                          v-on="on"
                         />
                       </template>
                       <v-date-picker

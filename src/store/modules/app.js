@@ -82,6 +82,7 @@ const actions = {
         context.commit('items', managerItems)
         break
       default:
+        context.commit('items', supplierItems)
         break
     }
   },
