@@ -1,7 +1,8 @@
 // Utilities
 import { make } from 'vuex-pathify'
+import axios from 'axios'
 // Globals
-import { IN_BROWSER } from '@/util/globals'
+import { IN_BROWSER, postData, getData } from '@/util/globals'
 // import { use } from 'vue/types/umd'
 
 // dummy data
@@ -51,6 +52,30 @@ const actions = {
     localStorage.setItem('vuetify@user', JSON.stringify(state))
   },
   login: (context, user) => {
+    let jwt = ''
+    // const tokenn = 'eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6ImNkYzBhY2FiLWYyOWMtNDRiYi1iN2NlLWQwZWFiYTdjYTM1MSIsImVtYWlsIjoiYUBhLmNvbSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJhZG1pbiIsImp0aSI6IjM2MmE0MDA5LWYyMmYtNDFhZi1hZDYzLTNjZTczNTQ1ODA4MyIsImF1ZCI6Ind3dy5hdXRoc2VydmVyLmNvbSIsIm5iZiI6MTYzOTU3OTc0NiwiZXhwIjoxNjM5NTgwMDQ2LCJpc3MiOiJ3d3cuYXV0aHNlcnZlci5jb20ifQ.0yxyiwKb216ZetA38j0bdGX74q5T2RMRXZ9A-YhEPYo'
+
+    // getData('http://37.9.203.118:4647/api/User', tokenn)
+
+    postData('http://37.9.203.118:4647/api/Auth/CreateToken', { email: user.email, password: user.password })
+    .then(res => {
+      jwt = res.data.accessToken
+      console.log('data', jwt) // JSON data parsed by `data.json()` call
+    })
+
+    axios.get('http://37.9.203.118:4647/api/User', {
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+        'Content-type': 'application/json',
+      },
+    })
+    .then((res) => {
+      console.log(res.data)
+    })
+    .catch((error) => {
+      console.error(error)
+    })
+
     const checkUser = users.find(e => e.email === user.email && e.password === user.password)
 
     context.dispatch('app/updateItems', checkUser.roleId, { root: true })
