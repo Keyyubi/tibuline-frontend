@@ -48,9 +48,17 @@
             width="100%"
             color="success"
             class="mr-4"
+            :disabled="isLoading"
+            depressed
             @click="validate"
           >
-            Giriş Yap
+            <v-progress-circular
+              v-if="isLoading"
+              width="3"
+              color="success"
+              indeterminate
+            />
+            {{ isLoading ? '' : 'Giriş Yap' }}
           </v-btn>
         </v-form>
       </v-sheet>
@@ -59,6 +67,7 @@
 </template>
 
 <script>
+  import { get } from 'vuex-pathify'
   export default {
     data: () => ({
       valid: true,
@@ -76,7 +85,9 @@
       ],
       rememberMe: false,
     }),
-
+    computed: {
+      ...get('app', ['isLoading']),
+    },
     methods: {
       validate () {
         const val = this.$refs.form.validate()

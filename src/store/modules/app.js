@@ -63,6 +63,11 @@ const state = {
   drawer: null,
   drawerImage: true,
   mini: false,
+  isLoading: false,
+  errorSnack: false,
+  successSnack: false,
+  warningSnack: false,
+  snackMessage: 'asdasd',
   items: [],
 }
 

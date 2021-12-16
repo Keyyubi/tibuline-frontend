@@ -3,6 +3,7 @@ import { make } from 'vuex-pathify'
 import axios from 'axios'
 // Globals
 import { IN_BROWSER } from '@/util/globals'
+import store from '@/store/index'
 
 // Router
 import router from '../../router'
@@ -52,6 +53,7 @@ const actions = {
     localStorage.setItem('vuetify@user', JSON.stringify(state))
   },
   login: (context, user) => {
+    store.set('app/isLoading', true)
     axios.post('http://37.9.203.118:4647/api/Auth/CreateToken', { email: user.email, password: user.password })
     .then(({ data: res }) => res.data.accessToken) //! response should be res.data. Currently it comes like res.data.data !!!
     .then(token => {
@@ -76,6 +78,9 @@ const actions = {
       context.commit('user', {})
       console.error('Error on login', error)
     })
+    .finally(() => setTimeout(() => {
+        store.set('app/isLoading', false)
+      }, 1500))
   },
   logout: ({ commit }) => {
     commit('user', {})
