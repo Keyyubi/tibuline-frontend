@@ -87,9 +87,9 @@
                 width="100%"
               >
                 <v-calendar
-                  style="border-left:none"
                   ref="calendar"
                   v-model="focus"
+                  style="border-left:none"
                   color="primary"
                   :events="events"
                   :event-color="getEventColor"

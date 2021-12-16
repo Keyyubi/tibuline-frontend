@@ -4,14 +4,13 @@
     v-model="drawer"
     :dark="dark"
     :right="$vuetify.rtl"
-    :src="drawerImage ? image : ''"
+    src="~@/assets/lock.jpg"
     :mini-variant.sync="mini"
     mini-variant-width="80"
     app
     width="260"
   >
     <template
-      v-if="drawerImage"
       #img="props"
     >
       <v-img

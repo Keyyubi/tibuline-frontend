@@ -9,5 +9,8 @@
 <script>
   export default {
     name: 'DefaultView',
+    mounted () {
+      this.$store.dispatch('user/update')
+    },
   }
 </script>

@@ -11,7 +11,7 @@ const state = {
   user: {},
   dark: false,
   drawer: {
-    image: 0,
+    image: 1,
     gradient: 0,
     mini: false,
   },
@@ -21,6 +21,7 @@ const state = {
     'rgba(244, 67, 54, .8), rgba(244, 67, 54, .8)',
   ],
   images: [
+    '../../assets/lock.jpg',
     'https://demos.creative-tim.com/material-dashboard-pro/assets/img/sidebar-1.jpg',
     'https://demos.creative-tim.com/material-dashboard-pro/assets/img/sidebar-2.jpg',
     'https://demos.creative-tim.com/material-dashboard-pro/assets/img/sidebar-3.jpg',

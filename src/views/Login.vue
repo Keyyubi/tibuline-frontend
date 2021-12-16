@@ -1,8 +1,16 @@
 <template>
   <v-container
-    class="center fill-height"
+    class="center fill-height login"
     fluid
   >
+    <div class="imge">
+      <v-img
+        width="80"
+        height="40"
+        contain
+        src="~@/assets/logo.png"
+      />
+    </div>
     <v-row>
       <v-sheet
         rounded
@@ -80,4 +88,19 @@
   }
 </script>
 
-<style></style>
+<style lang="scss" scoped>
+.login {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-image: url('~@/assets/lock.jpg');
+  background-size: cover;
+  overflow: hidden;
+}
+.imge {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+}
+</style>
