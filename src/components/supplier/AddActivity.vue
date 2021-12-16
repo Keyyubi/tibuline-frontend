@@ -28,6 +28,7 @@
             <v-stepper-content
               step="1"
               class="mx-0"
+              style="border-left: none"
             >
               <v-autocomplete
                 v-model="selectedConsultant"
@@ -86,6 +87,7 @@
                 width="100%"
               >
                 <v-calendar
+                  style="border-left:none"
                   ref="calendar"
                   v-model="focus"
                   color="primary"
