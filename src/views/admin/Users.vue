@@ -48,17 +48,7 @@
         >
           <v-container class="py-3">
             <v-row>
-              <v-col
-                cols="12"
-                md="4"
-              >
-                <v-text-field
-                  v-model="newUser.username"
-                  label="Kullanıcı Adı"
-                  :rules="[v => !!v || 'Kullanıcı adı boş geçilemez',]"
-                  required
-                />
-              </v-col>
+              <!-- Email -->
               <v-col
                 cols="12"
                 md="4"
@@ -70,6 +60,8 @@
                   required
                 />
               </v-col>
+
+              <!-- Password -->
               <v-col
                 cols="12"
                 md="4"
@@ -85,28 +77,6 @@
                   @click:append="() => (showPwd = !showPwd)"
                 />
               </v-col>
-              <v-col
-                cols="12"
-                md="4"
-              >
-                <v-text-field
-                  v-model="newUser.firstName"
-                  label="Adı"
-                  :rules="[v => !!v || 'Ad boş geçilemez',]"
-                  required
-                />
-              </v-col>
-              <v-col
-                cols="12"
-                md="4"
-              >
-                <v-text-field
-                  v-model="newUser.lastName"
-                  label="Soyadı"
-                  :rules="[v => !!v || 'Soyad boş geçilemez',]"
-                  required
-                />
-              </v-col>
 
               <!-- Role -->
               <v-col
@@ -115,6 +85,7 @@
               >
                 <v-radio-group
                   v-model="newUser.roleId"
+                  messages="Kullanıcı Rolü"
                   row
                   :rules="[v => !!v || 'Rol seçmelisiniz']"
                   required
@@ -128,6 +99,32 @@
                     :value="roles.SUPPLIER"
                   />
                 </v-radio-group>
+              </v-col>
+
+              <!-- Firstname -->
+              <v-col
+                cols="12"
+                md="4"
+              >
+                <v-text-field
+                  v-model="newUser.firstName"
+                  label="Adı"
+                  :rules="[v => !!v || 'Ad boş geçilemez',]"
+                  required
+                />
+              </v-col>
+
+              <!-- Lastname -->
+              <v-col
+                cols="12"
+                md="4"
+              >
+                <v-text-field
+                  v-model="newUser.lastName"
+                  label="Soyadı"
+                  :rules="[v => !!v || 'Soyad boş geçilemez',]"
+                  required
+                />
               </v-col>
               <v-col cols="6">
                 <v-btn
@@ -157,10 +154,10 @@
             <v-row justify="center">
               <v-alert
                 v-if="responseMsg.length > 0"
-                :color="isError ? 'error' : 'success'"
+                :color="isErrorMsg ? 'error' : 'success'"
                 dark
                 border="top"
-                :icon="isError ? 'mdi-alert' : 'mdi-check-circle'"
+                :icon="isErrorMsg ? 'mdi-alert' : 'mdi-check-circle'"
                 transition="scale-transition"
               >
                 {{ responseMsg }}
@@ -194,11 +191,10 @@
             'Şifre en az 8 karakter olup, büyük harf, küçük harf, rakam ve özel karakter içermelidir!',
         ],
         newUser: {
-          username: '',
           email: '',
           password: '',
-          firstName: '',
-          lastName: '',
+          firstname: '',
+          lastname: '',
           roleId: null,
         },
         roles: { ...ROLE_IDS },
@@ -206,7 +202,7 @@
     },
     computed: {
       ...get('user', ['user']),
-      ...get('admin', ['responseMsg', 'isError']),
+      ...get('app', ['responseMsg', 'isErrorMsg']),
     },
     methods: {
       reset () {

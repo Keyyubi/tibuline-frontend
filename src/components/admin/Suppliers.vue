@@ -15,7 +15,7 @@
       :items="requests"
       :search="searchWord"
     >
-      <template v-slot:item.id="{ item }">
+      <template v-slot:item.username="{ item }">
         <v-dialog
           v-model="dialog"
           width="960"
@@ -29,7 +29,7 @@
               dark
               @click="showRequest(item)"
             >
-              <b>{{ item.id }}</b>
+              <b>{{ item.username }}</b>
               <v-icon right>
                 mdi-arrow-right-bold
               </v-icon>
@@ -50,9 +50,8 @@
                   >
                     <v-text-field
                       disabled
-                      color="purple"
-                      label="Birim Müdürü"
-                      value="Fatih Cigeroglu"
+                      label="Adı"
+                      :value="item.firstName"
                     />
                   </v-col>
 
@@ -298,90 +297,33 @@
         selectedConsultant: '',
         headers: [
           {
-            text: 'Talep No.',
+            text: 'Kullanıcı Adı',
             align: 'start',
-            value: 'id',
+            value: 'username',
           },
-          { text: 'Tedarikçi', value: 'supplier.title' },
-          { text: 'Pozisyon', value: 'position.title' },
-          { text: 'Aday', value: 'consultant.fullName' },
-          { text: 'Talep Durumu', value: 'situation.label' },
+          { text: 'Adı', value: 'firstName' },
+          { text: 'Soyadı', value: 'lastName' },
+          { text: 'Email', value: 'email' },
         ],
         requests: [
           {
-            id: 1,
-            supplier: { id: 0, title: 'Tibula' },
-            position: { id: 1, title: 'Sr. Software Developer' },
-            consultant: { id: 0, fullName: 'Murathan Karayazi' },
-            situation: { id: 0, label: 'Rezive Bekliyor' },
-            project: { code: '001', label: 'Proje 1' },
-            experience: { id: 0, text: '2-3 Yıl' },
-            jobTitle: { id: 2, title: 'Senior Backend Developer', abbr: 'SRB' },
-            costCenter: { id: 1, center: 'Masraf merkezi 2', abbr: 'MER1' },
-            monthlyBudget: 16.606,
-            totalBudget: '' + (Math.round((12 * 16.606) * 100) / 100),
-            startingDate: '2021-11-10',
-            endingDate: '2022-11-10',
+            username: 'User Name',
+            firstName: 'Murathan',
+            lastName: 'Karayazi',
+            email: 'email@test.com',
           },
           {
-            id: 2,
-            supplier: { id: 0, title: 'Tibula' },
-            position: { id: 1, title: 'Sr. Software Developer' },
-            consultant: { id: 1, fullName: 'Furkan Reyhanlioglu' },
-            situation: { id: 0, label: 'Rezive Bekliyor' },
-            project: { code: '001', label: 'Proje 1' },
-            experience: { id: 0, text: '2-3 Yıl' },
-            jobTitle: { id: 2, title: 'Senior Backend Developer', abbr: 'SRB' },
-            costCenter: { id: 1, center: 'Masraf merkezi 2', abbr: 'MER1' },
-            monthlyBudget: 16.606,
-            totalBudget: '' + (Math.round((12 * 16.606) * 100) / 100),
-            startingDate: '2021-11-10',
-            endingDate: '2022-11-10',
+            username: 'User Name',
+            firstName: 'Furkan',
+            lastName: 'Reyhanlioglu',
+            email: 'email@test.com',
           },
           {
-            id: 3,
-            supplier: { id: 0, title: 'Tibula' },
-            position: { id: 1, title: 'Sr. Software Developer' },
-            consultant: { id: 0, fullName: 'Murathan Karayazi' },
-            situation: { id: 1, label: 'Sözleşme Bekliyor' },
-            project: { code: '001', label: 'Proje 1' },
-            experience: { id: 0, text: '2-3 Yıl' },
-            jobTitle: { id: 2, title: 'Senior Backend Developer', abbr: 'SRB' },
-            costCenter: { id: 1, center: 'Masraf merkezi 2', abbr: 'MER1' },
-            monthlyBudget: 16.606,
-            totalBudget: '' + (Math.round((12 * 16.606) * 100) / 100),
-            startingDate: '2021-11-10',
-            endingDate: '2022-11-10',
+            username: 'User Name',
+            firstName: 'Murathan',
+            lastName: 'Karayazi',
+            email: 'email@test.com',
           },
-        ],
-        suppliers: [
-          { id: 0, company: 'Tibula', abbr: 'TBL' },
-          { id: 1, company: 'Mirsis', abbr: 'MRS' },
-          { id: 2, company: 'Netas', abbr: 'NE' },
-        ],
-        costCenters: [
-          { id: 0, center: 'POS ve Üye işyerleri', abbr: 'POS' },
-          { id: 1, center: 'Masraf merkezi 2', abbr: 'MER1' },
-          { id: 2, center: 'Masraf merkezi 3', abbr: 'MER2' },
-        ],
-        jobTitles: [
-          { id: 0, title: 'İş Analisti', abbr: 'BSA' },
-          { id: 1, title: 'DevOps Uzmanı', abbr: 'DOPS' },
-          { id: 2, title: 'Senior Backend Developer', abbr: 'SRB' },
-          { id: 3, title: 'Junior Frontend Developer', abbr: 'JRF' },
-        ],
-        experiences: [
-          { id: 0, text: '2-3 Yıl' },
-          { id: 1, text: '3-5 Yıl' },
-          { id: 2, text: '5-8 Yıl' },
-          { id: 3, text: '8-12 Yıl' },
-          { id: 4, text: '12+ Yıl' },
-        ],
-        projects: [
-          { code: '001', label: 'Proje 1' },
-          { code: '002', label: 'Proje 2' },
-          { code: '003', label: 'Proje 3' },
-          { code: '004', label: 'Proje 4' },
         ],
       }
     },

@@ -98,6 +98,8 @@ const state = {
   mini: false,
   isLoading: false,
   items: [],
+  responseMsg: '',
+  isErrorMsg: false,
 }
 
 const mutations = make.mutations(state)

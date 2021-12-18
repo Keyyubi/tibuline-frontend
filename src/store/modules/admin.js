@@ -5,8 +5,12 @@ import store from '../index'
 
 // Data
 const state = {
-  responseMsg: '',
-  isError: false,
+  unitManagers: [],
+  suppliers: [],
+  costCenters: [],
+  projects: [],
+  jobTitles: [],
+  budgetPlans: [],
 }
 
 const mutations = make.mutations(state)
@@ -18,20 +22,59 @@ const actions = {
 
     axios.post(CreateURL('User'), payload)
       .then(res => {
-        console.log('res', res)
-        store.set('admin/isError', false)
-        store.set('admin/responseMsg', 'Kullanıcı başarıyla oluşturuldu.')
+        store.set('app/isErrorMsg', false)
+        store.set('app/responseMsg', 'Kullanıcı başarıyla oluşturuldu.')
       })
       .catch(({ response }) => {
         const { errors } = response.data.error
         const msg = errors.join(' ')
-        store.set('admin/isError', true)
-        store.set('admin/responseMsg', msg)
+        store.set('app/isErrorMsg', true)
+        store.set('app/responseMsg', msg)
       })
       .finally(() => {
         store.set('app/isLoading', false)
         setTimeout(() => {
-          store.set('admin/responseMsg', '')
+          store.set('app/responseMsg', '')
+        }, 2000)
+      })
+  },
+  getUnitManagers: () => {
+    store.set('app/isLoading', true)
+
+    axios.get(CreateURL('User/UnitManagers'))
+      .then(({ data: res }) => {
+        store.set('admin/unitManagers', res.data)
+      })
+      .catch(({ response }) => {
+        const { errors } = response.data.error
+        const msg = errors.join(' ')
+        store.set('app/isErrorMsg', true)
+        store.set('app/responseMsg', msg)
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+        setTimeout(() => {
+          store.set('app/responseMsg', '')
+        }, 2000)
+      })
+  },
+  getSuppliers: () => {
+    store.set('app/isLoading', true)
+
+    axios.get(CreateURL('User/Suppliers'))
+      .then(({ data: res }) => {
+        store.set('admin/unitManagers', res.data)
+      })
+      .catch(({ response }) => {
+        const { errors } = response.data.error
+        const msg = errors.join(' ')
+        store.set('app/isErrorMsg', true)
+        store.set('app/responseMsg', msg)
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+        setTimeout(() => {
+          store.set('app/responseMsg', '')
         }, 2000)
       })
   },
