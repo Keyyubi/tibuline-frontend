@@ -54,33 +54,54 @@ const actions = {
   },
   login: (context, user) => {
     store.set('app/isLoading', true)
-    axios.post(CreateURL('/Auth/CreateToken'), { email: user.email, password: user.password })
-    .then(({ data: res }) => res.data.accessToken) //! response should be res.data. Currently it comes like res.data.data !!!
-    .then(token => {
-      axios.get(CreateURL('/User'), {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-type': 'application/json',
-        },
-      })
-      .then(({ data: res }) => {
-        const currUser = {
-          ...res.data,
-          isLogged: true,
-          token,
-        }
-        context.commit('user', currUser)
-        context.dispatch('app/updateItems', currUser.roleId, { root: true })
-        router.push('/')
-      })
-    })
-    .catch((error) => {
-      context.commit('user', {})
-      console.error('Error on login', error)
-    })
-    .finally(() => setTimeout(() => {
-        store.set('app/isLoading', false)
-      }, 1500))
+
+    const devUser = {
+      email: 'admin@tibula.com',
+      firstName: 'Admin',
+      id: '387186b7-c953-4e3c-a2a4-b578d66e37aa',
+      isLogged: 'ru',
+      lastName: 'Tibuline',
+      roleId: 0,
+      token: 'eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjM4NzE4NmI3LWM5NTMtNGUzYy1hMmE0LWI1NzhkNjZlMzdhYSIsImVtYWlsIjoiYWRtaW5AdGlidWxhLmNvbSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJzdXBlcnVzZXIiLCJqdGkiOiJiNzI1ODg1Ni1jOGZmLTQ1MDQtOWQyNS05NzFjMjI1NTQ1OWEiLCJhdWQiOiJ3d3cuYXV0aHNlcnZlci5jb20iLCJuYmYiOjE2Mzk4NDEwMDMsImV4cCI6MTYzOTg0MTMwMywiaXNzIjoid3d3LmF1dGhzZXJ2ZXIuY29tIn0.L7xKsToZpFY-fBc6FAXs8JOp7zWZDekdKXH35ZAdFjg',
+      userName: 'superuser',
+    }
+    // axios.post(CreateURL('/Auth/CreateToken'), { email: user.email, password: user.password })
+    // .then(({ data: res }) => res.data.accessToken) //! response should be res.data. Currently it comes like res.data.data !!!
+    // .then(token => {
+    //   axios.get(CreateURL('/User'), {
+    //     headers: {
+    //       Authorization: `Bearer ${token}`,
+    //       'Content-type': 'application/json',
+    //     },
+    //   })
+    //   .then(({ data: res }) => {
+    //     const currUser = {
+    //       ...res.data,
+    //       isLogged: true,
+    //       token,
+    //     }
+    //     context.commit('user', currUser)
+    //     context.dispatch('app/updateItems', currUser.roleId, { root: true })
+    //     router.push('/')
+    //   })
+    // })
+    // .catch((error) => {
+    //   context.commit('user', {})
+    //   console.error('Error on login', error)
+    // })
+    // .finally(() => setTimeout(() => {
+    //     store.set('app/isLoading', false)
+    //   }, 1500))
+
+    //* ONYL FOR USE IN DEVELOPMENT
+    context.commit('user', devUser)
+    context.dispatch('app/updateItems', devUser.roleId, { root: true })
+    router.push('/')
+
+    setTimeout(() => {
+      store.set('app/isLoading', false)
+    }, 500)
+    //* END OF DEVELOPMENT USAGE */
   },
   logout: ({ commit }) => {
     commit('user', {})

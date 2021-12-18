@@ -70,11 +70,6 @@ const adminItems = [
     to: '/admin/users',
   },
   {
-    title: 'Tedarikçiler',
-    icon: 'mdi-account-multiple-plus-outline',
-    to: '/admin/suppliers',
-  },
-  {
     title: 'Masraf Merkezleri',
     icon: 'mdi-bank',
     to: '/admin/cost-centers',

@@ -31,11 +31,13 @@
 
           <v-text-field
             v-model="user.password"
+            :append-icon="!showPwd ? 'mdi-eye' : 'mdi-eye-off'"
+            :type="!showPwd ? 'password' : 'text'"
             :rules="passwordRules"
             counter
             label="Şifre"
             required
-            type="password"
+            @click:append="() => (showPwd = !showPwd)"
           />
 
           <v-checkbox
@@ -71,6 +73,7 @@
   export default {
     data: () => ({
       valid: true,
+      showPwd: false,
       user: {
         email: '',
         password: '',
