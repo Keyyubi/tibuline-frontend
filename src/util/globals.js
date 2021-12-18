@@ -2,6 +2,7 @@ const EN_LOCALE_ONLY = process.env.EN_LOCALE_ONLY === 'true'
 const IN_BROWSER = typeof window !== 'undefined'
 const IS_DEBUG = process.env.DEBUG === 'true'
 const IS_PROD = process.env.NODE_ENV === 'production'
+const BASE_URL = 'http://37.9.203.118:4647/api'
 const SITUATIONS = {
   APPROVED: 0,
   DENIED: 1,
@@ -17,10 +18,11 @@ const SITUATIONS = {
   FINISHED: 11,
 }
 const ROLE_IDS = {
-  ALL: 0,
+  ADMIN: 0,
   UNIT_MANAGER: 1,
   SUPPLIER: 2,
 }
+const CreateURL = (endpoint = '') => BASE_URL + (endpoint.startsWith('/') ? endpoint : '/' + endpoint)
 
 module.exports = {
   EN_LOCALE_ONLY,
@@ -29,4 +31,5 @@ module.exports = {
   IS_PROD,
   SITUATIONS,
   ROLE_IDS,
+  CreateURL,
 }

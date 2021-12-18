@@ -2,7 +2,7 @@
 import { make } from 'vuex-pathify'
 import axios from 'axios'
 // Globals
-import { IN_BROWSER } from '@/util/globals'
+import { IN_BROWSER, CreateURL } from '@/util/globals'
 import store from '@/store/index'
 
 // Router
@@ -54,10 +54,10 @@ const actions = {
   },
   login: (context, user) => {
     store.set('app/isLoading', true)
-    axios.post('http://37.9.203.118:4647/api/Auth/CreateToken', { email: user.email, password: user.password })
+    axios.post(CreateURL('/Auth/CreateToken'), { email: user.email, password: user.password })
     .then(({ data: res }) => res.data.accessToken) //! response should be res.data. Currently it comes like res.data.data !!!
     .then(token => {
-      axios.get('http://37.9.203.118:4647/api/User', {
+      axios.get(CreateURL('/User'), {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-type': 'application/json',

@@ -35,6 +35,14 @@ const router = new Router({
       route('supplier/Requests', null, '/supplier/requests'),
       route('supplier/AddActivity', null, '/supplier/add-activity'),
 
+       // Admin Routes
+       route('admin/Users', null, '/admin/users'),
+       route('admin/Suppliers', null, 'admin/suppliers'),
+       route('admin/CostCenters', null, 'admin/cost-centers'),
+       route('admin/JobTitles', null, 'admin/job-titles'),
+       route('admin/ExperienceSpans', null, 'admin/experience-spans'),
+       route('admin/Budgets', null, 'admin/budgets'),
+
     ]),
     layout('Login', [
       route('Login', null, 'login'),

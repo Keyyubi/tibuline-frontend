@@ -58,6 +58,44 @@ const managerItems = [
   },
 ]
 
+const adminItems = [
+  {
+    title: 'Dashboard',
+    icon: 'mdi-view-dashboard',
+    to: '/',
+  },
+  {
+    title: 'Kullanıcılar',
+    icon: 'mdi-account',
+    to: '/admin/users',
+  },
+  {
+    title: 'Tedarikçiler',
+    icon: 'mdi-account-multiple-plus-outline',
+    to: '/admin/suppliers',
+  },
+  {
+    title: 'Masraf Merkezleri',
+    icon: 'mdi-bank',
+    to: '/admin/cost-centers',
+  },
+  {
+    title: 'Ünvanlar',
+    icon: 'mdi-subtitles',
+    to: '/admin/job-titles',
+  },
+  {
+    title: 'Tecrübe Aralıkları',
+    icon: 'mdi-social-distance-6-feet',
+    to: '/admin/experience-spans/',
+  },
+  {
+    title: 'Bütçeler',
+    icon: 'mdi-currency-usd',
+    to: '/admin/budgets/',
+  },
+]
+
 // Data
 const state = {
   drawer: null,
@@ -81,6 +119,9 @@ const actions = {
         break
       case ROLE_IDS.UNIT_MANAGER:
         context.commit('items', managerItems)
+        break
+      case ROLE_IDS.ADMIN:
+        context.commit('items', adminItems)
         break
       default:
         context.commit('items', supplierItems)
