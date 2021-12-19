@@ -48,6 +48,19 @@
         >
           <v-container class="py-3">
             <v-row>
+              <!-- Username -->
+              <v-col
+                cols="12"
+                md="4"
+              >
+                <v-text-field
+                  v-model="newUser.username"
+                  label="Kullanıcı Adı"
+                  :rules="[v => !!v || 'Kullanıcı adı boş geçilemez',]"
+                  required
+                />
+              </v-col>
+
               <!-- Email -->
               <v-col
                 cols="12"
@@ -83,22 +96,15 @@
                 cols="12"
                 md="4"
               >
-                <v-radio-group
+                <v-select
                   v-model="newUser.roleId"
-                  messages="Kullanıcı Rolü"
-                  row
-                  :rules="[v => !!v || 'Rol seçmelisiniz']"
+                  :items="roles"
+                  item-text="label"
+                  item-value="value"
+                  label="Kullanıcı Rolü"
+                  :rules="[v => (!!v || v === 0) || 'Rol seçmelisiniz']"
                   required
-                >
-                  <v-radio
-                    label="Birim Müdürü"
-                    :value="roles.UNIT_MANAGER"
-                  />
-                  <v-radio
-                    label="Tedarikçi"
-                    :value="roles.SUPPLIER"
-                  />
-                </v-radio-group>
+                />
               </v-col>
 
               <!-- Firstname -->
@@ -126,6 +132,55 @@
                   required
                 />
               </v-col>
+
+              <!-- Phone -->
+              <v-col
+                cols="12"
+                md="4"
+              >
+                <v-text-field
+                  v-model="newUser.phone"
+                  v-mask="'(###) ### ####'"
+                  label="Cep Telefonu"
+                  append-icon="mdi-close"
+                  prepend-icon="mdi-phone"
+                  :rules="phoneRules"
+                  required
+                  @click:append="newUser.phone = ''"
+                />
+              </v-col>
+
+              <!-- TCKN -->
+              <v-col
+                cols="12"
+                md="4"
+              >
+                <v-text-field
+                  v-model="newUser.TCKN"
+                  v-mask="'###########'"
+                  label="TCKN"
+                  :rules="tcnoRules"
+                  required
+                />
+              </v-col>
+
+              <!-- Company -->
+              <v-col
+                cols="12"
+                md="4"
+              >
+                <v-select
+                  v-model="newUser.companyId"
+                  :items="companies"
+                  item-text="label"
+                  item-value="value"
+                  label="Şirket"
+                  :rules="[v => (!!v || v === 0) || 'Şirket seçmelisiniz']"
+                  required
+                />
+              </v-col>
+
+              <!-- Actions -->
               <v-col cols="6">
                 <v-btn
                   color="warning"
@@ -151,6 +206,8 @@
                 </v-btn>
               </v-col>
             </v-row>
+
+            <!-- Alert Message -->
             <v-row justify="center">
               <v-alert
                 v-if="responseMsg.length > 0"
@@ -172,7 +229,6 @@
 
 <script>
   import { get } from 'vuex-pathify'
-  import { ROLE_IDS } from '@/util/globals'
   export default {
     name: 'Users',
     data () {
@@ -190,14 +246,46 @@
             /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\\$%\\^&\\*\\+\\.])(?=.{8,})/.test(v) ||
             'Şifre en az 8 karakter olup, büyük harf, küçük harf, rakam ve özel karakter içermelidir!',
         ],
+        phoneRules: [
+          v => !!v || 'Telefon numarası girmelisiniz',
+          v => (v && v.length === 14) || 'Lütfen başında 0 olmadan 10 haneli olarak giriniz.',
+          v => /^(\(5.)/.test(v) || 'Telefon numarası 5 ile başlamalıdır.',
+        ],
+        tcnoRules: [
+          v => !!v || 'T.C. Kimlik Numarası giriniz.',
+          v => (v && v.length === 11) || 'Kimlik numarası 11 haneli olmalıdır.',
+          v => (() => {
+            const arr = Array.from(v)
+            let res = 0
+            for (let i = 0; i < arr.length - 1; i++) {
+              res += Number(arr[i])
+            }
+            return (res % 10) === Number(arr[arr.length - 1])
+          })() || 'Kimlik numarası geçersiz.',
+        ],
         newUser: {
+          username: '',
           email: '',
           password: '',
+          TCKN: '',
+          phone: '',
           firstname: '',
           lastname: '',
           roleId: null,
+          companyId: null,
         },
-        roles: { ...ROLE_IDS },
+        roles: [
+          { label: 'Tam yetkili', value: 99 },
+          { label: 'Sistem yöneticisi', value: 0 },
+          { label: 'Birim Müdürü', value: 1 },
+          { label: 'Tedarikçi', value: 2 },
+        ],
+        companies: [
+          { label: 'Tibula', value: 99 },
+          { label: 'Garanti', value: 0 },
+          { label: 'Akbank', value: 1 },
+          { label: 'Mafre', value: 2 },
+        ],
       }
     },
     computed: {
