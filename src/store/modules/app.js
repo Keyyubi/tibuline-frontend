@@ -81,7 +81,7 @@ const adminItems = [
   },
   {
     title: 'Tecrübe Aralıkları',
-    icon: 'mdi-social-distance-6-feet',
+    icon: 'mdi-poll',
     to: '/admin/experience-spans/',
   },
   {
