@@ -75,7 +75,7 @@
                       <v-row>
                         <v-col>
                           <v-text-field
-                            v-model="selectedExperienceSpan.name"
+                            v-model="selectedExperienceSpan.experienceSpanTime"
                             label="Tecrübe Aralığı"
                           />
                         </v-col>
@@ -111,13 +111,19 @@
       </v-tab-item>
 
       <v-tab-item value="newExperinceSpan">
-        <v-form>
-          <v-container class="py-3">
+        <v-container class="py-3">
+          <v-form
+            ref="form"
+            v-model="valid"
+            lazy-validation
+          >
             <v-row>
               <v-col cols="6">
                 <v-text-field
-                  v-model="newExperienceSpan.name"
+                  v-model="newExperienceSpan.experienceSpanTime"
                   label="Tercübe Aralığı"
+                  :rules="[v => !!v || 'Bu alan boş geçilemez.']"
+                  required
                 />
               </v-col>
 
@@ -132,39 +138,55 @@
                 </v-btn>
               </v-col>
             </v-row>
-          </v-container>
-        </v-form>
+          </v-form>
+
+          <!-- Alert Message -->
+          <v-row justify="center">
+            <v-alert
+              v-if="responseMsg.length > 0"
+              :color="isErrorMsg ? 'error' : 'success'"
+              dark
+              border="top"
+              :icon="isErrorMsg ? 'mdi-alert' : 'mdi-check-circle'"
+              transition="scale-transition"
+            >
+              {{ responseMsg }}
+            </v-alert>
+          </v-row>
+        </v-container>
       </v-tab-item>
     </v-tabs-items>
   </v-container>
 </template>
 
 <script>
+  import { get } from 'vuex-pathify'
   export default {
     name: 'ExperienceSpans',
     data () {
       return {
+        valid: true,
         currentTab: 'experienceSpans',
         searchWord: '',
         dialog: false,
         selectedExperienceSpan: {},
-        newExperienceSpan: { name: '' },
+        newExperienceSpan: { experienceSpanTime: '' },
         headers: [
           {
             text: 'İşlem',
             align: 'start',
             value: 'id',
           },
-          { text: 'Tecrübe Aralığı', value: 'name' },
-        ],
-        experienceSpans: [
-          { id: 0, name: '2-3 Yıl' },
-          { id: 1, name: '3-5 Yıl' },
-          { id: 2, name: '5-8 Yıl' },
-          { id: 3, name: '8-12 Yıl' },
-          { id: 4, name: '12+ Yıl' },
+          { text: 'Tecrübe Aralığı', value: 'experienceSpanTime' },
         ],
       }
+    },
+    computed: {
+      ...get('app', ['responseMsg', 'isErrorMsg']),
+      ...get('admin', ['experienceSpans']),
+    },
+    mounted () {
+      this.$store.dispatch('admin/getExperienceSpans')
     },
     methods: {
       editExperienceSpan (item) {
@@ -180,12 +202,11 @@
         }, 1500)
       },
       createExperienceSpan () {
-        console.log('selected', this.newExperienceSpan)
-        this.dialog = false
-        this.$store.commit('app/isLoading', true)
-        setTimeout(() => {
-          this.$store.commit('app/isLoading', false)
-        }, 1500)
+        if (this.$refs.form.validate()) {
+          this.dialog = false
+          this.$store.dispatch('admin/createExperienceSpan', this.newExperienceSpan)
+          this.$refs.form.reset()
+        }
       },
     },
   }

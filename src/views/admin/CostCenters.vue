@@ -44,7 +44,7 @@
             :search="searchWord"
           >
             <!-- eslint-disable-next-line -->
-            <template v-slot:item.abbr="{ item }">
+            <template v-slot:item.abbreviation="{ item }">
               <v-dialog
                 v-model="dialog"
                 width="460"
@@ -58,7 +58,7 @@
                     dark
                     @click="editCostCenter(item)"
                   >
-                    <b>{{ item.abbr }}</b>
+                    <b>{{ item.abbreviation }}</b>
                     <v-icon right>
                       mdi-arrow-right-bold
                     </v-icon>
@@ -75,7 +75,7 @@
                       <v-row>
                         <v-col>
                           <v-text-field
-                            v-model="selectedCostCenter.abbr"
+                            v-model="selectedCostCenter.abbreviation"
                             label="Kısaltma"
                           />
                         </v-col>
@@ -117,13 +117,21 @@
       </v-tab-item>
 
       <v-tab-item value="newCostCenter">
-        <v-form>
-          <v-container class="py-3">
+        <v-container class="py-3">
+          <v-form
+            ref="form"
+            v-model="valid"
+            lazy-validation
+          >
             <v-row>
               <v-col cols="4">
                 <v-text-field
-                  v-model="newCostCenter.abbr"
+                  v-model="newCostCenter.abbreviation"
                   label="Kısaltma"
+                  :rules="[
+                    v => (!!v && v.length >= 3) || 'Kısaltma en az 3 karakter olmalıdır']"
+                  required
+                  @keyup="uppercase()"
                 />
               </v-col>
 
@@ -131,6 +139,8 @@
                 <v-text-field
                   v-model="newCostCenter.name"
                   label="Masraf Merkezi"
+                  :rules="[v => !!v || 'Bu alan boş geçilemez.']"
+                  required
                 />
               </v-col>
 
@@ -145,48 +155,60 @@
                 </v-btn>
               </v-col>
             </v-row>
-          </v-container>
-        </v-form>
+          </v-form>
+
+          <!-- Alert Message -->
+          <v-row justify="center">
+            <v-alert
+              v-if="responseMsg.length > 0"
+              :color="isErrorMsg ? 'error' : 'success'"
+              dark
+              border="top"
+              :icon="isErrorMsg ? 'mdi-alert' : 'mdi-check-circle'"
+              transition="scale-transition"
+            >
+              {{ responseMsg }}
+            </v-alert>
+          </v-row>
+        </v-container>
       </v-tab-item>
     </v-tabs-items>
   </v-container>
 </template>
 
 <script>
+  import { get } from 'vuex-pathify'
   export default {
     name: 'CostCenters',
     data () {
       return {
+        valid: true,
         currentTab: 'costCenters',
         searchWord: '',
         dialog: false,
         selectedCostCenter: {},
-        newCostCenter: { abbr: '', name: '' },
+        newCostCenter: { abbreviation: '', name: '' },
         headers: [
           {
             text: 'Kısaltma',
             align: 'start',
-            value: 'abbr',
+            value: 'abbreviation',
           },
           { text: 'Masraf Merkezi', value: 'name' },
         ],
-        costCenters: [
-          { id: 0, name: 'POS ve Üye işyerleri', abbr: 'POS' },
-          { id: 1, name: 'Masraf merkezi 2', abbr: 'MER1' },
-          { id: 2, name: 'Masraf merkezi 3', abbr: 'MER2' },
-          { id: 10, name: 'POS ve Üye işyerleri', abbr: 'POS' },
-          { id: 11, name: 'Masraf merkezi 2', abbr: 'MER1' },
-          { id: 12, name: 'Masraf merkezi 3', abbr: 'MER2' },
-          { id: 20, name: 'POS ve Üye işyerleri', abbr: 'POS' },
-          { id: 21, name: 'Masraf merkezi 2', abbr: 'MER1' },
-          { id: 22, name: 'Masraf merkezi 3', abbr: 'MER2' },
-          { id: 30, name: 'POS ve Üye işyerleri', abbr: 'POS' },
-          { id: 31, name: 'Masraf merkezi 2', abbr: 'MER1' },
-          { id: 32, name: 'Masraf merkezi 3', abbr: 'MER2' },
-        ],
       }
     },
+    computed: {
+      ...get('app', ['responseMsg', 'isErrorMsg']),
+      ...get('admin', ['costCenters']),
+    },
+    mounted () {
+      this.$store.dispatch('admin/getCostCenters')
+    },
     methods: {
+      uppercase () {
+        this.newCostCenter.abbreviation = this.newCostCenter.abbreviation.toUpperCase()
+      },
       editCostCenter (item) {
         this.selectedCostCenter = { ...item }
         this.dialog = true
@@ -200,12 +222,11 @@
         }, 1500)
       },
       createCostCenter () {
-        console.log('selected', this.newCostCenter)
-        this.dialog = false
-        this.$store.commit('app/isLoading', true)
-        setTimeout(() => {
-          this.$store.commit('app/isLoading', false)
-        }, 1500)
+        if (this.$refs.form.validate()) {
+          this.dialog = false
+          this.$store.dispatch('admin/createCostCenter', this.newCostCenter)
+          this.$refs.form.reset()
+        }
       },
     },
   }

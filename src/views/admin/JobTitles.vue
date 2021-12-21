@@ -46,7 +46,7 @@
             :search="searchWord"
           >
             <!-- eslint-disable-next-line -->
-            <template v-slot:item.abbr="{ item }">
+            <template v-slot:item.abbreviation="{ item }">
               <v-dialog
                 v-model="dialog"
                 width="460"
@@ -60,7 +60,7 @@
                     dark
                     @click="editJobTitle(item)"
                   >
-                    <b>{{ item.abbr }}</b>
+                    <b>{{ item.abbreviation }}</b>
                     <v-icon right>
                       mdi-arrow-right-bold
                     </v-icon>
@@ -77,7 +77,7 @@
                       <v-row>
                         <v-col>
                           <v-text-field
-                            v-model="selectedJobTitle.abbr"
+                            v-model="selectedJobTitle.abbreviation"
                             label="Kısaltma"
                           />
                         </v-col>
@@ -119,13 +119,21 @@
       </v-tab-item>
 
       <v-tab-item value="newJobTitle">
-        <v-form>
-          <v-container class="py-3">
+        <v-container class="py-3">
+          <v-form
+            ref="form"
+            v-model="valid"
+            lazy-validation
+          >
             <v-row>
               <v-col cols="4">
                 <v-text-field
-                  v-model="newJobTitle.abbr"
+                  v-model="newJobTitle.abbreviation"
                   label="Kısaltma"
+                  :rules="[
+                    v => (!!v && v.length >= 3) || 'Kısaltma en az 3 karakter olmalıdır']"
+                  required
+                  @keyup="uppercase()"
                 />
               </v-col>
 
@@ -133,6 +141,8 @@
                 <v-text-field
                   v-model="newJobTitle.name"
                   label="Ünvan"
+                  :rules="[v => !!v || 'Bu alan boş geçilemez.']"
+                  required
                 />
               </v-col>
 
@@ -147,44 +157,60 @@
                 </v-btn>
               </v-col>
             </v-row>
-          </v-container>
-        </v-form>
+          </v-form>
+
+          <!-- Alert Message -->
+          <v-row justify="center">
+            <v-alert
+              v-if="responseMsg.length > 0"
+              :color="isErrorMsg ? 'error' : 'success'"
+              dark
+              border="top"
+              :icon="isErrorMsg ? 'mdi-alert' : 'mdi-check-circle'"
+              transition="scale-transition"
+            >
+              {{ responseMsg }}
+            </v-alert>
+          </v-row>
+        </v-container>
       </v-tab-item>
     </v-tabs-items>
   </v-container>
 </template>
 
 <script>
+  import { get } from 'vuex-pathify'
   export default {
     name: 'JobTitles',
     data () {
       return {
+        valid: true,
         currentTab: 'jobTitles',
         searchWord: '',
         dialog: false,
         selectedJobTitle: {},
-        newJobTitle: { abbr: '', name: '' },
+        newJobTitle: { abbreviation: '', name: '' },
         headers: [
           {
             text: 'Kısaltma',
             align: 'start',
-            value: 'abbr',
+            value: 'abbreviation',
           },
           { text: 'Ünvan', value: 'name' },
         ],
-        jobTitles: [
-          { id: 0, name: 'İş Analisti', abbr: 'BSA' },
-          { id: 1, name: 'DevOps Uzmanı', abbr: 'DOPS' },
-          { id: 2, name: 'Senior Backend Developer', abbr: 'SRB' },
-          { id: 3, name: 'Junior Frontend Developer', abbr: 'JRF' },
-          { id: 10, name: 'İş Analisti', abbr: 'BSA' },
-          { id: 11, name: 'DevOps Uzmanı', abbr: 'DOPS' },
-          { id: 12, name: 'Senior Backend Developer', abbr: 'SRB' },
-          { id: 13, name: 'Junior Frontend Developer', abbr: 'JRF' },
-        ],
       }
     },
+    computed: {
+      ...get('app', ['responseMsg', 'isErrorMsg']),
+      ...get('admin', ['jobTitles']),
+    },
+    mounted () {
+      this.$store.dispatch('admin/getJobTitles')
+    },
     methods: {
+      uppercase () {
+        this.newCostCenter.abbreviation = this.newCostCenter.abbreviation.toUpperCase()
+      },
       editJobTitle (item) {
         this.selectedJobTitle = { ...item }
         this.dialog = true
@@ -198,12 +224,11 @@
         }, 1500)
       },
       createJobTitle () {
-        console.log('selected', this.newJobTitle)
-        this.dialog = false
-        this.$store.commit('app/isLoading', true)
-        setTimeout(() => {
-          this.$store.commit('app/isLoading', false)
-        }, 1500)
+        if (this.$refs.form.validate()) {
+          this.dialog = false
+          this.$store.dispatch('admin/createJobTitle', this.newJobTitle)
+          this.$refs.form.reset()
+        }
       },
     },
   }

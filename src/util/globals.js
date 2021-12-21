@@ -23,6 +23,14 @@ const ROLE_IDS = {
   SUPPLIER: 2,
 }
 const CreateURL = (endpoint = '') => BASE_URL + (endpoint.startsWith('/') ? endpoint : '/' + endpoint)
+const GetPostHeaders = (token) => {
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-type': 'application/json',
+    },
+  }
+}
 
 module.exports = {
   EN_LOCALE_ONLY,
@@ -32,4 +40,5 @@ module.exports = {
   SITUATIONS,
   ROLE_IDS,
   CreateURL,
+  GetPostHeaders,
 }

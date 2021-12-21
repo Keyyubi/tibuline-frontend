@@ -2,7 +2,7 @@
 import { make } from 'vuex-pathify'
 import axios from 'axios'
 // Globals
-import { IN_BROWSER, CreateURL } from '@/util/globals'
+import { IN_BROWSER, CreateURL, GetPostHeaders } from '@/util/globals'
 import store from '@/store/index'
 
 // Router
@@ -62,18 +62,14 @@ const actions = {
       isLogged: 'ru',
       lastName: 'Tibuline',
       roleId: 0,
-      token: 'eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjM4NzE4NmI3LWM5NTMtNGUzYy1hMmE0LWI1NzhkNjZlMzdhYSIsImVtYWlsIjoiYWRtaW5AdGlidWxhLmNvbSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJzdXBlcnVzZXIiLCJqdGkiOiJiNzI1ODg1Ni1jOGZmLTQ1MDQtOWQyNS05NzFjMjI1NTQ1OWEiLCJhdWQiOiJ3d3cuYXV0aHNlcnZlci5jb20iLCJuYmYiOjE2Mzk4NDEwMDMsImV4cCI6MTYzOTg0MTMwMywiaXNzIjoid3d3LmF1dGhzZXJ2ZXIuY29tIn0.L7xKsToZpFY-fBc6FAXs8JOp7zWZDekdKXH35ZAdFjg',
+      token: 'eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjMyZDRkMDg0LWM4ZjQtNDY5YS1iMTkzLTQ2MWQ5YWYyMzg1NiIsImVtYWlsIjoiYWRtaW5AdGlidWxhLmNvbSIsImp0aSI6ImVlYjBkM2ZkLTVlMWUtNGM5NS05Y2I4LTMwNzNhNTA2NWIyNyIsImF1ZCI6Ind3dy5hdXRoc2VydmVyLmNvbSIsIm5iZiI6MTY0MDEyNzI3NiwiZXhwIjoxNjQwMTI3NTc2LCJpc3MiOiJ3d3cuYXV0aHNlcnZlci5jb20ifQ.PIeZCsSxsG6EV8jcgC78A8VwOwXarfFNxiJlTnfA2z0',
       userName: 'superuser',
     }
+
     // axios.post(CreateURL('/Auth/CreateToken'), { email: user.email, password: user.password })
     // .then(({ data: res }) => res.data.accessToken) //! response should be res.data. Currently it comes like res.data.data !!!
     // .then(token => {
-    //   axios.get(CreateURL('/User'), {
-    //     headers: {
-    //       Authorization: `Bearer ${token}`,
-    //       'Content-type': 'application/json',
-    //     },
-    //   })
+    //   axios.get(CreateURL('/User'), GetPostHeaders(token))
     //   .then(({ data: res }) => {
     //     const currUser = {
     //       ...res.data,
