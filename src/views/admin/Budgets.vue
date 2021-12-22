@@ -49,7 +49,7 @@
             <template v-slot:item.id="{ item }">
               <v-dialog
                 v-model="dialog"
-                width="460"
+                width="720"
                 :retain-focus="false"
               >
                 <!-- eslint-disable-next-line -->
@@ -97,7 +97,7 @@
                           <v-autocomplete
                             v-model="selectedBudgetPlan.experienceSpanId"
                             :items="experienceSpans"
-                            item-text="experienceSpanTime"
+                            item-text="name"
                             item-value="id"
                             label="Tecrübe Aralığı"
                           />
@@ -108,12 +108,11 @@
                           <v-subheader>Aylık Bütçe (min: 1.000,00₺, max: 100.000,00₺)</v-subheader>
                           <v-slider
                             v-model="selectedBudgetPlan.monthlyBudget"
-                            :step="0.5"
                             :min="1000"
                             :max="100000.00"
                             append-icon="mdi-plus"
                             prepend-icon="mdi-minus"
-                            @change="setBudget('total')"
+                            @change="setEditBudget('total')"
                           />
                         </v-col>
                         <v-col
@@ -121,7 +120,7 @@
                           class="mt-4"
                         >
                           <v-text-field
-                            v-model="newBudgetPlan.monthlyBudget"
+                            v-model="selectedBudgetPlan.monthlyBudget"
                             type="number"
                             required
                           />
@@ -131,13 +130,12 @@
                         <v-col cols="10">
                           <v-subheader>Toplam Bütçe (min: 1.000,00₺, max: 100.000,00₺)</v-subheader>
                           <v-slider
-                            v-model="newBudgetPlan.totalBudget"
-                            :step="0.5"
+                            v-model="selectedBudgetPlan.totalBudget"
                             :min="12000"
                             :max="1200000.00"
                             append-icon="mdi-plus"
                             prepend-icon="mdi-minus"
-                            @change="setBudget('monthly')"
+                            @change="setEditBudget('monthly')"
                           />
                         </v-col>
                         <v-col
@@ -145,7 +143,7 @@
                           class="mt-4"
                         >
                           <v-text-field
-                            v-model="newBudgetPlan.totalBudget"
+                            v-model="selectedBudgetPlan.totalBudget"
                             type="number"
                             required
                           />
@@ -226,7 +224,7 @@
                 <v-autocomplete
                   v-model="newBudgetPlan.experienceSpanId"
                   :items="experienceSpans"
-                  item-text="experienceSpanTime"
+                  item-text="name"
                   item-value="id"
                   label="Tecrübe Aralığı"
                 />
@@ -322,7 +320,6 @@
     name: 'BudgetPlans',
     data () {
       return {
-        value1: '0',
         valid: true,
         currentTab: 'budgetPlans',
         searchWord: '',
@@ -341,7 +338,7 @@
             align: 'start',
             value: 'id',
           },
-          { text: 'Şirket', value: 'companyId' },
+          { text: 'Şirket Adı', value: 'companyId' },
           { text: 'Ünvan', value: 'jobTitleId' },
           { text: 'Tecrübe Aralığı', value: 'experienceSpanId' },
           { text: 'Aylık Bütçe', value: 'monthlyBudget' },
@@ -363,6 +360,13 @@
           this.newBudgetPlan.monthlyBudget = Math.round((this.newBudgetPlan.totalBudget / 12) * 100) / 100
         } else {
           this.newBudgetPlan.totalBudget = Math.round((this.newBudgetPlan.monthlyBudget * 12) * 100) / 100
+        }
+      },
+      setEditBudget (type) {
+        if (type === 'monthly') {
+          this.selectedBudgetPlan.monthlyBudget = Math.round((this.selectedBudgetPlan.totalBudget / 12) * 100) / 100
+        } else {
+          this.selectedBudgetPlan.totalBudget = Math.round((this.selectedBudgetPlan.monthlyBudget * 12) * 100) / 100
         }
       },
       getJobTitleName (id) {
