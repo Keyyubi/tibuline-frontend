@@ -381,7 +381,7 @@
         else return 'Bulunamadi'
       },
       editBudgetPlan (item) {
-        this.selectedBudgetPlan = { ...item }
+        this.selectedBudgetPlan = item
         this.dialog = true
       },
       updateBudgetPlan () {

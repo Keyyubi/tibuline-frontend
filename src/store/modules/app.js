@@ -65,6 +65,11 @@ const adminItems = [
     to: '/',
   },
   {
+    title: 'Şirketler',
+    icon: 'mdi-domain',
+    to: '/admin/companies/',
+  },
+  {
     title: 'Kullanıcılar',
     icon: 'mdi-account',
     to: '/admin/users',

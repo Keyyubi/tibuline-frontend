@@ -42,6 +42,7 @@ const router = new Router({
        route('admin/JobTitles', null, 'admin/job-titles'),
        route('admin/ExperienceSpans', null, 'admin/experience-spans'),
        route('admin/Budgets', null, 'admin/budgets'),
+       route('admin/Companies', null, 'admin/companies'),
 
     ]),
     layout('Login', [

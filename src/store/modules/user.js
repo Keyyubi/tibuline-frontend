@@ -58,7 +58,26 @@ const actions = {
     axios.post(CreateURL('/Auth/CreateToken'), { email: user.email, password: user.password })
     .then(({ data: res }) => res.data.accessToken)
     .then(token => {
-      axios.get(CreateURL('/User'), GetPostHeaders(token))
+      //* ONYL FOR USE IN DEVELOPMENT
+      // const devUser = {
+      //   email: 'admin@tibula.com',
+      //   firstName: 'Admin',
+      //   id: '387186b7-c953-4e3c-a2a4-b578d66e37aa',
+      //   isLogged: 'ru',
+      //   lastName: 'Tibuline',
+      //   roleId: -1,
+      //   token,
+      //   userName: 'superuser',
+      // }
+      // if (user.email === 'admin@tibula.com') devUser.roleId = 0
+      // else if (user.email === 'manager@tibula.com') devUser.roleId = 1
+      // else if (user.email === 'supplier@tibula.com') devUser.roleId = 2
+      // context.commit('user', devUser)
+      // context.dispatch('app/updateItems', devUser.roleId, { root: true })
+      // router.push('/')
+      //* END OF DEVELOPMENT USAGE */
+
+      axios.get(CreateURL('/User/GetUser'), GetPostHeaders(token))
       .then(({ data: res }) => {
         const currUser = {
           ...res.data,
@@ -77,27 +96,6 @@ const actions = {
     .finally(() => setTimeout(() => {
         store.set('app/isLoading', false)
       }, 1500))
-
-    //* ONYL FOR USE IN DEVELOPMENT
-    // const devUser = {
-    //   email: 'admin@tibula.com',
-    //   firstName: 'Admin',
-    //   id: '387186b7-c953-4e3c-a2a4-b578d66e37aa',
-    //   isLogged: 'ru',
-    //   lastName: 'Tibuline',
-    //   roleId: 0,
-    //   token: 'eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjMyZDRkMDg0LWM4ZjQtNDY5YS1iMTkzLTQ2MWQ5YWYyMzg1NiIsImVtYWlsIjoiYWRtaW5AdGlidWxhLmNvbSIsImp0aSI6IjAyYmNlNzgxLTE0YzUtNDQyNC1hOTBjLTg3MTMwNGZjMTdmYiIsImF1ZCI6Ind3dy5hdXRoc2VydmVyLmNvbSIsIm5iZiI6MTY0MDEzMjY3NCwiZXhwIjoxNjQwMTMyOTc0LCJpc3MiOiJ3d3cuYXV0aHNlcnZlci5jb20ifQ.ONGOOVqfmeIaHWh51aSIzhgtrrEm5VvFgskFw8I0xKs',
-    //   userName: 'superuser',
-    // }
-
-    // context.commit('user', devUser)
-    // context.dispatch('app/updateItems', devUser.roleId, { root: true })
-    // router.push('/')
-
-    // setTimeout(() => {
-    //   store.set('app/isLoading', false)
-    // }, 500)
-    //* END OF DEVELOPMENT USAGE */
   },
   logout: ({ commit }) => {
     commit('user', {})
