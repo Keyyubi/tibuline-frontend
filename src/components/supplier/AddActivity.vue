@@ -44,9 +44,7 @@
               class="pa-0 mx-0"
             >
               <v-sheet height="64">
-                <v-toolbar
-                  flat
-                >
+                <v-toolbar flat>
                   <v-btn
                     fab
                     text
@@ -74,11 +72,23 @@
                     {{ $refs.calendar.title }}
                   </v-toolbar-title>
                   <v-spacer />
+                  <v-btn
+                    outlined
+                    small
+                    color="primary darken-1"
+                    @click="updateRange"
+                  >
+                    <v-icon small>
+                      mdi-calender
+                    </v-icon>
+                    Aylık Aktiviteleri Doldur
+                  </v-btn>
+                  <v-spacer />
                   <v-chip
                     v-if="selectedConsultant != null"
                     class="ma-2"
                   >
-                    {{ consultants[selectedConsultant].text }}
+                    Çalışan: {{ consultants[selectedConsultant].text }}
                   </v-chip>
                 </v-toolbar>
               </v-sheet>
@@ -93,67 +103,102 @@
                   color="primary"
                   :events="events"
                   :event-color="getEventColor"
-                  @click:date="showEvent"
-                  @change="updateRange"
+                  @click:date="openDialog"
                 />
-                <v-menu
-                  v-model="selectedOpen"
-                  :close-on-content-click="false"
-                  :activator="selectedElement"
-                  offset-x
+                <v-dialog
+                  v-model="dialog"
+                  width="460"
                 >
-                  <v-card
-                    color="grey lighten-4"
-                    min-width="350px"
-                    flat
-                  >
-                    <v-toolbar
-                      :color="selectedEvent.color"
-                      dark
-                    >
-                      <v-toolbar-title v-html="selectedEvent.name" />
+                  <v-card>
+                    <v-card-title class="text-h5 primary white--text">
+                      Aktivite Girişi
                       <v-spacer />
-                      <v-icon>mdi-calendar-clock</v-icon>
-                    </v-toolbar>
+                      <v-icon color="white">
+                        mdi-calendar-clock
+                      </v-icon>
+                    </v-card-title>
                     <v-card-text>
-                      <v-slider
-                        v-model="selectedEvent.hours"
-                        class="align-center"
-                        max="12"
-                        min="0"
-                        @change="setEventTime(selectedEvent)"
-                      >
-                        <template v-slot:append>
-                          <v-text-field
-                            v-model="selectedEvent.hours"
-                            class="mt-0 pt-0"
-                            hide-details
-                            single-line
-                            min="0"
-                            max="12"
-                            type="number"
-                            style="width: 60px"
-                          />
-                        </template>
-                      </v-slider>
+                      <v-container>
+                        <v-row>
+                          <v-col cols="10">
+                            <v-subheader>Mesai saati</v-subheader>
+                            <v-slider
+                              v-model="selectedElement.shiftEvent.hours"
+                              :min="0"
+                              :step="1"
+                              :max="shiftHours"
+                              append-icon="mdi-plus"
+                              prepend-icon="mdi-minus"
+                              @change="setEventTime(selectedElement.shiftEvent)"
+                            />
+                          </v-col>
+                          <v-col
+                            cols="2"
+                            class="mt-4"
+                          >
+                            <v-text-field
+                              v-model="selectedElement.shiftEvent.hours"
+                              type="number"
+                              required
+                            />
+                          </v-col>
+                        </v-row>
+                        <v-row>
+                          <v-col cols="10">
+                            <v-subheader>Fazla Mesai saati</v-subheader>
+                            <v-slider
+                              v-model="selectedElement.overShiftEvent.hours"
+                              :min="0"
+                              :step="1"
+                              :max="shiftHours"
+                              append-icon="mdi-plus"
+                              prepend-icon="mdi-minus"
+                              @change="setEventTime(selectedElement.overShiftEvent)"
+                            />
+                          </v-col>
+                          <v-col
+                            cols="2"
+                            class="mt-4"
+                          >
+                            <v-text-field
+                              v-model="selectedElement.overShiftEvent.hours"
+                              type="number"
+                              required
+                            />
+                          </v-col>
+                        </v-row>
+                      </v-container>
                     </v-card-text>
+                    <v-divider />
+                    <v-card-actions>
+                      <v-spacer />
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="creteOrUpdateEvent"
+                      >
+                        Oluştur
+                      </v-btn>
+                      <v-btn
+                        color="error darken-1"
+                        text
+                        @click="dialog = false"
+                      >
+                        Vazgeç
+                      </v-btn>
+                    </v-card-actions>
                   </v-card>
-                </v-menu>
+                </v-dialog>
               </v-sheet>
             </v-stepper-content>
           </v-stepper-items>
         </v-stepper>
       </v-col>
     </v-row>
-    <v-row v-if="selectedConsultant != null">
-      <v-col>
-        <v-chip
-          class="ma-2"
-          label
-        >
-          <b>{{ selectedMonth }}</b>
-        </v-chip>
-      </v-col>
+    <v-row
+      v-if="selectedConsultant != null"
+      class="d-flex justify-space-between"
+    >
       <v-col class="d-flex">
         <v-chip
           class="ma-2"
@@ -182,8 +227,7 @@
           Toplam Fazla Mesai: {{ totalExtraHours }} saat
         </v-chip>
       </v-col>
-      <v-spacer />
-      <v-col class="d-flex text-right">
+      <v-col class="d-flex justify-flex-end ">
         <v-btn
           class="white--text mr-3"
           color="green"
@@ -208,19 +252,12 @@
   export default {
     name: 'AddActivity',
     data: () => ({
-      data1: null,
-      data2: null,
-      data3: null,
-      data4: null,
       e1: 1,
       focus: '',
       dialog: false,
       isMinMonth: true,
       reasonOfDeny: '',
-      selectedEvent: {},
-      selectedElement: null,
-      selectedOpen: false,
-      selectedMonth: 'September',
+      selectedElement: { shiftEvent: null, overShiftEvent: null },
       selectedConsultant: null,
       consultants: [
         { value: 0, text: 'Murathan Karayaz' },
@@ -235,16 +272,13 @@
       shiftStartAt: 9, // 0-23 as o'clock of the day
       shiftHours: 8, // as working hours
     }),
+    beforeMount () {
+      this.selectedElement.shiftEvent = this.newShiftEvent()
+      this.selectedElement.overShiftEvent = this.newShiftEvent()
+    },
     methods: {
-      viewDay ({ date }) {
-        this.focus = date
-        this.type = 'day'
-      },
       getEventColor (event) {
         return event.color
-      },
-      setToday () {
-        this.focus = ''
       },
       prev () {
         this.$refs.calendar.prev()
@@ -255,34 +289,38 @@
         this.$refs.calendar.next()
         this.isMinMonth = false
       },
-      showEvent (obje, event) {
-        console.log('native', obje)
-        console.log('event', event)
-        // const open = () => {
-        //   this.selectedEvent = event
-        //   this.selectedElement = nativeEvent.target
-        //   requestAnimationFrame(() => requestAnimationFrame(() => {
-        //     this.selectedOpen = true
-        //   }))
-        // }
-
-        // if (this.selectedOpen) {
-        //   this.selectedOpen = false
-        //   requestAnimationFrame(() => requestAnimationFrame(() => open()))
-        // } else {
-        //   open()
-        // }
-
-        // nativeEvent.stopPropagation()
+      newShiftEvent (date, type = 0) {
+        return {
+          date,
+          hours: 0,
+          name: '0 saat fazla mesai',
+          start: new Date(date),
+          end: new Date(date),
+          shiftType: type,
+          color: type ? 'green' : 'grey',
+          timed: false,
+        }
       },
-      updateRange ({ start, end }) {
+      openDialog (item) {
+        const shiftEvent = this.events.find(e => e.date === item.date)
+        const overShiftEvent = this.events.find(e => e.date === item.date && e.shiftType === 1)
+
+        this.selectedElement.shiftEvent = shiftEvent || this.newShiftEvent(item.date, 0)
+        this.selectedElement.overShiftEvent = overShiftEvent || this.newShiftEvent(item.date, 0)
+
+        this.dialog = !this.dialog
+      },
+      updateRange () {
         const events = []
+        const end = this.$refs.calendar.lastEnd
 
         for (let i = 0; i < end.day; i++) {
-          const startDate = new Date(start.year, start.month - 1, i + 1)
+          const date = `${end.year}-${end.month}-${i < 9 ? '0' + (i + 1) : i + 1}`
+          const startDate = new Date(end.year, end.month - 1, i + 1)
 
           if (startDate.getDay() !== 0 && startDate.getDay() !== 6) {
             const workHour = {
+              date,
               hours: this.shiftHours,
               name: `${this.shiftHours} saat mesai`,
               start: startDate,
@@ -291,19 +329,8 @@
               color: 'green',
               timed: false,
             }
-            workHour.start.setHours(this.shiftStartAt, 0, 0)
-            workHour.end.setHours(this.shiftStartAt + this.shiftHours, 0, 0)
 
-            const extraHour = {
-              ...workHour,
-              hours: 0,
-              name: '0 saat fazla mesai',
-              shiftType: 1,
-              color: 'grey',
-            }
-            extraHour.end.setHours(extraHour.end.getHours() + extraHour.hours)
-
-            events.push(workHour, extraHour)
+            events.push(workHour)
           }
         }
 
@@ -320,6 +347,12 @@
         this.events.forEach(e => {
           e.shiftType === 0 ? this.totalWorkHours += e.hours : this.totalExtraHours += e.hours
         })
+      },
+      creteOrUpdateEvent () {
+        if (this.selectedElement.shiftEvent.date && this.selectedElement.overShiftEvent.date) {
+          console.log('yes', this.selectedElement)
+        } else console.log('bulunamadi')
+        this.dialog = false
       },
     },
   }
