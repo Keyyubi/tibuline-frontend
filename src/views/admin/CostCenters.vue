@@ -214,12 +214,8 @@
         this.dialog = true
       },
       updateCostCenter () {
-        console.log('selected', this.selectedCostCenter)
         this.dialog = false
-        this.$store.commit('app/isLoading', true)
-        setTimeout(() => {
-          this.$store.commit('app/isLoading', false)
-        }, 1500)
+        this.$store.dispatch('admin/updateCostCenter', this.selectedCostCenter)
       },
       createCostCenter () {
         if (this.$refs.form.validate()) {

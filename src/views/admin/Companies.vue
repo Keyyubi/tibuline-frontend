@@ -382,14 +382,9 @@
         this.dialog = true
       },
       updateCompany () {
-        console.log('selected', this.selectedCompany)
         if (this.$refs.editForm.validate()) {
           this.dialog = false
-          this.$store.commit('app/isLoading', true)
-          setTimeout(() => {
-            this.$refs.editForm.reset()
-            this.$store.commit('app/isLoading', false)
-          }, 1500)
+          this.$store.dispatch('admin/updateCompany', this.selectedCompany)
         }
       },
       createCompany () {

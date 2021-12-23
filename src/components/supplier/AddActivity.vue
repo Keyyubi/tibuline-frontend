@@ -93,7 +93,7 @@
                   color="primary"
                   :events="events"
                   :event-color="getEventColor"
-                  @click:event="showEvent"
+                  @click:date="showEvent"
                   @change="updateRange"
                 />
                 <v-menu
@@ -208,6 +208,10 @@
   export default {
     name: 'AddActivity',
     data: () => ({
+      data1: null,
+      data2: null,
+      data3: null,
+      data4: null,
       e1: 1,
       focus: '',
       dialog: false,
@@ -251,23 +255,25 @@
         this.$refs.calendar.next()
         this.isMinMonth = false
       },
-      showEvent ({ nativeEvent, event }) {
-        const open = () => {
-          this.selectedEvent = event
-          this.selectedElement = nativeEvent.target
-          requestAnimationFrame(() => requestAnimationFrame(() => {
-            this.selectedOpen = true
-          }))
-        }
+      showEvent (obje, event) {
+        console.log('native', obje)
+        console.log('event', event)
+        // const open = () => {
+        //   this.selectedEvent = event
+        //   this.selectedElement = nativeEvent.target
+        //   requestAnimationFrame(() => requestAnimationFrame(() => {
+        //     this.selectedOpen = true
+        //   }))
+        // }
 
-        if (this.selectedOpen) {
-          this.selectedOpen = false
-          requestAnimationFrame(() => requestAnimationFrame(() => open()))
-        } else {
-          open()
-        }
+        // if (this.selectedOpen) {
+        //   this.selectedOpen = false
+        //   requestAnimationFrame(() => requestAnimationFrame(() => open()))
+        // } else {
+        //   open()
+        // }
 
-        nativeEvent.stopPropagation()
+        // nativeEvent.stopPropagation()
       },
       updateRange ({ start, end }) {
         const events = []
@@ -293,7 +299,7 @@
               hours: 0,
               name: '0 saat fazla mesai',
               shiftType: 1,
-              color: 'red',
+              color: 'grey',
             }
             extraHour.end.setHours(extraHour.end.getHours() + extraHour.hours)
 

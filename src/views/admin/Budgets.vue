@@ -389,12 +389,8 @@
         this.dialog = true
       },
       updateBudgetPlan () {
-        console.log('selected', this.selectedBudgetPlan)
         this.dialog = false
-        this.$store.commit('app/isLoading', true)
-        setTimeout(() => {
-          this.$store.commit('app/isLoading', false)
-        }, 1500)
+        this.$store.dispatch('admin/updateBudgetPlan', this.selectedBudgetPlan)
       },
       createBudgetPlan () {
         if (this.$refs.form.validate()) {

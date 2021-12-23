@@ -13,12 +13,12 @@
     >
       <v-tabs-slider />
 
-      <v-tab href="#experienceSpans">
-        Tecrübe Aralıkları
+      <v-tab href="#projects">
+        Projeler
         <v-icon>mdi-poll</v-icon>
       </v-tab>
-      <v-tab href="#newExperinceSpan">
-        Yeni Tercübe Aralığı
+      <v-tab href="#newProject">
+        Yeni Proje Oluştur
         <v-icon>mdi-plus-box-multiple</v-icon>
       </v-tab>
     </v-tabs>
@@ -26,7 +26,7 @@
     <div class="py3" />
 
     <v-tabs-items v-model="currentTab">
-      <v-tab-item value="experienceSpans">
+      <v-tab-item value="projects">
         <v-card>
           <v-card-title>
             <v-text-field
@@ -40,7 +40,7 @@
 
           <v-data-table
             :headers="headers"
-            :items="experienceSpans"
+            :items="projects"
             :search="searchWord"
           >
             <!-- eslint-disable-next-line -->
@@ -56,7 +56,7 @@
                     class="ma-2"
                     color="primary"
                     dark
-                    @click="editExperienceSpan(item)"
+                    @click="editProject(item)"
                   >
                     <b>Güncelle</b>
                     <v-icon right>
@@ -75,7 +75,7 @@
                       <v-row>
                         <v-col>
                           <v-text-field
-                            v-model="selectedExperienceSpan.experienceSpanTime"
+                            v-model="selectedProject.projectTime"
                             label="Tecrübe Aralığı"
                           />
                         </v-col>
@@ -91,7 +91,7 @@
                     <v-btn
                       color="primary"
                       depressed
-                      @click="updateExperienceSpan"
+                      @click="updateProject"
                     >
                       Güncelle
                     </v-btn>
@@ -110,7 +110,7 @@
         </v-card>
       </v-tab-item>
 
-      <v-tab-item value="newExperinceSpan">
+      <v-tab-item value="newProject">
         <v-container class="py-3">
           <v-form
             ref="form"
@@ -120,7 +120,7 @@
             <v-row>
               <v-col cols="6">
                 <v-text-field
-                  v-model="newExperienceSpan.experienceSpanTime"
+                  v-model="newProject.projectTime"
                   label="Tercübe Aralığı"
                   :rules="[v => !!v || 'Bu alan boş geçilemez.']"
                   required
@@ -132,7 +132,7 @@
                   class="my-2"
                   width="100%"
                   color="primary"
-                  @click="createExperienceSpan()"
+                  @click="createProject()"
                 >
                   Oluştur
                 </v-btn>
@@ -162,45 +162,45 @@
 <script>
   import { get } from 'vuex-pathify'
   export default {
-    name: 'ExperienceSpans',
+    name: 'Projects',
     data () {
       return {
         valid: true,
-        currentTab: 'experienceSpans',
+        currentTab: 'projects',
         searchWord: '',
         dialog: false,
-        selectedExperienceSpan: {},
-        newExperienceSpan: { experienceSpanTime: '' },
+        selectedProject: {},
+        newProject: { projectTime: '' },
         headers: [
           {
             text: 'İşlem',
             align: 'start',
             value: 'id',
           },
-          { text: 'Tecrübe Aralığı', value: 'experienceSpanTime' },
+          { text: 'Tecrübe Aralığı', value: 'projectTime' },
         ],
       }
     },
     computed: {
       ...get('app', ['responseMsg', 'isErrorMsg']),
-      ...get('admin', ['experienceSpans']),
+      ...get('admin', ['projects']),
     },
     mounted () {
-      this.$store.dispatch('admin/getExperienceSpans')
+      this.$store.dispatch('admin/getProjects')
     },
     methods: {
-      editExperienceSpan (item) {
-        this.selectedExperienceSpan = { ...item }
+      editProject (item) {
+        this.selectedProject = { ...item }
         this.dialog = true
       },
-      updateExperienceSpan () {
+      updateProject () {
         this.dialog = false
-        this.$store.dispatch('admin/updateExperienceSpan', this.selectedExperienceSpan)
+        this.$store.dispatch('admin/updateProject', this.selectedProject)
       },
-      createExperienceSpan () {
+      createProject () {
         if (this.$refs.form.validate()) {
           this.dialog = false
-          this.$store.dispatch('admin/createExperienceSpan', this.newExperienceSpan)
+          this.$store.dispatch('admin/createProject', this.newProject)
           this.$refs.form.reset()
         }
       },

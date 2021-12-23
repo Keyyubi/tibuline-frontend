@@ -216,12 +216,8 @@
         this.dialog = true
       },
       updateJobTitle () {
-        console.log('selected', this.selectedJobTitle)
         this.dialog = false
-        this.$store.commit('app/isLoading', true)
-        setTimeout(() => {
-          this.$store.commit('app/isLoading', false)
-        }, 1500)
+        this.$store.dispatch('admin/updateJobTitle', this.newJobTitle)
       },
       createJobTitle () {
         if (this.$refs.form.validate()) {
