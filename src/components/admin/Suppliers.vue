@@ -15,6 +15,7 @@
       :items="users"
       :search="searchWord"
     >
+      <!-- eslint-disable-next-line -->
       <template v-slot:item.username="{ item }">
         <v-dialog
           v-model="dialog"

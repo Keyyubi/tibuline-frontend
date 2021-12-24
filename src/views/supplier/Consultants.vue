@@ -1,6 +1,6 @@
 <template>
   <v-container
-    id="users-view"
+    id="consultants-view"
     fluid
     tag="section"
   >
@@ -13,18 +13,13 @@
     >
       <v-tabs-slider />
 
-      <v-tab href="#managers">
-        Birim Müdürleri
+      <v-tab href="#consultants">
+        Danışmanlar
         <v-icon>mdi-account-multiple</v-icon>
       </v-tab>
 
-      <v-tab href="#suppliers">
-        Tedarikçiler
-        <v-icon>mdi-account-multiple-plus-outline</v-icon>
-      </v-tab>
-
-      <v-tab href="#newUser">
-        Yeni Kullanıcı
+      <v-tab href="#newConsultant">
+        Yeni Danışman
         <v-icon>mdi-account-plus</v-icon>
       </v-tab>
     </v-tabs>
@@ -32,15 +27,11 @@
     <div class="py3" />
 
     <v-tabs-items v-model="currentTab">
-      <v-tab-item value="managers">
+      <v-tab-item value="consultants">
         <unit-managers />
       </v-tab-item>
 
-      <v-tab-item value="suppliers">
-        <suppliers />
-      </v-tab-item>
-
-      <v-tab-item value="newUser">
+      <v-tab-item value="newConsultant">
         <v-form
           ref="form"
           v-model="valid"
@@ -48,72 +39,13 @@
         >
           <v-container class="py-3">
             <v-row>
-              <!-- Username -->
-              <v-col
-                cols="12"
-                md="4"
-              >
-                <v-text-field
-                  v-model="newUser.username"
-                  label="Kullanıcı Adı"
-                  :rules="[v => !!v || 'Kullanıcı adı boş geçilemez',]"
-                  required
-                />
-              </v-col>
-
-              <!-- Email -->
-              <v-col
-                cols="12"
-                md="4"
-              >
-                <v-text-field
-                  v-model="newUser.email"
-                  label="E-mail"
-                  :rules="emailRules"
-                  required
-                />
-              </v-col>
-
-              <!-- Password -->
-              <v-col
-                cols="12"
-                md="4"
-              >
-                <v-text-field
-                  v-model="newUser.password"
-                  label="Şifre"
-                  :append-icon="!showPwd ? 'mdi-eye' : 'mdi-eye-off'"
-                  :type="!showPwd ? 'password' : 'text'"
-                  :rules="passwordRules"
-                  counter
-                  required
-                  @click:append="() => (showPwd = !showPwd)"
-                />
-              </v-col>
-
-              <!-- Role -->
-              <v-col
-                cols="12"
-                md="4"
-              >
-                <v-select
-                  v-model="newUser.roleId"
-                  :items="roles"
-                  item-text="label"
-                  item-value="value"
-                  label="Kullanıcı Rolü"
-                  :rules="[v => (!!v || v === 0) || 'Rol seçmelisiniz']"
-                  required
-                />
-              </v-col>
-
               <!-- Firstname -->
               <v-col
                 cols="12"
                 md="4"
               >
                 <v-text-field
-                  v-model="newUser.firstName"
+                  v-model="newConsultant.firstName"
                   label="Adı"
                   :rules="[v => !!v || 'Ad boş geçilemez',]"
                   required
@@ -126,7 +58,7 @@
                 md="4"
               >
                 <v-text-field
-                  v-model="newUser.lastName"
+                  v-model="newConsultant.lastName"
                   label="Soyadı"
                   :rules="[v => !!v || 'Soyad boş geçilemez',]"
                   required
@@ -139,14 +71,27 @@
                 md="4"
               >
                 <v-text-field
-                  v-model="newUser.phone"
+                  v-model="newConsultant.phone"
                   v-mask="'(###) ### ####'"
                   label="Cep Telefonu"
                   append-icon="mdi-close"
                   prepend-icon="mdi-phone"
                   :rules="phoneRules"
                   required
-                  @click:append="newUser.phone = ''"
+                  @click:append="newConsultant.phone = ''"
+                />
+              </v-col>
+
+              <!-- Email -->
+              <v-col
+                cols="12"
+                md="4"
+              >
+                <v-text-field
+                  v-model="newConsultant.email"
+                  label="E-mail"
+                  :rules="emailRules"
+                  required
                 />
               </v-col>
 
@@ -156,7 +101,7 @@
                 md="4"
               >
                 <v-text-field
-                  v-model="newUser.TCKN"
+                  v-model="newConsultant.TCKN"
                   v-mask="'###########'"
                   label="TCKN"
                   :rules="tcnoRules"
@@ -170,7 +115,7 @@
                 md="4"
               >
                 <v-select
-                  v-model="newUser.companyId"
+                  v-model="newConsultant.companyId"
                   :items="companies"
                   item-text="label"
                   item-value="value"
@@ -230,10 +175,10 @@
 <script>
   import { get } from 'vuex-pathify'
   export default {
-    name: 'Users',
+    name: 'Consultants',
     data () {
       return {
-        currentTab: 'managers',
+        currentTab: 'users',
         valid: true,
         showPwd: true,
         emailRules: [
@@ -263,7 +208,7 @@
             return (res % 10) === Number(arr[arr.length - 1])
           })() || 'Kimlik numarası geçersiz.',
         ],
-        newUser: {
+        newConsultant: {
           username: '',
           email: '',
           password: '',
@@ -306,7 +251,7 @@
       },
       createUser () {
         if (this.$refs.form.validate()) {
-          this.$store.dispatch('admin/createUser', this.newUser)
+          this.$store.dispatch('admin/createUser', this.newConsultant)
         }
       },
     },

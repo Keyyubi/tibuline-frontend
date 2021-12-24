@@ -34,6 +34,7 @@ const router = new Router({
       // Supplier Routes
       route('supplier/Requests', null, '/supplier/requests'),
       route('supplier/AddActivity', null, '/supplier/add-activity'),
+      route('supplier/Consultants', null, '/supplier/consultants'),
 
        // Admin Routes
        route('admin/Users', null, '/admin/users'),

@@ -14,6 +14,11 @@ const supplierItems = [
     to: '/supplier/requests',
   },
   {
+    title: 'Danışmanlar',
+    icon: 'mdi-account-group',
+    to: '/supplier/consultants',
+  },
+  {
     title: 'Aktivite Ekle',
     icon: 'mdi-check',
     to: '/supplier/add-activity',
@@ -129,6 +134,13 @@ const actions = {
         context.commit('items', supplierItems)
         break
     }
+  },
+  updateAlertMsg: (context, payload) => {
+    context.commit('responseMsg', payload.message)
+    context.commit('isErrorMsg', payload.isError)
+    setTimeout(() => {
+      context.commit('responseMsg', '')
+    }, 2000)
   },
 }
 

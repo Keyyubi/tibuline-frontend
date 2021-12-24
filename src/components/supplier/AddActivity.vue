@@ -123,13 +123,13 @@
                           <v-col cols="10">
                             <v-subheader>Mesai saati</v-subheader>
                             <v-slider
-                              v-model="selectedElement.shiftEvent.hours"
+                              v-model="selectedEvent.shiftHours"
                               :min="0"
                               :step="1"
                               :max="shiftHours"
                               append-icon="mdi-plus"
                               prepend-icon="mdi-minus"
-                              @change="setEventTime(selectedElement.shiftEvent)"
+                              @change="setEventTime(selectedEvent)"
                             />
                           </v-col>
                           <v-col
@@ -137,7 +137,7 @@
                             class="mt-4"
                           >
                             <v-text-field
-                              v-model="selectedElement.shiftEvent.hours"
+                              v-model="selectedEvent.shiftHours"
                               type="number"
                               required
                             />
@@ -147,13 +147,13 @@
                           <v-col cols="10">
                             <v-subheader>Fazla Mesai saati</v-subheader>
                             <v-slider
-                              v-model="selectedElement.overShiftEvent.hours"
+                              v-model="selectedEvent.overShiftHours"
                               :min="0"
                               :step="1"
                               :max="shiftHours"
                               append-icon="mdi-plus"
                               prepend-icon="mdi-minus"
-                              @change="setEventTime(selectedElement.overShiftEvent)"
+                              @change="setEventTime(selectedEvent)"
                             />
                           </v-col>
                           <v-col
@@ -161,7 +161,7 @@
                             class="mt-4"
                           >
                             <v-text-field
-                              v-model="selectedElement.overShiftEvent.hours"
+                              v-model="selectedEvent.overShiftHours"
                               type="number"
                               required
                             />
@@ -195,6 +195,8 @@
         </v-stepper>
       </v-col>
     </v-row>
+
+    <!-- Info and actions Footer -->
     <v-row
       v-if="selectedConsultant != null"
       class="d-flex justify-space-between"
@@ -227,37 +229,94 @@
           Toplam Fazla Mesai: {{ totalExtraHours }} saat
         </v-chip>
       </v-col>
+      <v-spacer />
       <v-col class="d-flex justify-flex-end ">
         <v-btn
           class="white--text mr-3"
           color="green"
           depressed
         >
-          Onayla
+          Onaya Gönder
         </v-btn>
         <v-btn
           color="error"
           dark
           depressed
-          @click="selectedConsultant = null; e1 = 1"
+          @click="confirmDeleting"
         >
-          Vazgeç
+          Tüm Aktiviteleri Sil
         </v-btn>
       </v-col>
     </v-row>
+
+    <!-- Alert Message -->
+    <v-row justify="center">
+      <v-alert
+        v-if="responseMsg.length > 0"
+        :color="isErrorMsg ? 'error' : 'success'"
+        dark
+        border="top"
+        :icon="isErrorMsg ? 'mdi-alert' : 'mdi-check-circle'"
+        transition="scale-transition"
+      >
+        {{ responseMsg }}
+      </v-alert>
+    </v-row>
+
+    <!-- Confirmation dialog -->
+    <v-dialog
+      v-model="deleteDialog"
+      persistent
+      width="460"
+    >
+      <v-card>
+        <v-card-title class="text-h5 primary white--text">
+          Onay
+        </v-card-title>
+        <v-card-text class="text-h5 py-3">
+          <v-icon large>
+            mdi-alert
+          </v-icon>
+          Tüm aktiviteler silinecektir. Onaylıyor musunuz?
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn
+            class="white--text mr-3"
+            color="green"
+            depressed
+            small
+            @click="deleteActivities"
+          >
+            Onayla
+          </v-btn>
+          <v-btn
+            color="error"
+            dark
+            depressed
+            small
+            @click="deleteDialog = false"
+          >
+            Vazgeç
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script>
+  import { get } from 'vuex-pathify'
   export default {
     name: 'AddActivity',
     data: () => ({
       e1: 1,
       focus: '',
       dialog: false,
+      deleteDialog: false,
       isMinMonth: true,
       reasonOfDeny: '',
-      selectedElement: { shiftEvent: null, overShiftEvent: null },
+      selectedEvent: {},
       selectedConsultant: null,
       consultants: [
         { value: 0, text: 'Murathan Karayaz' },
@@ -272,9 +331,8 @@
       shiftStartAt: 9, // 0-23 as o'clock of the day
       shiftHours: 8, // as working hours
     }),
-    beforeMount () {
-      this.selectedElement.shiftEvent = this.newShiftEvent()
-      this.selectedElement.overShiftEvent = this.newShiftEvent()
+    computed: {
+      ...get('app', ['responseMsg', 'isErrorMsg']),
     },
     methods: {
       getEventColor (event) {
@@ -289,25 +347,23 @@
         this.$refs.calendar.next()
         this.isMinMonth = false
       },
-      newShiftEvent (date, type = 0) {
+      newShiftEvent (date, name = `${this.shiftHours}s mesai`, shiftHours = this.shiftHours, overShiftHours = 0) {
         return {
           date,
-          hours: 0,
-          name: '0 saat fazla mesai',
+          name,
+          shiftHours,
+          overShiftHours,
           start: new Date(date),
           end: new Date(date),
-          shiftType: type,
-          color: type ? 'green' : 'grey',
+          color: 'green',
           timed: false,
+          isApprovedByManager: false,
         }
       },
       openDialog (item) {
         const shiftEvent = this.events.find(e => e.date === item.date)
-        const overShiftEvent = this.events.find(e => e.date === item.date && e.shiftType === 1)
 
-        this.selectedElement.shiftEvent = shiftEvent || this.newShiftEvent(item.date, 0)
-        this.selectedElement.overShiftEvent = overShiftEvent || this.newShiftEvent(item.date, 0)
-
+        this.selectedEvent = shiftEvent || this.newShiftEvent(item.date)
         this.dialog = !this.dialog
       },
       updateRange () {
@@ -319,18 +375,7 @@
           const startDate = new Date(end.year, end.month - 1, i + 1)
 
           if (startDate.getDay() !== 0 && startDate.getDay() !== 6) {
-            const workHour = {
-              date,
-              hours: this.shiftHours,
-              name: `${this.shiftHours} saat mesai`,
-              start: startDate,
-              end: startDate,
-              shiftType: 0,
-              color: 'green',
-              timed: false,
-            }
-
-            events.push(workHour)
+            events.push(this.newShiftEvent(date, `${this.shiftHours} saat mesai`))
           }
         }
 
@@ -338,21 +383,52 @@
         this.calculateTotalHours()
       },
       setEventTime (event) {
-        event.name = event.hours + ' saat ' + (event.shiftType === 0 ? 'mesai' : 'fazla mesai')
+        event.name = `${event.shiftHours}s mesai ${event.overShiftHours ? ' - ' + event.overShiftHours + 's fazla mesai' : ''}`
         this.calculateTotalHours()
       },
       calculateTotalHours () {
         this.totalWorkHours = 0
         this.totalExtraHours = 0
-        this.events.forEach(e => {
-          e.shiftType === 0 ? this.totalWorkHours += e.hours : this.totalExtraHours += e.hours
-        })
+        this.totalDaysOff = 0
+
+        const end = this.$refs.calendar.lastEnd
+
+        for (let i = 0; i < end.day; i++) {
+          const date = `${end.year}-${end.month}-${i < 9 ? '0' + (i + 1) : i + 1}`
+          const event = this.events.find(e => e.date === date)
+          if (event && event.date) {
+            this.totalWorkHours += event.shiftHours
+            this.totalExtraHours += event.overShiftHours
+          } else {
+            this.totalDaysOff++
+          }
+        }
       },
       creteOrUpdateEvent () {
-        if (this.selectedElement.shiftEvent.date && this.selectedElement.overShiftEvent.date) {
-          console.log('yes', this.selectedElement)
+        if (this.selectedEvent.date) {
+          const index = this.events.findIndex(e => e.date === this.selectedEvent.date)
+
+          if (index !== -1) {
+            this.events[index] = this.selectedEvent
+          } else {
+            this.$store.dispatch('supplier/createActivity', this.selectedEvent)
+            this.events.push(this.selectedEvent)
+          }
+
+          this.calculateTotalHours()
         } else console.log('bulunamadi')
         this.dialog = false
+      },
+      confirmDeleting () {
+        if (this.events.length > 0) {
+          this.deleteDialog = true
+        } else {
+          this.$store.dispatch('app/updateAlertMsg', { message: 'Silinecek aktivite bulunamadı', isError: false })
+        }
+      },
+      deleteActivities () {
+        this.events = []
+        this.deleteDialog = false
       },
     },
   }

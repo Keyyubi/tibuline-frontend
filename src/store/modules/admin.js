@@ -163,7 +163,7 @@ const actions = {
   createProject: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('Projeect'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.post(CreateURL('Project'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/project', [...store.get('admin/project'), res.data])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
