@@ -268,7 +268,7 @@
           email: '',
           password: '',
           TCKN: '',
-          phoneNumber: '',
+          phone: '',
           firstname: '',
           lastname: '',
           roleId: null,

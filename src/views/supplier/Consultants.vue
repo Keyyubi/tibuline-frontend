@@ -28,7 +28,7 @@
 
     <v-tabs-items v-model="currentTab">
       <v-tab-item value="consultants">
-        <unit-managers />
+        <supplier-consultants />
       </v-tab-item>
 
       <v-tab-item value="newConsultant">
@@ -116,11 +116,11 @@
               >
                 <v-select
                   v-model="newConsultant.companyId"
-                  :items="companies"
-                  item-text="label"
-                  item-value="value"
+                  :items="[user.company]"
+                  item-text="companyName"
+                  item-value="id"
                   label="Şirket"
-                  :rules="[v => (!!v || v === 0) || 'Şirket seçmelisiniz']"
+                  disabled
                   required
                 />
               </v-col>
@@ -145,7 +145,7 @@
                   color="primary"
                   width="100%"
                   depressed
-                  @click="createUser()"
+                  @click="createConsultant()"
                 >
                   Oluştur
                 </v-btn>
@@ -178,18 +178,11 @@
     name: 'Consultants',
     data () {
       return {
-        currentTab: 'users',
+        currentTab: 'consultants',
         valid: true,
-        showPwd: true,
         emailRules: [
           v => !!v || 'E-mail is required',
           v => /.+@.+/.test(v) || 'E-mail must be valid',
-        ],
-        passwordRules: [
-          v => !!v || 'Şifre boş geçilemez',
-          v =>
-            /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\\$%\\^&\\*\\+\\.])(?=.{8,})/.test(v) ||
-            'Şifre en az 8 karakter olup, büyük harf, küçük harf, rakam ve özel karakter içermelidir!',
         ],
         phoneRules: [
           v => !!v || 'Telefon numarası girmelisiniz',
@@ -209,49 +202,29 @@
           })() || 'Kimlik numarası geçersiz.',
         ],
         newConsultant: {
-          username: '',
           email: '',
-          password: '',
           TCKN: '',
-          phoneNumber: '',
+          phone: '',
           firstname: '',
           lastname: '',
-          roleId: null,
           companyId: null,
         },
-        roles: [
-          { label: 'Tam yetkili', value: 99 },
-          { label: 'Sistem yöneticisi', value: 0 },
-          { label: 'Birim Müdürü', value: 1 },
-          { label: 'Tedarikçi', value: 2 },
-        ],
-        companies: [
-          { label: 'Tibula', value: 99 },
-          { label: 'Garanti', value: 0 },
-          { label: 'Akbank', value: 1 },
-          { label: 'Mafre', value: 2 },
-        ],
       }
     },
     computed: {
       ...get('user', ['user']),
       ...get('app', ['responseMsg', 'isErrorMsg']),
     },
+    mounted () {
+      this.newConsultant.companyId = this.user.companyId
+    },
     methods: {
       reset () {
         this.$refs.form.reset()
       },
-      editRequest (id) {
-        console.log('id', id)
-      },
-      showRequest (request) {
-        this.selectedRequest = request
-        this.selectedManager = request.unitManager.fullName
-        this.dialog = true
-      },
-      createUser () {
+      createConsultant () {
         if (this.$refs.form.validate()) {
-          this.$store.dispatch('admin/createUser', this.newConsultant)
+          this.$store.dispatch('supplier/createConsultant', this.newConsultant)
         }
       },
     },

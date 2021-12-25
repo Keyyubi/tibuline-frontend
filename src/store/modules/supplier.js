@@ -44,7 +44,8 @@ const actions = {
 
     axios.post(CreateURL('Consultant'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
-        store.set('admin/project', [...store.get('admin/project'), res.data])
+        console.log('res', res)
+        store.set('supplier/consultants', [...store.get('supplier/consultants'), res.data])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
       })
       .catch(({ response }) => {
@@ -89,30 +90,9 @@ const actions = {
   getConsultants: () => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL('User/UnitManagers'))
+    axios.get(CreateURL('Consultant'), GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
-        store.set('admin/unitManagers', res.data)
-      })
-      .catch(({ response }) => {
-        const { errors } = response.data.error
-        const msg = errors.join(' ')
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', msg)
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-        }, 2000)
-      })
-  },
-  getCurrentUserCompany: () => {
-    store.set('app/isLoading', true)
-    const { companyId } = store.get('user/user')
-    axios.get(CreateURL(`Company/${companyId}`))
-      .then(({ data: res }) => {
-        console.log('res', res)
-        store.set('supplied/company', res.data)
+        store.set('supplier/consultants', res.data)
       })
       .catch(({ response }) => {
         const { errors } = response.data.error

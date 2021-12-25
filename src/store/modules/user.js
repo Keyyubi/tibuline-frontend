@@ -58,35 +58,25 @@ const actions = {
     axios.post(CreateURL('/Auth/CreateToken'), { email: user.email, password: user.password })
     .then(({ data: res }) => res.data.accessToken)
     .then(token => {
-      //* ONYL FOR USE IN DEVELOPMENT
-      // const devUser = {
-      //   email: 'admin@tibula.com',
-      //   firstName: 'Admin',
-      //   id: '387186b7-c953-4e3c-a2a4-b578d66e37aa',
-      //   isLogged: 'ru',
-      //   lastName: 'Tibuline',
-      //   roleId: -1,
-      //   token,
-      //   userName: 'superuser',
-      // }
-      // if (user.email === 'admin@tibula.com') devUser.roleId = 0
-      // else if (user.email === 'manager@tibula.com') devUser.roleId = 1
-      // else if (user.email === 'supplier@tibula.com') devUser.roleId = 2
-      // context.commit('user', devUser)
-      // context.dispatch('app/updateItems', devUser.roleId, { root: true })
-      // router.push('/')
-      //* END OF DEVELOPMENT USAGE */
-
       axios.get(CreateURL('/User/GetUser'), GetPostHeaders(token))
       .then(({ data: res }) => {
-        const currUser = {
+        return {
           ...res.data,
           isLogged: true,
           token,
         }
-        context.commit('user', currUser)
-        context.dispatch('app/updateItems', currUser.roleId, { root: true })
-        router.push('/')
+      })
+      .then(loggedUser => {
+        axios.get(CreateURL(`/Company/${loggedUser.companyId}`), GetPostHeaders(loggedUser.token))
+        .then(({ data: res }) => {
+          loggedUser = {
+            ...loggedUser,
+            company: res.data,
+          }
+          context.commit('user', loggedUser)
+          context.dispatch('app/updateItems', loggedUser.roleId, { root: true })
+          router.push('/')
+        })
       })
     })
     .catch((error) => {
