@@ -65,10 +65,26 @@
                 />
               </v-col>
 
-              <!-- Phone -->
+              <!-- Company -->
               <v-col
                 cols="12"
                 md="4"
+              >
+                <v-select
+                  v-model="newConsultant.companyId"
+                  :items="[user.company]"
+                  item-text="name"
+                  item-value="id"
+                  label="Şirket"
+                  disabled
+                  required
+                />
+              </v-col>
+
+              <!-- Phone -->
+              <v-col
+                cols="12"
+                md="3"
               >
                 <v-text-field
                   v-model="newConsultant.phone"
@@ -85,7 +101,7 @@
               <!-- Email -->
               <v-col
                 cols="12"
-                md="4"
+                md="3"
               >
                 <v-text-field
                   v-model="newConsultant.email"
@@ -95,32 +111,50 @@
                 />
               </v-col>
 
+              <!-- Birthday -->
+              <v-col
+                cols="12"
+                md="3"
+              >
+                <v-menu
+                  ref="menu"
+                  v-model="menu"
+                  :close-on-content-click="false"
+                  transition="scale-transition"
+                  offset-y
+                  max-width="290px"
+                  min-width="auto"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      v-model="localeDate"
+                      label="Doğum Günü"
+                      prepend-icon="mdi-calendar"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                    />
+                  </template>
+                  <v-date-picker
+                    v-model="date"
+                    :max="`${new Date().getFullYear()}-12-31`"
+                    min="1950-01-01"
+                    @input="menu = false"
+                    @change="save"
+                  />
+                </v-menu>
+              </v-col>
+
               <!-- TCKN -->
               <v-col
                 cols="12"
-                md="4"
+                md="3"
               >
                 <v-text-field
                   v-model="newConsultant.TCKN"
                   v-mask="'###########'"
                   label="TCKN"
                   :rules="tcnoRules"
-                  required
-                />
-              </v-col>
-
-              <!-- Company -->
-              <v-col
-                cols="12"
-                md="4"
-              >
-                <v-select
-                  v-model="newConsultant.companyId"
-                  :items="[user.company]"
-                  item-text="companyName"
-                  item-value="id"
-                  label="Şirket"
-                  disabled
                   required
                 />
               </v-col>
@@ -180,6 +214,9 @@
       return {
         currentTab: 'consultants',
         valid: true,
+        menu: false,
+        date: null,
+        localeDate: null,
         emailRules: [
           v => !!v || 'E-mail is required',
           v => /.+@.+/.test(v) || 'E-mail must be valid',
@@ -207,6 +244,7 @@
           phone: '',
           firstname: '',
           lastname: '',
+          birthday: null,
           companyId: null,
         },
       }
@@ -219,6 +257,12 @@
       this.newConsultant.companyId = this.user.companyId
     },
     methods: {
+      save (date) {
+        const arr = date.split('-')
+        this.localeDate = `${arr[2]}/${arr[1]}/${arr[0]}`
+        this.newConsultant.birthday = new Date(date).toISOString()
+        this.$refs.menu.save(date)
+      },
       reset () {
         this.$refs.form.reset()
       },

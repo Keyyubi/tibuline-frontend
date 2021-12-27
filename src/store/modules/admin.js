@@ -1,6 +1,6 @@
+import { CreateURL, GetPostHeaders } from '@/util/globals'
 import axios from 'axios'
 import { make } from 'vuex-pathify'
-import { CreateURL, GetPostHeaders } from '@/util/globals'
 import store from '../index'
 
 // Data
@@ -27,11 +27,10 @@ const actions = {
         store.set('app/isErrorMsg', false)
         store.set('app/responseMsg', 'Kullanıcı başarıyla oluşturuldu.')
       })
-      .catch(({ response }) => {
-        const { errors } = response.data.error
-        const msg = errors.join(' ')
+      .catch(error => {
+        console.log('Error', error)
         store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', msg)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
@@ -48,11 +47,10 @@ const actions = {
         store.set('admin/jobTitles', [...store.get('admin/budgetPlans'), res.data])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
       })
-      .catch(({ response }) => {
-        const { errors } = response.data.error
-        const msg = errors.join(' ')
+      .catch(error => {
+        console.log('Error', error)
         store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', msg)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
@@ -69,11 +67,10 @@ const actions = {
         store.set('admin/companies', [...store.get('admin/companies'), res.data])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
       })
-      .catch(({ response }) => {
-        const { errors } = response.data.error
-        const msg = errors.join(' ')
+      .catch(error => {
+        console.log('Error', error)
         store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', msg)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
@@ -90,11 +87,10 @@ const actions = {
         store.set('admin/costCenters', [...store.get('admin/costCenters'), res.data])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
       })
-      .catch(({ response }) => {
-        const { errors } = response.data.error
-        const msg = errors.join(' ')
+      .catch(error => {
+        console.log('Error', error)
         store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', msg)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
@@ -111,7 +107,7 @@ const actions = {
         store.set('admin/experienceSpans', [...store.get('admin/experienceSpans'), res.data])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
       })
-      .catch(({ response }) => {
+      .catch(error => {
         // ? AXIOS ERROR HANDLING EXAMPLE
         // if (error.response) {
         //   // Request made and server responded
@@ -127,10 +123,9 @@ const actions = {
         // }
         // ? END OF EXAMPLE
 
-        const { errors } = response.data.error
-        const msg = errors.join(' ')
+        console.log('Error', error)
         store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', msg)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
@@ -147,11 +142,10 @@ const actions = {
         store.set('admin/jobTitles', [...store.get('admin/jobTitles'), res.data])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
       })
-      .catch(({ response }) => {
-        const { errors } = response.data.error
-        const msg = errors.join(' ')
+      .catch(error => {
+        console.log('Error', error)
         store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', msg)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
@@ -168,11 +162,10 @@ const actions = {
         store.set('admin/project', [...store.get('admin/project'), res.data])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
       })
-      .catch(({ response }) => {
-        const { errors } = response.data.error
-        const msg = errors.join(' ')
+      .catch(error => {
+        console.log('Error', error)
         store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', msg)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
@@ -192,11 +185,10 @@ const actions = {
         store.set('admin/budgetPlans', [...arr])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
       })
-      .catch(({ response }) => {
-        const { errors } = response.data.error
-        const msg = errors.join(' ')
+      .catch(error => {
+        console.log('Error', error)
         store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', msg)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
@@ -216,11 +208,10 @@ const actions = {
         store.set('admin/companies', [...arr])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
       })
-      .catch(({ response }) => {
-        const { errors } = response.data.error
-        const msg = errors.join(' ')
+      .catch(error => {
+        console.log('Error', error)
         store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', msg)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
@@ -240,11 +231,10 @@ const actions = {
         store.set('admin/costCenters', [...arr])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
       })
-      .catch(({ response }) => {
-        const { errors } = response.data.error
-        const msg = errors.join(' ')
+      .catch(error => {
+        console.log('Error', error)
         store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', msg)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
@@ -264,11 +254,10 @@ const actions = {
         store.set('admin/experienceSpans', [...arr])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
       })
-      .catch(({ response }) => {
-        const { errors } = response.data.error
-        const msg = errors.join(' ')
+      .catch(error => {
+        console.log('Error', error)
         store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', msg)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
@@ -288,11 +277,10 @@ const actions = {
         store.set('admin/jobTitles', [...arr])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
       })
-      .catch(({ response }) => {
-        const { errors } = response.data.error
-        const msg = errors.join(' ')
+      .catch(error => {
+        console.log('Error', error)
         store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', msg)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
@@ -312,11 +300,10 @@ const actions = {
         store.set('admin/projects', [...arr])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
       })
-      .catch(({ response }) => {
-        const { errors } = response.data.error
-        const msg = errors.join(' ')
+      .catch(error => {
+        console.log('Error', error)
         store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', msg)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
@@ -332,11 +319,10 @@ const actions = {
       .then(({ data: res }) => {
         store.set('admin/unitManagers', res.data)
       })
-      .catch(({ response }) => {
-        const { errors } = response.data.error
-        const msg = errors.join(' ')
+      .catch(error => {
+        console.log('Error', error)
         store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', msg)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
@@ -352,11 +338,10 @@ const actions = {
       .then(({ data: res }) => {
         store.set('admin/unitManagers', res.data)
       })
-      .catch(({ response }) => {
-        const { errors } = response.data.error
-        const msg = errors.join(' ')
+      .catch(error => {
+        console.log('Error', error)
         store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', msg)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
@@ -372,11 +357,10 @@ const actions = {
       .then(({ data: res }) => {
         store.set('admin/costCenters', res.data)
       })
-      .catch(({ response }) => {
-        const { errors } = response.data.error
-        const msg = errors.join(' ')
+      .catch(error => {
+        console.log('Error', error)
         store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', msg)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
@@ -392,11 +376,10 @@ const actions = {
       .then(({ data: res }) => {
         store.set('admin/experienceSpans', res.data)
       })
-      .catch(({ response }) => {
-        const { errors } = response.data.error
-        const msg = errors.join(' ')
+      .catch(error => {
+        console.log('Error', error)
         store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', msg)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
@@ -412,11 +395,10 @@ const actions = {
       .then(({ data: res }) => {
         store.set('admin/jobTitles', res.data)
       })
-      .catch(({ response }) => {
-        const { errors } = response.data.error
-        const msg = errors.join(' ')
+      .catch(error => {
+        console.log('Error', error)
         store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', msg)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)

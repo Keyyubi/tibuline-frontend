@@ -9,9 +9,6 @@
         hide-details
       />
     </v-card-title>
-
-    <v-subheader>biaseda</v-subheader>
-
     <v-data-table
       :headers="headers"
       :items="consultants"
@@ -61,10 +58,6 @@
           { text: 'Ad', value: 'firstname' },
           { text: 'soyad', value: 'lastname' },
           { text: 'Yönetici', value: 'manager.fullName' },
-          { text: 'Proje', value: 'projectId' },
-          { text: 'Masraf Merkezi', value: 'costCenterId' },
-          { text: 'Başl. Tar.', value: 'startingDate' },
-          { text: 'Bit. Tar.', value: 'endingDate' },
           { text: 'Durumu', value: 'isActive' },
         ],
       }

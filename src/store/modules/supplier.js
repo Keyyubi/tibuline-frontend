@@ -10,7 +10,7 @@ const state = {
   experienceSpans: [],
   jobTitles: [],
   projects: [],
-  budgetPlans: [],
+  activities: [],
   company: {},
 }
 
@@ -26,11 +26,10 @@ const actions = {
         store.set('admin/project', [...store.get('admin/project'), res.data])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
       })
-      .catch(({ response }) => {
-        const { errors } = response.data.error
-        const msg = errors.join(' ')
+      .catch(error => {
+        console.log('Error', error)
         store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', msg)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
@@ -42,17 +41,16 @@ const actions = {
   createConsultant: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('Consultant'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.post(CreateURL('Consultant/SaveConsultant'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         console.log('res', res)
         store.set('supplier/consultants', [...store.get('supplier/consultants'), res.data])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
       })
-      .catch(({ response }) => {
-        const { errors } = response.data.error
-        const msg = errors.join(' ')
+      .catch(error => {
+        console.log('Error', error)
         store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', msg)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
@@ -62,22 +60,21 @@ const actions = {
       })
   },
   // Update Methods
-  updateBudgetPlan: (context, payload) => {
+  updateActivity: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.put(CreateURL('BudgetPlan'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.put(CreateURL('Activity/UpdateActivity'), payload, GetPostHeaders(store.get('user/user').token))
       .then(() => {
-        const arr = store.get('admin/budgetPlans')
+        const arr = store.get('admin/activities')
         const index = arr.findIndex(e => e.id === payload.id)
         arr[index] = payload
-        store.set('admin/budgetPlans', [...arr])
+        store.set('admin/activities', [...arr])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
       })
-      .catch(({ response }) => {
-        const { errors } = response.data.error
-        const msg = errors.join(' ')
+      .catch(error => {
+        console.log('Error', error)
         store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', msg)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
@@ -89,16 +86,16 @@ const actions = {
   // Get Methods
   getConsultants: () => {
     store.set('app/isLoading', true)
+    const currUser = store.get('user/user')
 
-    axios.get(CreateURL('Consultant'), GetPostHeaders(store.get('user/user').token))
+    axios.get(CreateURL(`Consultant/GetConsultantsByCompanyId/${currUser.companyId}`), GetPostHeaders(currUser.token))
       .then(({ data: res }) => {
         store.set('supplier/consultants', res.data)
       })
-      .catch(({ response }) => {
-        const { errors } = response.data.error
-        const msg = errors.join(' ')
+      .catch(error => {
+        console.log('Error', error)
         store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', msg)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
