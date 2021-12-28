@@ -99,6 +99,11 @@ const adminItems = [
     icon: 'mdi-currency-usd',
     to: '/admin/budgets/',
   },
+  {
+    title: 'Projeler',
+    icon: 'mdi-folder-table-outline',
+    to: '/admin/projects',
+  },
 ]
 
 // Data

@@ -32,10 +32,10 @@
       <!-- eslint-disable-next-line -->
       <template v-slot:item.isActive="{ item }">
         <v-chip
-          :color="item.situation.color"
+          :color="item.isActive ? 'green' : 'grey'"
           dark
         >
-          {{ item.situation.label }}
+          {{ item.isActive ? 'Aktif' : 'Pasif' }}
         </v-chip>
       </template>
     </v-data-table>
@@ -55,15 +55,21 @@
             align: 'start',
             value: 'id',
           },
-          { text: 'Ad', value: 'firstname' },
-          { text: 'soyad', value: 'lastname' },
+          { text: 'Ad', value: 'firstName' },
+          { text: 'Soyad', value: 'lastName' },
           { text: 'Yönetici', value: 'manager.fullName' },
           { text: 'Durumu', value: 'isActive' },
         ],
       }
     },
     computed: {
-      ...get('supplier', ['consultants']),
+      ...get('supplier', [
+        'consultants',
+        'jobTitles',
+        'experienceSpans',
+        'projects',
+        'unitManagers',
+      ]),
     },
     mounted () {
       this.$store.dispatch('supplier/getConsultants')

@@ -172,8 +172,8 @@
                 <v-select
                   v-model="newUser.companyId"
                   :items="companies"
-                  item-text="label"
-                  item-value="value"
+                  item-text="name"
+                  item-value="id"
                   label="Şirket"
                   :rules="[v => (!!v || v === 0) || 'Şirket seçmelisiniz']"
                   required
@@ -280,17 +280,15 @@
           { label: 'Birim Müdürü', value: 1 },
           { label: 'Tedarikçi', value: 2 },
         ],
-        companies: [
-          { label: 'Tibula', value: 99 },
-          { label: 'Garanti', value: 0 },
-          { label: 'Akbank', value: 1 },
-          { label: 'Mafre', value: 2 },
-        ],
       }
     },
     computed: {
       ...get('user', ['user']),
       ...get('app', ['responseMsg', 'isErrorMsg']),
+      ...get('admin', ['companies']),
+    },
+    mounted () {
+      this.$store.dispatch('admin/getCompanies')
     },
     methods: {
       reset () {

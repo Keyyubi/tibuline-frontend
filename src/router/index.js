@@ -38,6 +38,7 @@ const router = new Router({
 
        // Admin Routes
        route('admin/Users', null, '/admin/users'),
+       route('admin/Projects', null, '/admin/projects'),
        route('admin/Suppliers', null, 'admin/suppliers'),
        route('admin/CostCenters', null, 'admin/cost-centers'),
        route('admin/JobTitles', null, 'admin/job-titles'),

@@ -75,7 +75,7 @@
                       <v-row>
                         <v-col>
                           <v-text-field
-                            v-model="selectedExperienceSpan.experienceSpanTime"
+                            v-model="selectedExperienceSpan.name"
                             label="Tecrübe Aralığı"
                           />
                         </v-col>
@@ -120,7 +120,7 @@
             <v-row>
               <v-col cols="6">
                 <v-text-field
-                  v-model="newExperienceSpan.experienceSpanTime"
+                  v-model="newExperienceSpan.name"
                   label="Tercübe Aralığı"
                   :rules="[v => !!v || 'Bu alan boş geçilemez.']"
                   required
@@ -170,14 +170,14 @@
         searchWord: '',
         dialog: false,
         selectedExperienceSpan: {},
-        newExperienceSpan: { experienceSpanTime: '' },
+        newExperienceSpan: { name: '' },
         headers: [
           {
             text: 'İşlem',
             align: 'start',
             value: 'id',
           },
-          { text: 'Tecrübe Aralığı', value: 'experienceSpanTime' },
+          { text: 'Tecrübe Aralığı', value: 'name' },
         ],
       }
     },

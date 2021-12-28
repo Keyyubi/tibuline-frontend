@@ -12,14 +12,15 @@
 
     <v-data-table
       :headers="headers"
-      :items="requests"
+      :items="unitManagers"
       :search="searchWord"
     >
-      <template v-slot:item.id="{ item }">
+      <template v-slot:item.userName="{ item }">
         <v-dialog
           v-model="dialog"
           width="960"
           :retain-focus="false"
+          offset-x
         >
           <!-- eslint-disable-next-line -->
           <template v-slot:activator="{ on, attrs }">
@@ -27,9 +28,9 @@
               class="ma-2"
               color="primary"
               dark
-              @click="showRequest(item)"
+              @click="seeDetails(item)"
             >
-              <b>{{ item.id }}</b>
+              <b>{{ item.userName }}</b>
               <v-icon right>
                 mdi-arrow-right-bold
               </v-icon>
@@ -38,225 +39,129 @@
 
           <v-card>
             <v-card-title class="text-h5 primary white--text">
-              Talep Detayları
+              Kullanıcı Güncelle
             </v-card-title>
 
             <v-card-text>
               <v-container class="py-3">
-                <v-row>
-                  <v-col
-                    cols="12"
-                    md="4"
-                  >
-                    <v-text-field
-                      disabled
-                      color="purple"
-                      label="Birim Müdürü"
-                      value="Fatih Cigeroglu"
-                    />
-                  </v-col>
-
-                  <!-- Supplier -->
-                  <v-col
-                    cols="12"
-                    md="4"
-                  >
-                    <v-select
-                      v-model="selectedRequest.supplier"
-                      :items="suppliers"
-                      item-text="company"
-                      item-value="id"
-                      label="Tedarikçi Firma"
-                      persistent-hint
-                      return-object
-                      single-line
-                      @change="selectTarget('supplierId', selectedRequest.supplier)"
-                    />
-                  </v-col>
-
-                  <!-- Cost Center -->
-                  <v-col
-                    cols="12"
-                    md="4"
-                  >
-                    <v-select
-                      v-model="selectedRequest.costCenter"
-                      :items="costCenters"
-                      item-text="center"
-                      item-value="abbr"
-                      label="Masraf Merkezi"
-                      return-object
-                      @change="selectTarget('costCenterId', selectedRequest.costCenter)"
-                    />
-                  </v-col>
-
-                  <!-- Job Title -->
-                  <v-col
-                    cols="12"
-                    md="4"
-                  >
-                    <v-select
-                      v-model="selectedRequest.jobTitle"
-                      :items="jobTitles"
-                      item-text="title"
-                      item-value="abbr"
-                      label="Ünvan"
-                      return-object
-                      @change="selectTarget('jobTitleId', selectedRequest.jobTitle)"
-                    />
-                  </v-col>
-
-                  <!-- Experience -->
-                  <v-col
-                    cols="12"
-                    md="4"
-                  >
-                    <v-select
-                      v-model="selectedRequest.experience"
-                      :items="experiences"
-                      item-text="text"
-                      item-value="id"
-                      label="Tecrübe Aralığı"
-                      return-object
-                      @change="selectTarget('experienceId', selectedRequest.experience)"
-                    />
-                  </v-col>
-
-                  <!-- Monthly Budget -->
-                  <v-col
-                    cols="12"
-                    md="4"
-                  >
-                    <v-text-field
-                      color="purple"
-                      disabled
-                      label="Aylık Bütçe"
-                      type="number"
-                      :value="selectedRequest.monthlyBudget"
-                    />
-                  </v-col>
-
-                  <!-- Starting Date -->
-                  <v-col
-                    cols="12"
-                    md="4"
-                  >
-                    <v-menu
-                      ref="menu1"
-                      v-model="selectedRequest.menu1"
-                      :close-on-content-click="false"
-                      transition="scale-transition"
-                      offset-y
-                      max-width="290px"
-                      min-width="auto"
+                <v-form
+                  ref="form"
+                  v-model="valid"
+                  lazy-validation
+                >
+                  <v-row>
+                    <!-- Username -->
+                    <v-col
+                      cols="12"
+                      md="4"
                     >
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-text-field
-                          v-model="selectedRequest.startingDate"
-                          label="Başlangıç Tarihi"
-                          persistent-hint
-                          prepend-icon="mdi-calendar"
-                          v-bind="attrs"
-                          v-on="on"
-                        />
-                      </template>
-                      <v-date-picker
-                        v-model="selectedRequest.startingDate"
-                        no-title
-                        @input="menu1 = false"
+                      <v-text-field
+                        v-model="selectedUser.userName"
+                        label="Kullanıcı Adı"
+                        :rules="[v => !!v || 'Kullanıcı adı boş geçilemez',]"
+                        required
                       />
-                    </v-menu>
-                  </v-col>
+                    </v-col>
 
-                  <!-- Due Date -->
-                  <v-col
-                    cols="12"
-                    md="4"
-                  >
-                    <v-menu
-                      ref="menu2"
-                      v-model="menu2"
-                      :close-on-content-click="false"
-                      transition="scale-transition"
-                      offset-y
-                      max-width="290px"
-                      min-width="auto"
+                    <!-- Email -->
+                    <v-col
+                      cols="12"
+                      md="4"
                     >
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-text-field
-                          v-model="selectedRequest.endingDate"
-                          label="Bitiş Tarihi"
-                          persistent-hint
-                          prepend-icon="mdi-calendar"
-                          v-bind="attrs"
-                          v-on="on"
-                        />
-                      </template>
-                      <v-date-picker
-                        v-model="selectedRequest.endingDate"
-                        no-title
-                        @input="menu2 = false"
+                      <v-text-field
+                        v-model="selectedUser.email"
+                        label="E-mail"
+                        :rules="emailRules"
+                        required
                       />
-                    </v-menu>
-                  </v-col>
+                    </v-col>
 
-                  <!-- Total Budget -->
-                  <v-col
-                    cols="12"
-                    md="4"
-                  >
-                    <v-text-field
-                      color="purple"
-                      disabled
-                      label="Toplam Bütçe"
-                      type="number"
-                      :value="selectedRequest.totalBudget"
-                    />
-                  </v-col>
+                    <!-- Firstname -->
+                    <v-col
+                      cols="12"
+                      md="4"
+                    >
+                      <v-text-field
+                        v-model="selectedUser.firstName"
+                        label="Adı"
+                        :rules="[v => !!v || 'Ad boş geçilemez',]"
+                        required
+                      />
+                    </v-col>
 
-                  <!-- Project -->
-                  <v-col
-                    cols="6"
-                    md="4"
-                    class="text-right"
-                  >
-                    <v-select
-                      v-model="selectedRequest.project"
-                      :items="projects"
-                      item-text="label"
-                      item-value="code"
-                      label="Hedef Proje"
-                      return-object
-                    />
-                  </v-col>
-                </v-row>
-                <v-row align="center">
-                  <v-divider class="mr-3" />Tedarikçi Bölümü<v-divider class="ml-3" />
-                </v-row>
-                <v-row class="mt-3">
-                  <v-col
-                    cols="12"
-                    sm="6"
-                    md="3"
-                  >
-                    <v-text-field
-                      v-model="selectedConsultant"
-                      label="Aday"
-                      readonly
-                    />
-                  </v-col>
-                </v-row>
+                    <!-- Lastname -->
+                    <v-col
+                      cols="12"
+                      md="4"
+                    >
+                      <v-text-field
+                        v-model="selectedUser.lastName"
+                        label="Soyadı"
+                        :rules="[v => !!v || 'Soyad boş geçilemez',]"
+                        required
+                      />
+                    </v-col>
+
+                    <!-- Phone -->
+                    <v-col
+                      cols="12"
+                      md="4"
+                    >
+                      <v-text-field
+                        v-model="selectedUser.phone"
+                        v-mask="'(###) ### ####'"
+                        label="Cep Telefonu"
+                        append-icon="mdi-close"
+                        prepend-icon="mdi-phone"
+                        :rules="phoneRules"
+                        required
+                        @click:append="selectedUser.phone = ''"
+                      />
+                    </v-col>
+
+                    <!-- TCKN -->
+                    <v-col
+                      cols="12"
+                      md="4"
+                    >
+                      <v-text-field
+                        v-model="selectedUser.TCKN"
+                        v-mask="'###########'"
+                        label="TCKN"
+                        :rules="tcnoRules"
+                        required
+                      />
+                    </v-col>
+
+                    <!-- Company -->
+                    <v-col
+                      cols="12"
+                      md="4"
+                    >
+                      <v-select
+                        v-model="selectedUser.companyId"
+                        :items="companies"
+                        item-text="name"
+                        item-value="id"
+                        label="Şirket"
+                        :rules="[v => (!!v || v === 0) || 'Şirket seçmelisiniz']"
+                        required
+                      />
+                    </v-col>
+                  </v-row>
+                </v-form>
               </v-container>
             </v-card-text>
 
             <v-divider />
 
+            <!-- Card Actions -->
             <v-card-actions>
               <v-spacer />
               <v-btn
-                color="primary"
+                color="success"
                 depressed
-                @click="updateRequest"
+                @click="updateUser"
               >
                 Güncelle
               </v-btn>
@@ -271,135 +176,88 @@
           </v-card>
         </v-dialog>
       </template>
-
-      <template v-slot:item.situation.label="{ item }">
-        <v-chip
-          :color="item.situation.id === 0 ? 'orange' : 'green'"
-          dark
-        >
-          {{ item.situation.label }}
-        </v-chip>
+      <template v-slot:item.companyId="{ item }">
+        {{ companies.find(e => e.id === item.companyId).name }}
       </template>
     </v-data-table>
+
+    <!-- Alert Message -->
+    <v-row justify="center">
+      <v-alert
+        v-if="responseMsg.length > 0"
+        :color="isErrorMsg ? 'error' : 'success'"
+        dark
+        border="top"
+        :icon="isErrorMsg ? 'mdi-alert' : 'mdi-check-circle'"
+        transition="scale-transition"
+      >
+        {{ responseMsg }}
+      </v-alert>
+    </v-row>
   </v-card>
 </template>
 
 <script>
+  import { get } from 'vuex-pathify'
   export default {
     name: 'UnitManagers',
     data () {
       return {
-        menu1: false,
-        menu2: false,
-        requestType: 'all',
+        valid: false,
         searchWord: '',
         dialog: false,
-        selectedRequest: {},
-        selectedConsultant: '',
+        selectedUser: {},
+        emailRules: [
+          v => !!v || 'E-mail is required',
+          v => /.+@.+/.test(v) || 'E-mail must be valid',
+        ],
+        phoneRules: [
+          v => !!v || 'Telefon numarası girmelisiniz',
+          v => (v && v.length === 14) || 'Lütfen başında 0 olmadan 10 haneli olarak giriniz.',
+          v => /^(\(5.)/.test(v) || 'Telefon numarası 5 ile başlamalıdır.',
+        ],
+        tcnoRules: [
+          v => !!v || 'T.C. Kimlik Numarası giriniz.',
+          v => (v && v.length === 11) || 'Kimlik numarası 11 haneli olmalıdır.',
+          v => (() => {
+            if (v) {
+              const arr = Array.from(v)
+              let res = 0
+              for (let i = 0; i < arr.length - 1; i++) {
+                res += Number(arr[i])
+              }
+              return (res % 10) === Number(arr[arr.length - 1])
+            } else return true
+          })() || 'Kimlik numarası geçersiz.',
+        ],
         headers: [
           {
-            text: 'Talep No.',
+            text: 'Username.',
             align: 'start',
-            value: 'id',
+            value: 'userName',
           },
-          { text: 'Tedarikçi', value: 'supplier.title' },
-          { text: 'Pozisyon', value: 'position.title' },
-          { text: 'Aday', value: 'consultant.fullName' },
-          { text: 'Talep Durumu', value: 'situation.label' },
-        ],
-        requests: [
-          {
-            id: 1,
-            supplier: { id: 0, title: 'Tibula' },
-            position: { id: 1, title: 'Sr. Software Developer' },
-            consultant: { id: 0, fullName: 'Murathan Karayazi' },
-            situation: { id: 0, label: 'Rezive Bekliyor' },
-            project: { code: '001', label: 'Proje 1' },
-            experience: { id: 0, text: '2-3 Yıl' },
-            jobTitle: { id: 2, title: 'Senior Backend Developer', abbr: 'SRB' },
-            costCenter: { id: 1, center: 'Masraf merkezi 2', abbr: 'MER1' },
-            monthlyBudget: 16.606,
-            totalBudget: '' + (Math.round((12 * 16.606) * 100) / 100),
-            startingDate: '2021-11-10',
-            endingDate: '2022-11-10',
-          },
-          {
-            id: 2,
-            supplier: { id: 0, title: 'Tibula' },
-            position: { id: 1, title: 'Sr. Software Developer' },
-            consultant: { id: 1, fullName: 'Furkan Reyhanlioglu' },
-            situation: { id: 0, label: 'Rezive Bekliyor' },
-            project: { code: '001', label: 'Proje 1' },
-            experience: { id: 0, text: '2-3 Yıl' },
-            jobTitle: { id: 2, title: 'Senior Backend Developer', abbr: 'SRB' },
-            costCenter: { id: 1, center: 'Masraf merkezi 2', abbr: 'MER1' },
-            monthlyBudget: 16.606,
-            totalBudget: '' + (Math.round((12 * 16.606) * 100) / 100),
-            startingDate: '2021-11-10',
-            endingDate: '2022-11-10',
-          },
-          {
-            id: 3,
-            supplier: { id: 0, title: 'Tibula' },
-            position: { id: 1, title: 'Sr. Software Developer' },
-            consultant: { id: 0, fullName: 'Murathan Karayazi' },
-            situation: { id: 1, label: 'Sözleşme Bekliyor' },
-            project: { code: '001', label: 'Proje 1' },
-            experience: { id: 0, text: '2-3 Yıl' },
-            jobTitle: { id: 2, title: 'Senior Backend Developer', abbr: 'SRB' },
-            costCenter: { id: 1, center: 'Masraf merkezi 2', abbr: 'MER1' },
-            monthlyBudget: 16.606,
-            totalBudget: '' + (Math.round((12 * 16.606) * 100) / 100),
-            startingDate: '2021-11-10',
-            endingDate: '2022-11-10',
-          },
-        ],
-        suppliers: [
-          { id: 0, company: 'Tibula', abbr: 'TBL' },
-          { id: 1, company: 'Mirsis', abbr: 'MRS' },
-          { id: 2, company: 'Netas', abbr: 'NE' },
-        ],
-        costCenters: [
-          { id: 0, center: 'POS ve Üye işyerleri', abbr: 'POS' },
-          { id: 1, center: 'Masraf merkezi 2', abbr: 'MER1' },
-          { id: 2, center: 'Masraf merkezi 3', abbr: 'MER2' },
-        ],
-        jobTitles: [
-          { id: 0, title: 'İş Analisti', abbr: 'BSA' },
-          { id: 1, title: 'DevOps Uzmanı', abbr: 'DOPS' },
-          { id: 2, title: 'Senior Backend Developer', abbr: 'SRB' },
-          { id: 3, title: 'Junior Frontend Developer', abbr: 'JRF' },
-        ],
-        experiences: [
-          { id: 0, text: '2-3 Yıl' },
-          { id: 1, text: '3-5 Yıl' },
-          { id: 2, text: '5-8 Yıl' },
-          { id: 3, text: '8-12 Yıl' },
-          { id: 4, text: '12+ Yıl' },
-        ],
-        projects: [
-          { code: '001', label: 'Proje 1' },
-          { code: '002', label: 'Proje 2' },
-          { code: '003', label: 'Proje 3' },
-          { code: '004', label: 'Proje 4' },
+          { text: 'Adı', value: 'firstName' },
+          { text: 'Soyadı', value: 'lastName' },
+          { text: 'Şirket', value: 'companyId' },
+          { text: 'Telefon', value: 'phone' },
+          { text: 'Email', value: 'email' },
         ],
       }
     },
+    computed: {
+      ...get('app', ['responseMsg', 'isErrorMsg']),
+      ...get('admin', ['companies', 'unitManagers']),
+    },
+    mounted () {
+      this.$store.dispatch('admin/getUnitManagers')
+    },
     methods: {
-      editRequest (id) {
-        console.log('id', id)
-      },
-      showRequest (request) {
-        this.selectedRequest = request
-        this.selectedConsultant = request.consultant.fullName
+      seeDetails (user) {
+        this.selectedUser = user
         this.dialog = true
       },
-      selectTarget (target, obj) {
-        // this.request[target] = obj.id
-        console.log(target, obj)
-      },
-      updateRequest () {
-        console.log('selected', this.selectedRequest)
+      updateUser () {
+        this.$store.dispatch('admin/updateUser', this.selectedUser)
       },
     },
   }

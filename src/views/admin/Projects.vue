@@ -1,6 +1,6 @@
 <template>
   <v-container
-    id="experience-spans-view"
+    id="projects-view"
     fluid
     tag="section"
   >
@@ -67,7 +67,7 @@
 
                 <v-card>
                   <v-card-title class="text-h5 primary white--text">
-                    Tecrübe Aralığını Güncelle
+                    Proje Güncelle
                   </v-card-title>
 
                   <v-card-text>
@@ -76,7 +76,7 @@
                         <v-col>
                           <v-text-field
                             v-model="selectedProject.projectTime"
-                            label="Tecrübe Aralığı"
+                            label="Proje"
                           />
                         </v-col>
                       </v-row>
@@ -118,16 +118,116 @@
             lazy-validation
           >
             <v-row>
-              <v-col cols="6">
+              <v-col cols="4">
                 <v-text-field
                   v-model="newProject.projectTime"
-                  label="Tercübe Aralığı"
+                  label="Proje Adı"
                   :rules="[v => !!v || 'Bu alan boş geçilemez.']"
                   required
                 />
               </v-col>
 
-              <v-col cols="6">
+              <!-- Cost Center -->
+              <v-col cols="4">
+                <v-select
+                  v-model="newProject.costCenterId"
+                  :items="costCenters"
+                  item-text="name"
+                  item-value="id"
+                  label="Masraf Merkezi"
+                />
+              </v-col>
+
+              <!-- Unit Manager -->
+              <v-col cols="4">
+                <v-select
+                  v-model="newProject.costCenterId"
+                  :items="unitManagers"
+                  item-text="name"
+                  item-value="id"
+                  label="Proje Sorumlusu"
+                />
+              </v-col>
+
+              <!-- Starting Date -->
+              <v-col
+                cols="12"
+                md="4"
+              >
+                <v-menu
+                  ref="menu1"
+                  v-model="menu1"
+                  :close-on-content-click="false"
+                  transition="scale-transition"
+                  offset-y
+                  max-width="290px"
+                  min-width="auto"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      v-model="newProject.startDate"
+                      label="Başlangıç Tarihi"
+                      persistent-hint
+                      prepend-icon="mdi-calendar"
+                      v-bind="attrs"
+                      v-on="on"
+                    />
+                  </template>
+                  <v-date-picker
+                    v-model="newProject.startDate"
+                    no-title
+                    @input="menu1 = false"
+                  />
+                </v-menu>
+              </v-col>
+
+              <!-- End Date -->
+              <v-col
+                cols="12"
+                md="4"
+              >
+                <v-menu
+                  ref="menu2"
+                  v-model="menu2"
+                  :close-on-content-click="false"
+                  transition="scale-transition"
+                  offset-y
+                  max-width="290px"
+                  min-width="auto"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      v-model="newProject.endDate"
+                      label="Bitiş Tarihi"
+                      persistent-hint
+                      prepend-icon="mdi-calendar"
+                      v-bind="attrs"
+                      v-on="on"
+                    />
+                  </template>
+                  <v-date-picker
+                    v-model="newProject.endDate"
+                    no-title
+                    @input="menu2 = false"
+                  />
+                </v-menu>
+              </v-col>
+
+              <!-- Budget -->
+              <v-col
+                cols="12"
+                md="4"
+              >
+                <v-text-field
+                  v-model="newProject.projectBudget"
+                  v-mask="currencyMask"
+                  append-icon="mdi-currency-try"
+                  label="Proje Bütçesi"
+                  required
+                />
+              </v-col>
+
+              <v-col cols="12">
                 <v-btn
                   class="my-2"
                   width="100%"
@@ -161,16 +261,35 @@
 
 <script>
   import { get } from 'vuex-pathify'
+  import createNumberMask from 'text-mask-addons/dist/createNumberMask'
+  const currencyMask = createNumberMask({
+    prefix: '',
+    allowDecimal: true,
+    includeThousandsSeparator: true,
+    allowNegative: false,
+  })
   export default {
     name: 'Projects',
     data () {
       return {
+        menu1: false,
+        menu2: false,
         valid: true,
+        currencyMask,
         currentTab: 'projects',
         searchWord: '',
         dialog: false,
         selectedProject: {},
-        newProject: { projectTime: '' },
+        newProject: {
+          name: '',
+          createdBy: 0,
+          assignedTo: 0,
+          costCenter: 0,
+          startDate: null,
+          endDate: null,
+          projectBudget: 0,
+          projectStatus: 0,
+        },
         headers: [
           {
             text: 'İşlem',
@@ -183,10 +302,12 @@
     },
     computed: {
       ...get('app', ['responseMsg', 'isErrorMsg']),
-      ...get('admin', ['projects']),
+      ...get('user', ['user']),
+      ...get('admin', ['projects', 'unitManagers', 'costCenters']),
     },
     mounted () {
       this.$store.dispatch('admin/getProjects')
+      this.$store.dispatch('admin/getCostCenters')
     },
     methods: {
       editProject (item) {

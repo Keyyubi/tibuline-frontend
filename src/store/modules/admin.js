@@ -1,4 +1,4 @@
-import { CreateURL, GetPostHeaders } from '@/util/globals'
+import { CreateURL, GetPostHeaders, ROLE_IDS } from '@/util/globals'
 import axios from 'axios'
 import { make } from 'vuex-pathify'
 import store from '../index'
@@ -22,7 +22,7 @@ const actions = {
   createUser: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('User'), payload)
+    axios.post(CreateURL('User/CreateUser'), payload)
       .then(res => {
         store.set('app/isErrorMsg', false)
         store.set('app/responseMsg', 'Kullanıcı başarıyla oluşturuldu.')
@@ -42,9 +42,9 @@ const actions = {
   createBudgetPlan: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('BudgetCalculation'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.post(CreateURL('BudgetCalculation/SaveBudgetCalculation'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
-        store.set('admin/jobTitles', [...store.get('admin/budgetPlans'), res.data])
+        store.set('admin/budgetPlans', [...store.get('admin/budgetPlans'), res.data])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
       })
       .catch(error => {
@@ -62,7 +62,7 @@ const actions = {
   createCompany: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('Company'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.post(CreateURL('Company/SaveCompany'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/companies', [...store.get('admin/companies'), res.data])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
@@ -82,7 +82,7 @@ const actions = {
   createCostCenter: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('CostCenter'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.post(CreateURL('CostCenter/SaveCostCenter'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/costCenters', [...store.get('admin/costCenters'), res.data])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
@@ -102,27 +102,12 @@ const actions = {
   createExperienceSpan: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('ExperienceSpan'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.post(CreateURL('ExperienceSpan/SaveExperienceSpan'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/experienceSpans', [...store.get('admin/experienceSpans'), res.data])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
       })
       .catch(error => {
-        // ? AXIOS ERROR HANDLING EXAMPLE
-        // if (error.response) {
-        //   // Request made and server responded
-        //   console.log(error.response.data)
-        //   console.log(error.response.status)
-        //   console.log(error.response.headers)
-        // } else if (error.request) {
-        //   // The request was made but no response was received
-        //   console.log(error.request)
-        // } else {
-        //   // Something happened in setting up the request that triggered an Error
-        //   console.log('Error', error.message)
-        // }
-        // ? END OF EXAMPLE
-
         console.log('Error', error)
         store.set('app/isErrorMsg', true)
         store.set('app/responseMsg', 'Bir hata oluştu.')
@@ -137,7 +122,7 @@ const actions = {
   createJobTitle: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('JobTitle'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.post(CreateURL('JobTitle/SaveJobTitle'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/jobTitles', [...store.get('admin/jobTitles'), res.data])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
@@ -157,7 +142,7 @@ const actions = {
   createProject: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('Project'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.post(CreateURL('Project/SaveProject'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/project', [...store.get('admin/project'), res.data])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
@@ -177,7 +162,7 @@ const actions = {
   updateBudgetPlan: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.put(CreateURL('BudgetPlan'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.put(CreateURL('BudgetCalculation/UpdateBudgetCalculation'), payload, GetPostHeaders(store.get('user/user').token))
       .then(() => {
         const arr = store.get('admin/budgetPlans')
         const index = arr.findIndex(e => e.id === payload.id)
@@ -200,7 +185,7 @@ const actions = {
   updateCompany: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.put(CreateURL('Company'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.put(CreateURL('Company/UpdateCompany'), payload, GetPostHeaders(store.get('user/user').token))
       .then(() => {
         const arr = store.get('admin/companies')
         const index = arr.findIndex(e => e.id === payload.id)
@@ -223,7 +208,7 @@ const actions = {
   updateCostCenter: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.put(CreateURL('CostCenter'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.put(CreateURL('CostCenter/UpdateCostCenter'), payload, GetPostHeaders(store.get('user/user').token))
       .then(() => {
         const arr = store.get('admin/costCenters')
         const index = arr.findIndex(e => e.id === payload.id)
@@ -246,7 +231,7 @@ const actions = {
   updateExperienceSpan: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.put(CreateURL('ExperienceSpan'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.put(CreateURL('ExperienceSpan/UpdateExperienceSpan'), payload, GetPostHeaders(store.get('user/user').token))
       .then(() => {
         const arr = store.get('admin/experienceSpans')
         const index = arr.findIndex(e => e.id === payload.id)
@@ -269,7 +254,7 @@ const actions = {
   updateJobTitle: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.put(CreateURL('JobTitle'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.put(CreateURL('JobTitle/UpdateJobTitle'), payload, GetPostHeaders(store.get('user/user').token))
       .then(() => {
         const arr = store.get('admin/jobTitles')
         const index = arr.findIndex(e => e.id === payload.id)
@@ -292,7 +277,7 @@ const actions = {
   updateProject: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.put(CreateURL('Project'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.put(CreateURL('Project/UpdateProject'), payload, GetPostHeaders(store.get('user/user').token))
       .then(() => {
         const arr = store.get('admin/projects')
         const index = arr.findIndex(e => e.id === payload.id)
@@ -312,12 +297,16 @@ const actions = {
         }, 2000)
       })
   },
-  getUnitManagers: () => {
+  updateUser: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL('User/UnitManagers'))
-      .then(({ data: res }) => {
-        store.set('admin/unitManagers', res.data)
+    axios.put(CreateURL('User/UpdateUser'), payload, GetPostHeaders(store.get('user/user').token))
+      .then(() => {
+        const arr = payload.roleId === ROLE_IDS.UNIT_MANAGER ? store.get('admin/unitManagers') : store.get('admin/suppliers')
+        const index = arr.findIndex(e => e.id === payload.id)
+        arr[index] = payload
+        store.set('admin/projects', [...arr])
+        store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
       })
       .catch(error => {
         console.log('Error', error)
@@ -331,12 +320,31 @@ const actions = {
         }, 2000)
       })
   },
-  getSuppliers: () => {
+  getBudgetPlans: () => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL('User/Suppliers'))
+    axios.get(CreateURL('BudgetCalculation/GetBudgetCalculations'), GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
-        store.set('admin/unitManagers', res.data)
+        store.set('admin/budgetPlans', res.data)
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.set('app/isErrorMsg', true)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+        setTimeout(() => {
+          store.set('app/responseMsg', '')
+        }, 2000)
+      })
+  },
+  getCompanies: () => {
+    store.set('app/isLoading', true)
+
+    axios.get(CreateURL('Company/GetCompanys'), GetPostHeaders(store.get('user/user').token))
+      .then(({ data: res }) => {
+        store.set('admin/companies', res.data)
       })
       .catch(error => {
         console.log('Error', error)
@@ -353,7 +361,7 @@ const actions = {
   getCostCenters: () => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL('CostCenter'), GetPostHeaders(store.get('user/user').token))
+    axios.get(CreateURL('CostCenter/GetCostCenters'), GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/costCenters', res.data)
       })
@@ -372,9 +380,28 @@ const actions = {
   getExperienceSpans: () => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL('ExperienceSpan'), GetPostHeaders(store.get('user/user').token))
+    axios.get(CreateURL('ExperienceSpan/GetExperienceSpans'), GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/experienceSpans', res.data)
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.set('app/isErrorMsg', true)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+        setTimeout(() => {
+          store.set('app/responseMsg', '')
+        }, 2000)
+      })
+  },
+  getUnitManagers: () => {
+    store.set('app/isLoading', true)
+
+    axios.get(CreateURL(`User/GetUsersByRoleId/${ROLE_IDS.UNIT_MANAGER}`), GetPostHeaders(store.get('user/user').token))
+      .then(({ data: res }) => {
+        store.set('admin/unitManagers', res.data)
       })
       .catch(error => {
         console.log('Error', error)
@@ -391,9 +418,47 @@ const actions = {
   getJobTitles: () => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL('JobTitle'), GetPostHeaders(store.get('user/user').token))
+    axios.get(CreateURL('JobTitle/GetJobTitles'), GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/jobTitles', res.data)
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.set('app/isErrorMsg', true)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+        setTimeout(() => {
+          store.set('app/responseMsg', '')
+        }, 2000)
+      })
+  },
+  getProjects: () => {
+    store.set('app/isLoading', true)
+
+    axios.get(CreateURL('Project/GetProjects'), GetPostHeaders(store.get('user/user').token))
+      .then(({ data: res }) => {
+        store.set('admin/projects', res.data)
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.set('app/isErrorMsg', true)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+        setTimeout(() => {
+          store.set('app/responseMsg', '')
+        }, 2000)
+      })
+  },
+  getSuppliers: () => {
+    store.set('app/isLoading', true)
+
+    axios.get(CreateURL(`User/GetUsersByRoleId/${ROLE_IDS.SUPPLIER}`), GetPostHeaders(store.get('user/user').token))
+      .then(({ data: res }) => {
+        store.set('admin/suppliers', res.data)
       })
       .catch(error => {
         console.log('Error', error)

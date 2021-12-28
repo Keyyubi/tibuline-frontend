@@ -86,7 +86,7 @@
                             md="4"
                           >
                             <v-text-field
-                              v-model="selectedCompany.companyName"
+                              v-model="selectedCompany.name"
                               label="Şirket Adı"
                               :rules="[v => !!v || 'Şirket adı boş geçilemez',]"
                               required
@@ -112,7 +112,7 @@
                             md="4"
                           >
                             <v-text-field
-                              v-model="selectedCompany.tckn_vkn"
+                              v-model="selectedCompany.tckN_VKN"
                               v-mask="'###########'"
                               label="TCKN / VKN"
                               :rules="tcnoRules"
@@ -195,7 +195,7 @@
                 md="6"
               >
                 <v-text-field
-                  v-model="newCompany.companyName"
+                  v-model="newCompany.name"
                   label="Şirket Adı"
                   :rules="[v => !!v || 'Şirket adı boş geçilemez',]"
                   required
@@ -318,7 +318,7 @@
         dialog: false,
         selectedCompany: {},
         newCompany: {
-          companyName: null,
+          name: null,
           email: null,
           tckn_vkn: null,
           phone: null,
@@ -353,7 +353,7 @@
             align: 'start',
             value: 'id',
           },
-          { text: 'Şirket', value: 'companyName' },
+          { text: 'Şirket', value: 'name' },
           { text: 'E-mail', value: 'email' },
           { text: 'Telefon', value: 'phone' },
           { text: 'Adres', value: 'address' },
@@ -368,6 +368,7 @@
     mounted () {
       this.$store.dispatch('admin/getJobTitles')
       this.$store.dispatch('admin/getExperienceSpans')
+      this.$store.dispatch('admin/getCompanies')
     },
     methods: {
       reset () {
@@ -375,7 +376,7 @@
       },
       closeDialog () {
         this.dialog = false
-        this.$refs.editForm.reset()
+        this.selectedCompany = {}
       },
       editCompany (item) {
         this.selectedCompany = item

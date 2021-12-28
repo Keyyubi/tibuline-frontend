@@ -67,7 +67,7 @@ const actions = {
         }
       })
       .then(loggedUser => {
-        axios.get(CreateURL(`/Company/${loggedUser.companyId}`), GetPostHeaders(loggedUser.token))
+        axios.get(CreateURL(`/Company/GetCompanyById/${loggedUser.companyId}`), GetPostHeaders(loggedUser.token))
         .then(({ data: res }) => {
           loggedUser = {
             ...loggedUser,
