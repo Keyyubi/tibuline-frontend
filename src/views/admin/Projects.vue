@@ -66,43 +66,151 @@
                 </template>
 
                 <v-card>
-                  <v-card-title class="text-h5 primary white--text">
-                    Proje Güncelle
-                  </v-card-title>
+                  <v-form
+                    ref="form"
+                    v-model="valid2"
+                    lazy-validation
+                  >
+                    <v-card-title class="text-h5 primary white--text">
+                      Proje Güncelle
+                    </v-card-title>
 
-                  <v-card-text>
-                    <v-container class="py-3">
-                      <v-row>
-                        <v-col>
-                          <v-text-field
-                            v-model="selectedProject.projectTime"
-                            label="Proje"
-                          />
-                        </v-col>
-                      </v-row>
-                    </v-container>
-                  </v-card-text>
+                    <v-card-text>
+                      <v-container class="py-3">
+                        <v-row>
+                          <v-col cols="4">
+                            <v-text-field
+                              v-model="newProject.projectTime"
+                              label="Proje Adı"
+                              :rules="[v => !!v || 'Bu alan boş geçilemez.']"
+                              required
+                            />
+                          </v-col>
 
-                  <v-divider />
+                          <!-- Cost Center -->
+                          <v-col cols="4">
+                            <v-select
+                              v-model="selectedProject.costCenterId"
+                              :items="costCenters"
+                              item-text="name"
+                              item-value="id"
+                              label="Masraf Merkezi"
+                            />
+                          </v-col>
 
-                  <!-- Card Actions -->
-                  <v-card-actions>
-                    <v-spacer />
-                    <v-btn
-                      color="primary"
-                      depressed
-                      @click="updateProject"
-                    >
-                      Güncelle
-                    </v-btn>
-                    <v-btn
-                      color="error"
-                      depressed
-                      @click="dialog = false"
-                    >
-                      Vazgeç
-                    </v-btn>
-                  </v-card-actions>
+                          <!-- Unit Manager -->
+                          <v-col cols="4">
+                            <v-select
+                              v-model="selectedProject.assignedTo"
+                              :items="unitManagers"
+                              item-text="name"
+                              item-value="id"
+                              label="Proje Sorumlusu"
+                            />
+                          </v-col>
+
+                          <!-- Starting Date -->
+                          <v-col
+                            cols="12"
+                            md="4"
+                          >
+                            <v-menu
+                              ref="menu3"
+                              v-model="menu3"
+                              :close-on-content-click="false"
+                              transition="scale-transition"
+                              offset-y
+                              max-width="290px"
+                              min-width="auto"
+                            >
+                              <template v-slot:activator="{ on, attrs }">
+                                <v-text-field
+                                  v-model="selectedProject.startDate"
+                                  label="Başlangıç Tarihi"
+                                  persistent-hint
+                                  prepend-icon="mdi-calendar"
+                                  v-bind="attrs"
+                                  v-on="on"
+                                />
+                              </template>
+                              <v-date-picker
+                                v-model="selectedProject.startDate"
+                                no-title
+                                @input="menu3 = false"
+                              />
+                            </v-menu>
+                          </v-col>
+
+                          <!-- End Date -->
+                          <v-col
+                            cols="12"
+                            md="4"
+                          >
+                            <v-menu
+                              ref="menu4"
+                              v-model="menu4"
+                              :close-on-content-click="false"
+                              transition="scale-transition"
+                              offset-y
+                              max-width="290px"
+                              min-width="auto"
+                            >
+                              <template v-slot:activator="{ on, attrs }">
+                                <v-text-field
+                                  v-model="selectedProject.endDate"
+                                  label="Bitiş Tarihi"
+                                  persistent-hint
+                                  prepend-icon="mdi-calendar"
+                                  v-bind="attrs"
+                                  v-on="on"
+                                />
+                              </template>
+                              <v-date-picker
+                                v-model="selectedProject.endDate"
+                                no-title
+                                @input="menu4 = false"
+                              />
+                            </v-menu>
+                          </v-col>
+
+                          <!-- Budget -->
+                          <v-col
+                            cols="12"
+                            md="4"
+                          >
+                            <v-text-field
+                              v-model="selectedProject.projectBudget"
+                              v-mask="currencyMask"
+                              append-icon="mdi-currency-try"
+                              label="Proje Bütçesi"
+                              required
+                            />
+                          </v-col>
+                        </v-row>
+                      </v-container>
+                    </v-card-text>
+
+                    <v-divider />
+
+                    <!-- Card Actions -->
+                    <v-card-actions>
+                      <v-spacer />
+                      <v-btn
+                        color="primary"
+                        depressed
+                        @click="updateProject"
+                      >
+                        Güncelle
+                      </v-btn>
+                      <v-btn
+                        color="error"
+                        depressed
+                        @click="dialog = false"
+                      >
+                        Vazgeç
+                      </v-btn>
+                    </v-card-actions>
+                  </v-form>
                 </v-card>
               </v-dialog>
             </template>
@@ -140,10 +248,11 @@
 
               <!-- Unit Manager -->
               <v-col cols="4">
-                <v-select
-                  v-model="newProject.costCenterId"
+                <v-autocomplete
+                  v-model="newProject.assignedTo"
                   :items="unitManagers"
-                  item-text="name"
+                  :item-text="item => item.firstName + ' ' + item.lastName"
+                  itemprop="firstName"
                   item-value="id"
                   label="Proje Sorumlusu"
                 />
@@ -274,7 +383,10 @@
       return {
         menu1: false,
         menu2: false,
+        menu3: false,
+        menu4: false,
         valid: true,
+        valid2: true,
         currencyMask,
         currentTab: 'projects',
         searchWord: '',
@@ -292,11 +404,14 @@
         },
         headers: [
           {
-            text: 'İşlem',
+            text: 'Güncelle',
             align: 'start',
             value: 'id',
           },
-          { text: 'Tecrübe Aralığı', value: 'projectTime' },
+          { text: 'Proje', value: 'name' },
+          { text: 'Sorumlusu', value: 'assignedTo' },
+          { text: 'Baş. Tar.', value: 'startDate' },
+          { text: 'Bit. Tar.', value: 'endDate' },
         ],
       }
     },
@@ -308,10 +423,11 @@
     mounted () {
       this.$store.dispatch('admin/getProjects')
       this.$store.dispatch('admin/getCostCenters')
+      this.$store.dispatch('admin/getUnitManagers')
     },
     methods: {
       editProject (item) {
-        this.selectedProject = { ...item }
+        this.selectedProject = item
         this.dialog = true
       },
       updateProject () {
@@ -320,8 +436,11 @@
       },
       createProject () {
         if (this.$refs.form.validate()) {
+          const payload = { ...this.newProject }
+          payload.createdBy = this.user.id
+          console.log('this.user', payload)
           this.dialog = false
-          this.$store.dispatch('admin/createProject', this.newProject)
+          // this.$store.dispatch('admin/createProject', payload)
           this.$refs.form.reset()
         }
       },
