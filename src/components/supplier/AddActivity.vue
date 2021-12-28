@@ -417,7 +417,7 @@
           }
         }
       },
-      creteOrUpdateEvent () {
+      async creteOrUpdateEvent () {
         if (this.selectedEvent.date) {
           const index = this.activities.findIndex(e => e.date === this.selectedEvent.date)
 
@@ -428,6 +428,8 @@
           }
 
           this.calculateTotalHours()
+          await this.sleep(300)
+          this.$store.dispatch('supplier/getConsultantActivities', this.selectedConsultant)
         } else console.log('bulunamadi')
         this.dialog = false
       },

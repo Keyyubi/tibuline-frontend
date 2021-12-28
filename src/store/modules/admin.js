@@ -36,6 +36,7 @@ const actions = {
         store.set('app/isLoading', false)
         setTimeout(() => {
           store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
         }, 2000)
       })
   },
@@ -56,6 +57,7 @@ const actions = {
         store.set('app/isLoading', false)
         setTimeout(() => {
           store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
         }, 2000)
       })
   },
@@ -76,6 +78,7 @@ const actions = {
         store.set('app/isLoading', false)
         setTimeout(() => {
           store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
         }, 2000)
       })
   },
@@ -96,6 +99,7 @@ const actions = {
         store.set('app/isLoading', false)
         setTimeout(() => {
           store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
         }, 2000)
       })
   },
@@ -116,6 +120,7 @@ const actions = {
         store.set('app/isLoading', false)
         setTimeout(() => {
           store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
         }, 2000)
       })
   },
@@ -136,6 +141,7 @@ const actions = {
         store.set('app/isLoading', false)
         setTimeout(() => {
           store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
         }, 2000)
       })
   },
@@ -156,6 +162,7 @@ const actions = {
         store.set('app/isLoading', false)
         setTimeout(() => {
           store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
         }, 2000)
       })
   },
@@ -179,6 +186,7 @@ const actions = {
         store.set('app/isLoading', false)
         setTimeout(() => {
           store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
         }, 2000)
       })
   },
@@ -202,6 +210,7 @@ const actions = {
         store.set('app/isLoading', false)
         setTimeout(() => {
           store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
         }, 2000)
       })
   },
@@ -225,6 +234,7 @@ const actions = {
         store.set('app/isLoading', false)
         setTimeout(() => {
           store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
         }, 2000)
       })
   },
@@ -248,6 +258,7 @@ const actions = {
         store.set('app/isLoading', false)
         setTimeout(() => {
           store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
         }, 2000)
       })
   },
@@ -271,6 +282,7 @@ const actions = {
         store.set('app/isLoading', false)
         setTimeout(() => {
           store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
         }, 2000)
       })
   },
@@ -294,6 +306,7 @@ const actions = {
         store.set('app/isLoading', false)
         setTimeout(() => {
           store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
         }, 2000)
       })
   },
@@ -317,6 +330,7 @@ const actions = {
         store.set('app/isLoading', false)
         setTimeout(() => {
           store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
         }, 2000)
       })
   },
@@ -336,6 +350,7 @@ const actions = {
         store.set('app/isLoading', false)
         setTimeout(() => {
           store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
         }, 2000)
       })
   },
@@ -355,6 +370,7 @@ const actions = {
         store.set('app/isLoading', false)
         setTimeout(() => {
           store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
         }, 2000)
       })
   },
@@ -374,6 +390,7 @@ const actions = {
         store.set('app/isLoading', false)
         setTimeout(() => {
           store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
         }, 2000)
       })
   },
@@ -393,6 +410,7 @@ const actions = {
         store.set('app/isLoading', false)
         setTimeout(() => {
           store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
         }, 2000)
       })
   },
@@ -412,6 +430,7 @@ const actions = {
         store.set('app/isLoading', false)
         setTimeout(() => {
           store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
         }, 2000)
       })
   },
@@ -431,6 +450,7 @@ const actions = {
         store.set('app/isLoading', false)
         setTimeout(() => {
           store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
         }, 2000)
       })
   },
@@ -450,6 +470,7 @@ const actions = {
         store.set('app/isLoading', false)
         setTimeout(() => {
           store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
         }, 2000)
       })
   },
@@ -469,6 +490,7 @@ const actions = {
         store.set('app/isLoading', false)
         setTimeout(() => {
           store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
         }, 2000)
       })
   },

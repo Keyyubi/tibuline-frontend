@@ -176,7 +176,11 @@ const actions = {
     context.commit('isErrorMsg', payload.isError)
     setTimeout(() => {
       context.commit('responseMsg', '')
+      context.commit('isErrorMsg', false)
     }, 2000)
+  },
+  setLoading: (context, payload) => {
+    context.commit('isLoading', payload)
   },
 }
 
