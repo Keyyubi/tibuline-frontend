@@ -375,11 +375,12 @@
         return new Promise(resolve => setTimeout(resolve, ms))
       },
       async updateRange () {
+        this.$store.dispatch('app/setLoading', true)
         if (this.activities.length > 0) {
           for (let i = 0; i < this.activities.length; i++) {
             this.$store.dispatch('supplier/deleteActivity', this.activities[i].id)
           }
-          await this.sleep(250)
+          await this.sleep(1000)
         }
 
         const end = this.$refs.calendar.lastEnd
@@ -393,6 +394,9 @@
           }
         }
 
+        await this.sleep(1000)
+        console.log('ok')
+        this.selectConsultant()
         this.calculateTotalHours()
       },
       setEventTime (event) {
@@ -419,6 +423,8 @@
       },
       async creteOrUpdateEvent () {
         if (this.selectedEvent.date) {
+          this.$store.dispatch('app/setLoading', true)
+          this.dialog = false
           const index = this.activities.findIndex(e => e.date === this.selectedEvent.date)
 
           if (index !== -1) {
@@ -429,9 +435,8 @@
 
           this.calculateTotalHours()
           await this.sleep(300)
-          this.$store.dispatch('supplier/getConsultantActivities', this.selectedConsultant)
+          this.selectConsultant()
         } else console.log('bulunamadi')
-        this.dialog = false
       },
       showConfirmation (type) {
         this.confirmationType = type
@@ -452,16 +457,20 @@
           }
         }
       },
-      confirm () {
+      async confirm () {
         if (this.confirmationType === 'delete') {
+          this.$store.dispatch('app/setLoading', true)
+          this.confirmationDialog = false
           const arr = this.activities.map(e => e.id)
           for (let i = 0; i < arr.length; i++) {
             this.$store.dispatch('supplier/deleteActivity', arr[i])
           }
+          await this.sleep(500)
+          this.selectConsultant()
         } else {
+          this.confirmationDialog = false
           this.updateRange()
         }
-        this.confirmationDialog = false
       },
     },
   }

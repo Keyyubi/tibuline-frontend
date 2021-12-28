@@ -23,7 +23,6 @@ const actions = {
 
     axios.post(CreateURL('Activity/SaveActivity'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
-        store.set('supplier/activities', [...store.get('supplier/activities'), res.data])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
       })
       .catch(error => {
@@ -66,10 +65,6 @@ const actions = {
 
     axios.put(CreateURL('Activity/UpdateActivity'), payload, GetPostHeaders(store.get('user/user').token))
       .then(() => {
-        const arr = store.get('admin/activities')
-        const index = arr.findIndex(e => e.id === payload.id)
-        arr[index] = payload
-        store.set('admin/activities', [...arr])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
       })
       .catch(error => {
@@ -124,7 +119,6 @@ const actions = {
             timed: false,
           }
         })
-        console.log('arr', arr)
         store.set('supplier/activities', arr)
       })
       .catch(error => {
@@ -207,14 +201,9 @@ const actions = {
   deleteActivity: (context, id) => {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
-    console.log('id', id)
 
     axios.delete(CreateURL(`Activity/DeleteActivity/${id}`), GetPostHeaders(currUser.token))
       .then(() => {
-        const arr = store.get('admin/activities')
-        const index = arr.findIndex(e => e.id === id)
-        arr.splice(index, 1)
-        store.set('admin/activities', arr)
         store.set('app/responseMsg', 'Aktivite silindi.')
       })
       .catch(error => {
