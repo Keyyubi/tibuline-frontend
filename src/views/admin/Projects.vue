@@ -43,11 +43,12 @@
             :items="projects"
             :search="searchWord"
           >
+            <!-- EDIT DIALOG -->
             <!-- eslint-disable-next-line -->
             <template v-slot:item.id="{ item }">
               <v-dialog
                 v-model="dialog"
-                width="460"
+                width="960"
                 :retain-focus="false"
               >
                 <!-- eslint-disable-next-line -->
@@ -56,7 +57,7 @@
                     class="ma-2"
                     color="primary"
                     dark
-                    @click="editProject(item)"
+                    @click="seeDetails(item)"
                   >
                     <b>Güncelle</b>
                     <v-icon right>
@@ -80,7 +81,7 @@
                         <v-row>
                           <v-col cols="4">
                             <v-text-field
-                              v-model="newProject.projectTime"
+                              v-model="selectedProject.name"
                               label="Proje Adı"
                               :rules="[v => !!v || 'Bu alan boş geçilemez.']"
                               required
@@ -103,7 +104,7 @@
                             <v-select
                               v-model="selectedProject.assignedTo"
                               :items="unitManagers"
-                              item-text="name"
+                              :item-text="e => e.firstName + ' ' + e.lastName"
                               item-value="id"
                               label="Proje Sorumlusu"
                             />
@@ -125,7 +126,7 @@
                             >
                               <template v-slot:activator="{ on, attrs }">
                                 <v-text-field
-                                  v-model="selectedProject.startDate"
+                                  v-model="selectedProject.starting"
                                   label="Başlangıç Tarihi"
                                   persistent-hint
                                   prepend-icon="mdi-calendar"
@@ -137,6 +138,7 @@
                                 v-model="selectedProject.startDate"
                                 no-title
                                 @input="menu3 = false"
+                                @change="e => selectedProject.starting = getComputedDate(e)"
                               />
                             </v-menu>
                           </v-col>
@@ -157,7 +159,7 @@
                             >
                               <template v-slot:activator="{ on, attrs }">
                                 <v-text-field
-                                  v-model="selectedProject.endDate"
+                                  v-model="selectedProject.ending"
                                   label="Bitiş Tarihi"
                                   persistent-hint
                                   prepend-icon="mdi-calendar"
@@ -169,6 +171,7 @@
                                 v-model="selectedProject.endDate"
                                 no-title
                                 @input="menu4 = false"
+                                @change="e => selectedProject.ending = getComputedDate(e)"
                               />
                             </v-menu>
                           </v-col>
@@ -214,6 +217,23 @@
                 </v-card>
               </v-dialog>
             </template>
+            <!-- END OF EDIT DIALOG -->
+
+            <!-- eslint-disable-next-line -->
+            <template v-slot:item.startDate="{ item }">
+              {{ getComputedDate(item.startDate) }}
+            </template>
+            <!-- eslint-disable-next-line -->
+            <template v-slot:item.endDate="{ item }">
+              {{ getComputedDate(item.endDate) }}
+            </template>
+            <!-- eslint-disable-next-line -->
+            <template v-slot:item.assignedTo="{ item }">
+              {{ getProjectManager(item.assignedTo) }}
+            </template>
+            <template v-slot:item.projectBudget="{ item }">
+              {{ moneyMask(item.projectBudget) }}
+            </template>
           </v-data-table>
         </v-card>
       </v-tab-item>
@@ -228,7 +248,7 @@
             <v-row>
               <v-col cols="4">
                 <v-text-field
-                  v-model="newProject.projectTime"
+                  v-model="newProject.name"
                   label="Proje Adı"
                   :rules="[v => !!v || 'Bu alan boş geçilemez.']"
                   required
@@ -375,6 +395,8 @@
     prefix: '',
     allowDecimal: true,
     includeThousandsSeparator: true,
+    thousandsSeparatorSymbol: '.',
+    decimalSymbol: ',',
     allowNegative: false,
   })
   export default {
@@ -396,10 +418,10 @@
           name: '',
           createdBy: 0,
           assignedTo: 0,
-          costCenter: 0,
+          costCenterId: 0,
           startDate: null,
           endDate: null,
-          projectBudget: 0,
+          projectBudget: null,
           projectStatus: 0,
         },
         headers: [
@@ -412,6 +434,7 @@
           { text: 'Sorumlusu', value: 'assignedTo' },
           { text: 'Baş. Tar.', value: 'startDate' },
           { text: 'Bit. Tar.', value: 'endDate' },
+          { text: 'Bütçesi', value: 'projectBudget' },
         ],
       }
     },
@@ -426,8 +449,10 @@
       this.$store.dispatch('admin/getUnitManagers')
     },
     methods: {
-      editProject (item) {
+      seeDetails (item) {
         this.selectedProject = item
+        this.selectedProject.starting = this.getComputedDate(item.startDate)
+        this.selectedProject.ending = this.getComputedDate(item.endDate)
         this.dialog = true
       },
       updateProject () {
@@ -437,12 +462,23 @@
       createProject () {
         if (this.$refs.form.validate()) {
           const payload = { ...this.newProject }
+          payload.projectBudget = payload.projectBudget.replace('.', '').replace(',', '.')
           payload.createdBy = this.user.id
-          console.log('this.user', payload)
           this.dialog = false
-          // this.$store.dispatch('admin/createProject', payload)
+          this.$store.dispatch('admin/createProject', payload)
           this.$refs.form.reset()
         }
+      },
+      getProjectManager (id) {
+        const user = this.unitManagers.find(e => e.id === id)
+        return user.firstName + ' ' + user.lastName
+      },
+      getComputedDate (date) {
+        const arr = date.split('T')[0].split('-')
+        return `${arr[2]}/${arr[1]}/${arr[0]}`
+      },
+      moneyMask (money) {
+        return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(money)
       },
     },
   }

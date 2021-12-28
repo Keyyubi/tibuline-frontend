@@ -144,7 +144,7 @@ const actions = {
 
     axios.post(CreateURL('Project/SaveProject'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
-        store.set('admin/project', [...store.get('admin/project'), res.data])
+        store.set('admin/projects', [...store.get('admin/projects'), res.data])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
       })
       .catch(error => {

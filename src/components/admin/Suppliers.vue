@@ -232,7 +232,7 @@
         ],
         headers: [
           {
-            text: 'Username.',
+            text: 'Kullanıcı Adı',
             align: 'start',
             value: 'userName',
           },
