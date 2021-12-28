@@ -34,8 +34,10 @@
                 v-model="selectedConsultant"
                 class="mt-5"
                 :items="consultants"
+                :item-text="e => e.firstName + ' ' + e.lastName"
+                item-value="id"
                 label="Danışman"
-                @change="e1 = 2"
+                @change="selectConsultant"
               />
             </v-stepper-content>
 
@@ -76,7 +78,7 @@
                     outlined
                     small
                     color="primary darken-1"
-                    @click="updateRange"
+                    @click="showConfirmation('fill-monthly')"
                   >
                     <v-icon small>
                       mdi-calender
@@ -101,7 +103,7 @@
                   v-model="focus"
                   style="border-left:none"
                   color="primary"
-                  :events="events"
+                  :events="activities"
                   :event-color="getEventColor"
                   @click:date="openDialog"
                 />
@@ -230,7 +232,7 @@
         </v-chip>
       </v-col>
       <v-spacer />
-      <v-col class="d-flex justify-flex-end ">
+      <v-col class="d-flex justify-flex-end">
         <v-btn
           class="white--text mr-3"
           color="green"
@@ -242,7 +244,7 @@
           color="error"
           dark
           depressed
-          @click="confirmDeleting"
+          @click="showConfirmation('delete')"
         >
           Tüm Aktiviteleri Sil
         </v-btn>
@@ -265,7 +267,7 @@
 
     <!-- Confirmation dialog -->
     <v-dialog
-      v-model="deleteDialog"
+      v-model="confirmationDialog"
       persistent
       width="460"
     >
@@ -277,7 +279,7 @@
           <v-icon large>
             mdi-alert
           </v-icon>
-          Tüm aktiviteler silinecektir. Onaylıyor musunuz?
+          {{ confirmationMsg }}
         </v-card-text>
         <v-card-actions>
           <v-spacer />
@@ -286,7 +288,7 @@
             color="green"
             depressed
             small
-            @click="deleteActivities"
+            @click="confirm"
           >
             Onayla
           </v-btn>
@@ -295,7 +297,7 @@
             dark
             depressed
             small
-            @click="deleteDialog = false"
+            @click="confirmationDialog = false"
           >
             Vazgeç
           </v-btn>
@@ -313,28 +315,31 @@
       e1: 1,
       focus: '',
       dialog: false,
-      deleteDialog: false,
+      confirmationType: '',
+      confirmationMsg: '',
+      confirmationDialog: false,
       isMinMonth: true,
       reasonOfDeny: '',
       selectedEvent: {},
       selectedConsultant: null,
-      consultants: [
-        { value: 0, text: 'Murathan Karayaz' },
-        { value: 1, text: 'Busra Yargi' },
-        { value: 2, text: 'Furkan Reyhan' },
-        { value: 3, text: 'John Doe ' },
-      ],
       totalWorkHours: 0,
       totalExtraHours: 0,
       totalDaysOff: 0,
-      events: [],
       shiftStartAt: 9, // 0-23 as o'clock of the day
       shiftHours: 8, // as working hours
     }),
     computed: {
       ...get('app', ['responseMsg', 'isErrorMsg']),
+      ...get('supplier', ['activities', 'consultants']),
+    },
+    mounted () {
+      this.$store.dispatch('supplier/getConsultants')
     },
     methods: {
+      selectConsultant () {
+        this.$store.dispatch('supplier/getConsultantActivities', this.selectedConsultant)
+        this.e1 = 2
+      },
       getEventColor (event) {
         return event.color
       },
@@ -361,13 +366,22 @@
         }
       },
       openDialog (item) {
-        const shiftEvent = this.events.find(e => e.date === item.date)
+        const shiftEvent = this.activities.find(e => e.date === item.date)
 
         this.selectedEvent = shiftEvent || this.newShiftEvent(item.date)
         this.dialog = !this.dialog
       },
-      updateRange () {
-        const events = []
+      sleep (ms) {
+        return new Promise(resolve => setTimeout(resolve, ms))
+      },
+      async updateRange () {
+        if (this.activities.length > 0) {
+          for (let i = 0; i < this.activities.length; i++) {
+            this.$store.dispatch('supplier/deleteActivity', this.activities[i].id)
+          }
+          await this.sleep(250)
+        }
+
         const end = this.$refs.calendar.lastEnd
 
         for (let i = 0; i < end.day; i++) {
@@ -375,11 +389,10 @@
           const startDate = new Date(end.year, end.month - 1, i + 1)
 
           if (startDate.getDay() !== 0 && startDate.getDay() !== 6) {
-            events.push(this.newShiftEvent(date, `${this.shiftHours} saat mesai`))
+            this.$store.dispatch('supplier/createActivity', this.newShiftEvent(date, `${this.shiftHours}s mesai`))
           }
         }
 
-        this.events = events
         this.calculateTotalHours()
       },
       setEventTime (event) {
@@ -395,7 +408,7 @@
 
         for (let i = 0; i < end.day; i++) {
           const date = `${end.year}-${end.month}-${i < 9 ? '0' + (i + 1) : i + 1}`
-          const event = this.events.find(e => e.date === date)
+          const event = this.activities.find(e => e.date === date)
           if (event && event.date) {
             this.totalWorkHours += event.shiftHours
             this.totalExtraHours += event.overShiftHours
@@ -406,29 +419,47 @@
       },
       creteOrUpdateEvent () {
         if (this.selectedEvent.date) {
-          const index = this.events.findIndex(e => e.date === this.selectedEvent.date)
+          const index = this.activities.findIndex(e => e.date === this.selectedEvent.date)
 
           if (index !== -1) {
-            this.events[index] = this.selectedEvent
+            this.$store.dispatch('supplier/updateActivity', this.selectedEvent)
           } else {
             this.$store.dispatch('supplier/createActivity', this.selectedEvent)
-            this.events.push(this.selectedEvent)
           }
 
           this.calculateTotalHours()
         } else console.log('bulunamadi')
         this.dialog = false
       },
-      confirmDeleting () {
-        if (this.events.length > 0) {
-          this.deleteDialog = true
+      showConfirmation (type) {
+        this.confirmationType = type
+
+        if (type === 'delete') {
+          if (this.activities.length > 0) {
+            this.confirmationMsg = 'Tüm aktiviteler silinecektir. Onaylıyor musunuz?'
+            this.confirmationDialog = true
+          } else {
+            this.$store.dispatch('app/updateAlertMsg', { message: 'Silinecek aktivite bulunamadı', isError: false })
+          }
         } else {
-          this.$store.dispatch('app/updateAlertMsg', { message: 'Silinecek aktivite bulunamadı', isError: false })
+          if (this.activities.length > 0) {
+            this.confirmationMsg = `Varolan aktiviteler ${this.shiftHours} saat olarak güncellenecektir. Onaylıyor musunuz?`
+            this.confirmationDialog = true
+          } else {
+            this.updateRange()
+          }
         }
       },
-      deleteActivities () {
-        this.events = []
-        this.deleteDialog = false
+      confirm () {
+        if (this.confirmationType === 'delete') {
+          const arr = this.activities.map(e => e.id)
+          for (let i = 0; i < arr.length; i++) {
+            this.$store.dispatch('supplier/deleteActivity', arr[i])
+          }
+        } else {
+          this.updateRange()
+        }
+        this.confirmationDialog = false
       },
     },
   }

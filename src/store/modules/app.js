@@ -106,6 +106,36 @@ const adminItems = [
   },
 ]
 
+const rules = {
+  emailRules: [
+    v => !!v || 'E-mail is required',
+    v => /.+@.+/.test(v) || 'E-mail must be valid',
+  ],
+  passwordRules: [
+    v => !!v || 'Şifre boş geçilemez',
+    v =>
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\\$%\\^&\\*\\+\\.])(?=.{8,})/.test(v) ||
+      'Şifre en az 8 karakter olup, büyük harf, küçük harf, rakam ve özel karakter içermelidir!',
+  ],
+  phoneRules: [
+    v => !!v || 'Telefon numarası girmelisiniz',
+    v => (v && v.length === 14) || 'Lütfen başında 0 olmadan 10 haneli olarak giriniz.',
+    v => /^(\(5.)/.test(v) || 'Telefon numarası 5 ile başlamalıdır.',
+  ],
+  tcnoRules: [
+    v => !!v || 'T.C. Kimlik Numarası giriniz.',
+    v => (v && v.length === 11) || 'Kimlik numarası 11 haneli olmalıdır.',
+    v => (() => {
+      const arr = Array.from(v)
+      let res = 0
+      for (let i = 0; i < arr.length - 1; i++) {
+        res += Number(arr[i])
+      }
+      return (res % 10) === Number(arr[arr.length - 1])
+    })() || 'Kimlik numarası geçersiz.',
+  ],
+}
+
 // Data
 const state = {
   drawer: null,
@@ -115,6 +145,7 @@ const state = {
   items: [],
   responseMsg: '',
   isErrorMsg: false,
+  rules,
 }
 
 const mutations = make.mutations(state)

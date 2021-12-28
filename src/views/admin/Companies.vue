@@ -101,7 +101,7 @@
                             <v-text-field
                               v-model="selectedCompany.email"
                               label="E-mail"
-                              :rules="emailRules"
+                              :rules="rules.emailRules"
                               required
                             />
                           </v-col>
@@ -115,7 +115,7 @@
                               v-model="selectedCompany.tckN_VKN"
                               v-mask="'###########'"
                               label="TCKN / VKN"
-                              :rules="tcnoRules"
+                              :rules="rules.tcnoRules"
                               required
                             />
                           </v-col>
@@ -131,7 +131,7 @@
                               label="Cep Telefonu"
                               append-icon="mdi-close"
                               prepend-icon="mdi-phone"
-                              :rules="phoneRules"
+                              :rules="rules.phoneRules"
                               required
                               @click:append="selectedCompany.phone = ''"
                             />
@@ -324,29 +324,6 @@
           phone: null,
           address: null,
         },
-        emailRules: [
-          v => !!v || 'E-mail is required',
-          v => /.+@.+/.test(v) || 'E-mail must be valid',
-        ],
-        phoneRules: [
-          v => !!v || 'Telefon numarası girmelisiniz',
-          v => (v && v.length === 14) || 'Lütfen başında 0 olmadan 10 haneli olarak giriniz.',
-          v => /^(\(5.)/.test(v) || 'Telefon numarası 5 ile başlamalıdır.',
-        ],
-        tcnoRules: [
-          v => !!v || 'T.C. Kimlik Numarası giriniz.',
-          v => (v && v.length === 11) || 'Kimlik numarası 11 haneli olmalıdır.',
-          v => (() => {
-            if (v) {
-              const arr = Array.from(v)
-              let res = 0
-              for (let i = 0; i < arr.length - 1; i++) {
-                res += Number(arr[i])
-              }
-              return (res % 10) === Number(arr[arr.length - 1])
-            } else return true
-          })() || 'Kimlik numarası geçersiz.',
-        ],
         headers: [
           {
             text: 'Güncelle',
@@ -362,7 +339,7 @@
       }
     },
     computed: {
-      ...get('app', ['responseMsg', 'isErrorMsg']),
+      ...get('app', ['responseMsg', 'isErrorMsg', 'rules']),
       ...get('admin', ['companies', 'jobTitles', 'experienceSpans']),
     },
     mounted () {

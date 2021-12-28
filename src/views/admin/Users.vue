@@ -69,7 +69,7 @@
                 <v-text-field
                   v-model="newUser.email"
                   label="E-mail"
-                  :rules="emailRules"
+                  :rules="rules.emailRules"
                   required
                 />
               </v-col>
@@ -84,7 +84,7 @@
                   label="Şifre"
                   :append-icon="!showPwd ? 'mdi-eye' : 'mdi-eye-off'"
                   :type="!showPwd ? 'password' : 'text'"
-                  :rules="passwordRules"
+                  :rules="rules.passwordRules"
                   counter
                   required
                   @click:append="() => (showPwd = !showPwd)"
@@ -144,7 +144,7 @@
                   label="Cep Telefonu"
                   append-icon="mdi-close"
                   prepend-icon="mdi-phone"
-                  :rules="phoneRules"
+                  :rules="rules.phoneRules"
                   required
                   @click:append="newUser.phone = ''"
                 />
@@ -159,7 +159,7 @@
                   v-model="newUser.TCKN"
                   v-mask="'###########'"
                   label="TCKN"
-                  :rules="tcnoRules"
+                  :rules="rules.tcnoRules"
                   required
                 />
               </v-col>
@@ -236,33 +236,6 @@
         currentTab: 'managers',
         valid: true,
         showPwd: true,
-        emailRules: [
-          v => !!v || 'E-mail is required',
-          v => /.+@.+/.test(v) || 'E-mail must be valid',
-        ],
-        passwordRules: [
-          v => !!v || 'Şifre boş geçilemez',
-          v =>
-            /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\\$%\\^&\\*\\+\\.])(?=.{8,})/.test(v) ||
-            'Şifre en az 8 karakter olup, büyük harf, küçük harf, rakam ve özel karakter içermelidir!',
-        ],
-        phoneRules: [
-          v => !!v || 'Telefon numarası girmelisiniz',
-          v => (v && v.length === 14) || 'Lütfen başında 0 olmadan 10 haneli olarak giriniz.',
-          v => /^(\(5.)/.test(v) || 'Telefon numarası 5 ile başlamalıdır.',
-        ],
-        tcnoRules: [
-          v => !!v || 'T.C. Kimlik Numarası giriniz.',
-          v => (v && v.length === 11) || 'Kimlik numarası 11 haneli olmalıdır.',
-          v => (() => {
-            const arr = Array.from(v)
-            let res = 0
-            for (let i = 0; i < arr.length - 1; i++) {
-              res += Number(arr[i])
-            }
-            return (res % 10) === Number(arr[arr.length - 1])
-          })() || 'Kimlik numarası geçersiz.',
-        ],
         newUser: {
           username: '',
           email: '',
@@ -284,7 +257,7 @@
     },
     computed: {
       ...get('user', ['user']),
-      ...get('app', ['responseMsg', 'isErrorMsg']),
+      ...get('app', ['responseMsg', 'isErrorMsg', 'rules']),
       ...get('admin', ['companies']),
     },
     mounted () {
