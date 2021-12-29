@@ -217,7 +217,7 @@
       },
       updateJobTitle () {
         this.dialog = false
-        this.$store.dispatch('admin/updateJobTitle', this.newJobTitle)
+        this.$store.dispatch('admin/updateJobTitle', this.selectedJobTitle)
       },
       createJobTitle () {
         if (this.$refs.form.validate()) {

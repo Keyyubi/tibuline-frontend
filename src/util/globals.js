@@ -42,12 +42,14 @@ const RULES = {
     v => !!v || 'T.C. Kimlik Numarası giriniz.',
     v => (v && v.length === 11) || 'Kimlik numarası 11 haneli olmalıdır.',
     v => (() => {
-      const arr = Array.from(v)
-      let res = 0
-      for (let i = 0; i < arr.length - 1; i++) {
-        res += Number(arr[i])
-      }
-      return (res % 10) === Number(arr[arr.length - 1])
+      if (v) {
+        const arr = Array.from(v)
+        let res = 0
+        for (let i = 0; i < arr.length - 1; i++) {
+          res += Number(arr[i])
+        }
+        return (res % 10) === Number(arr[arr.length - 1])
+      } else return true
     })() || 'Kimlik numarası geçersiz.',
   ],
 }

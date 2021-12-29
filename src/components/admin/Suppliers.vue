@@ -71,7 +71,7 @@
                       <v-text-field
                         v-model="selectedUser.email"
                         label="E-mail"
-                        :rules="emailRules"
+                        :rules="RULES.EMAIL"
                         required
                       />
                     </v-col>
@@ -108,14 +108,14 @@
                       md="4"
                     >
                       <v-text-field
-                        v-model="selectedUser.phone"
+                        v-model="selectedUser.phoneNumber"
                         v-mask="'(###) ### ####'"
                         label="Cep Telefonu"
                         append-icon="mdi-close"
                         prepend-icon="mdi-phone"
-                        :rules="phoneRules"
+                        :rules="RULES.PHONE"
                         required
-                        @click:append="selectedUser.phone = ''"
+                        @click:append="selectedUser.phoneNumber = ''"
                       />
                     </v-col>
 
@@ -128,7 +128,7 @@
                         v-model="selectedUser.TCKN"
                         v-mask="'###########'"
                         label="TCKN"
-                        :rules="tcnoRules"
+                        :rules="RULES.TCNO"
                         required
                       />
                     </v-col>
@@ -199,6 +199,7 @@
 
 <script>
   import { get } from 'vuex-pathify'
+  import { RULES } from '@/util/globals'
   export default {
     name: 'Suppliers',
     data () {
@@ -207,29 +208,6 @@
         searchWord: '',
         dialog: false,
         selectedUser: {},
-        emailRules: [
-          v => !!v || 'E-mail is required',
-          v => /.+@.+/.test(v) || 'E-mail must be valid',
-        ],
-        phoneRules: [
-          v => !!v || 'Telefon numarası girmelisiniz',
-          v => (v && v.length === 14) || 'Lütfen başında 0 olmadan 10 haneli olarak giriniz.',
-          v => /^(\(5.)/.test(v) || 'Telefon numarası 5 ile başlamalıdır.',
-        ],
-        tcnoRules: [
-          v => !!v || 'T.C. Kimlik Numarası giriniz.',
-          v => (v && v.length === 11) || 'Kimlik numarası 11 haneli olmalıdır.',
-          v => (() => {
-            if (v) {
-              const arr = Array.from(v)
-              let res = 0
-              for (let i = 0; i < arr.length - 1; i++) {
-                res += Number(arr[i])
-              }
-              return (res % 10) === Number(arr[arr.length - 1])
-            } else return true
-          })() || 'Kimlik numarası geçersiz.',
-        ],
         headers: [
           {
             text: 'Kullanıcı Adı',
@@ -239,9 +217,10 @@
           { text: 'Adı', value: 'firstName' },
           { text: 'Soyadı', value: 'lastName' },
           { text: 'Şirket', value: 'companyId' },
-          { text: 'Telefon', value: 'phone' },
+          { text: 'Telefon', value: 'phoneNumber' },
           { text: 'Email', value: 'email' },
         ],
+        RULES,
       }
     },
     computed: {
