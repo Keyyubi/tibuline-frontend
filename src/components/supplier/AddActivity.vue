@@ -81,7 +81,7 @@
                     @click="showConfirmation('fill-monthly')"
                   >
                     <v-icon small>
-                      mdi-calender
+                      mdi-calendar-month
                     </v-icon>
                     Aylık Aktiviteleri Doldur
                   </v-btn>
@@ -90,7 +90,7 @@
                     v-if="selectedConsultant != null"
                     class="ma-2"
                   >
-                    Çalışan: {{ consultants[selectedConsultant].text }}
+                    Çalışan: {{ consultants.find(e => e.id === selectedConsultant).firstName + ' ' + consultants.find(e => e.id === selectedConsultant).lastName }}
                   </v-chip>
                 </v-toolbar>
               </v-sheet>
@@ -337,22 +337,34 @@
     },
     methods: {
       selectConsultant () {
+        const yearMonth = this.$refs.calendar.lastEnd
+        console.log('year', yearMonth)
         this.$store.dispatch('supplier/getConsultantActivities', this.selectedConsultant)
+        this.calculateTotalHours()
         this.e1 = 2
       },
       getEventColor (event) {
         return event.color
       },
-      prev () {
+      async prev () {
+        this.$store.dispatch('app/setLoading', true)
         this.$refs.calendar.prev()
+        await this.sleep(250)
         const current = new Date(this.$refs.calendar.value)
-        this.isMinMonth = new Date(current.getFullYear(), current.getMonth() - 1, 1) < new Date()
+        console.log('curr', current)
+        this.isMinMonth = new Date(current.getFullYear(), current.getMonth(), 1) < new Date()
+        setTimeout(() => {
+          console.log('cur2', new Date(this.$refs.calendar.value).toISOString())
+          this.$store.dispatch('app/setLoading', false)
+        }, 1500)
       },
       next () {
         this.$refs.calendar.next()
         this.isMinMonth = false
       },
       newShiftEvent (date, name = `${this.shiftHours}s mesai`, shiftHours = this.shiftHours, overShiftHours = 0) {
+        const yearMonth = date.split('-')[0] + '-' + date.split('-')[1]
+        const consultantId = this.selectedConsultant
         return {
           date,
           name,
@@ -363,6 +375,8 @@
           color: 'green',
           timed: false,
           isApprovedByManager: false,
+          yearMonth,
+          consultantId,
         }
       },
       openDialog (item) {
@@ -395,9 +409,9 @@
         }
 
         await this.sleep(1000)
-        console.log('ok')
         this.selectConsultant()
         this.calculateTotalHours()
+        this.$store.dispatch('app/setLoading', false)
       },
       setEventTime (event) {
         event.name = `${event.shiftHours}s mesai ${event.overShiftHours ? ' - ' + event.overShiftHours + 's fazla mesai' : ''}`
@@ -416,8 +430,9 @@
           if (event && event.date) {
             this.totalWorkHours += event.shiftHours
             this.totalExtraHours += event.overShiftHours
-          } else {
-            this.totalDaysOff++
+            if (new Date(date).getDay() !== 0 && new Date(date).getDay() !== 6 && event.shiftHours === 0 && event.overShiftHours === 0) {
+              this.totalDaysOff++
+            }
           }
         }
       },

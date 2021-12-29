@@ -19,8 +19,6 @@ const mutations = make.mutations(state)
 const actions = {
   // Create Methods
   createActivity: (context, payload) => {
-    store.set('app/isLoading', true)
-
     axios.post(CreateURL('Activity/SaveActivity'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
@@ -31,7 +29,6 @@ const actions = {
         store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
-        store.set('app/isLoading', false)
         setTimeout(() => {
           store.set('app/responseMsg', '')
           store.set('app/isErrorMsg', false)
@@ -61,8 +58,6 @@ const actions = {
   },
   // Update Methods
   updateActivity: (context, payload) => {
-    store.set('app/isLoading', true)
-
     axios.put(CreateURL('Activity/UpdateActivity'), payload, GetPostHeaders(store.get('user/user').token))
       .then(() => {
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
@@ -73,7 +68,6 @@ const actions = {
         store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
-        store.set('app/isLoading', false)
         setTimeout(() => {
           store.set('app/responseMsg', '')
           store.set('app/isErrorMsg', false)
@@ -199,7 +193,6 @@ const actions = {
   },
   // Delete methods
   deleteActivity: (context, id) => {
-    store.set('app/isLoading', true)
     const currUser = store.get('user/user')
 
     axios.delete(CreateURL(`Activity/DeleteActivity/${id}`), GetPostHeaders(currUser.token))
@@ -212,7 +205,6 @@ const actions = {
         store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
-        store.set('app/isLoading', false)
         setTimeout(() => {
           store.set('app/responseMsg', '')
           store.set('app/isErrorMsg', false)
