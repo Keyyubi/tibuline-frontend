@@ -49,42 +49,42 @@
               >
                 <v-row class="my-2">
                   <v-text-field
-                    :value="this.selectedCost.id"
+                    :value="selectedCost.id"
                     label="Masraf No"
                     readonly
                   />
                 </v-row>
                 <v-row class="my-2">
                   <v-text-field
-                    :value="this.selectedCost.costCenter"
+                    :value="selectedCost.costCenter"
                     label="Masraf Merkezi"
                     readonly
                   />
                 </v-row>
                 <v-row class="my-2">
                   <v-text-field
-                    :value="this.selectedCost.header"
+                    :value="selectedCost.header"
                     label="Başlık"
                     readonly
                   />
                 </v-row>
                 <v-row class="my-2">
                   <v-text-field
-                    :value="this.selectedCost.billDate"
+                    :value="selectedCost.billDate"
                     label="Fiş Tarihi"
                     readonly
                   />
                 </v-row>
                 <v-row class="my-2">
                   <v-text-field
-                    :value="this.selectedCost.billNumber"
+                    :value="selectedCost.billNumber"
                     label="Fiş Numarası"
                     readonly
                   />
                 </v-row>
                 <v-row class="my-2">
                   <v-text-field
-                    :value="this.selectedCost.cost"
+                    :value="selectedCost.cost"
                     label="Tutar"
                     readonly
                   />
@@ -99,10 +99,10 @@
               >
                 <v-img
                   class="mt-2"
-                  :lazy-src="this.selectedCost.imgUrl"
+                  :lazy-src="selectedCost.imgUrl"
                   max-height="500"
                   max-width="300"
-                  :src="this.selectedCost.imgUrl"
+                  :src="selectedCost.imgUrl"
                 />
               </v-col>
             </v-row>

@@ -1,17 +1,18 @@
 // Utilities
 import { make } from 'vuex-pathify'
+import axios from 'axios'
 // Globals
-import { IN_BROWSER } from '@/util/globals'
-// import { use } from 'vue/types/umd'
+import { IN_BROWSER, CreateURL, GetPostHeaders } from '@/util/globals'
+import store from '@/store/index'
 
-// dummy data
-import { users } from '../dummy/dummy'
+// Router
+import router from '../../router'
 
 const state = {
   user: {},
   dark: false,
   drawer: {
-    image: 0,
+    image: 1,
     gradient: 0,
     mini: false,
   },
@@ -21,6 +22,7 @@ const state = {
     'rgba(244, 67, 54, .8), rgba(244, 67, 54, .8)',
   ],
   images: [
+    '../../assets/lock.jpg',
     'https://demos.creative-tim.com/material-dashboard-pro/assets/img/sidebar-1.jpg',
     'https://demos.creative-tim.com/material-dashboard-pro/assets/img/sidebar-2.jpg',
     'https://demos.creative-tim.com/material-dashboard-pro/assets/img/sidebar-3.jpg',
@@ -51,17 +53,43 @@ const actions = {
     localStorage.setItem('vuetify@user', JSON.stringify(state))
   },
   login: (context, user) => {
-    const checkUser = users.find(e => e.email === user.email && e.password === user.password)
+    store.set('app/isLoading', true)
 
-    context.dispatch('app/updateItems', checkUser.roleId, { root: true })
-
-    if (checkUser) {
-      checkUser.isLogged = true
-      context.commit('user', checkUser)
-    } else context.commit('user', {})
+    axios.post(CreateURL('/Auth/CreateToken'), { email: user.email, password: user.password })
+    .then(({ data: res }) => res.data.accessToken)
+    .then(token => {
+      axios.get(CreateURL('/User/GetUser'), GetPostHeaders(token))
+      .then(({ data: res }) => {
+        return {
+          ...res.data,
+          isLogged: true,
+          token,
+        }
+      })
+      .then(loggedUser => {
+        axios.get(CreateURL(`/Company/GetCompanyById/${loggedUser.companyId}`), GetPostHeaders(loggedUser.token))
+        .then(({ data: res }) => {
+          loggedUser = {
+            ...loggedUser,
+            company: res.data,
+          }
+          context.commit('user', loggedUser)
+          context.dispatch('app/updateItems', loggedUser.roleId, { root: true })
+          router.push('/')
+        })
+      })
+    })
+    .catch((error) => {
+      context.commit('user', {})
+      console.error('Error on login', error)
+    })
+    .finally(() => setTimeout(() => {
+        store.set('app/isLoading', false)
+      }, 1500))
   },
   logout: ({ commit }) => {
     commit('user', {})
+    router.push('/login/')
   },
 }
 

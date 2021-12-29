@@ -64,7 +64,6 @@
     methods: {
       logout () {
         this.$store.dispatch('user/logout')
-        this.$router.push({ path: '/login' })
       },
     },
   }

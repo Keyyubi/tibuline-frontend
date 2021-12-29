@@ -5,8 +5,10 @@ import vuetify from './plugins/vuetify'
 import './plugins'
 import store from './store'
 import { sync } from 'vuex-router-sync'
+import VueMask from 'v-mask'
 
 Vue.config.productionTip = false
+Vue.use(VueMask)
 
 sync(store, router)
 

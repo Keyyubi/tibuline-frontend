@@ -23,26 +23,29 @@ const router = new Router({
     layout('Default', [
       route('Dashboard'),
 
-      // Requests
+      // Unit Manager Routes
       route('unit-manager/Requests', null, '/unit-manager/requests'),
-
-      // Contracts
       route('unit-manager/Contracts', null, 'unit-manager/contracts'),
-
-      // Projects
       route('unit-manager/Projects', null, 'unit-manager/projects'),
-
-      // Consultants
       route('unit-manager/Consultants', null, 'unit-manager/consultants'),
-
-      // ActivitiesCosts
       route('unit-manager/ActivitiesCosts', null, 'unit-manager/activities-costs'),
-
-      // Bill Approvment
       route('unit-manager/Bills', null, 'unit-manager/bills'),
 
-      // Add Activity
-      route('AddActivity', null, 'add-activity'),
+      // Supplier Routes
+      route('supplier/Requests', null, '/supplier/requests'),
+      route('supplier/AddActivity', null, '/supplier/add-activity'),
+      route('supplier/Consultants', null, '/supplier/consultants'),
+
+       // Admin Routes
+       route('admin/Users', null, '/admin/users'),
+       route('admin/Projects', null, '/admin/projects'),
+       route('admin/Suppliers', null, 'admin/suppliers'),
+       route('admin/CostCenters', null, 'admin/cost-centers'),
+       route('admin/JobTitles', null, 'admin/job-titles'),
+       route('admin/ExperienceSpans', null, 'admin/experience-spans'),
+       route('admin/Budgets', null, 'admin/budgets'),
+       route('admin/Companies', null, 'admin/companies'),
+
     ]),
     layout('Login', [
       route('Login', null, 'login'),
@@ -53,8 +56,8 @@ const router = new Router({
 router.beforeEach((to, from, next) => {
   const user = store.getters['user/user']
 
-  if (to.name !== 'Login' && !user.isLogged) {
-    return next({ path: 'login' })
+  if (to.path !== '/login/' && !user.isLogged) {
+    return next({ path: '/login/' })
   } else {
     return to.path.endsWith('/') ? next() : next(trailingSlash(to.path))
   }

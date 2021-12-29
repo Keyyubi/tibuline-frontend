@@ -2,110 +2,207 @@
   <div class="pa-3">
     <v-row class="fill-height">
       <v-col>
-        <v-sheet height="64">
-          <v-toolbar
-            flat
-          >
-            <v-btn
-              fab
-              text
-              small
-              color="grey darken-2"
-              @click="prev"
+        <v-stepper
+          v-model="e1"
+          vertical
+        >
+          <v-stepper-header>
+            <v-stepper-step
+              :complete="e1 > 1"
+              step="1"
             >
-              <v-icon small>
-                mdi-chevron-left
-              </v-icon>
-            </v-btn>
-            <v-btn
-              fab
-              text
-              small
-              color="grey darken-2"
-              @click="next"
+              Danışman Seçiniz
+            </v-stepper-step>
+
+            <v-divider />
+
+            <v-stepper-step
+              :complete="e1 > 2"
+              step="2"
             >
-              <v-icon small>
-                mdi-chevron-right
-              </v-icon>
-            </v-btn>
-            <v-toolbar-title v-if="$refs.calendar">
-              {{ $refs.calendar.title }}
-            </v-toolbar-title>
-            <v-spacer />
-            <v-autocomplete
-              v-model="selectedConsultant"
-              class="mt-5"
-              :items="consultants"
-              label="Danışman"
-            />
-          </v-toolbar>
-        </v-sheet>
-        <v-sheet height="600">
-          <v-calendar
-            ref="calendar"
-            v-model="focus"
-            color="primary"
-            :events="events"
-            :event-color="getEventColor"
-            type="month"
-            @click:event="showEvent"
-            @change="updateRange"
-          />
-          <v-menu
-            v-model="selectedOpen"
-            :close-on-content-click="false"
-            :activator="selectedElement"
-            offset-x
-          >
-            <v-card
-              color="grey lighten-4"
-              min-width="350px"
-              flat
+              Aktiviteleri giriniz
+            </v-stepper-step>
+          </v-stepper-header>
+
+          <v-stepper-items>
+            <v-stepper-content
+              step="1"
+              class="mx-0"
+              style="border-left: none"
             >
-              <v-toolbar
-                :color="selectedEvent.color"
-                dark
+              <v-autocomplete
+                v-model="selectedConsultant"
+                class="mt-5"
+                :items="consultants"
+                :item-text="e => e.firstName + ' ' + e.lastName"
+                item-value="id"
+                label="Danışman"
+                @change="selectConsultant"
+              />
+            </v-stepper-content>
+
+            <v-stepper-content
+              step="2"
+              class="pa-0 mx-0"
+            >
+              <v-sheet height="64">
+                <v-toolbar flat>
+                  <v-btn
+                    fab
+                    text
+                    small
+                    color="grey darken-2"
+                    :disabled="isMinMonth"
+                    @click="prev"
+                  >
+                    <v-icon small>
+                      mdi-chevron-left
+                    </v-icon>
+                  </v-btn>
+                  <v-btn
+                    fab
+                    text
+                    small
+                    color="grey darken-2"
+                    @click="next"
+                  >
+                    <v-icon small>
+                      mdi-chevron-right
+                    </v-icon>
+                  </v-btn>
+                  <v-toolbar-title v-if="$refs.calendar">
+                    {{ $refs.calendar.title }}
+                  </v-toolbar-title>
+                  <v-spacer />
+                  <v-btn
+                    outlined
+                    small
+                    color="primary darken-1"
+                    @click="showConfirmation('fill-monthly')"
+                  >
+                    <v-icon small>
+                      mdi-calendar-month
+                    </v-icon>
+                    Aylık Aktiviteleri Doldur
+                  </v-btn>
+                  <v-spacer />
+                  <v-chip
+                    v-if="selectedConsultant != null"
+                    class="ma-2"
+                  >
+                    Çalışan: {{ consultants.find(e => e.id === selectedConsultant).firstName + ' ' + consultants.find(e => e.id === selectedConsultant).lastName }}
+                  </v-chip>
+                </v-toolbar>
+              </v-sheet>
+              <v-sheet
+                height="600"
+                width="100%"
               >
-                <v-toolbar-title v-html="selectedEvent.name" />
-                <v-spacer />
-                <v-icon>mdi-calendar-clock</v-icon>
-              </v-toolbar>
-              <v-card-text>
-                <v-slider
-                  v-model="selectedEvent.hours"
-                  class="align-center"
-                  max="12"
-                  min="0"
-                  @change="setEventTime(selectedEvent)"
+                <v-calendar
+                  ref="calendar"
+                  v-model="focus"
+                  style="border-left:none"
+                  color="primary"
+                  :events="activities"
+                  :event-color="getEventColor"
+                  @click:date="openDialog"
+                />
+                <v-dialog
+                  v-model="dialog"
+                  width="460"
                 >
-                  <template v-slot:append>
-                    <v-text-field
-                      v-model="selectedEvent.hours"
-                      class="mt-0 pt-0"
-                      hide-details
-                      single-line
-                      min="0"
-                      max="12"
-                      type="number"
-                      style="width: 60px"
-                    />
-                  </template>
-                </v-slider>
-              </v-card-text>
-            </v-card>
-          </v-menu>
-        </v-sheet>
+                  <v-card>
+                    <v-card-title class="text-h5 primary white--text">
+                      Aktivite Girişi
+                      <v-spacer />
+                      <v-icon color="white">
+                        mdi-calendar-clock
+                      </v-icon>
+                    </v-card-title>
+                    <v-card-text>
+                      <v-container>
+                        <v-row>
+                          <v-col cols="10">
+                            <v-subheader>Mesai saati</v-subheader>
+                            <v-slider
+                              v-model="selectedEvent.shiftHours"
+                              :min="0"
+                              :step="1"
+                              :max="shiftHours"
+                              append-icon="mdi-plus"
+                              prepend-icon="mdi-minus"
+                              @change="setEventTime(selectedEvent)"
+                            />
+                          </v-col>
+                          <v-col
+                            cols="2"
+                            class="mt-4"
+                          >
+                            <v-text-field
+                              v-model="selectedEvent.shiftHours"
+                              type="number"
+                              required
+                            />
+                          </v-col>
+                        </v-row>
+                        <v-row>
+                          <v-col cols="10">
+                            <v-subheader>Fazla Mesai saati</v-subheader>
+                            <v-slider
+                              v-model="selectedEvent.overShiftHours"
+                              :min="0"
+                              :step="1"
+                              :max="shiftHours"
+                              append-icon="mdi-plus"
+                              prepend-icon="mdi-minus"
+                              @change="setEventTime(selectedEvent)"
+                            />
+                          </v-col>
+                          <v-col
+                            cols="2"
+                            class="mt-4"
+                          >
+                            <v-text-field
+                              v-model="selectedEvent.overShiftHours"
+                              type="number"
+                              required
+                            />
+                          </v-col>
+                        </v-row>
+                      </v-container>
+                    </v-card-text>
+                    <v-divider />
+                    <v-card-actions>
+                      <v-spacer />
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="creteOrUpdateEvent"
+                      >
+                        Oluştur
+                      </v-btn>
+                      <v-btn
+                        color="error darken-1"
+                        text
+                        @click="dialog = false"
+                      >
+                        Vazgeç
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
+              </v-sheet>
+            </v-stepper-content>
+          </v-stepper-items>
+        </v-stepper>
       </v-col>
     </v-row>
-    <v-row>
-      <v-col>
-        <v-chip
-          class="ma-2"
-          label
-        >
-          <b>{{ selectedMonth }}</b>
-        </v-chip>
-      </v-col>
+
+    <!-- Info and actions Footer -->
+    <v-row
+      v-if="selectedConsultant != null"
+      class="d-flex justify-space-between"
+    >
       <v-col class="d-flex">
         <v-chip
           class="ma-2"
@@ -134,179 +231,261 @@
           Toplam Fazla Mesai: {{ totalExtraHours }} saat
         </v-chip>
       </v-col>
-      <v-col class="text-right">
+      <v-spacer />
+      <v-col class="d-flex justify-flex-end">
         <v-btn
           class="white--text mr-3"
           color="green"
           depressed
         >
-          Onayla
+          Onaya Gönder
         </v-btn>
-
-        <v-dialog
-          v-model="dialog"
-          persistent
-          max-width="600px"
+        <v-btn
+          color="error"
+          dark
+          depressed
+          @click="showConfirmation('delete')"
         >
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              color="error"
-              dark
-              v-bind="attrs"
-              depressed
-              v-on="on"
-            >
-              Reddet
-            </v-btn>
-          </template>
-          <v-card>
-            <v-card-title class="text-h5 primary white--text">
-              Red Nedeni
-            </v-card-title>
-            <v-card-text>
-              <v-container>
-                <v-row>
-                  <v-col>
-                    <v-textarea
-                      outlined
-                      name="input-7-4"
-                      label="Reason of deny"
-                      placeholder="Please enter the reason of deny"
-                      messages="Cannot be empty"
-                      :value="reasonOfDeny"
-                    />
-                  </v-col>
-                </v-row>
-              </v-container>
-            </v-card-text>
-            <v-card-actions>
-              <v-btn
-                color="green"
-                text
-                @click="dialog = false"
-              >
-                Send
-              </v-btn>
-              <v-btn
-                color="error"
-                text
-                @click="dialog = false"
-              >
-                Cancel
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
+          Tüm Aktiviteleri Sil
+        </v-btn>
       </v-col>
     </v-row>
+
+    <!-- Alert Message -->
+    <v-row justify="center">
+      <v-alert
+        v-if="responseMsg.length > 0"
+        :color="isErrorMsg ? 'error' : 'success'"
+        dark
+        border="top"
+        :icon="isErrorMsg ? 'mdi-alert' : 'mdi-check-circle'"
+        transition="scale-transition"
+      >
+        {{ responseMsg }}
+      </v-alert>
+    </v-row>
+
+    <!-- Confirmation dialog -->
+    <v-dialog
+      v-model="confirmationDialog"
+      persistent
+      width="460"
+    >
+      <v-card>
+        <v-card-title class="text-h5 primary white--text">
+          Onay
+        </v-card-title>
+        <v-card-text class="text-h5 py-3">
+          <v-icon large>
+            mdi-alert
+          </v-icon>
+          {{ confirmationMsg }}
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn
+            class="white--text mr-3"
+            color="green"
+            depressed
+            small
+            @click="confirm"
+          >
+            Onayla
+          </v-btn>
+          <v-btn
+            color="error"
+            dark
+            depressed
+            small
+            @click="confirmationDialog = false"
+          >
+            Vazgeç
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script>
+  import { get } from 'vuex-pathify'
   export default {
     name: 'AddActivity',
     data: () => ({
+      e1: 1,
       focus: '',
       dialog: false,
+      confirmationType: '',
+      confirmationMsg: '',
+      confirmationDialog: false,
+      isMinMonth: true,
       reasonOfDeny: '',
       selectedEvent: {},
-      selectedElement: null,
-      selectedOpen: false,
-      selectedMonth: 'September',
-      selectedConsultant: [],
-      consultants: [
-        { value: 0, text: 'Murathan Karayaz' },
-        { value: 1, text: 'Busra Yargi' },
-        { value: 2, text: 'Furkan Reyhan' },
-        { value: 3, text: 'John Doe ' },
-      ],
+      selectedConsultant: null,
       totalWorkHours: 0,
       totalExtraHours: 0,
       totalDaysOff: 0,
-      events: [],
       shiftStartAt: 9, // 0-23 as o'clock of the day
       shiftHours: 8, // as working hours
     }),
+    computed: {
+      ...get('app', ['responseMsg', 'isErrorMsg']),
+      ...get('supplier', ['activities', 'consultants']),
+    },
+    mounted () {
+      this.$store.dispatch('supplier/getConsultants')
+    },
     methods: {
-      viewDay ({ date }) {
-        this.focus = date
-        this.type = 'day'
+      selectConsultant () {
+        const yearMonth = this.$refs.calendar.lastEnd
+        console.log('year', yearMonth)
+        this.$store.dispatch('supplier/getConsultantActivities', this.selectedConsultant)
+        this.calculateTotalHours()
+        this.e1 = 2
       },
       getEventColor (event) {
         return event.color
       },
-      setToday () {
-        this.focus = ''
-      },
-      prev () {
+      async prev () {
+        this.$store.dispatch('app/setLoading', true)
         this.$refs.calendar.prev()
+        await this.sleep(250)
+        const current = new Date(this.$refs.calendar.value)
+        console.log('curr', current)
+        this.isMinMonth = new Date(current.getFullYear(), current.getMonth(), 1) < new Date()
+        setTimeout(() => {
+          console.log('cur2', new Date(this.$refs.calendar.value).toISOString())
+          this.$store.dispatch('app/setLoading', false)
+        }, 1500)
       },
       next () {
         this.$refs.calendar.next()
+        this.isMinMonth = false
       },
-      showEvent ({ nativeEvent, event }) {
-        const open = () => {
-          this.selectedEvent = event
-          this.selectedElement = nativeEvent.target
-          requestAnimationFrame(() => requestAnimationFrame(() => {
-            this.selectedOpen = true
-          }))
+      newShiftEvent (date, name = `${this.shiftHours}s mesai`, shiftHours = this.shiftHours, overShiftHours = 0) {
+        const yearMonth = date.split('-')[0] + '-' + date.split('-')[1]
+        const consultantId = this.selectedConsultant
+        return {
+          date,
+          name,
+          shiftHours,
+          overShiftHours,
+          start: new Date(date),
+          end: new Date(date),
+          color: 'green',
+          timed: false,
+          isApprovedByManager: false,
+          yearMonth,
+          consultantId,
+        }
+      },
+      openDialog (item) {
+        const shiftEvent = this.activities.find(e => e.date === item.date)
+
+        this.selectedEvent = shiftEvent || this.newShiftEvent(item.date)
+        this.dialog = !this.dialog
+      },
+      sleep (ms) {
+        return new Promise(resolve => setTimeout(resolve, ms))
+      },
+      async updateRange () {
+        this.$store.dispatch('app/setLoading', true)
+        if (this.activities.length > 0) {
+          for (let i = 0; i < this.activities.length; i++) {
+            this.$store.dispatch('supplier/deleteActivity', this.activities[i].id)
+          }
+          await this.sleep(1000)
         }
 
-        if (this.selectedOpen) {
-          this.selectedOpen = false
-          requestAnimationFrame(() => requestAnimationFrame(() => open()))
-        } else {
-          open()
-        }
-
-        nativeEvent.stopPropagation()
-      },
-      updateRange ({ start, end }) {
-        const events = []
+        const end = this.$refs.calendar.lastEnd
 
         for (let i = 0; i < end.day; i++) {
-          const startDate = new Date(start.year, start.month - 1, i + 1)
+          const date = `${end.year}-${end.month}-${i < 9 ? '0' + (i + 1) : i + 1}`
+          const startDate = new Date(end.year, end.month - 1, i + 1)
 
           if (startDate.getDay() !== 0 && startDate.getDay() !== 6) {
-            const workHour = {
-              hours: this.shiftHours,
-              name: `${this.shiftHours} saat mesai`,
-              start: startDate,
-              end: startDate,
-              shiftType: 0,
-              color: 'green',
-              timed: false,
-            }
-            workHour.start.setHours(this.shiftStartAt, 0, 0)
-            workHour.end.setHours(this.shiftStartAt + this.shiftHours, 0, 0)
-
-            const extraHour = {
-              ...workHour,
-              hours: 0,
-              name: '0 saat fazla mesai',
-              shiftType: 1,
-              color: 'red',
-            }
-            extraHour.end.setHours(extraHour.end.getHours() + extraHour.hours)
-
-            events.push(workHour, extraHour)
+            this.$store.dispatch('supplier/createActivity', this.newShiftEvent(date, `${this.shiftHours}s mesai`))
           }
         }
 
-        this.events = events
+        await this.sleep(1000)
+        this.selectConsultant()
         this.calculateTotalHours()
+        this.$store.dispatch('app/setLoading', false)
       },
       setEventTime (event) {
-        event.name = event.hours + ' saat ' + (event.shiftType === 0 ? 'mesai' : 'fazla mesai')
+        event.name = `${event.shiftHours}s mesai ${event.overShiftHours ? ' - ' + event.overShiftHours + 's fazla mesai' : ''}`
         this.calculateTotalHours()
       },
       calculateTotalHours () {
         this.totalWorkHours = 0
         this.totalExtraHours = 0
-        this.events.forEach(e => {
-          e.shiftType === 0 ? this.totalWorkHours += e.hours : this.totalExtraHours += e.hours
-        })
+        this.totalDaysOff = 0
+
+        const end = this.$refs.calendar.lastEnd
+
+        for (let i = 0; i < end.day; i++) {
+          const date = `${end.year}-${end.month}-${i < 9 ? '0' + (i + 1) : i + 1}`
+          const event = this.activities.find(e => e.date === date)
+          if (event && event.date) {
+            this.totalWorkHours += event.shiftHours
+            this.totalExtraHours += event.overShiftHours
+            if (new Date(date).getDay() !== 0 && new Date(date).getDay() !== 6 && event.shiftHours === 0 && event.overShiftHours === 0) {
+              this.totalDaysOff++
+            }
+          }
+        }
+      },
+      async creteOrUpdateEvent () {
+        if (this.selectedEvent.date) {
+          this.$store.dispatch('app/setLoading', true)
+          this.dialog = false
+          const index = this.activities.findIndex(e => e.date === this.selectedEvent.date)
+
+          if (index !== -1) {
+            this.$store.dispatch('supplier/updateActivity', this.selectedEvent)
+          } else {
+            this.$store.dispatch('supplier/createActivity', this.selectedEvent)
+          }
+
+          this.calculateTotalHours()
+          await this.sleep(300)
+          this.selectConsultant()
+        } else console.log('bulunamadi')
+      },
+      showConfirmation (type) {
+        this.confirmationType = type
+
+        if (type === 'delete') {
+          if (this.activities.length > 0) {
+            this.confirmationMsg = 'Tüm aktiviteler silinecektir. Onaylıyor musunuz?'
+            this.confirmationDialog = true
+          } else {
+            this.$store.dispatch('app/updateAlertMsg', { message: 'Silinecek aktivite bulunamadı', isError: false })
+          }
+        } else {
+          if (this.activities.length > 0) {
+            this.confirmationMsg = `Varolan aktiviteler ${this.shiftHours} saat olarak güncellenecektir. Onaylıyor musunuz?`
+            this.confirmationDialog = true
+          } else {
+            this.updateRange()
+          }
+        }
+      },
+      async confirm () {
+        if (this.confirmationType === 'delete') {
+          this.$store.dispatch('app/setLoading', true)
+          this.confirmationDialog = false
+          const arr = this.activities.map(e => e.id)
+          for (let i = 0; i < arr.length; i++) {
+            this.$store.dispatch('supplier/deleteActivity', arr[i])
+          }
+          await this.sleep(500)
+          this.selectConsultant()
+        } else {
+          this.confirmationDialog = false
+          this.updateRange()
+        }
       },
     },
   }
