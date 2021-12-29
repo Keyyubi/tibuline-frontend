@@ -55,7 +55,6 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
   const user = store.getters['user/user']
-  console.log('to', to)
 
   if (to.path !== '/login/' && !user.isLogged) {
     return next({ path: '/login/' })

@@ -92,7 +92,7 @@
                   label="Cep Telefonu"
                   append-icon="mdi-close"
                   prepend-icon="mdi-phone"
-                  :rules="rules.phoneRules"
+                  :rules="RULES.PHONE"
                   required
                   @click:append="newConsultant.phone = ''"
                 />
@@ -106,7 +106,7 @@
                 <v-text-field
                   v-model="newConsultant.email"
                   label="E-mail"
-                  :rules="rules.emailRules"
+                  :rules="RULES.EMAIL"
                   required
                 />
               </v-col>
@@ -154,7 +154,7 @@
                   v-model="newConsultant.TCKN"
                   v-mask="'###########'"
                   label="TCKN"
-                  :rules="rules.tcnoRules"
+                  :rules="RULES.TCNO"
                   required
                 />
               </v-col>
@@ -208,6 +208,7 @@
 
 <script>
   import { get } from 'vuex-pathify'
+  import { RULES } from '@/util/globals'
   export default {
     name: 'Consultants',
     data () {
@@ -226,11 +227,12 @@
           birthday: null,
           companyId: null,
         },
+        RULES,
       }
     },
     computed: {
       ...get('user', ['user']),
-      ...get('app', ['responseMsg', 'isErrorMsg', 'rules']),
+      ...get('app', ['responseMsg', 'isErrorMsg']),
     },
     mounted () {
       this.newConsultant.companyId = this.user.companyId

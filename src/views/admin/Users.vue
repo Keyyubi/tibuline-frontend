@@ -69,7 +69,7 @@
                 <v-text-field
                   v-model="newUser.email"
                   label="E-mail"
-                  :rules="rules.emailRules"
+                  :rules="RULES.EMAIL"
                   required
                 />
               </v-col>
@@ -84,7 +84,7 @@
                   label="Şifre"
                   :append-icon="!showPwd ? 'mdi-eye' : 'mdi-eye-off'"
                   :type="!showPwd ? 'password' : 'text'"
-                  :rules="rules.passwordRules"
+                  :rules="RULES.PASSWORD"
                   counter
                   required
                   @click:append="() => (showPwd = !showPwd)"
@@ -144,7 +144,7 @@
                   label="Cep Telefonu"
                   append-icon="mdi-close"
                   prepend-icon="mdi-phone"
-                  :rules="rules.phoneRules"
+                  :rules="RULES.PHONE"
                   required
                   @click:append="newUser.phone = ''"
                 />
@@ -159,7 +159,7 @@
                   v-model="newUser.TCKN"
                   v-mask="'###########'"
                   label="TCKN"
-                  :rules="rules.tcnoRules"
+                  :rules="RULES.TCNO"
                   required
                 />
               </v-col>
@@ -229,6 +229,7 @@
 
 <script>
   import { get } from 'vuex-pathify'
+  import { RULES } from '@/util/globals'
   export default {
     name: 'Users',
     data () {
@@ -253,11 +254,12 @@
           { label: 'Birim Müdürü', value: 1 },
           { label: 'Tedarikçi', value: 2 },
         ],
+        RULES,
       }
     },
     computed: {
       ...get('user', ['user']),
-      ...get('app', ['responseMsg', 'isErrorMsg', 'rules']),
+      ...get('app', ['responseMsg', 'isErrorMsg']),
       ...get('admin', ['companies']),
     },
     mounted () {

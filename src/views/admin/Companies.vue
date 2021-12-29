@@ -101,7 +101,7 @@
                             <v-text-field
                               v-model="selectedCompany.email"
                               label="E-mail"
-                              :rules="rules.emailRules"
+                              :rules="RULES.EMAIL"
                               required
                             />
                           </v-col>
@@ -115,7 +115,7 @@
                               v-model="selectedCompany.tckN_VKN"
                               v-mask="'###########'"
                               label="TCKN / VKN"
-                              :rules="rules.tcnoRules"
+                              :rules="RULES.TCNO"
                               required
                             />
                           </v-col>
@@ -131,7 +131,7 @@
                               label="Cep Telefonu"
                               append-icon="mdi-close"
                               prepend-icon="mdi-phone"
-                              :rules="rules.phoneRules"
+                              :rules="RULES.PHONE"
                               required
                               @click:append="selectedCompany.phone = ''"
                             />
@@ -210,7 +210,7 @@
                 <v-text-field
                   v-model="newCompany.email"
                   label="E-mail"
-                  :rules="emailRules"
+                  :rules="RULES.EMAIL"
                   required
                 />
               </v-col>
@@ -224,7 +224,7 @@
                   v-model="newCompany.tckn_vkn"
                   v-mask="'###########'"
                   label="TCKN / VKN"
-                  :rules="tcnoRules"
+                  :rules="RULES.TCNO"
                   required
                 />
               </v-col>
@@ -240,7 +240,7 @@
                   label="Cep Telefonu"
                   append-icon="mdi-close"
                   prepend-icon="mdi-phone"
-                  :rules="phoneRules"
+                  :rules="RULES.PHONE"
                   required
                   @click:append="newCompany.phone = ''"
                 />
@@ -307,6 +307,7 @@
 
 <script>
   import { get } from 'vuex-pathify'
+  import { RULES } from '@/util/globals'
   export default {
     name: 'Companies',
     data () {
@@ -336,10 +337,11 @@
           { text: 'Adres', value: 'address' },
           { text: 'TCKN / VKN', value: 'tckn_vkn' },
         ],
+        RULES,
       }
     },
     computed: {
-      ...get('app', ['responseMsg', 'isErrorMsg', 'rules']),
+      ...get('app', ['responseMsg', 'isErrorMsg']),
       ...get('admin', ['companies', 'jobTitles', 'experienceSpans']),
     },
     mounted () {
