@@ -174,7 +174,7 @@ const actions = {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
 
-    axios.get(CreateURL('Projects/GetProjects'), GetPostHeaders(currUser.token))
+    axios.get(CreateURL('Project/GetProjects'), GetPostHeaders(currUser.token))
       .then(({ data: res }) => {
         store.set('supplier/projects', res.data)
       })
