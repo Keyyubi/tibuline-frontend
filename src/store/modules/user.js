@@ -89,6 +89,7 @@ const actions = {
   },
   logout: ({ commit }) => {
     commit('user', {})
+    router.push('/login/')
   },
 }
 
