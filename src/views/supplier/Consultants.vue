@@ -62,27 +62,6 @@
       ...get('user', ['user']),
       ...get('app', ['responseMsg', 'isErrorMsg']),
     },
-    methods: {
-      save (date) {
-        const arr = date.split('-')
-        this.localeDate = `${arr[2]}/${arr[1]}/${arr[0]}`
-        this.newConsultant.birthday = new Date(date).toISOString()
-        this.$refs.menu.save(date)
-      },
-      reset () {
-        this.$refs.form.reset()
-      },
-      createConsultant () {
-        if (this.$refs.form.validate()) {
-          // const payload = { ...this.newConsultant }
-          // this.$store.dispatch('supplier/createConsultant', payload)
-          console.log('this.user', this.user)
-          this.$refs.form.reset()
-          this.newConsultant.companyId = this.user.companyId
-          this.date = null
-        }
-      },
-    },
   }
 </script>
 
