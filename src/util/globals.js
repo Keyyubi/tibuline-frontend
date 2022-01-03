@@ -17,6 +17,12 @@ const SITUATIONS = {
   CANCELED: 10,
   FINISHED: 11,
 }
+const ACTIVITY_STATUSES = {
+  EDITABLE: 0,
+  PENDING: 1,
+  REVISED: 2,
+  APPROVED: 3,
+}
 const ROLE_IDS = {
   ADMIN: 0,
   UNIT_MANAGER: 1,
@@ -71,6 +77,7 @@ module.exports = {
   SITUATIONS,
   ROLE_IDS,
   RULES,
+  ACTIVITY_STATUSES,
   CreateURL,
   GetPostHeaders,
 }

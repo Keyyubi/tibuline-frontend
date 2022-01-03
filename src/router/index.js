@@ -24,7 +24,7 @@ const router = new Router({
       route('Dashboard'),
 
       // Unit Manager Routes
-      route('unit-manager/Requests', null, '/unit-manager/requests'),
+      route('unit-manager/Demands', null, '/unit-manager/demands'),
       route('unit-manager/Contracts', null, 'unit-manager/contracts'),
       route('unit-manager/Projects', null, 'unit-manager/projects'),
       route('unit-manager/Consultants', null, 'unit-manager/consultants'),

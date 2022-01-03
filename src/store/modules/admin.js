@@ -357,7 +357,7 @@ const actions = {
   getCompanies: () => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL('Company/GetCompanys'), GetPostHeaders(store.get('user/user').token))
+    axios.get(CreateURL('Company/GetCompanies'), GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/companies', res.data)
       })

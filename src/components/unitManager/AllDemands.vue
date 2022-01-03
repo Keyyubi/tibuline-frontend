@@ -12,7 +12,7 @@
 
     <v-data-table
       :headers="headers"
-      :items="requests"
+      :items="demands"
       :search="searchWord"
     >
       <template v-slot:item.id="{ item }">
@@ -27,7 +27,7 @@
               class="ma-2"
               color="primary"
               dark
-              @click="showRequest(item)"
+              @click="showDemand(item)"
             >
               <b>{{ item.id }}</b>
               <v-icon right>
@@ -62,7 +62,7 @@
                     md="4"
                   >
                     <v-select
-                      v-model="selectedRequest.supplier"
+                      v-model="selectedDemand.supplier"
                       :items="suppliers"
                       item-text="company"
                       item-value="id"
@@ -70,7 +70,7 @@
                       persistent-hint
                       return-object
                       single-line
-                      @change="selectTarget('supplierId', selectedRequest.supplier)"
+                      @change="selectTarget('supplierId', selectedDemand.supplier)"
                     />
                   </v-col>
 
@@ -80,13 +80,13 @@
                     md="4"
                   >
                     <v-select
-                      v-model="selectedRequest.costCenter"
+                      v-model="selectedDemand.costCenter"
                       :items="costCenters"
                       item-text="center"
                       item-value="abbr"
                       label="Masraf Merkezi"
                       return-object
-                      @change="selectTarget('costCenterId', selectedRequest.costCenter)"
+                      @change="selectTarget('costCenterId', selectedDemand.costCenter)"
                     />
                   </v-col>
 
@@ -96,13 +96,13 @@
                     md="4"
                   >
                     <v-select
-                      v-model="selectedRequest.jobTitle"
+                      v-model="selectedDemand.jobTitle"
                       :items="jobTitles"
                       item-text="title"
                       item-value="abbr"
                       label="Ünvan"
                       return-object
-                      @change="selectTarget('jobTitleId', selectedRequest.jobTitle)"
+                      @change="selectTarget('jobTitleId', selectedDemand.jobTitle)"
                     />
                   </v-col>
 
@@ -112,13 +112,13 @@
                     md="4"
                   >
                     <v-select
-                      v-model="selectedRequest.experience"
+                      v-model="selectedDemand.experience"
                       :items="experiences"
                       item-text="text"
                       item-value="id"
                       label="Tecrübe Aralığı"
                       return-object
-                      @change="selectTarget('experienceId', selectedRequest.experience)"
+                      @change="selectTarget('experienceId', selectedDemand.experience)"
                     />
                   </v-col>
 
@@ -132,7 +132,7 @@
                       disabled
                       label="Aylık Bütçe"
                       type="number"
-                      :value="selectedRequest.monthlyBudget"
+                      :value="selectedDemand.monthlyBudget"
                     />
                   </v-col>
 
@@ -143,7 +143,7 @@
                   >
                     <v-menu
                       ref="menu1"
-                      v-model="selectedRequest.menu1"
+                      v-model="selectedDemand.menu1"
                       :close-on-content-click="false"
                       transition="scale-transition"
                       offset-y
@@ -152,7 +152,7 @@
                     >
                       <template v-slot:activator="{ on, attrs }">
                         <v-text-field
-                          v-model="selectedRequest.startingDate"
+                          v-model="selectedDemand.startingDate"
                           label="Başlangıç Tarihi"
                           persistent-hint
                           prepend-icon="mdi-calendar"
@@ -161,7 +161,7 @@
                         />
                       </template>
                       <v-date-picker
-                        v-model="selectedRequest.startingDate"
+                        v-model="selectedDemand.startingDate"
                         no-title
                         @input="menu1 = false"
                       />
@@ -184,7 +184,7 @@
                     >
                       <template v-slot:activator="{ on, attrs }">
                         <v-text-field
-                          v-model="selectedRequest.endingDate"
+                          v-model="selectedDemand.endingDate"
                           label="Bitiş Tarihi"
                           persistent-hint
                           prepend-icon="mdi-calendar"
@@ -193,7 +193,7 @@
                         />
                       </template>
                       <v-date-picker
-                        v-model="selectedRequest.endingDate"
+                        v-model="selectedDemand.endingDate"
                         no-title
                         @input="menu2 = false"
                       />
@@ -210,7 +210,7 @@
                       disabled
                       label="Toplam Bütçe"
                       type="number"
-                      :value="selectedRequest.totalBudget"
+                      :value="selectedDemand.totalBudget"
                     />
                   </v-col>
 
@@ -221,7 +221,7 @@
                     class="text-right"
                   >
                     <v-select
-                      v-model="selectedRequest.project"
+                      v-model="selectedDemand.project"
                       :items="projects"
                       item-text="label"
                       item-value="code"
@@ -256,7 +256,7 @@
               <v-btn
                 color="primary"
                 depressed
-                @click="updateRequest"
+                @click="updateDemand"
               >
                 Güncelle
               </v-btn>
@@ -286,15 +286,15 @@
 
 <script>
   export default {
-    name: 'AllRequests',
+    name: 'AllDemands',
     data () {
       return {
         menu1: false,
         menu2: false,
-        requestType: 'all',
+        demandType: 'all',
         searchWord: '',
         dialog: false,
-        selectedRequest: {},
+        selectedDemand: {},
         selectedConsultant: '',
         headers: [
           {
@@ -307,7 +307,7 @@
           { text: 'Aday', value: 'consultant.fullName' },
           { text: 'Talep Durumu', value: 'situation.label' },
         ],
-        requests: [
+        demands: [
           {
             id: 1,
             supplier: { id: 0, title: 'Tibula' },
@@ -386,20 +386,20 @@
       }
     },
     methods: {
-      editRequest (id) {
+      editDemand (id) {
         console.log('id', id)
       },
-      showRequest (request) {
-        this.selectedRequest = request
-        this.selectedConsultant = request.consultant.fullName
+      showDemand (demand) {
+        this.selectedDemand = demand
+        this.selectedConsultant = demand.consultant.fullName
         this.dialog = true
       },
       selectTarget (target, obj) {
-        // this.request[target] = obj.id
+        // this.demand[target] = obj.id
         console.log(target, obj)
       },
-      updateRequest () {
-        console.log('selected', this.selectedRequest)
+      updateDemand () {
+        console.log('selected', this.selectedDemand)
       },
     },
   }

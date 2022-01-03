@@ -34,7 +34,7 @@ const managerItems = [
   {
     title: 'Talepler',
     icon: 'mdi-account-plus',
-    to: '/unit-manager/requests',
+    to: '/unit-manager/demands',
   },
   {
     title: 'Sözleşmeler',

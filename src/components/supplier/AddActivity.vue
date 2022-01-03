@@ -52,8 +52,7 @@
                     text
                     small
                     color="grey darken-2"
-                    :disabled="isMinMonth"
-                    @click="prev"
+                    @click="changeDate('prev')"
                   >
                     <v-icon small>
                       mdi-chevron-left
@@ -64,7 +63,7 @@
                     text
                     small
                     color="grey darken-2"
-                    @click="next"
+                    @click="changeDate('next')"
                   >
                     <v-icon small>
                       mdi-chevron-right
@@ -100,6 +99,7 @@
               >
                 <v-calendar
                   ref="calendar"
+                  v-model="focus"
                   style="border-left:none"
                   color="primary"
                   type="month"
@@ -310,15 +310,16 @@
 
 <script>
   import { get } from 'vuex-pathify'
+  import { ACTIVITY_STATUSES as statuses } from '@/util/globals'
   export default {
     name: 'AddActivity',
     data: () => ({
+      focus: '',
       e1: 1,
       dialog: false,
       confirmationType: '',
       confirmationMsg: '',
       confirmationDialog: false,
-      isMinMonth: true,
       reasonOfDeny: '',
       selectedEvent: {},
       selectedConsultant: null,
@@ -327,6 +328,7 @@
       totalDaysOff: 0,
       shiftStartAt: 9, // 0-23 as o'clock of the day
       shiftHours: 8, // as working hours
+      statuses,
     }),
     computed: {
       ...get('app', ['responseMsg', 'isErrorMsg']),
@@ -350,25 +352,10 @@
       getEventColor (event) {
         return event.color
       },
-      async prev () {
-        this.$store.dispatch('app/setLoading', true)
-        this.$refs.calendar.prev()
-        await this.sleep(250)
-        const current = new Date(this.$refs.calendar.value)
-        console.log('curr', current)
-        this.isMinMonth = new Date(current.getFullYear(), current.getMonth(), 1) < new Date()
-        setTimeout(() => {
-          console.log('cur2', new Date(this.$refs.calendar.value).toISOString())
-          this.$store.dispatch('app/setLoading', false)
-        }, 1500)
-      },
-      next () {
-        this.$refs.calendar.next()
-        this.isMinMonth = false
-      },
       newShiftEvent (date, name = `${this.shiftHours}s mesai`, shiftHours = this.shiftHours, overShiftHours = 0) {
         const yearMonth = date.split('-')[0] + '-' + date.split('-')[1]
         const consultantId = this.selectedConsultant
+        console.log('statuses', this.statuses)
         return {
           date,
           name,
@@ -380,7 +367,7 @@
           timed: false,
           yearMonth,
           consultantId,
-          activityStatus: true,
+          activityStatus: this.statuses.EDITABLE,
         }
       },
       openDialog (item) {
@@ -490,6 +477,22 @@
           this.confirmationDialog = false
           this.updateRange()
         }
+      },
+      async changeDate (type) {
+        type === 'next' ? this.$refs.calendar.next() : this.$refs.calendar.prev()
+        this.$store.dispatch('app/setLoading', true)
+
+        await this.sleep(250)
+
+        const { date } = this.$refs.calendar.lastEnd
+        const yearMonth = date.split('-')[0] + '-' + date.split('-')[1]
+        const consultantId = this.selectedConsultant
+
+        this.$store.dispatch('supplier/getConsultantActivities', { consultantId, yearMonth })
+
+        setTimeout(() => {
+          this.$store.dispatch('app/setLoading', false)
+        }, 750)
       },
     },
   }

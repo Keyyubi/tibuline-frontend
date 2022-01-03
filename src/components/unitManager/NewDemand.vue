@@ -111,7 +111,7 @@
           >
             <template v-slot:activator="{ on, attrs }">
               <v-text-field
-                v-model="request.startingDate"
+                v-model="demand.startingDate"
                 label="Başlangıç Tarihi"
                 persistent-hint
                 prepend-icon="mdi-calendar"
@@ -120,7 +120,7 @@
               />
             </template>
             <v-date-picker
-              v-model="request.startingDate"
+              v-model="demand.startingDate"
               no-title
               @input="menu1 = false"
             />
@@ -143,7 +143,7 @@
           >
             <template v-slot:activator="{ on, attrs }">
               <v-text-field
-                v-model="request.endingDate"
+                v-model="demand.endingDate"
                 label="Bitiş Tarihi"
                 persistent-hint
                 prepend-icon="mdi-calendar"
@@ -152,7 +152,7 @@
               />
             </template>
             <v-date-picker
-              v-model="request.endingDate"
+              v-model="demand.endingDate"
               no-title
               @input="menu2 = false"
             />
@@ -200,7 +200,7 @@
             width="100%"
             x-large
             depressed
-            @click="createRequest"
+            @click="createDemand"
           >
             Oluştur
           </v-btn>
@@ -234,7 +234,7 @@
 
 <script>
   export default {
-    name: 'NewRequest',
+    name: 'NewDemand',
     data () {
       return {
         popup: null,
@@ -249,7 +249,7 @@
         project: { id: null, code: '', label: '' },
         monthlyBudget: '16.606',
         totalBudget: '' + (Math.round((12 * 16.606) * 100) / 100),
-        request: {
+        demand: {
           supplierId: null,
           costCenterId: null,
           jobTitleId: null,
@@ -290,11 +290,11 @@
       }
     },
     methods: {
-      createRequest () {
+      createDemand () {
         let isFilled = true
-        Object.keys(this.request).forEach(e => {
+        Object.keys(this.demand).forEach(e => {
           if (isFilled != null) {
-            isFilled = this.request[e]
+            isFilled = this.demand[e]
           }
         })
 
@@ -310,8 +310,8 @@
           this.jobTitle = { id: null, title: '', abbr: '' }
           this.experience = { id: null, exp: '', value: '' }
           this.project = { id: null, code: '', label: '' }
-          this.request.startingDate = null
-          this.request.endingDate = null
+          this.demand.startingDate = null
+          this.demand.endingDate = null
 
           setTimeout(() => {
             this.createdAlert = !this.createdAlert
@@ -319,7 +319,7 @@
         }
       },
       selectTarget (target, obj) {
-        this.request[target] = obj.id || obj.code
+        this.demand[target] = obj.id || obj.code
       },
     },
   }
