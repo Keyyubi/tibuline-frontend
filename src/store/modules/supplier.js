@@ -96,11 +96,10 @@ const actions = {
         }, 2000)
       })
   },
-  getConsultantActivities: (context, consultantId) => {
+  getConsultantActivities: (context, payload) => {
     store.set('app/isLoading', true)
 
-    // axios.get(CreateURL(`Consultant/GetActivitesByConsultantId/${consultantId}`), GetPostHeaders(store.get('user/user').token))
-    axios.get(CreateURL('Activity/GetActivitys'), GetPostHeaders(store.get('user/user').token))
+    axios.get(CreateURL(`Activity/GetActivitiesByConsultantIdAndYearMonth/${payload.consultantId}/${payload.yearMonth}`), GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         const arr = res.data.map(e => {
           const name = `${e.shiftHours}s mesai ${e.overShiftHours ? ' - ' + e.overShiftHours + 's fazla mesai' : ''}`

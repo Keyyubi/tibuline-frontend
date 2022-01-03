@@ -100,9 +100,10 @@
               >
                 <v-calendar
                   ref="calendar"
-                  v-model="focus"
                   style="border-left:none"
                   color="primary"
+                  type="month"
+                  event-overlap-mode="column"
                   :events="activities"
                   :event-color="getEventColor"
                   @click:date="openDialog"
@@ -313,7 +314,6 @@
     name: 'AddActivity',
     data: () => ({
       e1: 1,
-      focus: '',
       dialog: false,
       confirmationType: '',
       confirmationMsg: '',
@@ -337,9 +337,13 @@
     },
     methods: {
       selectConsultant () {
-        const yearMonth = this.$refs.calendar.lastEnd
-        console.log('year', yearMonth)
-        this.$store.dispatch('supplier/getConsultantActivities', this.selectedConsultant)
+        const { date } = this.$refs.calendar.lastEnd
+        const yearMonth = date.split('-')[0] + '-' + date.split('-')[1]
+        const payload = {
+          consultantId: this.selectedConsultant,
+          yearMonth,
+        }
+        this.$store.dispatch('supplier/getConsultantActivities', payload)
         this.calculateTotalHours()
         this.e1 = 2
       },
@@ -374,9 +378,9 @@
           end: new Date(date),
           color: 'green',
           timed: false,
-          isApprovedByManager: false,
           yearMonth,
           consultantId,
+          activityStatus: true,
         }
       },
       openDialog (item) {
