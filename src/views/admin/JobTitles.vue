@@ -87,6 +87,17 @@
                             label="Ünvan"
                           />
                         </v-col>
+                        <v-col>
+                          <v-autocomplete
+                            v-model="selectedJobTitle.companyId"
+                            :items="companies"
+                            item-text="name"
+                            item-value="id"
+                            label="Şirket"
+                            :rules="[v => v > 0 || 'Bu alan boş geçilemez.']"
+                            required
+                          />
+                        </v-col>
                       </v-row>
                     </v-container>
                   </v-card-text>
@@ -114,6 +125,10 @@
                 </v-card>
               </v-dialog>
             </template>
+            <!-- eslint-disable-next-line -->
+            <template v-slot:item.companyId="{ item }">
+              {{ companies.find(e => e.id === item.companyId) ? companies.find(e => e.id === item.companyId).name : 'Bulunamadı' }}
+            </template>
           </v-data-table>
         </v-card>
       </v-tab-item>
@@ -126,7 +141,10 @@
             lazy-validation
           >
             <v-row>
-              <v-col cols="4">
+              <v-col
+                cols="12"
+                md="6"
+              >
                 <v-text-field
                   v-model="newJobTitle.abbreviation"
                   label="Kısaltma"
@@ -137,7 +155,10 @@
                 />
               </v-col>
 
-              <v-col cols="4">
+              <v-col
+                cols="12"
+                md="6"
+              >
                 <v-text-field
                   v-model="newJobTitle.name"
                   label="Ünvan"
@@ -146,7 +167,25 @@
                 />
               </v-col>
 
-              <v-col cols="4">
+              <v-col
+                cols="12"
+                md="6"
+              >
+                <v-autocomplete
+                  v-model="newJobTitle.companyId"
+                  :items="companies"
+                  item-text="name"
+                  item-value="id"
+                  label="Şirket"
+                  :rules="[v => v > 0 || 'Bu alan boş geçilemez.']"
+                  required
+                />
+              </v-col>
+
+              <v-col
+                cols="12"
+                md="6"
+              >
                 <v-btn
                   class="my-2"
                   width="100%"
@@ -189,7 +228,7 @@
         searchWord: '',
         dialog: false,
         selectedJobTitle: {},
-        newJobTitle: { abbreviation: '', name: '' },
+        newJobTitle: { abbreviation: '', name: '', companyId: null },
         headers: [
           {
             text: 'Kısaltma',
@@ -197,15 +236,17 @@
             value: 'abbreviation',
           },
           { text: 'Ünvan', value: 'name' },
+          { text: 'Şirket', value: 'companyId' },
         ],
       }
     },
     computed: {
       ...get('app', ['responseMsg', 'isErrorMsg']),
-      ...get('admin', ['jobTitles']),
+      ...get('admin', ['companies', 'jobTitles']),
     },
     mounted () {
       this.$store.dispatch('admin/getJobTitles')
+      this.$store.dispatch('admin/getSupplierCompanies')
     },
     methods: {
       uppercase () {

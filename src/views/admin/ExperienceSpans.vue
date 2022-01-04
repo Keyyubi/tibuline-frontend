@@ -79,6 +79,17 @@
                             label="Tecrübe Aralığı"
                           />
                         </v-col>
+                        <v-col>
+                          <v-autocomplete
+                            v-model="selectedExperienceSpan.companyId"
+                            :items="companies"
+                            item-text="name"
+                            item-value="id"
+                            label="Şirket"
+                            :rules="[v => v > 0 || 'Bu alan boş geçilemez.']"
+                            required
+                          />
+                        </v-col>
                       </v-row>
                     </v-container>
                   </v-card-text>
@@ -106,6 +117,11 @@
                 </v-card>
               </v-dialog>
             </template>
+
+            <!-- eslint-disable-next-line -->
+            <template v-slot:item.companyId="{ item }">
+              {{ companies.find(e => e.id === item.companyId) ? companies.find(e => e.id === item.companyId).name : 'Bulunamadı' }}
+            </template>
           </v-data-table>
         </v-card>
       </v-tab-item>
@@ -118,7 +134,10 @@
             lazy-validation
           >
             <v-row>
-              <v-col cols="6">
+              <v-col
+                cols="12"
+                md="4"
+              >
                 <v-text-field
                   v-model="newExperienceSpan.name"
                   label="Tercübe Aralığı"
@@ -127,7 +146,25 @@
                 />
               </v-col>
 
-              <v-col cols="6">
+              <v-col
+                cols="12"
+                md="4"
+              >
+                <v-autocomplete
+                  v-model="newExperienceSpan.companyId"
+                  :items="companies"
+                  item-text="name"
+                  item-value="id"
+                  label="Şirket"
+                  :rules="[v => v > 0 || 'Bu alan boş geçilemez.']"
+                  required
+                />
+              </v-col>
+
+              <v-col
+                cols="12"
+                md="4"
+              >
                 <v-btn
                   class="my-2"
                   width="100%"
@@ -170,7 +207,7 @@
         searchWord: '',
         dialog: false,
         selectedExperienceSpan: {},
-        newExperienceSpan: { name: '' },
+        newExperienceSpan: { name: '', companyId: null },
         headers: [
           {
             text: 'İşlem',
@@ -178,15 +215,17 @@
             value: 'id',
           },
           { text: 'Tecrübe Aralığı', value: 'name' },
+          { text: 'Şirket', value: 'companyId' },
         ],
       }
     },
     computed: {
       ...get('app', ['responseMsg', 'isErrorMsg']),
-      ...get('admin', ['experienceSpans']),
+      ...get('admin', ['companies', 'experienceSpans']),
     },
     mounted () {
       this.$store.dispatch('admin/getExperienceSpans')
+      this.$store.dispatch('admin/getSupplierCompanies')
     },
     methods: {
       editExperienceSpan (item) {

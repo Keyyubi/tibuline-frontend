@@ -3,19 +3,18 @@ const IN_BROWSER = typeof window !== 'undefined'
 const IS_DEBUG = process.env.DEBUG === 'true'
 const IS_PROD = process.env.NODE_ENV === 'production'
 const BASE_URL = 'http://37.9.203.118:4647/api'
-const SITUATIONS = {
-  APPROVED: 0,
-  DENIED: 1,
-  WAITING_REVISE: 2,
-  WAITING_CONTRACT: 3,
-  ON_LAW_DPT: 4,
-  ON_BUYING_DPT: 5,
-  ACTIVE: 6,
-  PASSIVE: 7,
-  NOT_STARTED: 8,
-  ON_GOING: 9,
-  CANCELED: 10,
-  FINISHED: 11,
+const DEMAND_STATUSES = {
+  /* //**
+    * DEMAND FLOW with Statuses ==> CREATED 1 to PENDING  =>
+  */
+  CREATED: 0, // By Manager
+  REPLIED: 1, // By Supplier
+  PENDING: 2, // On Manager
+  REVISED: 3, // On Supplier
+  WAITING_DEPARTMANT: 4, // On Manager
+  APPROVED_BY_MANAGER: 5, // By Manager
+  APPROVED_BY_SUPPLIER: 6, // By Manager
+  COMPLITED: 7,
 }
 const ACTIVITY_STATUSES = {
   EDITABLE: 0,
@@ -74,7 +73,7 @@ module.exports = {
   IN_BROWSER,
   IS_DEBUG,
   IS_PROD,
-  SITUATIONS,
+  DEMAND_STATUSES,
   ROLE_IDS,
   RULES,
   ACTIVITY_STATUSES,

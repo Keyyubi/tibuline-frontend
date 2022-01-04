@@ -374,6 +374,26 @@ const actions = {
         }, 2000)
       })
   },
+  getSupplierCompanies: () => {
+    store.set('app/isLoading', true)
+
+    axios.get(CreateURL('Company/GetSupplierCompanies'), GetPostHeaders(store.get('user/user').token))
+      .then(({ data: res }) => {
+        store.set('admin/companies', res.data)
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.set('app/isErrorMsg', true)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+        setTimeout(() => {
+          store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
+        }, 2000)
+      })
+  },
   getCostCenters: () => {
     store.set('app/isLoading', true)
 

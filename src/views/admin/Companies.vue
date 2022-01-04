@@ -49,7 +49,7 @@
             <template v-slot:item.id="{ item }">
               <v-dialog
                 v-model="dialog"
-                width="460"
+                width="960"
                 :retain-focus="false"
               >
                 <!-- eslint-disable-next-line -->
@@ -137,6 +137,17 @@
                             />
                           </v-col>
 
+                          <!-- IsSupplier -->
+                          <v-col
+                            cols="12"
+                            md="4"
+                          >
+                            <v-checkbox
+                              v-model="selectedCompany.isSupplier"
+                              :label="`Tedarikçi Firma: ${selectedCompany.isSupplier ? 'Evet' : 'Hayır'}`"
+                            />
+                          </v-col>
+
                           <!-- Address -->
                           <v-col
                             cols="12"
@@ -218,7 +229,7 @@
               <!-- TCKN -->
               <v-col
                 cols="12"
-                md="6"
+                md="4"
               >
                 <v-text-field
                   v-model="newCompany.tckn_vkn"
@@ -232,7 +243,7 @@
               <!-- Phone -->
               <v-col
                 cols="12"
-                md="6"
+                md="4"
               >
                 <v-text-field
                   v-model="newCompany.phone"
@@ -243,6 +254,17 @@
                   :rules="RULES.PHONE"
                   required
                   @click:append="newCompany.phone = ''"
+                />
+              </v-col>
+
+              <!-- IsSupplier -->
+              <v-col
+                cols="12"
+                md="4"
+              >
+                <v-checkbox
+                  v-model="newCompany.isSupplier"
+                  :label="`Tedarikçi Firma: ${newCompany.isSupplier ? 'Evet' : 'Hayır'}`"
                 />
               </v-col>
 
@@ -324,6 +346,7 @@
           tckn_vkn: null,
           phone: null,
           address: null,
+          isSupplier: false,
         },
         headers: [
           {

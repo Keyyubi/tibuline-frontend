@@ -40,7 +40,7 @@
 
 <script>
   export default {
-    name: 'Talepler',
+    name: 'Demands',
     data () {
       return { currentTab: 'newDemand' }
     },
