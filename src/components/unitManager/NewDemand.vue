@@ -143,6 +143,7 @@
 </template>
 
 <script>
+  import { DEMAND_STATUSES } from '@/util/globals'
   import { get } from 'vuex-pathify'
   export default {
     name: 'NewDemand',
@@ -151,6 +152,7 @@
         popup: null,
         monthlyBudget: '',
         totalBudget: '',
+        DEMAND_STATUSES,
         demand: {
           createdById: null,
           costCenterId: 0,
@@ -160,7 +162,7 @@
           monthlyBudget: 0,
           totalBudget: 0,
           projectId: 0,
-          demandStatus: 0,
+          demandStatus: DEMAND_STATUSES.find(e => e.key === 'CREATED').status,
         },
       }
     },
@@ -194,9 +196,9 @@
       selectTarget (target, id) {
         switch (target) {
           case 'supplier':
-            this.$store.dispatch('manager/getJobTitles', id)
-            this.$store.dispatch('manager/getExperienceSpans', id)
-            this.$store.dispatch('manager/getBudgetPlans', id)
+            this.$store.dispatch('manager/getJobTitlesByCompany', id)
+            this.$store.dispatch('manager/getExperienceSpansByCompany', id)
+            this.$store.dispatch('manager/getBudgetPlansByCompany', id)
             break
           case 'jobTitle':
             this.calculateBudget()

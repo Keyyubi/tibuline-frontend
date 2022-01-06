@@ -16,390 +16,342 @@
       :search="searchWord"
     >
       <template v-slot:item.id="{ item }">
-        <v-dialog
-          v-model="dialog"
-          width="960"
-          :retain-focus="false"
+        <v-chip
+          class="ma-2"
+          color="primary"
+          dark
+          @click="showDemand(item)"
         >
-          <!-- eslint-disable-next-line -->
-          <template v-slot:activator="{ on, attrs }">
-            <v-chip
-              class="ma-2"
-              color="primary"
-              dark
-              @click="showDemand(item)"
-            >
-              <b>{{ item.id }}</b>
-              <v-icon right>
-                mdi-arrow-right-bold
-              </v-icon>
-            </v-chip>
-          </template>
-
-          <v-card>
-            <v-card-title class="text-h5 primary white--text">
-              Talep Detayları
-            </v-card-title>
-
-            <v-card-text>
-              <v-container class="py-3">
-                <v-row>
-                  <v-col
-                    cols="12"
-                    md="4"
-                  >
-                    <v-text-field
-                      disabled
-                      color="purple"
-                      label="Birim Müdürü"
-                      value="Fatih Cigeroglu"
-                    />
-                  </v-col>
-
-                  <!-- Supplier -->
-                  <v-col
-                    cols="12"
-                    md="4"
-                  >
-                    <v-select
-                      v-model="selectedDemand.supplier"
-                      :items="suppliers"
-                      item-text="company"
-                      item-value="id"
-                      label="Tedarikçi Firma"
-                      persistent-hint
-                      return-object
-                      single-line
-                      @change="selectTarget('supplierId', selectedDemand.supplier)"
-                    />
-                  </v-col>
-
-                  <!-- Cost Center -->
-                  <v-col
-                    cols="12"
-                    md="4"
-                  >
-                    <v-select
-                      v-model="selectedDemand.costCenter"
-                      :items="costCenters"
-                      item-text="center"
-                      item-value="abbr"
-                      label="Masraf Merkezi"
-                      return-object
-                      @change="selectTarget('costCenterId', selectedDemand.costCenter)"
-                    />
-                  </v-col>
-
-                  <!-- Job Title -->
-                  <v-col
-                    cols="12"
-                    md="4"
-                  >
-                    <v-select
-                      v-model="selectedDemand.jobTitle"
-                      :items="jobTitles"
-                      item-text="title"
-                      item-value="abbr"
-                      label="Ünvan"
-                      return-object
-                      @change="selectTarget('jobTitleId', selectedDemand.jobTitle)"
-                    />
-                  </v-col>
-
-                  <!-- Experience -->
-                  <v-col
-                    cols="12"
-                    md="4"
-                  >
-                    <v-select
-                      v-model="selectedDemand.experience"
-                      :items="experiences"
-                      item-text="text"
-                      item-value="id"
-                      label="Tecrübe Aralığı"
-                      return-object
-                      @change="selectTarget('experienceId', selectedDemand.experience)"
-                    />
-                  </v-col>
-
-                  <!-- Monthly Budget -->
-                  <v-col
-                    cols="12"
-                    md="4"
-                  >
-                    <v-text-field
-                      color="purple"
-                      disabled
-                      label="Aylık Bütçe"
-                      type="number"
-                      :value="selectedDemand.monthlyBudget"
-                    />
-                  </v-col>
-
-                  <!-- Starting Date -->
-                  <v-col
-                    cols="12"
-                    md="4"
-                  >
-                    <v-menu
-                      ref="menu1"
-                      v-model="selectedDemand.menu1"
-                      :close-on-content-click="false"
-                      transition="scale-transition"
-                      offset-y
-                      max-width="290px"
-                      min-width="auto"
-                    >
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-text-field
-                          v-model="selectedDemand.startingDate"
-                          label="Başlangıç Tarihi"
-                          persistent-hint
-                          prepend-icon="mdi-calendar"
-                          v-bind="attrs"
-                          v-on="on"
-                        />
-                      </template>
-                      <v-date-picker
-                        v-model="selectedDemand.startingDate"
-                        no-title
-                        @input="menu1 = false"
-                      />
-                    </v-menu>
-                  </v-col>
-
-                  <!-- Due Date -->
-                  <v-col
-                    cols="12"
-                    md="4"
-                  >
-                    <v-menu
-                      ref="menu2"
-                      v-model="menu2"
-                      :close-on-content-click="false"
-                      transition="scale-transition"
-                      offset-y
-                      max-width="290px"
-                      min-width="auto"
-                    >
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-text-field
-                          v-model="selectedDemand.endingDate"
-                          label="Bitiş Tarihi"
-                          persistent-hint
-                          prepend-icon="mdi-calendar"
-                          v-bind="attrs"
-                          v-on="on"
-                        />
-                      </template>
-                      <v-date-picker
-                        v-model="selectedDemand.endingDate"
-                        no-title
-                        @input="menu2 = false"
-                      />
-                    </v-menu>
-                  </v-col>
-
-                  <!-- Total Budget -->
-                  <v-col
-                    cols="12"
-                    md="4"
-                  >
-                    <v-text-field
-                      color="purple"
-                      disabled
-                      label="Toplam Bütçe"
-                      type="number"
-                      :value="selectedDemand.totalBudget"
-                    />
-                  </v-col>
-
-                  <!-- Project -->
-                  <v-col
-                    cols="6"
-                    md="4"
-                    class="text-right"
-                  >
-                    <v-select
-                      v-model="selectedDemand.project"
-                      :items="projects"
-                      item-text="label"
-                      item-value="code"
-                      label="Hedef Proje"
-                      return-object
-                    />
-                  </v-col>
-                </v-row>
-                <v-row align="center">
-                  <v-divider class="mr-3" />Tedarikçi Bölümü<v-divider class="ml-3" />
-                </v-row>
-                <v-row class="mt-3">
-                  <v-col
-                    cols="12"
-                    sm="6"
-                    md="3"
-                  >
-                    <v-text-field
-                      v-model="selectedConsultant"
-                      label="Aday"
-                      readonly
-                    />
-                  </v-col>
-                </v-row>
-              </v-container>
-            </v-card-text>
-
-            <v-divider />
-
-            <v-card-actions>
-              <v-spacer />
-              <v-btn
-                color="primary"
-                depressed
-                @click="updateDemand"
-              >
-                Güncelle
-              </v-btn>
-              <v-btn
-                color="error"
-                depressed
-                @click="dialog = false"
-              >
-                Vazgeç
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
+          <b>{{ item.id }}</b>
+          <v-icon right>
+            mdi-arrow-right-bold
+          </v-icon>
+        </v-chip>
       </template>
 
-      <template v-slot:item.situation.label="{ item }">
+      <template v-slot:item.demandStatus="{ item }">
         <v-chip
-          :color="item.situation.id === 0 ? 'orange' : 'green'"
+          :color="item.demandStatus === 0 ? 'orange' : 'green'"
           dark
         >
-          {{ item.situation.label }}
+          {{ DEMAND_STATUSES.find(e => e.status === item.demandStatus).label }}
         </v-chip>
       </template>
     </v-data-table>
+    <v-dialog
+      v-model="dialog"
+      width="960"
+      persistent
+    >
+      <v-card>
+        <v-card-title class="text-h5 primary white--text">
+          Talep Detayları
+        </v-card-title>
+
+        <v-card-text>
+          <v-container class="py-3">
+            <v-row>
+              <v-col
+                cols="12"
+                md="4"
+              >
+                <v-text-field
+                  disabled
+                  label="Birim Müdürü"
+                  :value="user.firstName + ' ' + user.lastName"
+                />
+              </v-col>
+
+              <!-- Supplier -->
+              <v-col
+                cols="12"
+                md="4"
+              >
+                <v-select
+                  v-model="selectedDemand.supplierCompanyId"
+                  :items="companies"
+                  item-text="name"
+                  item-value="id"
+                  label="Tedarikçi Firma"
+                  disabled
+                />
+              </v-col>
+
+              <!-- Cost Center -->
+              <v-col
+                cols="12"
+                md="4"
+              >
+                <v-select
+                  v-model="selectedDemand.costCenterId"
+                  :items="costCenters"
+                  item-text="name"
+                  item-value="id"
+                  label="Masraf Merkezi"
+                />
+              </v-col>
+
+              <!-- Job Title -->
+              <v-col
+                cols="12"
+                md="4"
+              >
+                <v-select
+                  v-model="selectedDemand.jobTitleId"
+                  :items="jobTitles"
+                  item-text="name"
+                  item-value="id"
+                  label="Ünvan"
+                />
+              </v-col>
+
+              <!-- Experience -->
+              <v-col
+                cols="12"
+                md="4"
+              >
+                <v-select
+                  v-model="selectedDemand.experienceSpanId"
+                  :items="experienceSpans"
+                  item-text="name"
+                  item-value="id"
+                  label="Tecrübe Aralığı"
+                />
+              </v-col>
+
+              <!-- Project -->
+              <v-col
+                cols="6"
+                md="4"
+                class="text-right"
+              >
+                <v-select
+                  v-model="selectedDemand.projectId"
+                  :items="projects"
+                  item-text="name"
+                  item-value="id"
+                  label="Proje"
+                />
+              </v-col>
+
+              <!-- Monthly Budget -->
+              <v-col
+                cols="12"
+                md="4"
+              >
+                <v-text-field
+                  color="purple"
+                  disabled
+                  label="Aylık Bütçe"
+                  type="number"
+                  :value="selectedDemand.monthlyBudget"
+                />
+              </v-col>
+
+              <!-- Total Budget -->
+              <v-col
+                cols="12"
+                md="4"
+              >
+                <v-text-field
+                  color="purple"
+                  disabled
+                  label="Toplam Bütçe"
+                  type="number"
+                  :value="selectedDemand.totalBudget"
+                />
+              </v-col>
+
+              <!-- Starting Date -->
+              <!-- <v-col
+                cols="12"
+                md="4"
+              >
+                <v-menu
+                  ref="menu1"
+                  v-model="selectedDemand.menu1"
+                  :close-on-content-click="false"
+                  transition="scale-transition"
+                  offset-y
+                  max-width="290px"
+                  min-width="auto"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      v-model="selectedDemand.startingDate"
+                      label="Başlangıç Tarihi"
+                      persistent-hint
+                      prepend-icon="mdi-calendar"
+                      v-bind="attrs"
+                      v-on="on"
+                    />
+                  </template>
+                  <v-date-picker
+                    v-model="selectedDemand.startingDate"
+                    no-title
+                    @input="menu1 = false"
+                  />
+                </v-menu>
+              </v-col> -->
+
+              <!-- Due Date -->
+              <!-- <v-col
+                cols="12"
+                md="4"
+              >
+                <v-menu
+                  ref="menu2"
+                  v-model="menu2"
+                  :close-on-content-click="false"
+                  transition="scale-transition"
+                  offset-y
+                  max-width="290px"
+                  min-width="auto"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      v-model="selectedDemand.endingDate"
+                      label="Bitiş Tarihi"
+                      persistent-hint
+                      prepend-icon="mdi-calendar"
+                      v-bind="attrs"
+                      v-on="on"
+                    />
+                  </template>
+                  <v-date-picker
+                    v-model="selectedDemand.endingDate"
+                    no-title
+                    @input="menu2 = false"
+                  />
+                </v-menu>
+              </v-col> -->
+            </v-row>
+
+            <!-- <v-row align="center">
+              <v-divider class="mr-3" />Tedarikçi Bölümü<v-divider class="ml-3" />
+            </v-row> -->
+            <v-row
+              v-if="selectedDemand.consultantId && selectedDemand.consultantId > 0"
+              class="mt-3"
+            >
+              <v-col
+                cols="12"
+                sm="6"
+                md="3"
+              >
+                <v-text-field
+                  v-model="selectedDemand.consultantId"
+                  label="Aday"
+                  readonly
+                />
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+
+        <v-divider />
+
+        <v-card-actions>
+          <v-spacer />
+          <v-btn
+            color="primary"
+            depressed
+            @click="updateDemand"
+          >
+            Güncelle
+          </v-btn>
+          <v-btn
+            color="error"
+            depressed
+            @click="closeDialog"
+          >
+            Vazgeç
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
 <script>
+  import { DEMAND_STATUSES } from '@/util/globals'
+  import { get } from 'vuex-pathify'
   export default {
     name: 'AllDemands',
     data () {
       return {
-        menu1: false,
-        menu2: false,
         demandType: 'all',
         searchWord: '',
         dialog: false,
         selectedDemand: {},
         selectedConsultant: '',
+        DEMAND_STATUSES,
         headers: [
           {
             text: 'Talep No.',
             align: 'start',
             value: 'id',
           },
-          { text: 'Tedarikçi', value: 'supplier.title' },
-          { text: 'Pozisyon', value: 'position.title' },
-          { text: 'Aday', value: 'consultant.fullName' },
-          { text: 'Talep Durumu', value: 'situation.label' },
-        ],
-        demands: [
-          {
-            id: 1,
-            supplier: { id: 0, title: 'Tibula' },
-            position: { id: 1, title: 'Sr. Software Developer' },
-            consultant: { id: 0, fullName: 'Murathan Karayazi' },
-            situation: { id: 0, label: 'Rezive Bekliyor' },
-            project: { code: '001', label: 'Proje 1' },
-            experience: { id: 0, text: '2-3 Yıl' },
-            jobTitle: { id: 2, title: 'Senior Backend Developer', abbr: 'SRB' },
-            costCenter: { id: 1, center: 'Masraf merkezi 2', abbr: 'MER1' },
-            monthlyBudget: 16.606,
-            totalBudget: '' + (Math.round((12 * 16.606) * 100) / 100),
-            startingDate: '2021-11-10',
-            endingDate: '2022-11-10',
-          },
-          {
-            id: 2,
-            supplier: { id: 0, title: 'Tibula' },
-            position: { id: 1, title: 'Sr. Software Developer' },
-            consultant: { id: 1, fullName: 'Furkan Reyhanlioglu' },
-            situation: { id: 0, label: 'Rezive Bekliyor' },
-            project: { code: '001', label: 'Proje 1' },
-            experience: { id: 0, text: '2-3 Yıl' },
-            jobTitle: { id: 2, title: 'Senior Backend Developer', abbr: 'SRB' },
-            costCenter: { id: 1, center: 'Masraf merkezi 2', abbr: 'MER1' },
-            monthlyBudget: 16.606,
-            totalBudget: '' + (Math.round((12 * 16.606) * 100) / 100),
-            startingDate: '2021-11-10',
-            endingDate: '2022-11-10',
-          },
-          {
-            id: 3,
-            supplier: { id: 0, title: 'Tibula' },
-            position: { id: 1, title: 'Sr. Software Developer' },
-            consultant: { id: 0, fullName: 'Murathan Karayazi' },
-            situation: { id: 1, label: 'Sözleşme Bekliyor' },
-            project: { code: '001', label: 'Proje 1' },
-            experience: { id: 0, text: '2-3 Yıl' },
-            jobTitle: { id: 2, title: 'Senior Backend Developer', abbr: 'SRB' },
-            costCenter: { id: 1, center: 'Masraf merkezi 2', abbr: 'MER1' },
-            monthlyBudget: 16.606,
-            totalBudget: '' + (Math.round((12 * 16.606) * 100) / 100),
-            startingDate: '2021-11-10',
-            endingDate: '2022-11-10',
-          },
-        ],
-        suppliers: [
-          { id: 0, company: 'Tibula', abbr: 'TBL' },
-          { id: 1, company: 'Mirsis', abbr: 'MRS' },
-          { id: 2, company: 'Netas', abbr: 'NE' },
-        ],
-        costCenters: [
-          { id: 0, center: 'POS ve Üye işyerleri', abbr: 'POS' },
-          { id: 1, center: 'Masraf merkezi 2', abbr: 'MER1' },
-          { id: 2, center: 'Masraf merkezi 3', abbr: 'MER2' },
-        ],
-        jobTitles: [
-          { id: 0, title: 'İş Analisti', abbr: 'BSA' },
-          { id: 1, title: 'DevOps Uzmanı', abbr: 'DOPS' },
-          { id: 2, title: 'Senior Backend Developer', abbr: 'SRB' },
-          { id: 3, title: 'Junior Frontend Developer', abbr: 'JRF' },
-        ],
-        experiences: [
-          { id: 0, text: '2-3 Yıl' },
-          { id: 1, text: '3-5 Yıl' },
-          { id: 2, text: '5-8 Yıl' },
-          { id: 3, text: '8-12 Yıl' },
-          { id: 4, text: '12+ Yıl' },
-        ],
-        projects: [
-          { code: '001', label: 'Proje 1' },
-          { code: '002', label: 'Proje 2' },
-          { code: '003', label: 'Proje 3' },
-          { code: '004', label: 'Proje 4' },
+          { text: 'Tedarikçi', value: 'supplierCompanyId' },
+          { text: 'Ünvan', value: 'jobTitleId' },
+          { text: 'Tecrübe Aralığı', value: 'experienceSpanId' },
+          { text: 'Proje', value: 'projectId' },
+          { text: 'Aday', value: 'consultantId' },
+          { text: 'Talep Durumu', value: 'demandStatus' },
         ],
       }
     },
+    computed: {
+      ...get('user', ['user']),
+      ...get('app', ['responseMsg', 'isErrorMsg']),
+      ...get('manager', ['demands', 'costCenters', 'experienceSpans', 'jobTitles', 'projects', 'companies']),
+    },
+    mounted () {
+      this.$store.dispatch('manager/getSupplierCompanies')
+      this.$store.dispatch('manager/getCostCenters')
+      this.$store.dispatch('manager/getJobTitles')
+      this.$store.dispatch('manager/getProjects')
+      this.$store.dispatch('manager/getDemands')
+    },
     methods: {
+      sleep (ms) {
+        return new Promise(resolve => setTimeout(resolve, ms))
+      },
       editDemand (id) {
         console.log('id', id)
       },
-      showDemand (demand) {
+      async showDemand (demand) {
+        this.$store.dispatch('manager/getJobTitlesByCompany', demand.supplierCompanyId)
+        this.$store.dispatch('manager/getExperienceSpansByCompany', demand.supplierCompanyId)
+        this.$store.dispatch('manager/getBudgetPlansByCompany', demand.supplierCompanyId)
+        await this.sleep(250)
         this.selectedDemand = demand
-        this.selectedConsultant = demand.consultant.fullName
         this.dialog = true
       },
-      selectTarget (target, obj) {
-        // this.demand[target] = obj.id
-        console.log(target, obj)
+      selectTarget (target, id) {
+        switch (target) {
+          case 'supplier':
+            this.$store.dispatch('manager/getJobTitlesByCompany', id)
+            this.$store.dispatch('manager/getExperienceSpansByCompany', id)
+            this.$store.dispatch('manager/getBudgetPlansByCompany', id)
+            break
+          case 'jobTitle':
+            this.calculateBudget()
+            break
+          case 'experienceSpan':
+            this.calculateBudget()
+            break
+          default:
+            break
+        }
       },
       updateDemand () {
         console.log('selected', this.selectedDemand)
+      },
+      closeDialog () {
+        this.$store.dispatch('manager/getJobTitles')
+        this.$store.dispatch('manager/getExperienceSpans')
+        this.dialog = false
       },
     },
   }

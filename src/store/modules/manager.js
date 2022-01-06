@@ -7,12 +7,12 @@ import store from '../index'
 const state = {
   activities: [],
   budgets: [],
+  companies: [],
   costCenters: [],
+  demands: [],
   experienceSpans: [],
   jobTitles: [],
   projects: [],
-  companies: [],
-  demands: [],
 }
 
 const mutations = make.mutations(state)
@@ -79,7 +79,7 @@ const actions = {
       })
   },
   // Get Methods
-  getBudgetPlans: (context, payload) => {
+  getBudgetPlansByCompany: (context, payload) => {
     store.set('app/isLoading', true)
 
     axios.get(CreateURL(`BudgetCalculation/GetBudgetCalculationsByCompanyId/${payload}`), GetPostHeaders(store.get('user/user').token))
@@ -151,7 +151,70 @@ const actions = {
         }, 2000)
       })
   },
+  getDemands: () => {
+    store.set('app/isLoading', true)
+    const currUser = store.get('user/user')
+
+    axios.get(CreateURL('Demand/GetDemands'), GetPostHeaders(currUser.token))
+      .then(({ data: res }) => {
+        store.set('manager/demands', res.data)
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.set('app/isErrorMsg', true)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+        setTimeout(() => {
+          store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
+        }, 2000)
+      })
+  },
   getExperienceSpans: (context, payload) => {
+    store.set('app/isLoading', true)
+    const currUser = store.get('user/user')
+
+    axios.get(CreateURL('ExperienceSpan/GetExperienceSpans'), GetPostHeaders(currUser.token))
+      .then(({ data: res }) => {
+        store.set('manager/experienceSpans', res.data)
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.set('app/isErrorMsg', true)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+        setTimeout(() => {
+          store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
+        }, 2000)
+      })
+  },
+  getJobTitles: (context, payload) => {
+    store.set('app/isLoading', true)
+    const currUser = store.get('user/user')
+
+    axios.get(CreateURL('JobTitle/GetJobTitles'), GetPostHeaders(currUser.token))
+      .then(({ data: res }) => {
+        store.set('manager/jobTitles', res.data)
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.set('app/isErrorMsg', true)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+        setTimeout(() => {
+          store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
+        }, 2000)
+      })
+  },
+  getExperienceSpansByCompany: (context, payload) => {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
 
@@ -172,7 +235,7 @@ const actions = {
         }, 2000)
       })
   },
-  getJobTitles: (context, payload) => {
+  getJobTitlesByCompany: (context, payload) => {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
 
