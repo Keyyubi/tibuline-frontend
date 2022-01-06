@@ -47,83 +47,17 @@
           >
             <!-- eslint-disable-next-line -->
             <template v-slot:item.abbreviation="{ item }">
-              <v-dialog
-                v-model="dialog"
-                width="460"
-                :retain-focus="false"
+              <v-chip
+                class="ma-2"
+                color="primary"
+                dark
+                @click="editJobTitle(item)"
               >
-                <!-- eslint-disable-next-line -->
-                <template v-slot:activator="{ on, attrs }">
-                  <v-chip
-                    class="ma-2"
-                    color="primary"
-                    dark
-                    @click="editJobTitle(item)"
-                  >
-                    <b>{{ item.abbreviation }}</b>
-                    <v-icon right>
-                      mdi-arrow-right-bold
-                    </v-icon>
-                  </v-chip>
-                </template>
-
-                <v-card>
-                  <v-card-title class="text-h5 primary white--text">
-                    Ünvanı Güncelle
-                  </v-card-title>
-
-                  <v-card-text>
-                    <v-container class="py-3">
-                      <v-row>
-                        <v-col>
-                          <v-text-field
-                            v-model="selectedJobTitle.abbreviation"
-                            label="Kısaltma"
-                          />
-                        </v-col>
-                        <v-col>
-                          <v-text-field
-                            v-model="selectedJobTitle.name"
-                            label="Ünvan"
-                          />
-                        </v-col>
-                        <v-col>
-                          <v-autocomplete
-                            v-model="selectedJobTitle.companyId"
-                            :items="companies"
-                            item-text="name"
-                            item-value="id"
-                            label="Şirket"
-                            :rules="[v => v > 0 || 'Bu alan boş geçilemez.']"
-                            required
-                          />
-                        </v-col>
-                      </v-row>
-                    </v-container>
-                  </v-card-text>
-
-                  <v-divider />
-
-                  <!-- Card Actions -->
-                  <v-card-actions>
-                    <v-spacer />
-                    <v-btn
-                      color="primary"
-                      depressed
-                      @click="updateJobTitle"
-                    >
-                      Güncelle
-                    </v-btn>
-                    <v-btn
-                      color="error"
-                      depressed
-                      @click="dialog = false"
-                    >
-                      Vazgeç
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
+                <b>{{ item.abbreviation }}</b>
+                <v-icon right>
+                  mdi-arrow-right-bold
+                </v-icon>
+              </v-chip>
             </template>
             <!-- eslint-disable-next-line -->
             <template v-slot:item.companyId="{ item }">
@@ -131,6 +65,68 @@
             </template>
           </v-data-table>
         </v-card>
+        <v-dialog
+          v-model="dialog"
+          width="460"
+          :retain-focus="false"
+        >
+          <v-card>
+            <v-card-title class="text-h5 primary white--text">
+              Ünvanı Güncelle
+            </v-card-title>
+
+            <v-card-text>
+              <v-container class="py-3">
+                <v-row>
+                  <v-col>
+                    <v-text-field
+                      v-model="selectedJobTitle.abbreviation"
+                      label="Kısaltma"
+                    />
+                  </v-col>
+                  <v-col>
+                    <v-text-field
+                      v-model="selectedJobTitle.name"
+                      label="Ünvan"
+                    />
+                  </v-col>
+                  <v-col>
+                    <v-autocomplete
+                      v-model="selectedJobTitle.companyId"
+                      :items="companies"
+                      item-text="name"
+                      item-value="id"
+                      label="Şirket"
+                      :rules="[v => v > 0 || 'Bu alan boş geçilemez.']"
+                      required
+                    />
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+
+            <v-divider />
+
+            <!-- Card Actions -->
+            <v-card-actions>
+              <v-spacer />
+              <v-btn
+                color="primary"
+                depressed
+                @click="updateJobTitle"
+              >
+                Güncelle
+              </v-btn>
+              <v-btn
+                color="error"
+                depressed
+                @click="dialog = false"
+              >
+                Vazgeç
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </v-tab-item>
 
       <v-tab-item value="newJobTitle">

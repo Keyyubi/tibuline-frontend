@@ -47,133 +47,17 @@
           >
             <!-- eslint-disable-next-line -->
             <template v-slot:item.id="{ item }">
-              <v-dialog
-                v-model="dialog"
-                width="720"
-                :retain-focus="false"
+              <v-chip
+                class="ma-2"
+                color="primary"
+                dark
+                @click="editBudgetPlan(item)"
               >
-                <!-- eslint-disable-next-line -->
-                <template v-slot:activator="{ on, attrs }">
-                  <v-chip
-                    class="ma-2"
-                    color="primary"
-                    dark
-                    @click="editBudgetPlan(item)"
-                  >
-                    {{ item.id }}
-                    <v-icon right>
-                      mdi-arrow-right-bold
-                    </v-icon>
-                  </v-chip>
-                </template>
-
-                <v-card>
-                  <v-card-title class="text-h5 primary white--text">
-                    Bütçe Planını Güncelle
-                  </v-card-title>
-
-                  <v-card-text>
-                    <v-container class="py-3">
-                      <v-row>
-                        <v-col cols="4">
-                          <v-autocomplete
-                            v-model="selectedBudgetPlan.companyId"
-                            :items="companies"
-                            item-text="name"
-                            item-value="id"
-                            label="Şirket"
-                          />
-                        </v-col>
-                        <v-col cols="4">
-                          <v-autocomplete
-                            v-model="selectedBudgetPlan.jobTitleId"
-                            :items="jobTitles"
-                            item-text="name"
-                            item-value="id"
-                            label="Ünvan"
-                          />
-                        </v-col>
-                        <v-col cols="4">
-                          <v-autocomplete
-                            v-model="selectedBudgetPlan.experienceSpanId"
-                            :items="experienceSpans"
-                            item-text="name"
-                            item-value="id"
-                            label="Tecrübe Aralığı"
-                          />
-                        </v-col>
-                      </v-row>
-                      <v-row>
-                        <v-col cols="10">
-                          <v-subheader>Aylık Bütçe (min: 1.000,00₺, max: 100.000,00₺)</v-subheader>
-                          <v-slider
-                            v-model="selectedBudgetPlan.monthlyBudget"
-                            :min="1000"
-                            :max="100000.00"
-                            append-icon="mdi-plus"
-                            prepend-icon="mdi-minus"
-                            @change="setEditBudget('total')"
-                          />
-                        </v-col>
-                        <v-col
-                          cols="2"
-                          class="mt-4"
-                        >
-                          <v-text-field
-                            v-model="selectedBudgetPlan.monthlyBudget"
-                            type="number"
-                            required
-                          />
-                        </v-col>
-                      </v-row>
-                      <v-row>
-                        <v-col cols="10">
-                          <v-subheader>Toplam Bütçe (min: 1.000,00₺, max: 100.000,00₺)</v-subheader>
-                          <v-slider
-                            v-model="selectedBudgetPlan.totalBudget"
-                            :min="12000"
-                            :max="1200000.00"
-                            append-icon="mdi-plus"
-                            prepend-icon="mdi-minus"
-                            @change="setEditBudget('monthly')"
-                          />
-                        </v-col>
-                        <v-col
-                          cols="2"
-                          class="mt-4"
-                        >
-                          <v-text-field
-                            v-model="selectedBudgetPlan.totalBudget"
-                            type="number"
-                            required
-                          />
-                        </v-col>
-                      </v-row>
-                    </v-container>
-                  </v-card-text>
-
-                  <v-divider />
-
-                  <!-- Card Actions -->
-                  <v-card-actions>
-                    <v-spacer />
-                    <v-btn
-                      color="primary"
-                      depressed
-                      @click="updateBudgetPlan()"
-                    >
-                      Güncelle
-                    </v-btn>
-                    <v-btn
-                      color="error"
-                      depressed
-                      @click="dialog = false"
-                    >
-                      Vazgeç
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
+                {{ item.id }}
+                <v-icon right>
+                  mdi-arrow-right-bold
+                </v-icon>
+              </v-chip>
             </template>
 
             <!-- eslint-disable-next-line -->
@@ -192,6 +76,118 @@
             </template>
           </v-data-table>
         </v-card>
+        <v-dialog
+          v-model="dialog"
+          width="720"
+          :retain-focus="false"
+        >
+          <v-card>
+            <v-card-title class="text-h5 primary white--text">
+              Bütçe Planını Güncelle
+            </v-card-title>
+
+            <v-card-text>
+              <v-container class="py-3">
+                <v-row>
+                  <v-col cols="4">
+                    <v-autocomplete
+                      v-model="selectedBudgetPlan.companyId"
+                      :items="companies"
+                      item-text="name"
+                      item-value="id"
+                      label="Şirket"
+                    />
+                  </v-col>
+                  <v-col cols="4">
+                    <v-autocomplete
+                      v-model="selectedBudgetPlan.jobTitleId"
+                      :items="jobTitles"
+                      item-text="name"
+                      item-value="id"
+                      label="Ünvan"
+                    />
+                  </v-col>
+                  <v-col cols="4">
+                    <v-autocomplete
+                      v-model="selectedBudgetPlan.experienceSpanId"
+                      :items="experienceSpans"
+                      item-text="name"
+                      item-value="id"
+                      label="Tecrübe Aralığı"
+                    />
+                  </v-col>
+                </v-row>
+                <v-row>
+                  <v-col cols="10">
+                    <v-subheader>Aylık Bütçe (min: 1.000,00₺, max: 100.000,00₺)</v-subheader>
+                    <v-slider
+                      v-model="selectedBudgetPlan.monthlyBudget"
+                      :min="1000"
+                      :max="100000.00"
+                      append-icon="mdi-plus"
+                      prepend-icon="mdi-minus"
+                      @change="setEditBudget('total')"
+                    />
+                  </v-col>
+                  <v-col
+                    cols="2"
+                    class="mt-4"
+                  >
+                    <v-text-field
+                      v-model="selectedBudgetPlan.monthlyBudget"
+                      type="number"
+                      required
+                    />
+                  </v-col>
+                </v-row>
+                <v-row>
+                  <v-col cols="10">
+                    <v-subheader>Toplam Bütçe (min: 1.000,00₺, max: 100.000,00₺)</v-subheader>
+                    <v-slider
+                      v-model="selectedBudgetPlan.totalBudget"
+                      :min="12000"
+                      :max="1200000.00"
+                      append-icon="mdi-plus"
+                      prepend-icon="mdi-minus"
+                      @change="setEditBudget('monthly')"
+                    />
+                  </v-col>
+                  <v-col
+                    cols="2"
+                    class="mt-4"
+                  >
+                    <v-text-field
+                      v-model="selectedBudgetPlan.totalBudget"
+                      type="number"
+                      required
+                    />
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+
+            <v-divider />
+
+            <!-- Card Actions -->
+            <v-card-actions>
+              <v-spacer />
+              <v-btn
+                color="primary"
+                depressed
+                @click="updateBudgetPlan()"
+              >
+                Güncelle
+              </v-btn>
+              <v-btn
+                color="error"
+                depressed
+                @click="dialog = false"
+              >
+                Vazgeç
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </v-tab-item>
 
       <v-tab-item value="newBudgetPlan">

@@ -45,77 +45,17 @@
           >
             <!-- eslint-disable-next-line -->
             <template v-slot:item.id="{ item }">
-              <v-dialog
-                v-model="dialog"
-                width="460"
-                :retain-focus="false"
+              <v-chip
+                class="ma-2"
+                color="primary"
+                dark
+                @click="editExperienceSpan(item)"
               >
-                <!-- eslint-disable-next-line -->
-                <template v-slot:activator="{ on, attrs }">
-                  <v-chip
-                    class="ma-2"
-                    color="primary"
-                    dark
-                    @click="editExperienceSpan(item)"
-                  >
-                    <b>Güncelle</b>
-                    <v-icon right>
-                      mdi-arrow-right-bold
-                    </v-icon>
-                  </v-chip>
-                </template>
-
-                <v-card>
-                  <v-card-title class="text-h5 primary white--text">
-                    Tecrübe Aralığını Güncelle
-                  </v-card-title>
-
-                  <v-card-text>
-                    <v-container class="py-3">
-                      <v-row>
-                        <v-col>
-                          <v-text-field
-                            v-model="selectedExperienceSpan.name"
-                            label="Tecrübe Aralığı"
-                          />
-                        </v-col>
-                        <v-col>
-                          <v-autocomplete
-                            v-model="selectedExperienceSpan.companyId"
-                            :items="companies"
-                            item-text="name"
-                            item-value="id"
-                            label="Şirket"
-                            :rules="[v => v > 0 || 'Bu alan boş geçilemez.']"
-                            required
-                          />
-                        </v-col>
-                      </v-row>
-                    </v-container>
-                  </v-card-text>
-
-                  <v-divider />
-
-                  <!-- Card Actions -->
-                  <v-card-actions>
-                    <v-spacer />
-                    <v-btn
-                      color="primary"
-                      depressed
-                      @click="updateExperienceSpan"
-                    >
-                      Güncelle
-                    </v-btn>
-                    <v-btn
-                      color="error"
-                      depressed
-                      @click="dialog = false"
-                    >
-                      Vazgeç
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
+                <b>Güncelle</b>
+                <v-icon right>
+                  mdi-arrow-right-bold
+                </v-icon>
+              </v-chip>
             </template>
 
             <!-- eslint-disable-next-line -->
@@ -124,6 +64,62 @@
             </template>
           </v-data-table>
         </v-card>
+        <v-dialog
+          v-model="dialog"
+          width="460"
+          :retain-focus="false"
+        >
+          <v-card>
+            <v-card-title class="text-h5 primary white--text">
+              Tecrübe Aralığını Güncelle
+            </v-card-title>
+
+            <v-card-text>
+              <v-container class="py-3">
+                <v-row>
+                  <v-col>
+                    <v-text-field
+                      v-model="selectedExperienceSpan.name"
+                      label="Tecrübe Aralığı"
+                    />
+                  </v-col>
+                  <v-col>
+                    <v-autocomplete
+                      v-model="selectedExperienceSpan.companyId"
+                      :items="companies"
+                      item-text="name"
+                      item-value="id"
+                      label="Şirket"
+                      :rules="[v => v > 0 || 'Bu alan boş geçilemez.']"
+                      required
+                    />
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+
+            <v-divider />
+
+            <!-- Card Actions -->
+            <v-card-actions>
+              <v-spacer />
+              <v-btn
+                color="primary"
+                depressed
+                @click="updateExperienceSpan"
+              >
+                Güncelle
+              </v-btn>
+              <v-btn
+                color="error"
+                depressed
+                @click="dialog = false"
+              >
+                Vazgeç
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </v-tab-item>
 
       <v-tab-item value="newExperinceSpan">
