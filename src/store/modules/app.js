@@ -11,7 +11,7 @@ const supplierItems = [
   {
     title: 'Talepler',
     icon: 'mdi-account-plus',
-    to: '/supplier/requests',
+    to: '/supplier/demands',
   },
   {
     title: 'Danışmanlar',

@@ -32,7 +32,7 @@ const router = new Router({
       route('unit-manager/Bills', null, 'unit-manager/bills'),
 
       // Supplier Routes
-      route('supplier/Requests', null, 'supplier/requests'),
+      route('supplier/Demands', null, 'supplier/demands'),
       route('supplier/AddActivity', null, 'supplier/add-activity'),
       route('supplier/Consultants', null, 'supplier/consultants'),
 

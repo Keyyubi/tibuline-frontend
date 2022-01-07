@@ -6,9 +6,11 @@ import store from '../index'
 // Data
 const state = {
   activities: [],
+  budgets: [],
   company: {},
   consultants: [],
   costCenters: [],
+  demands: [],
   experienceSpans: [],
   unitManagers: [],
   jobTitles: [],
@@ -93,6 +95,26 @@ const actions = {
       })
   },
   // Get Methods
+  getBudgetPlans: () => {
+    store.set('app/isLoading', true)
+
+    axios.get(CreateURL(`BudgetCalculation/GetBudgetCalculationsByCompanyId/${store.get('user/user').companyId}`), GetPostHeaders(store.get('user/user').token))
+      .then(({ data: res }) => {
+        store.set('supplier/budgets', res.data)
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.set('app/isErrorMsg', true)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+        setTimeout(() => {
+          store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
+        }, 2000)
+      })
+  },
   getConsultants: () => {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
@@ -131,6 +153,27 @@ const actions = {
           }
         })
         store.set('supplier/activities', arr)
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.set('app/isErrorMsg', true)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+        setTimeout(() => {
+          store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
+        }, 2000)
+      })
+  },
+  getDemands: () => {
+    store.set('app/isLoading', true)
+    const currUser = store.get('user/user')
+
+    axios.get(CreateURL('Demand/GetDemands'), GetPostHeaders(currUser.token))
+      .then(({ data: res }) => {
+        store.set('supplier/demands', res.data)
       })
       .catch(error => {
         console.log('Error', error)
