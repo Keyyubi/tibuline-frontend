@@ -42,7 +42,7 @@
 
     <v-dialog
       v-model="dialog"
-      width="960"
+      width="70%"
       :retain-focus="false"
       offset-x
     >

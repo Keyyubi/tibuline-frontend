@@ -4,6 +4,12 @@
     v-model="valid"
   >
     <v-container class="py-3">
+      <v-row
+        class="my-3"
+        align="center"
+      >
+        <v-divider class="mr-3" /><span class="grey--text">Kişisel Bilgileri</span><v-divider class="ml-3" />
+      </v-row>
       <v-row>
         <!-- Firstname -->
         <v-col
@@ -123,8 +129,121 @@
             required
           />
         </v-col>
+      </v-row>
 
-        <!-- Actions -->
+      <v-row
+        class="my-3"
+        align="center"
+      >
+        <v-divider class="mr-3" /><span class="grey--text">Şirket Bilgileri</span><v-divider class="ml-3" />
+      </v-row>
+      <v-row class="mb-3">
+        <!-- Project -->
+        <v-col
+          cols="12"
+          md="4"
+        >
+          <v-select
+            v-model="consultant.projectId"
+            :items="projects"
+            item-text="name"
+            item-value="id"
+            label="Projesi"
+          />
+        </v-col>
+
+        <!-- Unit Manager -->
+        <v-col
+          cols="12"
+          md="4"
+        >
+          <v-select
+            v-model="consultant.unitManagerUserId"
+            :items="unitManagers"
+            :item-text="e => e.firstName + ' ' + e.lastName"
+            item-value="id"
+            label="Yöneticisi"
+          />
+        </v-col>
+
+        <!-- JobTitle -->
+        <v-col
+          cols="12"
+          md="4"
+        >
+          <v-autocomplete
+            v-model="consultant.jobTitleId"
+            :items="jobTitles"
+            :item-text="e => e.abbreviation + ' - ' + e.name"
+            item-value="id"
+            label="Ünvanı"
+          />
+        </v-col>
+
+        <!-- ExperienceSpan -->
+        <v-col
+          cols="12"
+          md="4"
+        >
+          <v-select
+            v-model="consultant.experienceSpanId"
+            :items="experienceSpans"
+            item-text="name"
+            item-value="id"
+            label="Tecrübe Aralığı"
+          />
+        </v-col>
+
+        <!-- isActive -->
+        <v-col
+          cols="12"
+          md="3"
+        >
+          <v-checkbox
+            v-model="consultant.isActive"
+            :label="`Aktif Danışman: ${consultant.isActive ? 'Evet' : 'Hayır'}`"
+          />
+        </v-col>
+      </v-row>
+
+      <v-row
+        class="my-3"
+        align="center"
+      >
+        <v-divider class="mr-3" /><span class="grey--text">Evrakları</span><v-divider class="ml-3" />
+      </v-row>
+      <v-row class="mb-3">
+        <!-- Personal Documents -->
+        <v-col
+          cols="12"
+          md="6"
+        >
+          <v-file-input
+            label="Kişisel Evrakları"
+            counter
+            multiple
+            show-size
+            small-chips
+          />
+        </v-col>
+
+        <!-- Contract -->
+        <v-col
+          cols="12"
+          md="6"
+        >
+          <v-file-input
+            label="Sözleşmesi"
+            counter
+            multiple
+            show-size
+            small-chips
+          />
+        </v-col>
+      </v-row>
+
+      <!-- Actions -->
+      <v-row class="my-3">
         <v-col
           v-if="formType === 'create'"
           cols="6"
@@ -149,7 +268,7 @@
             depressed
             @click="createOrUpdateConsultant()"
           >
-            Oluştur
+            {{ formType === 'create' ? 'Oluştur' : 'Güncelle' }}
           </v-btn>
         </v-col>
         <v-col
@@ -165,20 +284,6 @@
             Vazgeç
           </v-btn>
         </v-col>
-      </v-row>
-
-      <!-- Alert Message -->
-      <v-row justify="center">
-        <v-alert
-          v-if="responseMsg.length > 0"
-          :color="isErrorMsg ? 'error' : 'success'"
-          dark
-          border="top"
-          :icon="isErrorMsg ? 'mdi-alert' : 'mdi-check-circle'"
-          transition="scale-transition"
-        >
-          {{ responseMsg }}
-        </v-alert>
       </v-row>
     </v-container>
   </v-form>
@@ -203,14 +308,21 @@
     computed: {
       ...get('app', ['responseMsg', 'isErrorMsg']),
       ...get('user', ['user']),
-      ...get('supplier', ['jobTitles', 'experienceSpans', 'projects']),
+      ...get('supplier', ['jobTitles', 'experienceSpans', 'projects', 'unitManagers']),
     },
     mounted () {
       this.$store.dispatch('supplier/getJobTitles')
+      this.$store.dispatch('supplier/getUnitManagers')
       this.$store.dispatch('supplier/getExperienceSpans')
       this.$store.dispatch('supplier/getProjects')
 
       this.consultant.companyId = this.user.companyId
+
+      if (this.formType !== 'create') {
+        console.log('dt', this.consultant.birthday)
+        const arr = this.consultant.birthday.split('T')[0].split('-')
+        this.localeDate = `${arr[2]}/${arr[1]}/${arr[0]}`
+      }
     },
     methods: {
       save (date) {
@@ -228,6 +340,7 @@
             this.$store.dispatch('supplier/createConsultant', payload)
             this.clearForm()
           } else this.$store.dispatch('supplier/updateConsultant', payload)
+          this.$emit('close-dialog')
         }
       },
       clearForm () {

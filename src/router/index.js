@@ -24,7 +24,7 @@ const router = new Router({
       route('Dashboard'),
 
       // Unit Manager Routes
-      route('unit-manager/Demands', null, '/unit-manager/demands'),
+      route('unit-manager/Demands', null, 'unit-manager/demands'),
       route('unit-manager/Contracts', null, 'unit-manager/contracts'),
       route('unit-manager/Projects', null, 'unit-manager/projects'),
       route('unit-manager/Consultants', null, 'unit-manager/consultants'),
@@ -32,13 +32,13 @@ const router = new Router({
       route('unit-manager/Bills', null, 'unit-manager/bills'),
 
       // Supplier Routes
-      route('supplier/Requests', null, '/supplier/requests'),
-      route('supplier/AddActivity', null, '/supplier/add-activity'),
-      route('supplier/Consultants', null, '/supplier/consultants'),
+      route('supplier/Requests', null, 'supplier/requests'),
+      route('supplier/AddActivity', null, 'supplier/add-activity'),
+      route('supplier/Consultants', null, 'supplier/consultants'),
 
        // Admin Routes
-       route('admin/Users', null, '/admin/users'),
-       route('admin/Projects', null, '/admin/projects'),
+       route('admin/Users', null, 'admin/users'),
+       route('admin/Projects', null, 'admin/projects'),
        route('admin/Suppliers', null, 'admin/suppliers'),
        route('admin/CostCenters', null, 'admin/cost-centers'),
        route('admin/JobTitles', null, 'admin/job-titles'),

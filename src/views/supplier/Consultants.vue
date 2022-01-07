@@ -35,6 +35,22 @@
         <consultant-form :consultant="newConsultant" />
       </v-tab-item>
     </v-tabs-items>
+
+    <!-- Alert Message -->
+    <v-row
+      v-if="responseMsg.length > 0"
+      justify="center"
+    >
+      <v-alert
+        :color="isErrorMsg ? 'error' : 'success'"
+        dark
+        border="top"
+        :icon="isErrorMsg ? 'mdi-alert' : 'mdi-check-circle'"
+        transition="scale-transition"
+      >
+        {{ responseMsg }}
+      </v-alert>
+    </v-row>
   </v-container>
 </template>
 
@@ -47,13 +63,19 @@
       return {
         currentTab: 'consultants',
         newConsultant: {
-          email: '',
-          TCKN: '',
-          phone: '',
-          firstname: '',
-          lastname: '',
+          firstName: '',
+          lastName: '',
           birthday: null,
-          companyId: null,
+          email: '',
+          phone: '',
+          tckn: '',
+          isActive: true,
+          projectId: 0,
+          unitManagerUserId: '',
+          contractId: 0,
+          companyId: 0,
+          jobTitleId: 0,
+          experienceSpanId: 0,
         },
         RULES,
       }

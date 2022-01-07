@@ -1,17 +1,18 @@
 import axios from 'axios'
 import { make } from 'vuex-pathify'
-import { CreateURL, GetPostHeaders } from '@/util/globals'
+import { CreateURL, GetPostHeaders, ROLE_IDS } from '@/util/globals'
 import store from '../index'
 
 // Data
 const state = {
+  activities: [],
+  company: {},
   consultants: [],
   costCenters: [],
   experienceSpans: [],
+  unitManagers: [],
   jobTitles: [],
   projects: [],
-  activities: [],
-  company: {},
 }
 
 const mutations = make.mutations(state)
@@ -61,6 +62,23 @@ const actions = {
     axios.put(CreateURL('Activity/UpdateActivity'), payload, GetPostHeaders(store.get('user/user').token))
       .then(() => {
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.set('app/isErrorMsg', true)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
+      })
+      .finally(() => {
+        setTimeout(() => {
+          store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
+        }, 2000)
+      })
+  },
+  updateConsultant: (context, payload) => {
+    axios.put(CreateURL('Consultant/UpdateConsultant'), payload, GetPostHeaders(store.get('user/user').token))
+      .then(() => {
+        store.set('app/responseMsg', 'Başarıyla güncellendi.')
       })
       .catch(error => {
         console.log('Error', error)
@@ -176,6 +194,26 @@ const actions = {
     axios.get(CreateURL('Project/GetProjects'), GetPostHeaders(currUser.token))
       .then(({ data: res }) => {
         store.set('supplier/projects', res.data)
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.set('app/isErrorMsg', true)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+        setTimeout(() => {
+          store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
+        }, 2000)
+      })
+  },
+  getUnitManagers: () => {
+    store.set('app/isLoading', true)
+
+    axios.get(CreateURL(`User/GetUsersByRoleId/${ROLE_IDS.UNIT_MANAGER}`), GetPostHeaders(store.get('user/user').token))
+      .then(({ data: res }) => {
+        store.set('supplier/unitManagers', res.data)
       })
       .catch(error => {
         console.log('Error', error)
