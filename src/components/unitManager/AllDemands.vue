@@ -15,6 +15,7 @@
       :items="demands"
       :search="searchWord"
     >
+      <!-- eslint-disable -->
       <template v-slot:item.id="{ item }">
         <v-chip
           class="ma-2"
@@ -27,6 +28,22 @@
             mdi-arrow-right-bold
           </v-icon>
         </v-chip>
+      </template>
+
+      <template v-slot:item.supplierCompanyId="{ item }">
+        {{ getSupplierName(item.supplierCompanyId) }}
+      </template>
+      <template v-slot:item.jobTitleId="{ item }">
+        {{ getJobTitleName(item.jobTitleId) }}
+      </template>
+      <template v-slot:item.experienceSpanId="{ item }">
+        {{ getExperienceSpanName(item.experienceSpanId) }}
+      </template>
+      <template v-slot:item.projectId="{ item }">
+        {{ getProjectName(item.projectId) }}
+      </template>
+      <template v-slot:item.consultantId="{ item }">
+        {{ getConsultantName(item.consultantId) }}
       </template>
 
       <template v-slot:item.demandStatus="{ item }">
@@ -234,14 +251,38 @@
               v-if="selectedDemand.consultantId && selectedDemand.consultantId > 0"
               class="mt-3"
             >
+              <v-col cols="12">
+                <v-select
+                  v-model="selectedDemand.consultantId"
+                  :items="demandedConsultant"
+                  :item-text="e => e.firstName + ' ' + e.lastName"
+                  item-value="id"
+                  label="Aday"
+                  readonly
+                />
+              </v-col>
+              <!-- Contract -1 -->
               <v-col
                 cols="12"
-                sm="6"
-                md="3"
+                md="6"
+              >
+                <v-file-input
+                  v-model="contract"
+                  label="Sözleşme"
+                  counter
+                  show-size
+                  small-chips
+                />
+              </v-col>
+              <!-- Contract - 2 -->
+              <v-col
+                cols="12"
+                md="6"
               >
                 <v-text-field
-                  v-model="selectedDemand.consultantId"
-                  label="Aday"
+                  label="İmzalı Sözleşme"
+                  value="ok"
+                  small-chips
                   readonly
                 />
               </v-col>
@@ -282,6 +323,7 @@
       return {
         demandType: 'all',
         searchWord: '',
+        contract: null,
         dialog: false,
         selectedDemand: {},
         selectedConsultant: '',
@@ -296,7 +338,6 @@
           { text: 'Ünvan', value: 'jobTitleId' },
           { text: 'Tecrübe Aralığı', value: 'experienceSpanId' },
           { text: 'Proje', value: 'projectId' },
-          { text: 'Aday', value: 'consultantId' },
           { text: 'Talep Durumu', value: 'demandStatus' },
         ],
       }
@@ -304,12 +345,21 @@
     computed: {
       ...get('user', ['user']),
       ...get('app', ['responseMsg', 'isErrorMsg']),
-      ...get('manager', ['demands', 'costCenters', 'experienceSpans', 'jobTitles', 'projects', 'companies']),
+      ...get('manager', [
+        'demands',
+        'demandedConsultant',
+        'costCenters',
+        'experienceSpans',
+        'jobTitles',
+        'projects',
+        'companies',
+      ]),
     },
     mounted () {
       this.$store.dispatch('manager/getSupplierCompanies')
       this.$store.dispatch('manager/getCostCenters')
       this.$store.dispatch('manager/getJobTitles')
+      this.$store.dispatch('manager/getExperienceSpans')
       this.$store.dispatch('manager/getProjects')
       this.$store.dispatch('manager/getDemands')
     },
@@ -324,8 +374,12 @@
         this.$store.dispatch('manager/getJobTitlesByCompany', demand.supplierCompanyId)
         this.$store.dispatch('manager/getExperienceSpansByCompany', demand.supplierCompanyId)
         this.$store.dispatch('manager/getBudgetPlansByCompany', demand.supplierCompanyId)
+        console.log('demand', demand.consultantId)
+        if (demand.consultantId) {
+          this.$store.dispatch('manager/getConsultantById', demand.consultantId)
+        }
         await this.sleep(250)
-        this.selectedDemand = demand
+        this.selectedDemand = { ...demand }
         this.dialog = true
       },
       selectTarget (target, id) {
@@ -352,6 +406,30 @@
         this.$store.dispatch('manager/getJobTitles')
         this.$store.dispatch('manager/getExperienceSpans')
         this.dialog = false
+      },
+      getSupplierName (id) {
+        if (id && this.companies && this.companies.length > 0) {
+          const result = this.companies.find(supplier => supplier.id === id)
+          return result.name
+        } else return 'Bulunamadı'
+      },
+      getProjectName (id) {
+        if (id && this.projects && this.projects.length > 0) {
+          const result = this.projects.find(project => project.id === id)
+          return result.name
+        } else return 'Bulunamadı'
+      },
+      getJobTitleName (id) {
+        if (id && this.jobTitles && this.jobTitles.length > 0) {
+          const result = this.jobTitles.find(jobTitle => jobTitle.id === id)
+          return result.name
+        } else return 'Bulunamadı'
+      },
+      getExperienceSpanName (id) {
+        if (id && this.experienceSpans && this.experienceSpans.length > 0) {
+          const result = this.experienceSpans.find(experienceSpan => experienceSpan.id === id)
+          return result.name
+        } else return 'Bulunamadı'
       },
     },
   }

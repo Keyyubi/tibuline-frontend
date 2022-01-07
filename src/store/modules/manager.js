@@ -10,6 +10,7 @@ const state = {
   companies: [],
   costCenters: [],
   demands: [],
+  demandedConsultant: [],
   experienceSpans: [],
   jobTitles: [],
   projects: [],
@@ -19,12 +20,11 @@ const mutations = make.mutations(state)
 
 const actions = {
   // Create Methods
-  createConsultant: (context, payload) => {
+  createDemand: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('Consultant/SaveConsultant'), payload, GetPostHeaders(store.get('user/user').token))
-      .then(({ data: res }) => {
-        store.set('manager/consultants', [...store.get('manager/consultants'), res.data])
+    axios.post(CreateURL('Demand/SaveDemand'), payload, GetPostHeaders(store.get('user/user').token))
+      .then(() => {
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
       })
       .catch(error => {
@@ -40,7 +40,7 @@ const actions = {
         }, 2000)
       })
   },
-  createDemand: (context, payload) => {
+  createContract: (context, payload) => {
     store.set('app/isLoading', true)
 
     axios.post(CreateURL('Demand/SaveDemand'), payload, GetPostHeaders(store.get('user/user').token))
@@ -85,6 +85,26 @@ const actions = {
     axios.get(CreateURL(`BudgetCalculation/GetBudgetCalculationsByCompanyId/${payload}`), GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('manager/budgets', res.data)
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.set('app/isErrorMsg', true)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+        setTimeout(() => {
+          store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
+        }, 2000)
+      })
+  },
+  getConsultantById: (context, payload) => {
+    store.set('app/isLoading', true)
+
+    axios.get(CreateURL(`Consultant/GetConsultantById/${payload}`), GetPostHeaders(store.get('user/user').token))
+      .then(({ data: res }) => {
+        store.set('manager/demandedConsultant', [res.data])
       })
       .catch(error => {
         console.log('Error', error)

@@ -94,6 +94,27 @@ const actions = {
         }, 2000)
       })
   },
+  updateDemand: (context, payload) => {
+    axios.put(CreateURL('Demand/UpdateDemand'), payload, GetPostHeaders(store.get('user/user').token))
+      .then(() => {
+        const arr = store.get('supplier/demands')
+        const index = arr.findIndex(e => e.id === payload.id)
+        arr[index] = payload
+        store.set('supplier/demands', [...arr])
+        store.set('app/responseMsg', 'Başarıyla güncellendi.')
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.set('app/isErrorMsg', true)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
+      })
+      .finally(() => {
+        setTimeout(() => {
+          store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
+        }, 2000)
+      })
+  },
   // Get Methods
   getBudgetPlans: () => {
     store.set('app/isLoading', true)

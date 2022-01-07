@@ -29,6 +29,28 @@
         </v-chip>
       </template>
 
+      <!-- eslint-disable -->
+      <template v-slot:item.demandStatus="{ item }">
+        <v-chip
+          :color="item.demandStatus === 0 ? 'orange' : 'green'"
+          dark
+        >
+          {{ DEMAND_STATUSES.find(e => e.status === item.demandStatus).label }}
+        </v-chip>
+      </template>
+      <template v-slot:item.jobTitleId="{ item }">
+        {{ getJobTitleName(item.jobTitleId) }}
+      </template>
+      <template v-slot:item.experienceSpanId="{ item }">
+        {{ getExperienceSpanName(item.experienceSpanId) }}
+      </template>
+      <template v-slot:item.projectId="{ item }">
+        {{ getProjectName(item.projectId) }}
+      </template>
+      <template v-slot:item.consultantId="{ item }">
+        {{ getConsultantName(item.consultantId) }}
+      </template>
+
       <template v-slot:item.demandStatus="{ item }">
         <v-chip
           :color="item.demandStatus === 0 ? 'orange' : 'green'"
@@ -285,10 +307,26 @@
       persistent
       width="70%"
     >
-      <consultant-form
-        :consultant="newConsultant"
-        @close-dialog="newConsultantDialog = false"
-      />
+      <v-card>
+        <v-card-title class="text-h5 primary white--text">
+          Yeni Aday Oluştur
+          <v-spacer />
+          <v-btn 
+            depressed
+            icon
+            title="Kapat"
+            @click="newConsultantDialog = false"
+          >
+            <v-icon color="white">mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+        <v-card-text>
+          <consultant-form
+            :consultant="newConsultant"
+            @close-dialog="newConsultantDialog = false"
+          />
+        </v-card-text>
+      </v-card>
     </v-dialog>
   </v-card>
 </template>
@@ -328,7 +366,6 @@
             align: 'start',
             value: 'id',
           },
-          { text: 'Tedarikçi', value: 'supplierCompanyId' },
           { text: 'Ünvan', value: 'jobTitleId' },
           { text: 'Tecrübe Aralığı', value: 'experienceSpanId' },
           { text: 'Proje', value: 'projectId' },
@@ -347,6 +384,7 @@
       this.$store.dispatch('admin/getCostCenters')
       this.$store.dispatch('admin/getProjects')
       this.$store.dispatch('supplier/getJobTitles')
+      this.$store.dispatch('supplier/getExperienceSpans')
       this.$store.dispatch('supplier/getDemands')
       this.$store.dispatch('supplier/getConsultants')
       this.$store.dispatch('supplier/getUnitManagers')
@@ -362,8 +400,10 @@
         this.$store.dispatch('supplier/getJobTitles', demand.supplierCompanyId)
         this.$store.dispatch('supplier/getExperienceSpans', demand.supplierCompanyId)
         this.$store.dispatch('supplier/getBudgetPlans', demand.supplierCompanyId)
+
         await this.sleep(250)
-        this.selectedDemand = demand
+
+        this.selectedDemand = { ...demand }
         this.dialog = true
       },
       selectTarget (target, id) {
@@ -383,7 +423,11 @@
         }
       },
       updateDemand () {
-        console.log('selected', this.selectedDemand)
+        if (this.selectedDemand.constultantId) {
+          this.selectedDemand.demandStatus = DEMAND_STATUSES.find(e => e.key === 'REPLIED').status
+        }
+        this.$store.dispatch('supplier/updateDemand', this.selectedDemand)
+        this.dialog = false
       },
       closeDialog () {
         this.$store.dispatch('manager/getJobTitles')
@@ -394,6 +438,30 @@
         console.log('new consultant')
         this.newConsultantDialog = true
         this.$refs.newConsultantSelect.blur()
+      },
+      getConsultantName (id) {
+        if (id) {
+          const result = this.consultants.find(consultant => consultant.id === id)
+          return result.firstName + ' ' + result.lastName
+        } else return 'Bulunamadı'
+      },
+      getProjectName (id) {
+        if (id) {
+          const result = this.projects.find(project => project.id === id)
+          return result.name
+        } else return 'Bulunamadı'
+      },
+      getJobTitleName (id) {
+        if (id) {
+          const result = this.jobTitles.find(jobTitle => jobTitle.id === id)
+          return result.name
+        } else return 'Bulunamadı'
+      },
+      getExperienceSpanName (id) {
+        if (id) {
+          const result = this.experienceSpans.find(experienceSpan => experienceSpan.id === id)
+          return result.name
+        } else return 'Bulunamadı'
       },
     },
   }
