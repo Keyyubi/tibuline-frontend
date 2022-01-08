@@ -67,7 +67,7 @@
               {{ getComputedDate(item.endDate) }}
             </template>
             <!-- eslint-disable-next-line -->
-            <template v-slot:item.assignedTo="{ item }">
+            <template v-slot:item.assignedToId="{ item }">
               {{ user.firstName + ' ' + user.lastName }}
             </template>
             <!-- eslint-disable-next-line -->
@@ -85,7 +85,7 @@
         >
           <v-card>
             <v-form
-              ref="form"
+              ref="editForm"
               v-model="valid2"
               lazy-validation
             >
@@ -119,9 +119,9 @@
                     <!-- Unit Manager -->
                     <v-col cols="4">
                       <v-text-field
-                        v-model="selectedProject.assignedTo"
                         :value="user.firstName + ' ' + user.lastName"
                         label="Proje Sorumlusu"
+                        disabled
                       />
                     </v-col>
 
@@ -265,7 +265,6 @@
               <!-- Unit Manager -->
               <v-col cols="4">
                 <v-text-field
-                  v-model="newProject.assignedTo"
                   :value="user.firstName + ' ' + user.lastName"
                   label="Proje Sorumlusu"
                   disabled
@@ -288,7 +287,7 @@
                 >
                   <template v-slot:activator="{ on, attrs }">
                     <v-text-field
-                      v-model="newProject.startDate"
+                      v-model="newProject.starting"
                       label="Başlangıç Tarihi"
                       persistent-hint
                       prepend-icon="mdi-calendar"
@@ -300,6 +299,7 @@
                     v-model="newProject.startDate"
                     no-title
                     @input="menu1 = false"
+                    @change="e => newProject.starting = getComputedDate(e)"
                   />
                 </v-menu>
               </v-col>
@@ -320,7 +320,7 @@
                 >
                   <template v-slot:activator="{ on, attrs }">
                     <v-text-field
-                      v-model="newProject.endDate"
+                      v-model="newProject.ending"
                       label="Bitiş Tarihi"
                       persistent-hint
                       prepend-icon="mdi-calendar"
@@ -332,6 +332,7 @@
                     v-model="newProject.endDate"
                     no-title
                     @input="menu2 = false"
+                    @change="e => newProject.ending = getComputedDate(e)"
                   />
                 </v-menu>
               </v-col>
@@ -362,23 +363,26 @@
               </v-col>
             </v-row>
           </v-form>
-
-          <!-- Alert Message -->
-          <v-row justify="center">
-            <v-alert
-              v-if="responseMsg.length > 0"
-              :color="isErrorMsg ? 'error' : 'success'"
-              dark
-              border="top"
-              :icon="isErrorMsg ? 'mdi-alert' : 'mdi-check-circle'"
-              transition="scale-transition"
-            >
-              {{ responseMsg }}
-            </v-alert>
-          </v-row>
         </v-container>
       </v-tab-item>
     </v-tabs-items>
+
+    <!-- Alert Message -->
+    <v-row
+      class="my-4"
+      justify="center"
+    >
+      <v-alert
+        v-if="responseMsg.length > 0"
+        :color="isErrorMsg ? 'error' : 'success'"
+        dark
+        border="top"
+        :icon="isErrorMsg ? 'mdi-alert' : 'mdi-check-circle'"
+        transition="scale-transition"
+      >
+        {{ responseMsg }}
+      </v-alert>
+    </v-row>
   </v-container>
 </template>
 
@@ -411,12 +415,14 @@
         newProject: {
           name: '',
           createdBy: 0,
-          assignedTo: 0,
+          assignedToId: 0,
           costCenterId: 0,
           startDate: null,
           endDate: null,
           projectBudget: null,
           projectStatus: 0,
+          starting: '',
+          ending: '',
         },
         headers: [
           {
@@ -425,7 +431,7 @@
             value: 'id',
           },
           { text: 'Proje', value: 'name' },
-          { text: 'Sorumlusu', value: 'assignedTo' },
+          { text: 'Sorumlusu', value: 'assignedToId' },
           { text: 'Baş. Tar.', value: 'startDate' },
           { text: 'Bit. Tar.', value: 'endDate' },
           { text: 'Bütçesi', value: 'projectBudget' },
@@ -440,26 +446,30 @@
     mounted () {
       this.$store.dispatch('manager/getProjects')
       this.$store.dispatch('manager/getCostCenters')
+      this.newProject.assignedToId = this.user.id
     },
     methods: {
       seeDetails (item) {
-        this.selectedProject = item
+        this.selectedProject = { ...item }
+        this.selectedProject.assignedToId = this.user.id
         this.selectedProject.starting = this.getComputedDate(item.startDate)
         this.selectedProject.ending = this.getComputedDate(item.endDate)
         this.dialog = true
       },
       updateProject () {
         this.dialog = false
-        this.$store.dispatch('admin/updateProject', this.selectedProject)
+        const payload = { ...this.selectedProject }
+        payload.projectBudget = payload.projectBudget.replace('.', '').replace(',', '.')
+        this.$store.dispatch('manager/updateProject', payload)
+        this.$refs.editForm.reset()
       },
       createProject () {
         if (this.$refs.form.validate()) {
           const payload = { ...this.newProject }
-          payload.assignedTo = this.user.id
           payload.projectBudget = payload.projectBudget.replace('.', '').replace(',', '.')
           payload.createdBy = this.user.id
           this.dialog = false
-          this.$store.dispatch('admin/createProject', payload)
+          this.$store.dispatch('manager/createProject', payload)
           this.$refs.form.reset()
         }
       },

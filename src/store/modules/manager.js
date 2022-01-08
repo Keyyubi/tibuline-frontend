@@ -67,6 +67,27 @@ const actions = {
         }, 2000)
       })
   },
+  createProject: (context, payload) => {
+    store.set('app/isLoading', true)
+
+    axios.post(CreateURL('Project/SaveProject'), payload, GetPostHeaders(store.get('user/user').token))
+      .then(({ data: res }) => {
+        store.set('manager/projects', [...store.get('manager/projects'), res.data])
+        store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.set('app/isErrorMsg', true)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+        setTimeout(() => {
+          store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
+        }, 2000)
+      })
+  },
   // Update Methods
   updateActivity: (context, payload) => {
     axios.put(CreateURL('Activity/UpdateActivity'), payload, GetPostHeaders(store.get('user/user').token))
@@ -83,6 +104,30 @@ const actions = {
         store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
+        setTimeout(() => {
+          store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
+        }, 2000)
+      })
+  },
+  updateProject: (context, payload) => {
+    store.set('app/isLoading', true)
+
+    axios.put(CreateURL('Project/UpdateProject'), payload, GetPostHeaders(store.get('user/user').token))
+      .then(() => {
+        const arr = store.get('manager/projects')
+        const index = arr.findIndex(e => e.id === payload.id)
+        arr[index] = payload
+        store.set('manager/projects', [...arr])
+        store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.set('app/isErrorMsg', true)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
         setTimeout(() => {
           store.set('app/responseMsg', '')
           store.set('app/isErrorMsg', false)
@@ -291,7 +336,7 @@ const actions = {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
 
-    axios.get(CreateURL('Project/GetProjects'), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`Project/GetProjectsByAssignedTo/${currUser.id}`), GetPostHeaders(currUser.token))
       .then(({ data: res }) => {
         store.set('manager/projects', res.data)
       })
