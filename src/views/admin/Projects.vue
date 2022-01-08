@@ -67,8 +67,8 @@
               {{ getComputedDate(item.endDate) }}
             </template>
             <!-- eslint-disable-next-line -->
-            <template v-slot:item.assignedTo="{ item }">
-              {{ getProjectManager(item.assignedTo) }}
+            <template v-slot:item.assignedToId="{ item }">
+              {{ getProjectManager(item.assignedToId) }}
             </template>
             <!-- eslint-disable-next-line -->
             <template v-slot:item.projectBudget="{ item }">
@@ -119,7 +119,7 @@
                     <!-- Unit Manager -->
                     <v-col cols="4">
                       <v-select
-                        v-model="selectedProject.assignedTo"
+                        v-model="selectedProject.assignedToId"
                         :items="unitManagers"
                         :item-text="e => e.firstName + ' ' + e.lastName"
                         item-value="id"
@@ -267,7 +267,7 @@
               <!-- Unit Manager -->
               <v-col cols="4">
                 <v-autocomplete
-                  v-model="newProject.assignedTo"
+                  v-model="newProject.assignedToId"
                   :items="unitManagers"
                   :item-text="item => item.firstName + ' ' + item.lastName"
                   itemprop="firstName"
@@ -415,7 +415,7 @@
         newProject: {
           name: '',
           createdBy: 0,
-          assignedTo: 0,
+          assignedToId: 0,
           costCenterId: 0,
           startDate: null,
           endDate: null,
@@ -429,7 +429,7 @@
             value: 'id',
           },
           { text: 'Proje', value: 'name' },
-          { text: 'Sorumlusu', value: 'assignedTo' },
+          { text: 'Sorumlusu', value: 'assignedToId' },
           { text: 'Baş. Tar.', value: 'startDate' },
           { text: 'Bit. Tar.', value: 'endDate' },
           { text: 'Bütçesi', value: 'projectBudget' },
@@ -454,21 +454,25 @@
         this.dialog = true
       },
       updateProject () {
+        const payload = { ...this.selectedProject }
         this.dialog = false
-        this.$store.dispatch('admin/updateProject', this.selectedProject)
+        this.$store.dispatch('admin/updateProject', payload)
       },
       createProject () {
         if (this.$refs.form.validate()) {
           const payload = { ...this.newProject }
           payload.projectBudget = payload.projectBudget.replace('.', '').replace(',', '.')
           payload.createdBy = this.user.id
+          delete payload.starting
+          delete payload.ending
           this.dialog = false
           this.$store.dispatch('admin/createProject', payload)
           this.$refs.form.reset()
         }
       },
       getProjectManager (id) {
-        if (id) {
+        console.log('id', id)
+        if (id && id.length > 0) {
           const user = this.unitManagers.find(e => e.id === id)
           return user.firstName + ' ' + user.lastName
         } else {

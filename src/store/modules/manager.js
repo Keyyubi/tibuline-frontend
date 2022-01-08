@@ -24,7 +24,8 @@ const actions = {
     store.set('app/isLoading', true)
 
     axios.post(CreateURL('Demand/SaveDemand'), payload, GetPostHeaders(store.get('user/user').token))
-      .then(() => {
+      .then(({ data: res }) => {
+        store.set('manager/demands', [...store.get('manager/demands'), res.data])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
       })
       .catch(error => {
@@ -42,8 +43,14 @@ const actions = {
   },
   createContract: (context, payload) => {
     store.set('app/isLoading', true)
-
-    axios.post(CreateURL('Demand/SaveDemand'), payload, GetPostHeaders(store.get('user/user').token))
+    const token = store.get('user/user').token
+    axios.post('http://37.9.203.118:4647/Files/', payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        mode: 'no-cors',
+        'Content-Type': 'multipart/form-data',
+      },
+    })
       .then(() => {
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
       })
@@ -64,6 +71,10 @@ const actions = {
   updateActivity: (context, payload) => {
     axios.put(CreateURL('Activity/UpdateActivity'), payload, GetPostHeaders(store.get('user/user').token))
       .then(() => {
+        const arr = store.get('supplier/demands')
+        const index = arr.findIndex(e => e.id === payload.id)
+        arr[index] = payload
+        store.set('supplier/demands', [...arr])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
       })
       .catch(error => {

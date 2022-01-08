@@ -155,6 +155,10 @@
     methods: {
       createContract () {
         console.log(this.contractUpload)
+        const formData = new FormData()
+        console.log(this.contractUpload[0])
+        formData.append('image', this.contractUpload[0])
+        this.$store.dispatch('manager/createContract', formData)
       },
     },
   }
