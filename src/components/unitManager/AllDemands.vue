@@ -374,7 +374,6 @@
         this.$store.dispatch('manager/getJobTitlesByCompany', demand.supplierCompanyId)
         this.$store.dispatch('manager/getExperienceSpansByCompany', demand.supplierCompanyId)
         this.$store.dispatch('manager/getBudgetPlansByCompany', demand.supplierCompanyId)
-        console.log('demand', demand.consultantId)
         if (demand.consultantId) {
           this.$store.dispatch('manager/getConsultantById', demand.consultantId)
         }

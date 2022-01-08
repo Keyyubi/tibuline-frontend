@@ -311,7 +311,7 @@
         <v-card-title class="text-h5 primary white--text">
           Yeni Aday Oluştur
           <v-spacer />
-          <v-btn 
+          <v-btn
             depressed
             icon
             title="Kapat"
@@ -435,7 +435,6 @@
         this.dialog = false
       },
       createConsultant () {
-        console.log('new consultant')
         this.newConsultantDialog = true
         this.$refs.newConsultantSelect.blur()
       },

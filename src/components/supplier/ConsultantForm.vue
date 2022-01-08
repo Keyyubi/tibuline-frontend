@@ -319,7 +319,6 @@
       this.consultant.companyId = this.user.companyId
 
       if (this.formType !== 'create') {
-        console.log('dt', this.consultant.birthday)
         const arr = this.consultant.birthday.split('T')[0].split('-')
         this.localeDate = `${arr[2]}/${arr[1]}/${arr[0]}`
       }

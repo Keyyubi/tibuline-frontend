@@ -389,7 +389,6 @@
         }
 
         const end = this.$refs.calendar.lastEnd
-        console.log('end.mont', end.month)
         for (let i = 0; i < end.day; i++) {
           const date = `${end.year}-${end.month < 10 ? '0' + end.month : end.month}-${i < 9 ? '0' + (i + 1) : i + 1}`
           const startDate = new Date(end.year, end.month - 1, i + 1)
@@ -442,7 +441,7 @@
           this.calculateTotalHours()
           await this.sleep(300)
           this.selectConsultant()
-        } else console.log('bulunamadi')
+        }
       },
       showConfirmation (type) {
         this.confirmationType = type

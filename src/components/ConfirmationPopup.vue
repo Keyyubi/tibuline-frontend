@@ -50,7 +50,6 @@
     },
     methods: {
       approve () {
-        console.log('ok')
         this.$emit('result', true)
       },
       deny () {
