@@ -353,9 +353,9 @@
         return event.color
       },
       newShiftEvent (date, name = `${this.shiftHours}s mesai`, shiftHours = this.shiftHours, overShiftHours = 0) {
-        const yearMonth = date.split('-')[0] + '-' + date.split('-')[1]
+        const yearMonth = `${date.split('-')[0]}-${date.split('-')[1]}`
         const consultantId = this.selectedConsultant
-        console.log('statuses', this.statuses)
+
         return {
           date,
           name,
@@ -389,9 +389,9 @@
         }
 
         const end = this.$refs.calendar.lastEnd
-
+        console.log('end.mont', end.month)
         for (let i = 0; i < end.day; i++) {
-          const date = `${end.year}-${end.month}-${i < 9 ? '0' + (i + 1) : i + 1}`
+          const date = `${end.year}-${end.month < 10 ? '0' + end.month : end.month}-${i < 9 ? '0' + (i + 1) : i + 1}`
           const startDate = new Date(end.year, end.month - 1, i + 1)
 
           if (startDate.getDay() !== 0 && startDate.getDay() !== 6) {
