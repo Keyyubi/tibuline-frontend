@@ -8,12 +8,14 @@ const state = {
   activities: [],
   budgets: [],
   companies: [],
+  contracts: [],
   costCenters: [],
   demands: [],
   demandedConsultant: [],
   experienceSpans: [],
   jobTitles: [],
   projects: [],
+  respons: '',
 }
 
 const mutations = make.mutations(state)
@@ -41,18 +43,52 @@ const actions = {
         }, 2000)
       })
   },
+  uploadDocument: (context, payload) => {
+    store.set('app/isLoading', true)
+    const token = store.get('user/user').token
+    console.log('payload', payload)
+    axios.post(CreateURL('Contract/UploadContractDocuments/upload'), payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then(({ data: res }) => {
+        console.log('resUpload', res)
+        store.set('manager/respons', res.data)
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.set('app/isErrorMsg', true)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+        setTimeout(() => {
+          store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
+        }, 2000)
+      })
+  },
   createContract: (context, payload) => {
     store.set('app/isLoading', true)
     const token = store.get('user/user').token
-    axios.post('http://37.9.203.118:4647/Files/', payload, {
+    console.log('payload', payload)
+    // axios.post(CreateURL('Demand/SaveDemand'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.post(CreateURL('Contract/UploadContractDocuments/upload'), payload.formData, {
       headers: {
         Authorization: `Bearer ${token}`,
-        mode: 'no-cors',
         'Content-Type': 'multipart/form-data',
       },
     })
-      .then(() => {
-        store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
+      .then(({ data: res }) => {
+        console.log('resUpload', res)
+        payload.sending.filePath = res.data
+        axios.post(CreateURL('Contract/SaveContract'), payload.sending, GetPostHeaders(token))
+        .then(({ data: res }) => {
+          console.log('resCreate', res)
+          store.set('manager/contracts', [...store.get('manager/contracts'), res.data])
+          store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
+        })
       })
       .catch(error => {
         console.log('Error', error)
@@ -69,6 +105,27 @@ const actions = {
   },
   // Update Methods
   updateActivity: (context, payload) => {
+    axios.put(CreateURL('Activity/UpdateActivity'), payload, GetPostHeaders(store.get('user/user').token))
+      .then(() => {
+        const arr = store.get('supplier/demands')
+        const index = arr.findIndex(e => e.id === payload.id)
+        arr[index] = payload
+        store.set('supplier/demands', [...arr])
+        store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.set('app/isErrorMsg', true)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
+      })
+      .finally(() => {
+        setTimeout(() => {
+          store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
+        }, 2000)
+      })
+  },
+  updateContract: (context, payload) => {
     axios.put(CreateURL('Activity/UpdateActivity'), payload, GetPostHeaders(store.get('user/user').token))
       .then(() => {
         const arr = store.get('supplier/demands')

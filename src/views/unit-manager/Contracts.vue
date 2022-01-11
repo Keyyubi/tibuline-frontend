@@ -28,51 +28,7 @@
 
     <v-tabs-items v-model="currentTab">
       <v-tab-item value="newContract">
-        <v-form>
-          <v-container class="py-3">
-            <v-row>
-              <v-col cols="3">
-                <v-text-field
-                  disabled
-                  color="purple"
-                  label="Birim Müdürü"
-                  value="Fatih Cigeroglu"
-                />
-              </v-col>
-
-              <v-col cols="3">
-                <v-select
-                  v-model="contract"
-                  :items="contracts"
-                  item-text="orderNo"
-                  item-value="contractId"
-                  label="Talep No. veya Sipariş No."
-                  return-object
-                />
-              </v-col>
-
-              <v-col cols="3">
-                <v-file-input
-                  v-model="contractUpload"
-                  chips
-                  multiple
-                  label="Sözleşme Yükle"
-                />
-              </v-col>
-
-              <v-col cols="3">
-                <v-btn
-                  class="my-2"
-                  width="100%"
-                  color="primary"
-                  @click="createContract()"
-                >
-                  Oluştur
-                </v-btn>
-              </v-col>
-            </v-row>
-          </v-container>
-        </v-form>
+        <contract-form :contract="newContract" />
       </v-tab-item>
 
       <v-tab-item value="allContracts">
@@ -150,6 +106,17 @@
             situation: { id: 1, label: 'Sözleşme Bekliyor' },
           },
         ],
+
+        newContract: {
+          createdById: null,
+          demandId: 0,
+          contractStatus: 0,
+          filePath: null,
+          startDate: null,
+          endDate: null,
+          jobStartDate: null,
+          supplierCompanyId: null,
+        },
       }
     },
     methods: {

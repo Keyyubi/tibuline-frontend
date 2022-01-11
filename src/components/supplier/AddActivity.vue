@@ -451,7 +451,7 @@
             this.confirmationMsg = 'Tüm aktiviteler silinecektir. Onaylıyor musunuz?'
             this.confirmationDialog = true
           } else {
-            this.$store.dispatch('app/updateAlertMsg', { message: 'Silinecek aktivite bulunamadı', isError: false })
+            this.$store.dispatch('app/showAlert', { message: 'Silinecek aktivite bulunamadı', isError: false })
           }
         } else {
           if (this.activities.length > 0) {
