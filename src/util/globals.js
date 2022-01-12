@@ -71,13 +71,10 @@ const RULES = {
   ],
 }
 const CreateURL = (endpoint = '') => BASE_URL + (endpoint.startsWith('/') ? endpoint : '/' + endpoint)
-const GetPostHeaders = () => {
-  const local = localStorage.getItem('tibuline@user') || '{}'
-  const { user } = JSON.parse(local)
-
+const GetPostHeaders = (token) => {
   return {
     headers: {
-      Authorization: `Bearer ${user.token}`,
+      Authorization: `Bearer ${token}`,
       'Content-type': 'application/json',
     },
   }

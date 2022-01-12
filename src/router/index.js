@@ -59,10 +59,7 @@ router.beforeEach((to, from, next) => {
 
   if (to.path !== '/login/' && !user.isLogged) {
     return next({ path: '/login/' })
-  } else if (to.path === '/login/') {
-    return to.path.endsWith('/') ? next() : next(trailingSlash(to.path))
   } else {
-    store.dispatch('app/updateItems', user.roleId)
     return to.path.endsWith('/') ? next() : next(trailingSlash(to.path))
   }
 })

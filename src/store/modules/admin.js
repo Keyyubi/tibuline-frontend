@@ -43,7 +43,7 @@ const actions = {
   createBudgetPlan: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('BudgetCalculation/SaveBudgetCalculation'), payload, GetPostHeaders())
+    axios.post(CreateURL('BudgetCalculation/SaveBudgetCalculation'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/budgetPlans', [...store.get('admin/budgetPlans'), res.data])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
@@ -64,7 +64,7 @@ const actions = {
   createCompany: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('Company/SaveCompany'), payload, GetPostHeaders())
+    axios.post(CreateURL('Company/SaveCompany'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/companies', [...store.get('admin/companies'), res.data])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
@@ -85,7 +85,7 @@ const actions = {
   createCostCenter: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('CostCenter/SaveCostCenter'), payload, GetPostHeaders())
+    axios.post(CreateURL('CostCenter/SaveCostCenter'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/costCenters', [...store.get('admin/costCenters'), res.data])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
@@ -106,7 +106,7 @@ const actions = {
   createExperienceSpan: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('ExperienceSpan/SaveExperienceSpan'), payload, GetPostHeaders())
+    axios.post(CreateURL('ExperienceSpan/SaveExperienceSpan'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/experienceSpans', [...store.get('admin/experienceSpans'), res.data])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
@@ -127,7 +127,7 @@ const actions = {
   createJobTitle: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('JobTitle/SaveJobTitle'), payload, GetPostHeaders())
+    axios.post(CreateURL('JobTitle/SaveJobTitle'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/jobTitles', [...store.get('admin/jobTitles'), res.data])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
@@ -148,7 +148,7 @@ const actions = {
   createProject: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('Project/SaveProject'), payload, GetPostHeaders())
+    axios.post(CreateURL('Project/SaveProject'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/projects', [...store.get('admin/projects'), res.data])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
@@ -169,7 +169,7 @@ const actions = {
   updateBudgetPlan: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.put(CreateURL('BudgetCalculation/UpdateBudgetCalculation'), payload, GetPostHeaders())
+    axios.put(CreateURL('BudgetCalculation/UpdateBudgetCalculation'), payload, GetPostHeaders(store.get('user/user').token))
       .then(() => {
         const arr = store.get('admin/budgetPlans')
         const index = arr.findIndex(e => e.id === payload.id)
@@ -193,7 +193,7 @@ const actions = {
   updateCompany: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.put(CreateURL('Company/UpdateCompany'), payload, GetPostHeaders())
+    axios.put(CreateURL('Company/UpdateCompany'), payload, GetPostHeaders(store.get('user/user').token))
       .then(() => {
         const arr = store.get('admin/companies')
         const index = arr.findIndex(e => e.id === payload.id)
@@ -217,7 +217,7 @@ const actions = {
   updateCostCenter: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.put(CreateURL('CostCenter/UpdateCostCenter'), payload, GetPostHeaders())
+    axios.put(CreateURL('CostCenter/UpdateCostCenter'), payload, GetPostHeaders(store.get('user/user').token))
       .then(() => {
         const arr = store.get('admin/costCenters')
         const index = arr.findIndex(e => e.id === payload.id)
@@ -241,7 +241,7 @@ const actions = {
   updateExperienceSpan: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.put(CreateURL('ExperienceSpan/UpdateExperienceSpan'), payload, GetPostHeaders())
+    axios.put(CreateURL('ExperienceSpan/UpdateExperienceSpan'), payload, GetPostHeaders(store.get('user/user').token))
       .then(() => {
         const arr = store.get('admin/experienceSpans')
         const index = arr.findIndex(e => e.id === payload.id)
@@ -265,7 +265,7 @@ const actions = {
   updateJobTitle: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.put(CreateURL('JobTitle/UpdateJobTitle'), payload, GetPostHeaders())
+    axios.put(CreateURL('JobTitle/UpdateJobTitle'), payload, GetPostHeaders(store.get('user/user').token))
       .then(() => {
         const arr = store.get('admin/jobTitles')
         const index = arr.findIndex(e => e.id === payload.id)
@@ -289,7 +289,7 @@ const actions = {
   updateProject: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.put(CreateURL('Project/UpdateProject'), payload, GetPostHeaders())
+    axios.put(CreateURL('Project/UpdateProject'), payload, GetPostHeaders(store.get('user/user').token))
       .then(() => {
         const arr = store.get('admin/projects')
         const index = arr.findIndex(e => e.id === payload.id)
@@ -313,7 +313,7 @@ const actions = {
   updateUser: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.put(CreateURL('User/UpdateUser'), payload, GetPostHeaders())
+    axios.put(CreateURL('User/UpdateUser'), payload, GetPostHeaders(store.get('user/user').token))
       .then(() => {
         const arr = payload.roleId === ROLE_IDS.UNIT_MANAGER ? store.get('admin/unitManagers') : store.get('admin/suppliers')
         const index = arr.findIndex(e => e.id === payload.id)
@@ -337,7 +337,7 @@ const actions = {
   getBudgetPlans: () => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL('BudgetCalculation/GetBudgetCalculations'), GetPostHeaders())
+    axios.get(CreateURL('BudgetCalculation/GetBudgetCalculations'), GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/budgetPlans', res.data)
       })
@@ -357,7 +357,7 @@ const actions = {
   getCompanies: () => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL('Company/GetCompanies'), GetPostHeaders())
+    axios.get(CreateURL('Company/GetCompanies'), GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/companies', res.data)
       })
@@ -377,7 +377,7 @@ const actions = {
   getSupplierCompanies: () => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL('Company/GetSupplierCompanies'), GetPostHeaders())
+    axios.get(CreateURL('Company/GetSupplierCompanies'), GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/companies', res.data)
       })
@@ -397,7 +397,7 @@ const actions = {
   getCostCenters: () => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL('CostCenter/GetCostCenters'), GetPostHeaders())
+    axios.get(CreateURL('CostCenter/GetCostCenters'), GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/costCenters', res.data)
       })
@@ -417,7 +417,7 @@ const actions = {
   getExperienceSpans: () => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL('ExperienceSpan/GetExperienceSpans'), GetPostHeaders())
+    axios.get(CreateURL('ExperienceSpan/GetExperienceSpans'), GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/experienceSpans', res.data)
       })
@@ -437,7 +437,7 @@ const actions = {
   getUnitManagers: () => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL(`User/GetUsersByRoleId/${ROLE_IDS.UNIT_MANAGER}`), GetPostHeaders())
+    axios.get(CreateURL(`User/GetUsersByRoleId/${ROLE_IDS.UNIT_MANAGER}`), GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/unitManagers', res.data)
       })
@@ -457,7 +457,7 @@ const actions = {
   getJobTitles: () => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL('JobTitle/GetJobTitles'), GetPostHeaders())
+    axios.get(CreateURL('JobTitle/GetJobTitles'), GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/jobTitles', res.data)
       })
@@ -477,7 +477,7 @@ const actions = {
   getProjects: () => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL('Project/GetProjects'), GetPostHeaders())
+    axios.get(CreateURL('Project/GetProjects'), GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/projects', res.data)
       })
@@ -497,7 +497,7 @@ const actions = {
   getSuppliers: () => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL(`User/GetUsersByRoleId/${ROLE_IDS.SUPPLIER}`), GetPostHeaders())
+    axios.get(CreateURL(`User/GetUsersByRoleId/${ROLE_IDS.SUPPLIER}`), GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/suppliers', res.data)
       })
