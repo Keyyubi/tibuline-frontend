@@ -25,7 +25,7 @@ const actions = {
   createDemand: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('Demand/SaveDemand'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.post(CreateURL('Demand/SaveDemand'), payload, GetPostHeaders())
       .then(({ data: res }) => {
         store.set('manager/demands', [...store.get('manager/demands'), res.data])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
@@ -45,16 +45,18 @@ const actions = {
   },
   createContract: (context, payload) => {
     store.set('app/isLoading', true)
-    const token = store.get('user/user').token
-    console.log('payload', payload)
+
+    const local = localStorage.getItem('tibuline@user') || '{}'
+    const { user } = JSON.parse(local)
+
     axios.post(CreateURL('Contract/UploadContractDocuments/upload'), payload.formData, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${user.token}`,
       },
     })
       .then(({ data: res }) => {
         payload.sending.filePath = res.data
-        axios.post(CreateURL('Contract/SaveContract'), payload.sending, GetPostHeaders(token))
+        axios.post(CreateURL('Contract/SaveContract'), payload.sending, GetPostHeaders())
         .then(({ data: res }) => {
           store.set('manager/contracts', [...store.get('manager/contracts'), res.data])
           store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
@@ -76,7 +78,7 @@ const actions = {
   createProject: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('Project/SaveProject'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.post(CreateURL('Project/SaveProject'), payload, GetPostHeaders())
       .then(({ data: res }) => {
         store.set('manager/projects', [...store.get('manager/projects'), res.data])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
@@ -96,7 +98,7 @@ const actions = {
   },
   // Update Methods
   updateActivity: (context, payload) => {
-    axios.put(CreateURL('Activity/UpdateActivity'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.put(CreateURL('Activity/UpdateActivity'), payload, GetPostHeaders())
       .then(() => {
         const arr = store.get('supplier/demands')
         const index = arr.findIndex(e => e.id === payload.id)
@@ -117,7 +119,7 @@ const actions = {
       })
   },
   updateContract: (context, payload) => {
-    axios.put(CreateURL('Activity/UpdateActivity'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.put(CreateURL('Activity/UpdateActivity'), payload, GetPostHeaders())
       .then(() => {
         const arr = store.get('supplier/demands')
         const index = arr.findIndex(e => e.id === payload.id)
@@ -141,7 +143,7 @@ const actions = {
   getBudgetPlansByCompany: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL(`BudgetCalculation/GetBudgetCalculationsByCompanyId/${payload}`), GetPostHeaders(store.get('user/user').token))
+    axios.get(CreateURL(`BudgetCalculation/GetBudgetCalculationsByCompanyId/${payload}`), GetPostHeaders())
       .then(({ data: res }) => {
         store.set('manager/budgets', res.data)
       })
@@ -161,7 +163,7 @@ const actions = {
   getConsultantById: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL(`Consultant/GetConsultantById/${payload}`), GetPostHeaders(store.get('user/user').token))
+    axios.get(CreateURL(`Consultant/GetConsultantById/${payload}`), GetPostHeaders())
       .then(({ data: res }) => {
         store.set('manager/demandedConsultant', [res.data])
       })
@@ -181,7 +183,7 @@ const actions = {
   getConsultantActivities: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL(`Activity/GetActivitiesByConsultantIdAndYearMonth/${payload.consultantId}/${payload.yearMonth}`), GetPostHeaders(store.get('user/user').token))
+    axios.get(CreateURL(`Activity/GetActivitiesByConsultantIdAndYearMonth/${payload.consultantId}/${payload.yearMonth}`), GetPostHeaders())
       .then(({ data: res }) => {
         const arr = res.data.map(e => {
           const name = `${e.shiftHours}s mesai ${e.overShiftHours ? ' - ' + e.overShiftHours + 's fazla mesai' : ''}`
@@ -212,8 +214,8 @@ const actions = {
   getContracts: () => {
     store.set('app/isLoading', true)
 
-    // axios.get(CreateURL(`Contract/GetContractsByManagerId/${store.get('user/user').id}`), GetPostHeaders(store.get('user/user').token))
-    axios.get(CreateURL('Contract/GetContracts'), GetPostHeaders(store.get('user/user').token))
+    // axios.get(CreateURL(`Contract/GetContractsByManagerId/${store.get('user/user').id}`), GetPostHeaders())
+    axios.get(CreateURL('Contract/GetContracts'), GetPostHeaders())
       .then(({ data: res }) => {
         store.set('manager/contracts', res.data)
       })
@@ -232,9 +234,8 @@ const actions = {
   },
   getCostCenters: () => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
 
-    axios.get(CreateURL('CostCenter/GetCostCenters'), GetPostHeaders(currUser.token))
+    axios.get(CreateURL('CostCenter/GetCostCenters'), GetPostHeaders())
       .then(({ data: res }) => {
         store.set('manager/costCenters', res.data)
       })
@@ -253,9 +254,8 @@ const actions = {
   },
   getDemands: () => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
 
-    axios.get(CreateURL('Demand/GetDemands'), GetPostHeaders(currUser.token))
+    axios.get(CreateURL('Demand/GetDemands'), GetPostHeaders())
       .then(({ data: res }) => {
         store.set('manager/demands', res.data)
       })
@@ -274,9 +274,8 @@ const actions = {
   },
   getExperienceSpans: (context, payload) => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
 
-    axios.get(CreateURL('ExperienceSpan/GetExperienceSpans'), GetPostHeaders(currUser.token))
+    axios.get(CreateURL('ExperienceSpan/GetExperienceSpans'), GetPostHeaders())
       .then(({ data: res }) => {
         store.set('manager/experienceSpans', res.data)
       })
@@ -295,9 +294,8 @@ const actions = {
   },
   getJobTitles: (context, payload) => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
 
-    axios.get(CreateURL('JobTitle/GetJobTitles'), GetPostHeaders(currUser.token))
+    axios.get(CreateURL('JobTitle/GetJobTitles'), GetPostHeaders())
       .then(({ data: res }) => {
         store.set('manager/jobTitles', res.data)
       })
@@ -316,9 +314,8 @@ const actions = {
   },
   getExperienceSpansByCompany: (context, payload) => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
 
-    axios.get(CreateURL(`ExperienceSpan/GetExperienceSpansByCompanyId/${payload}`), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`ExperienceSpan/GetExperienceSpansByCompanyId/${payload}`), GetPostHeaders())
       .then(({ data: res }) => {
         store.set('manager/experienceSpans', res.data)
       })
@@ -337,9 +334,8 @@ const actions = {
   },
   getJobTitlesByCompany: (context, payload) => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
 
-    axios.get(CreateURL(`JobTitle/GetJobTitlesByCompanyId/${payload}`), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`JobTitle/GetJobTitlesByCompanyId/${payload}`), GetPostHeaders())
       .then(({ data: res }) => {
         store.set('manager/jobTitles', res.data)
       })
@@ -358,9 +354,10 @@ const actions = {
   },
   getProjects: () => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
+    const local = localStorage.getItem('tibuline@user') || '{}'
+    const { user } = JSON.parse(local)
 
-    axios.get(CreateURL(`Project/GetProjectsByAssignedTo/${currUser.id}`), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`Project/GetProjectsByAssignedTo/${user.id}`), GetPostHeaders())
       .then(({ data: res }) => {
         store.set('manager/projects', res.data)
       })
@@ -380,7 +377,7 @@ const actions = {
   getSupplierCompanies: () => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL('Company/GetSupplierCompanies'), GetPostHeaders(store.get('user/user').token))
+    axios.get(CreateURL('Company/GetSupplierCompanies'), GetPostHeaders())
       .then(({ data: res }) => {
         store.set('manager/companies', res.data)
       })

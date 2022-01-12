@@ -58,7 +58,12 @@ const actions = {
     axios.post(CreateURL('/Auth/CreateToken'), { email: user.email, password: user.password })
     .then(({ data: res }) => res.data.accessToken)
     .then(token => {
-      axios.get(CreateURL('/User/GetUser'), GetPostHeaders(token))
+      axios.get(CreateURL('/User/GetUser'), {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-type': 'application/json',
+        },
+      })
       .then(({ data: res }) => {
         return {
           ...res.data,
@@ -67,7 +72,12 @@ const actions = {
         }
       })
       .then(loggedUser => {
-        axios.get(CreateURL(`/Company/GetCompanyById/${loggedUser.companyId}`), GetPostHeaders(loggedUser.token))
+        axios.get(CreateURL(`/Company/GetCompanyById/${loggedUser.companyId}`), {
+          headers: {
+            Authorization: `Bearer ${loggedUser.token}`,
+            'Content-type': 'application/json',
+          },
+        })
         .then(({ data: res }) => {
           loggedUser = {
             ...loggedUser,
@@ -89,6 +99,7 @@ const actions = {
   },
   logout: ({ commit }) => {
     commit('user', {})
+    localStorage.clear()
     router.push('/login/')
   },
 }

@@ -22,7 +22,7 @@ const mutations = make.mutations(state)
 const actions = {
   // Create Methods
   createActivity: (context, payload) => {
-    axios.post(CreateURL('Activity/SaveActivity'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.post(CreateURL('Activity/SaveActivity'), payload, GetPostHeaders())
       .then(({ data: res }) => {
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
       })
@@ -41,7 +41,7 @@ const actions = {
   createConsultant: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('Consultant/SaveConsultant'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.post(CreateURL('Consultant/SaveConsultant'), payload, GetPostHeaders())
       .then(({ data: res }) => {
         store.set('supplier/consultants', [...store.get('supplier/consultants'), res.data])
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
@@ -61,8 +61,11 @@ const actions = {
   },
   // Update Methods
   updateActivity: (context, payload) => {
-    axios.put(CreateURL('Activity/UpdateActivity'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.put(CreateURL('Activity/UpdateActivity'), payload, GetPostHeaders())
       .then(() => {
+        const arr = store.get('supplier/activities')
+        const index = arr.findIndex(e => e.id === payload.id)
+        arr[index] = payload
         store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
       })
       .catch(error => {
@@ -78,8 +81,11 @@ const actions = {
       })
   },
   updateConsultant: (context, payload) => {
-    axios.put(CreateURL('Consultant/UpdateConsultant'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.put(CreateURL('Consultant/UpdateConsultant'), payload, GetPostHeaders())
       .then(() => {
+        const arr = store.get('supplier/consultants')
+        const index = arr.findIndex(e => e.id === payload.id)
+        arr[index] = payload
         store.set('app/responseMsg', 'Başarıyla güncellendi.')
       })
       .catch(error => {
@@ -95,7 +101,7 @@ const actions = {
       })
   },
   updateDemand: (context, payload) => {
-    axios.put(CreateURL('Demand/UpdateDemand'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.put(CreateURL('Demand/UpdateDemand'), payload, GetPostHeaders())
       .then(() => {
         const arr = store.get('supplier/demands')
         const index = arr.findIndex(e => e.id === payload.id)
@@ -119,7 +125,7 @@ const actions = {
   getBudgetPlans: () => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL(`BudgetCalculation/GetBudgetCalculationsByCompanyId/${store.get('user/user').companyId}`), GetPostHeaders(store.get('user/user').token))
+    axios.get(CreateURL(`BudgetCalculation/GetBudgetCalculationsByCompanyId/${store.get('user/user').companyId}`), GetPostHeaders())
       .then(({ data: res }) => {
         store.set('supplier/budgets', res.data)
       })
@@ -138,9 +144,10 @@ const actions = {
   },
   getConsultants: () => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
+    const local = localStorage.getItem('tibuline@user') || '{}'
+    const { user } = JSON.parse(local)
 
-    axios.get(CreateURL(`Consultant/GetConsultantsByCompanyId/${currUser.companyId}`), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`Consultant/GetConsultantsByCompanyId/${user.companyId}`), GetPostHeaders())
       .then(({ data: res }) => {
         store.set('supplier/consultants', res.data)
       })
@@ -160,7 +167,7 @@ const actions = {
   getConsultantActivities: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL(`Activity/GetActivitiesByConsultantIdAndYearMonth/${payload.consultantId}/${payload.yearMonth}`), GetPostHeaders(store.get('user/user').token))
+    axios.get(CreateURL(`Activity/GetActivitiesByConsultantIdAndYearMonth/${payload.consultantId}/${payload.yearMonth}`), GetPostHeaders())
       .then(({ data: res }) => {
         const arr = res.data.map(e => {
           const name = `${e.shiftHours}s mesai ${e.overShiftHours ? ' - ' + e.overShiftHours + 's fazla mesai' : ''}`
@@ -190,9 +197,8 @@ const actions = {
   },
   getDemands: () => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
 
-    axios.get(CreateURL('Demand/GetDemands'), GetPostHeaders(currUser.token))
+    axios.get(CreateURL('Demand/GetDemands'), GetPostHeaders())
       .then(({ data: res }) => {
         store.set('supplier/demands', res.data)
       })
@@ -211,9 +217,10 @@ const actions = {
   },
   getExperienceSpans: () => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
+    const local = localStorage.getItem('tibuline@user') || '{}'
+    const { user } = JSON.parse(local)
 
-    axios.get(CreateURL(`ExperienceSpan/GetExperienceSpansByCompanyId/${currUser.companyId}`), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`ExperienceSpan/GetExperienceSpansByCompanyId/${user.companyId}`), GetPostHeaders())
       .then(({ data: res }) => {
         store.set('supplier/experienceSpans', res.data)
       })
@@ -232,9 +239,10 @@ const actions = {
   },
   getJobTitles: () => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
+    const local = localStorage.getItem('tibuline@user') || '{}'
+    const { user } = JSON.parse(local)
 
-    axios.get(CreateURL(`JobTitle/GetJobTitlesByCompanyId/${currUser.companyId}`), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`JobTitle/GetJobTitlesByCompanyId/${user.companyId}`), GetPostHeaders())
       .then(({ data: res }) => {
         store.set('supplier/jobTitles', res.data)
       })
@@ -253,9 +261,8 @@ const actions = {
   },
   getProjects: () => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
 
-    axios.get(CreateURL('Project/GetProjects'), GetPostHeaders(currUser.token))
+    axios.get(CreateURL('Project/GetProjects'), GetPostHeaders())
       .then(({ data: res }) => {
         store.set('supplier/projects', res.data)
       })
@@ -275,7 +282,7 @@ const actions = {
   getUnitManagers: () => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL(`User/GetUsersByRoleId/${ROLE_IDS.UNIT_MANAGER}`), GetPostHeaders(store.get('user/user').token))
+    axios.get(CreateURL(`User/GetUsersByRoleId/${ROLE_IDS.UNIT_MANAGER}`), GetPostHeaders())
       .then(({ data: res }) => {
         store.set('supplier/unitManagers', res.data)
       })
@@ -294,9 +301,9 @@ const actions = {
   },
   // Delete methods
   deleteActivity: (context, id) => {
-    const currUser = store.get('user/user')
+    store.set('app/isLoading', true)
 
-    axios.delete(CreateURL(`Activity/DeleteActivity/${id}`), GetPostHeaders(currUser.token))
+    axios.delete(CreateURL(`Activity/DeleteActivity/${id}`), GetPostHeaders())
       .then(() => {
         store.set('app/responseMsg', 'Aktivite silindi.')
       })
@@ -306,6 +313,7 @@ const actions = {
         store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
+        store.set('app/isLoading', false)
         setTimeout(() => {
           store.set('app/responseMsg', '')
           store.set('app/isErrorMsg', false)
