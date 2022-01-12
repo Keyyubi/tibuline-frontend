@@ -171,7 +171,7 @@ const actions = {
         break
     }
   },
-  updateAlertMsg: (context, payload) => {
+  showAlert: (context, payload) => {
     context.commit('responseMsg', payload.message)
     context.commit('isErrorMsg', payload.isError)
     setTimeout(() => {

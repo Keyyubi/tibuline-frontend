@@ -447,6 +447,7 @@
       showConfirmation (type) {
         this.confirmationType = type
 
+<<<<<<< HEAD
         if (this.activities.length > 0) {
           switch (type) {
             case 'delete':
@@ -461,6 +462,14 @@
               this.confirmationMsg = `Varolan aktiviteler ${this.shiftHours} saat olarak güncellenecektir. Onaylıyor musunuz?`
               this.confirmationDialog = true
               break
+=======
+        if (type === 'delete') {
+          if (this.activities.length > 0) {
+            this.confirmationMsg = 'Tüm aktiviteler silinecektir. Onaylıyor musunuz?'
+            this.confirmationDialog = true
+          } else {
+            this.$store.dispatch('app/showAlert', { message: 'Silinecek aktivite bulunamadı', isError: false })
+>>>>>>> 607fb48e0d7353a6abaa982f3de6335a560cab12
           }
         } else {
           switch (type) {
