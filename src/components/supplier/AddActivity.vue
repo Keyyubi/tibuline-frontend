@@ -238,6 +238,7 @@
           class="white--text mr-3"
           color="green"
           depressed
+          @click="showConfirmation('send')"
         >
           Onaya Gönder
         </v-btn>
@@ -446,19 +447,29 @@
       showConfirmation (type) {
         this.confirmationType = type
 
-        if (type === 'delete') {
-          if (this.activities.length > 0) {
-            this.confirmationMsg = 'Tüm aktiviteler silinecektir. Onaylıyor musunuz?'
-            this.confirmationDialog = true
-          } else {
-            this.$store.dispatch('app/updateAlertMsg', { message: 'Silinecek aktivite bulunamadı', isError: false })
+        if (this.activities.length > 0) {
+          switch (type) {
+            case 'delete':
+              this.confirmationMsg = 'Tüm aktiviteler silinecektir. Onaylıyor musunuz?'
+              this.confirmationDialog = true
+              break;
+            case 'send':
+              this.confirmationMsg = `Aktiviteler yönetici onayına gönderilecektir. Onaylıyor musunuz?`
+              this.confirmationDialog = true
+              break
+            case 'fill-monthly':
+              this.confirmationMsg = `Varolan aktiviteler ${this.shiftHours} saat olarak güncellenecektir. Onaylıyor musunuz?`
+              this.confirmationDialog = true
+              break
           }
         } else {
-          if (this.activities.length > 0) {
-            this.confirmationMsg = `Varolan aktiviteler ${this.shiftHours} saat olarak güncellenecektir. Onaylıyor musunuz?`
-            this.confirmationDialog = true
-          } else {
-            this.updateRange()
+          switch (type) {
+            case 'delete', 'send':
+              this.$store.dispatch('app/updateAlertMsg', { message: 'Bu dönem için aktivite bulunmuyor.', isError: false })
+              break
+            case 'fill-monthly':
+              this.updateRange()
+              break
           }
         }
       },
