@@ -43,49 +43,19 @@ const actions = {
         }, 2000)
       })
   },
-  uploadDocument: (context, payload) => {
-    store.set('app/isLoading', true)
-    const token = store.get('user/user').token
-    console.log('payload', payload)
-    axios.post(CreateURL('Contract/UploadContractDocuments/upload'), payload, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then(({ data: res }) => {
-        console.log('resUpload', res)
-        store.set('manager/respons', res.data)
-      })
-      .catch(error => {
-        console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
-      })
-  },
   createContract: (context, payload) => {
     store.set('app/isLoading', true)
     const token = store.get('user/user').token
     console.log('payload', payload)
-    // axios.post(CreateURL('Demand/SaveDemand'), payload, GetPostHeaders(store.get('user/user').token))
     axios.post(CreateURL('Contract/UploadContractDocuments/upload'), payload.formData, {
       headers: {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data',
       },
     })
       .then(({ data: res }) => {
-        console.log('resUpload', res)
         payload.sending.filePath = res.data
         axios.post(CreateURL('Contract/SaveContract'), payload.sending, GetPostHeaders(token))
         .then(({ data: res }) => {
-          console.log('resCreate', res)
           store.set('manager/contracts', [...store.get('manager/contracts'), res.data])
           store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
         })
@@ -225,6 +195,27 @@ const actions = {
           }
         })
         store.set('manager/activities', arr)
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.set('app/isErrorMsg', true)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+        setTimeout(() => {
+          store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
+        }, 2000)
+      })
+  },
+  getContracts: () => {
+    store.set('app/isLoading', true)
+
+    // axios.get(CreateURL(`Contract/GetContractsByManagerId/${store.get('user/user').id}`), GetPostHeaders(store.get('user/user').token))
+    axios.get(CreateURL('Contract/GetContracts'), GetPostHeaders(store.get('user/user').token))
+      .then(({ data: res }) => {
+        store.set('manager/contracts', res.data)
       })
       .catch(error => {
         console.log('Error', error)
