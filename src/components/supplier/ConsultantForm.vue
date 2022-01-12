@@ -221,6 +221,7 @@
           <v-file-input
             v-model="files"
             label="Kişisel Evrakları"
+            accept="image/*, .pdf"
             counter
             multiple
             show-size
