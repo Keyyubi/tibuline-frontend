@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { make } from 'vuex-pathify'
-import { CreateURL, GetPostHeaders, ROLE_IDS } from '@/util/globals'
+import { CreateURL, GetPostHeaders } from '@/util/globals'
 import store from '../index'
 
 // Data
@@ -46,8 +46,7 @@ const actions = {
   createContract: (context, payload) => {
     store.set('app/isLoading', true)
     const token = store.get('user/user').token
-    console.log('payload', payload)
-    // axios.post(CreateURL('Demand/SaveDemand'), payload, GetPostHeaders(store.get('user/user').token))
+
     axios.post(CreateURL('Contract/UploadContractDocuments/upload'), payload.formData, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -55,11 +54,9 @@ const actions = {
       },
     })
       .then(({ data: res }) => {
-        console.log('resUpload', res)
         payload.sending.filePath = res.data
         axios.post(CreateURL('Contract/SaveContract'), payload.sending, GetPostHeaders(token))
         .then(({ data: res }) => {
-          console.log('resCreate', res)
           store.set('manager/contracts', [...store.get('manager/contracts'), res.data])
           store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
         })
@@ -188,7 +185,7 @@ const actions = {
 
     axios.get(CreateURL(`Consultant/GetConsultantById/${payload}`), GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
-        store.set('manager/demandedConsultant', [res.data])
+        store.set('manager/demandedConsultant', res.data)
       })
       .catch(error => {
         console.log('Error', error)

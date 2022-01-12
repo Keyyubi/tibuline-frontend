@@ -1,9 +1,9 @@
 <template>
-  <v-form
-    ref="form"
-    v-model="valid"
-  >
-    <v-container class="py-3">
+  <v-container class="py-3">
+    <v-form
+      ref="form"
+      v-model="valid"
+    >
       <v-row
         class="my-3"
         align="center"
@@ -219,6 +219,7 @@
           md="6"
         >
           <v-file-input
+            v-model="files"
             label="Kişisel Evrakları"
             counter
             multiple
@@ -232,13 +233,31 @@
           cols="12"
           md="6"
         >
-          <v-file-input
-            label="Sözleşmesi"
-            counter
-            multiple
-            show-size
-            small-chips
-          />
+          İmzalı Sözleşme:
+          <v-btn-toggle
+            tile
+            color="primary"
+            group
+          >
+            <v-btn
+              color="primary"
+              depressed
+              outlined
+              :disabled="!consultant.contractFilePath"
+              @click="showContract"
+            >
+              Görüntüle
+            </v-btn>
+            <v-btn
+              color="primary"
+              depressed
+              outlined
+              :disabled="consultant.contractFilePath"
+              @click="contractDialog = true"
+            >
+              Yükle
+            </v-btn>
+          </v-btn-toggle>
         </v-col>
       </v-row>
 
@@ -285,8 +304,45 @@
           </v-btn>
         </v-col>
       </v-row>
-    </v-container>
-  </v-form>
+    </v-form>
+    <v-dialog
+      v-model="contractDialog"
+      persistent
+    >
+      <v-card>
+        <v-card-title>
+          İmzalı Sözleşme Yükle
+        </v-card-title>
+        <v-card-text>
+          <v-file-input
+            v-model="contractDocument"
+            chips
+            label="Sözleşme"
+          />
+        </v-card-text>
+        <v-card-actions>
+          <v-btn
+            color="primary"
+            width="50%"
+            depressed
+            small
+            @click="uploadContract"
+          >
+            Yükle
+          </v-btn>
+          <v-btn
+            color="error"
+            width="50%"
+            depressed
+            small
+            @click="contractDialog = false"
+          >
+            Vazgeç
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </v-container>
 </template>
 
 <script>
@@ -302,7 +358,10 @@
       valid: false,
       menu: false,
       date: null,
+      files: [],
       localeDate: null,
+      contractDialog: false,
+      contractDocument: null,
       RULES,
     }),
     computed: {
@@ -330,6 +389,20 @@
         this.localeDate = `${arr[2]}/${arr[1]}/${arr[0]}`
         this.consultant.birthday = new Date(date).toISOString()
         this.$refs.menu.save(date)
+      },
+      showContract () {
+        console.log('contract doc', this.consultant.contractFilePath)
+        if (this.consultant.contractFilePath) {
+          window.open(this.consultant.contractFilePath, '_blank').focus()
+        }
+      },
+      uploadContract () {
+        if (this.contractDocument !== null) {
+          const formData = new FormData()
+          formData.append('files', this.contractDocument)
+          this.$store.dispatch('supplier/uploadContract', { formData, sending: this.consultant })
+          this.contractDialog = false
+        }
       },
       createOrUpdateConsultant () {
         if (this.$refs.form.validate()) {

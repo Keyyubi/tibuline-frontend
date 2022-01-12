@@ -9,8 +9,10 @@ const state = {
   budgets: [],
   company: {},
   consultants: [],
+  contracts: [],
   costCenters: [],
   demands: [],
+  demandedConsultant: [],
   experienceSpans: [],
   unitManagers: [],
   jobTitles: [],
@@ -115,6 +117,37 @@ const actions = {
         }, 2000)
       })
   },
+  uploadContract: (context, payload) => {
+    store.set('app/isLoading', true)
+    const token = store.get('user/user').token
+
+    axios.post(CreateURL('Consultant/UploadConsultantDocuments'), payload.formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+      .then(({ data: res }) => {
+        payload.sending.contractFilePath = res.data
+        axios.put(CreateURL('Consultant/UpdateConsultant'), payload.sending, GetPostHeaders(token))
+        .then(({ data: res }) => {
+          store.set('supplier/contracts', [...store.get('supplier/contracts'), res.data])
+          store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
+        })
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.set('app/isErrorMsg', true)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+        setTimeout(() => {
+          store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
+        }, 2000)
+      })
+  },
   // Get Methods
   getBudgetPlans: () => {
     store.set('app/isLoading', true)
@@ -157,6 +190,26 @@ const actions = {
         }, 2000)
       })
   },
+  getConsultantById: (context, payload) => {
+    store.set('app/isLoading', true)
+
+    axios.get(CreateURL(`Consultant/GetConsultantById/${payload}`), GetPostHeaders(store.get('user/user').token))
+      .then(({ data: res }) => {
+        store.set('supplier/demandedConsultant', res.data)
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.set('app/isErrorMsg', true)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+        setTimeout(() => {
+          store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
+        }, 2000)
+      })
+  },
   getConsultantActivities: (context, payload) => {
     store.set('app/isLoading', true)
 
@@ -174,6 +227,27 @@ const actions = {
           }
         })
         store.set('supplier/activities', arr)
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.set('app/isErrorMsg', true)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+        setTimeout(() => {
+          store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
+        }, 2000)
+      })
+  },
+  getContracts: () => {
+    store.set('app/isLoading', true)
+    const currUser = store.get('user/user')
+
+    axios.get(CreateURL(`Contract/GetContractsBySupplierCompany/${currUser.companyId}`), GetPostHeaders(currUser.token))
+      .then(({ data: res }) => {
+        store.set('supplier/contracts', res.data)
       })
       .catch(error => {
         console.log('Error', error)

@@ -11,8 +11,8 @@ const DEMAND_STATUSES = [
   { key: 'CREATED', status: 0, label: 'Oluşturuldu' },
   { key: 'REPLIED', status: 1, label: 'Aday yüklendi' },
   { key: 'PENDING', status: 2, label: 'Sözleşme yüklendi' },
-  { key: 'APPROVED', status: 3, label: 'Onaylandı' },
-  { key: 'COMLITED', status: 4, label: 'Tamamlandı' },
+  { key: 'APPROVED', status: 3, label: 'Sözleşme imzalandı' },
+  { key: 'COMPLITED', status: 4, label: 'Tamamlandı' },
 
   // REVISED: { status: 1, label: 'Revize edildi' }, // If supplier asks for revise
   // CONTRACT_PENDING: { status: 0, label: 'Sözleşme bekliyor' },

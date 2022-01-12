@@ -257,7 +257,7 @@
               >
                 <v-select
                   v-model="selectedDemand.consultantId"
-                  :items="demandedConsultant"
+                  :items="[demandedConsultant]"
                   :item-text="e => e.firstName + ' ' + e.lastName"
                   item-value="id"
                   label="Aday"
@@ -286,7 +286,9 @@
               >
                 <v-text-field
                   label="İmzalı Sözleşme"
-                  :value="demandedConsultant.contractId || 'İmzalı sözleşme bulunmuyor'"
+                  :value="demandedConsultant.contractFilePath || 'İmzalı sözleşme bulunmuyor'"
+                  append-icon="mdi-eye"
+                  @click:append="openSignedContract"
                   readonly
                 />
               </v-col>
@@ -301,9 +303,10 @@
           <v-btn
             color="primary"
             depressed
+            :disabled="selectedDemand.demandStatus === DEMAND_STATUSES.find(e => e.key === 'COMPLITED').status"
             @click="updateDemand"
           >
-            Güncelle
+            {{ selectedDemand.demandStatus === DEMAND_STATUSES.find(e => e.key === 'APPROVED').status ? 'Tamamla' : 'Güncelle'}}
           </v-btn>
           <v-btn
             color="error"
@@ -376,11 +379,13 @@
           window.open(filePath, '_blank').focus()
         }
       },
+      openSignedContract () {
+        if (this.demandedConsultant.contractFilePath) {
+          window.open(this.demandedConsultant.contractFilePath, '_blank').focus()
+        }
+      },
       sleep (ms) {
         return new Promise(resolve => setTimeout(resolve, ms))
-      },
-      editDemand (id) {
-        console.log('id', id)
       },
       async showDemand (demand) {
         this.$store.dispatch('manager/getJobTitlesByCompany', demand.supplierCompanyId)
@@ -412,6 +417,22 @@
       },
       updateDemand () {
         const payload = { ...this.selectedDemand }
+        switch (payload.demandStatus) {
+          case DEMAND_STATUSES.find(e => e.key === 'REPLIED').status:
+            if (payload.consultantId) {
+              payload.demandStatus = DEMAND_STATUSES.find(e => e.key === 'PENDING').status
+            }
+            break
+          case DEMAND_STATUSES.find(e => e.key === 'APPROVED').status:
+            if (this.demandedConsultant.contractFilePath && this.demandedConsultant.contractFilePath.length > 0) {
+              payload.demandStatus = DEMAND_STATUSES.find(e => e.key === 'COMPLITED').status
+            }
+            break
+          default:
+            payload.demandStatus = DEMAND_STATUSES.find(e => e.key === 'CREATED').status
+            break
+        }
+
         this.$store.dispatch('manager/updateDemand', payload)
         this.selectedDemand = {}
         this.dialog = false

@@ -242,38 +242,72 @@
               class="my-3"
               align="center"
             >
-              <v-divider class="mr-3" />Aday Bilgileri<v-divider class="ml-3" />
+              <v-divider class="mr-3" />Aday ve Sözleşme Bilgileri<v-divider class="ml-3" />
             </v-row>
-            <v-row class="mt-3">
+            <v-row
+              v-if="selectedDemand.consultantId && selectedDemand.consultantId > 0"
+              class="mt-3"
+            >
               <!-- Consultant -->
-              <v-col>
+              <v-col
+                cols="12"
+                md="4"
+              >
                 <v-autocomplete
-                  ref="newConsultantSelect"
-                  v-model="selectedDemand.consultantId"
-                  :items="consultants"
-                  :item-text="e => e.firstName + ' ' + e.lastName"
+                    ref="newConsultantSelect"
+                    v-model="selectedDemand.consultantId"
+                    :items="consultants"
+                    :item-text="e => e.firstName + ' ' + e.lastName"
+                    item-value="id"
+                    label="Aday"
+                  >
+                    <template v-slot:prepend-item>
+                      <v-list-item
+                        ripple
+                        @click="createConsultant"
+                      >
+                        <v-list-item-action>
+                          <v-icon color="success">
+                            mdi-plus
+                          </v-icon>
+                        </v-list-item-action>
+                        <v-list-item-content>
+                          <v-list-item-title>
+                            Yeni Danışman Oluştur
+                          </v-list-item-title>
+                        </v-list-item-content>
+                      </v-list-item>
+                      <v-divider class="mt-2" />
+                    </template>
+                  </v-autocomplete>
+              </v-col>
+              <!-- Contract - 1 -->
+              <v-col
+                cols="12"
+                md="4"
+              >
+                <v-autocomplete
+                  v-model="selectedDemand.contractId"
+                  :items="contracts"
+                  :item-text="e => 'Talep No. - ' + e.orderNumber"
                   item-value="id"
-                  label="Aday"
-                >
-                  <template v-slot:prepend-item>
-                    <v-list-item
-                      ripple
-                      @click="createConsultant"
-                    >
-                      <v-list-item-action>
-                        <v-icon color="success">
-                          mdi-plus
-                        </v-icon>
-                      </v-list-item-action>
-                      <v-list-item-content>
-                        <v-list-item-title>
-                          Yeni Danışman Oluştur
-                        </v-list-item-title>
-                      </v-list-item-content>
-                    </v-list-item>
-                    <v-divider class="mt-2" />
-                  </template>
-                </v-autocomplete>
+                  append-icon="mdi-eye"
+                  @click:append="openContract"
+                  label="Sözleşme"
+                />
+              </v-col>
+              <!-- Contract - 2 -->
+              <v-col
+                cols="12"
+                md="4"
+              >
+                <v-text-field
+                  label="İmzalı Sözleşme"
+                  :value="demandedConsultant.contractFilePath || 'İmzalı sözleşme bulunmuyor'"
+                  append-icon="mdi-eye"
+                  @click:append="openSignedContract"
+                  readonly
+                />
               </v-col>
             </v-row>
           </v-container>
@@ -286,6 +320,7 @@
           <v-btn
             color="primary"
             depressed
+            :disabled="selectedDemand.demandStatus === DEMAND_STATUSES.find(e => e.key === 'COMPLITED').status"
             @click="updateDemand"
           >
             Güncelle
@@ -378,7 +413,15 @@
       ...get('user', ['user']),
       ...get('app', ['responseMsg', 'isErrorMsg']),
       ...get('admin', ['costCenters', 'projects']),
-      ...get('supplier', ['unitManagers', 'demands', 'experienceSpans', 'jobTitles', 'consultants']),
+      ...get('supplier', [
+        'unitManagers',
+        'demands',
+        'experienceSpans',
+        'jobTitles',
+        'consultants',
+        'contracts',
+        'demandedConsultant',
+      ]),
     },
     mounted () {
       this.$store.dispatch('admin/getCostCenters')
@@ -388,19 +431,30 @@
       this.$store.dispatch('supplier/getDemands')
       this.$store.dispatch('supplier/getConsultants')
       this.$store.dispatch('supplier/getUnitManagers')
+      this.$store.dispatch('supplier/getContracts')
     },
     methods: {
+      openContract () {
+        if (this.selectedDemand.contractId) {
+          const { filePath } = this.contracts.find(e => e.id === this.selectedDemand.contractId)
+          window.open(filePath, '_blank').focus()
+        }
+      },
+      openSignedContract () {
+        if (this.demandedConsultant.contractFilePath) {
+          window.open(this.demandedConsultant.contractFilePath, '_blank').focus()
+        }
+      },
       sleep (ms) {
         return new Promise(resolve => setTimeout(resolve, ms))
-      },
-      editDemand (id) {
-        console.log('id', id)
       },
       async showDemand (demand) {
         this.$store.dispatch('supplier/getJobTitles', demand.supplierCompanyId)
         this.$store.dispatch('supplier/getExperienceSpans', demand.supplierCompanyId)
         this.$store.dispatch('supplier/getBudgetPlans', demand.supplierCompanyId)
-
+        if (demand.consultantId) {
+          this.$store.dispatch('supplier/getConsultantById', demand.consultantId)
+        }
         await this.sleep(250)
 
         this.selectedDemand = { ...demand }
@@ -423,10 +477,24 @@
         }
       },
       updateDemand () {
-        if (this.selectedDemand.constultantId) {
-          this.selectedDemand.demandStatus = DEMAND_STATUSES.find(e => e.key === 'REPLIED').status
+        const payload = { ...this.selectedDemand }
+        switch (payload.demandStatus) {
+          case DEMAND_STATUSES.find(e => e.key === 'CREATED').status:
+            if (payload.consultantId) {
+              payload.demandStatus = DEMAND_STATUSES.find(e => e.key === 'REPLIED').status
+            }
+            break
+          case DEMAND_STATUSES.find(e => e.key === 'REPLIED').status:
+            if (this.demandedConsultant.contractFilePath && this.demandedConsultant.contractFilePath.length > 0) {
+              payload.demandStatus = DEMAND_STATUSES.find(e => e.key === 'APPROVED').status
+            }
+            break
+          default:
+            payload.demandStatus = DEMAND_STATUSES.find(e => e.key === 'CREATED').status
+            break
         }
-        this.$store.dispatch('supplier/updateDemand', this.selectedDemand)
+        this.$store.dispatch('supplier/updateDemand', payload)
+        this.selectedDemand = {}
         this.dialog = false
       },
       closeDialog () {
@@ -441,7 +509,7 @@
       getConsultantName (id) {
         if (id) {
           const result = this.consultants.find(consultant => consultant.id === id)
-          return result.firstName + ' ' + result.lastName
+          return result ? result.firstName + ' ' + result.lastName : 'Bulunamadı'
         } else return 'Bulunamadı'
       },
       getProjectName (id) {
