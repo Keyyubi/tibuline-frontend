@@ -13,6 +13,16 @@
         />
       </v-col>
 
+      <v-col
+        cols="12"
+        md="4"
+      >
+        <v-text-field
+          v-model="contract.orderNumber"
+          label="Talep No. / Sipariş No."
+        />
+      </v-col>
+
       <!-- StartDate -->
       <v-col
         cols="12"

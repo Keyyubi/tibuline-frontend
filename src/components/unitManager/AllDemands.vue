@@ -244,14 +244,17 @@
               </v-col> -->
             </v-row>
 
-            <!-- <v-row align="center">
-              <v-divider class="mr-3" />Tedarikçi Bölümü<v-divider class="ml-3" />
-            </v-row> -->
+            <v-row align="center">
+              <v-divider class="mr-3" />Aday ve Sözleşme Bilgileri<v-divider class="ml-3" />
+            </v-row>
             <v-row
               v-if="selectedDemand.consultantId && selectedDemand.consultantId > 0"
               class="mt-3"
             >
-              <v-col cols="12">
+              <v-col
+                cols="12"
+                md="4"
+              >
                 <v-select
                   v-model="selectedDemand.consultantId"
                   :items="demandedConsultant"
@@ -264,25 +267,26 @@
               <!-- Contract -1 -->
               <v-col
                 cols="12"
-                md="6"
+                md="4"
               >
-                <v-file-input
-                  v-model="contract"
+                <v-autocomplete
+                  v-model="selectedDemand.contractId"
+                  :items="contracts.filter(e => e.supplierCompanyId === selectedDemand.supplierCompanyId)"
+                  :item-text="e => 'Talep No. - ' + e.orderNumber"
+                  item-value="id"
+                  append-icon="mdi-eye"
+                  @click:append="openContract"
                   label="Sözleşme"
-                  counter
-                  show-size
-                  small-chips
                 />
               </v-col>
               <!-- Contract - 2 -->
               <v-col
                 cols="12"
-                md="6"
+                md="4"
               >
                 <v-text-field
                   label="İmzalı Sözleşme"
-                  value="ok"
-                  small-chips
+                  :value="demandedConsultant.contractId || 'İmzalı sözleşme bulunmuyor'"
                   readonly
                 />
               </v-col>
@@ -353,6 +357,7 @@
         'jobTitles',
         'projects',
         'companies',
+        'contracts',
       ]),
     },
     mounted () {
@@ -362,8 +367,15 @@
       this.$store.dispatch('manager/getExperienceSpans')
       this.$store.dispatch('manager/getProjects')
       this.$store.dispatch('manager/getDemands')
+      this.$store.dispatch('manager/getContracts')
     },
     methods: {
+      openContract () {
+        if (this.selectedDemand.contractId) {
+          const { filePath } = this.contracts.find(e => e.id === this.selectedDemand.contractId)
+          window.open(filePath, '_blank').focus()
+        }
+      },
       sleep (ms) {
         return new Promise(resolve => setTimeout(resolve, ms))
       },
@@ -399,7 +411,10 @@
         }
       },
       updateDemand () {
-        console.log('selected', this.selectedDemand)
+        const payload = { ...this.selectedDemand }
+        this.$store.dispatch('manager/updateDemand', payload)
+        this.selectedDemand = {}
+        this.dialog = false
       },
       closeDialog () {
         this.$store.dispatch('manager/getJobTitles')
@@ -409,25 +424,25 @@
       getSupplierName (id) {
         if (id && this.companies && this.companies.length > 0) {
           const result = this.companies.find(supplier => supplier.id === id)
-          return result.name
+          return result ? result.name : 'Bulunamadı'
         } else return 'Bulunamadı'
       },
       getProjectName (id) {
         if (id && this.projects && this.projects.length > 0) {
           const result = this.projects.find(project => project.id === id)
-          return result.name
+          return result ? result.name : 'Bulunamadı'
         } else return 'Bulunamadı'
       },
       getJobTitleName (id) {
         if (id && this.jobTitles && this.jobTitles.length > 0) {
           const result = this.jobTitles.find(jobTitle => jobTitle.id === id)
-          return result.name
+          return result ? result.name : 'Bulunamadı'
         } else return 'Bulunamadı'
       },
       getExperienceSpanName (id) {
         if (id && this.experienceSpans && this.experienceSpans.length > 0) {
           const result = this.experienceSpans.find(experienceSpan => experienceSpan.id === id)
-          return result.name
+          return result ? result.name : 'Bulunamadı'
         } else return 'Bulunamadı'
       },
     },

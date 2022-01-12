@@ -43,32 +43,6 @@ const actions = {
         }, 2000)
       })
   },
-  uploadDocument: (context, payload) => {
-    store.set('app/isLoading', true)
-    const token = store.get('user/user').token
-    console.log('payload', payload)
-    axios.post(CreateURL('Contract/UploadContractDocuments/upload'), payload, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then(({ data: res }) => {
-        console.log('resUpload', res)
-        store.set('manager/respons', res.data)
-      })
-      .catch(error => {
-        console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
-      })
-  },
   createContract: (context, payload) => {
     store.set('app/isLoading', true)
     const token = store.get('user/user').token
@@ -167,6 +141,27 @@ const actions = {
         }, 2000)
       })
   },
+  updateDemand: (context, payload) => {
+    axios.put(CreateURL('Demand/UpdateDemand'), payload, GetPostHeaders(store.get('user/user').token))
+      .then(() => {
+        const arr = store.get('manager/demands')
+        const index = arr.findIndex(e => e.id === payload.id)
+        arr[index] = payload
+        store.set('manager/demands', [...arr])
+        store.set('app/responseMsg', 'Başarıyla güncellendi.')
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.set('app/isErrorMsg', true)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
+      })
+      .finally(() => {
+        setTimeout(() => {
+          store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
+        }, 2000)
+      })
+  },
   // Get Methods
   getBudgetPlansByCompany: (context, payload) => {
     store.set('app/isLoading', true)
@@ -225,6 +220,27 @@ const actions = {
           }
         })
         store.set('manager/activities', arr)
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.set('app/isErrorMsg', true)
+        store.set('app/responseMsg', 'Bir hata oluştu.')
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+        setTimeout(() => {
+          store.set('app/responseMsg', '')
+          store.set('app/isErrorMsg', false)
+        }, 2000)
+      })
+  },
+  getContracts: () => {
+    store.set('app/isLoading', true)
+    const currUser = store.get('user/user')
+
+    axios.get(CreateURL(`Contract/GetContractsByCreatedBy/${currUser.id}`), GetPostHeaders(currUser.token))
+      .then(({ data: res }) => {
+        store.set('manager/contracts', res.data)
       })
       .catch(error => {
         console.log('Error', error)

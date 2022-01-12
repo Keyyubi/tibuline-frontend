@@ -13,26 +13,25 @@
     >
       <v-tabs-slider />
 
-      <v-tab href="#newDemand">
-        Yeni Talep
-        <v-icon>mdi-account-plus</v-icon>
-      </v-tab>
-
       <v-tab href="#allDemands">
         Açık Talepler
         <v-icon>mdi-account-multiple</v-icon>
+      </v-tab>
+
+      <v-tab href="#newDemand">
+        Yeni Talep
+        <v-icon>mdi-account-plus</v-icon>
       </v-tab>
     </v-tabs>
 
     <div class="py3" />
 
     <v-tabs-items v-model="currentTab">
-      <v-tab-item value="newDemand">
-        <new-demand />
-      </v-tab-item>
-
       <v-tab-item value="allDemands">
         <all-demands />
+      </v-tab-item>
+      <v-tab-item value="newDemand">
+        <new-demand />
       </v-tab-item>
     </v-tabs-items>
   </v-container>
@@ -42,7 +41,7 @@
   export default {
     name: 'Demands',
     data () {
-      return { currentTab: 'newDemand' }
+      return { currentTab: 'allDemand' }
     },
   }
 </script>
