@@ -54,8 +54,7 @@ const router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
-  const local = localStorage.getItem('tibuline@user') || '{}'
-  const { user } = JSON.parse(local)
+  const user = store.getters['user/user']
 
   if (to.path !== '/login/' && !user.isLogged) {
     return next({ path: '/login/' })

@@ -112,7 +112,6 @@
         </v-menu>
       </v-col>
 
-      <!-- Supplier Company -->
       <v-col
         cols="12"
         md="4"
@@ -126,7 +125,6 @@
         />
       </v-col>
 
-      <!-- File Input -->
       <v-col
         cols="12"
         md="4"
@@ -134,7 +132,6 @@
         <v-file-input
           v-model="contractDocument"
           chips
-          accept="image/*, .pdf"
           label="Sözleşme Yükle"
         />
       </v-col>
@@ -183,19 +180,6 @@
         </v-btn>
       </v-col>
     </v-row>
-    <!-- Alert Message -->
-    <v-row justify="center">
-      <v-alert
-        v-if="responseMsg.length > 0"
-        :color="isErrorMsg ? 'error' : 'success'"
-        dark
-        border="top"
-        :icon="isErrorMsg ? 'mdi-alert' : 'mdi-check-circle'"
-        transition="scale-transition"
-      >
-        {{ responseMsg }}
-      </v-alert>
-    </v-row>
   </v-container>
 </template>
 
@@ -226,8 +210,7 @@
     mounted () {
       this.$store.dispatch('manager/getSupplierCompanies')
 
-      this.contract.createdById = this.user.createdById
-      if (this.formType !== 'create') this.checkDates()
+      this.contract.createdById = this.user.id
     },
     methods: {
       save (date) {
@@ -236,15 +219,6 @@
         this.localeDate = `${arr[2]}/${arr[1]}/${arr[0]}`
         this.contract.birthday = new Date(date).toISOString()
         this.$refs.menu.save(date)
-      },
-      checkDates () {
-        this.contract.startDate = this.contract.startDate.split('T')[0]
-        this.contract.endDate = this.contract.endDate.split('T')[0]
-        this.contract.jobStartDate = this.contract.jobStartDate.split('T')[0]
-
-        this.starting = this.getComputedDate(this.contract.startDate)
-        this.ending = this.getComputedDate(this.contract.endDate)
-        this.jobStarting = this.getComputedDate(this.contract.jobStartDate)
       },
       getComputedDate (date) {
         const arr = date.split('T')[0].split('-')
@@ -259,7 +233,8 @@
       createOrUpdateContract () {
         let isNull = false
         const arr = [
-          this.contractDocument,
+          this.contract.contractStatus,
+          this.contract.filePath,
           this.contract.startDate,
           this.contract.endDate,
           this.contract.jobStartDate,
