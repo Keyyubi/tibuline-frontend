@@ -125,20 +125,6 @@
         </v-btn>
       </v-col>
     </v-row>
-
-    <!-- Alert Message -->
-    <v-row justify="center">
-      <v-alert
-        v-if="responseMsg.length > 0"
-        :color="isErrorMsg ? 'error' : 'success'"
-        dark
-        border="top"
-        :icon="isErrorMsg ? 'mdi-alert' : 'mdi-check-circle'"
-        transition="scale-transition"
-      >
-        {{ responseMsg }}
-      </v-alert>
-    </v-row>
   </v-container>
 </template>
 
@@ -168,7 +154,6 @@
     },
     computed: {
       ...get('user', ['user']),
-      ...get('app', ['responseMsg', 'isErrorMsg']),
       ...get('manager', ['costCenters', 'experienceSpans', 'jobTitles', 'projects', 'companies', 'budgets']),
     },
     mounted () {

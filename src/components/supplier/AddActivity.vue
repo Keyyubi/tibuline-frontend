@@ -253,20 +253,6 @@
       </v-col>
     </v-row>
 
-    <!-- Alert Message -->
-    <v-row justify="center">
-      <v-alert
-        v-if="responseMsg.length > 0"
-        :color="isErrorMsg ? 'error' : 'success'"
-        dark
-        border="top"
-        :icon="isErrorMsg ? 'mdi-alert' : 'mdi-check-circle'"
-        transition="scale-transition"
-      >
-        {{ responseMsg }}
-      </v-alert>
-    </v-row>
-
     <!-- Confirmation dialog -->
     <v-dialog
       v-model="confirmationDialog"
@@ -332,7 +318,6 @@
       statuses,
     }),
     computed: {
-      ...get('app', ['responseMsg', 'isErrorMsg']),
       ...get('supplier', ['activities', 'consultants']),
     },
     mounted () {

@@ -366,20 +366,6 @@
               </v-col>
             </v-row>
           </v-form>
-
-          <!-- Alert Message -->
-          <v-row justify="center">
-            <v-alert
-              v-if="responseMsg.length > 0"
-              :color="isErrorMsg ? 'error' : 'success'"
-              dark
-              border="top"
-              :icon="isErrorMsg ? 'mdi-alert' : 'mdi-check-circle'"
-              transition="scale-transition"
-            >
-              {{ responseMsg }}
-            </v-alert>
-          </v-row>
         </v-container>
       </v-tab-item>
     </v-tabs-items>
@@ -437,7 +423,6 @@
       }
     },
     computed: {
-      ...get('app', ['responseMsg', 'isErrorMsg']),
       ...get('user', ['user']),
       ...get('admin', ['projects', 'unitManagers', 'costCenters']),
     },

@@ -97,6 +97,8 @@ const actions = {
   },
   // Update Methods
   updateActivity: (context, payload) => {
+    store.set('app/isLoading', true)
+
     axios.put(CreateURL('Activity/UpdateActivity'), payload, GetPostHeaders(store.get('user/user').token))
       .then(() => {
         const arr = store.get('supplier/demands')
@@ -111,6 +113,7 @@ const actions = {
         store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
+        store.set('app/isLoading', false)
         setTimeout(() => {
           store.set('app/responseMsg', '')
           store.set('app/isErrorMsg', false)
@@ -118,6 +121,8 @@ const actions = {
       })
   },
   updateContract: (context, payload) => {
+    store.set('app/isLoading', true)
+
     axios.put(CreateURL('Activity/UpdateActivity'), payload, GetPostHeaders(store.get('user/user').token))
       .then(() => {
         const arr = store.get('supplier/demands')
@@ -132,6 +137,7 @@ const actions = {
         store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
+        store.set('app/isLoading', false)
         setTimeout(() => {
           store.set('app/responseMsg', '')
           store.set('app/isErrorMsg', false)
@@ -139,8 +145,14 @@ const actions = {
       })
   },
   updateDemand: (context, payload) => {
+    store.set('app/isLoading', true)
+
     axios.put(CreateURL('Demand/UpdateDemand'), payload, GetPostHeaders(store.get('user/user').token))
       .then(() => {
+        if (payload.consultantPayload && payload.consultantPayload.id) {
+          const consultant = { ...payload.consultantPayload }
+          axios.put(CreateURL('Consultant/UpdateConsultant'), consultant, GetPostHeaders(store.get('user/user').token))
+        }
         const arr = store.get('manager/demands')
         const index = arr.findIndex(e => e.id === payload.id)
         arr[index] = payload
@@ -153,6 +165,7 @@ const actions = {
         store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
+        store.set('app/isLoading', false)
         setTimeout(() => {
           store.set('app/responseMsg', '')
           store.set('app/isErrorMsg', false)

@@ -366,23 +366,6 @@
         </v-container>
       </v-tab-item>
     </v-tabs-items>
-
-    <!-- Alert Message -->
-    <v-row
-      class="my-4"
-      justify="center"
-    >
-      <v-alert
-        v-if="responseMsg.length > 0"
-        :color="isErrorMsg ? 'error' : 'success'"
-        dark
-        border="top"
-        :icon="isErrorMsg ? 'mdi-alert' : 'mdi-check-circle'"
-        transition="scale-transition"
-      >
-        {{ responseMsg }}
-      </v-alert>
-    </v-row>
   </v-container>
 </template>
 
@@ -439,7 +422,6 @@
       }
     },
     computed: {
-      ...get('app', ['responseMsg', 'isErrorMsg']),
       ...get('user', ['user']),
       ...get('manager', ['projects', 'costCenters']),
     },

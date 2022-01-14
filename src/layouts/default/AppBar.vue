@@ -10,6 +10,21 @@
     height="70"
     flat
   >
+    <div
+      v-if="responseMsg.length > 0"
+      style="width: 100%; display: flex; justify-content: center; position: fixed; top: 0; left: 0; padding: 5px"
+    >
+      <!-- Alert Message -->
+      <v-alert
+        :color="isErrorMsg ? 'error' : 'success'"
+        dark
+        border="top"
+        :icon="isErrorMsg ? 'mdi-alert' : 'mdi-check-circle'"
+        transition="scale-transition"
+      >
+        {{ responseMsg }}
+      </v-alert>
+    </div>
     <v-app-bar-nav-icon
       class="hidden-md-and-up"
       @click="drawer = !drawer"
@@ -65,6 +80,7 @@
     },
 
     computed: {
+      ...get('app', ['responseMsg', 'isErrorMsg']),
       ...sync('app', [
         'drawer',
         'mini',

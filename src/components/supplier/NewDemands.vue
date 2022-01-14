@@ -436,8 +436,8 @@
         let path = null
         try {
           type === 1
-          ? path = this.contracts.find(e => e.id === this.selectedDemand.contractId).filePath
-          : path = this.demandedConsultant.contractFilePath
+            ? path = this.contracts.find(e => e.id === this.selectedDemand.contractId).filePath
+            : path = this.demandedConsultant.contractFilePath
         } catch (error) {
           path = null
         }

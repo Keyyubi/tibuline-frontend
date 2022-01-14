@@ -333,7 +333,6 @@
         contract: null,
         dialog: false,
         selectedDemand: {},
-        selectedConsultant: '',
         DEMAND_STATUSES,
         headers: [
           {
@@ -417,23 +416,30 @@
       },
       updateDemand () {
         const payload = { ...this.selectedDemand }
+        let isAllowedToUpdate = true
         switch (payload.demandStatus) {
           case DEMAND_STATUSES.find(e => e.key === 'REPLIED').status:
-            if (payload.consultantId) {
+            if (payload.consultantId && payload.contractId) {
               payload.demandStatus = DEMAND_STATUSES.find(e => e.key === 'PENDING').status
             }
             break
           case DEMAND_STATUSES.find(e => e.key === 'APPROVED').status:
             if (this.demandedConsultant.contractFilePath && this.demandedConsultant.contractFilePath.length > 0) {
+              payload.consultantPayload = {
+                id: payload.consultantId,
+                unitManagerUserId: this.user.id,
+                contractId: payload.contractId,
+              }
               payload.demandStatus = DEMAND_STATUSES.find(e => e.key === 'COMPLITED').status
             }
             break
           default:
-            payload.demandStatus = DEMAND_STATUSES.find(e => e.key === 'CREATED').status
+            isAllowedToUpdate = false
             break
         }
 
-        this.$store.dispatch('manager/updateDemand', payload)
+        if (isAllowedToUpdate) this.$store.dispatch('manager/updateDemand', payload)
+        else this.$store.dispatch('app/showAlert', { message: 'Bir değişiklik yapılmadı.', isError: true })
         this.selectedDemand = {}
         this.dialog = false
       },

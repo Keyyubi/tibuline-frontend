@@ -35,22 +35,6 @@
         <consultant-form :consultant="newConsultant" />
       </v-tab-item>
     </v-tabs-items>
-
-    <!-- Alert Message -->
-    <v-row
-      v-if="responseMsg.length > 0"
-      justify="center"
-    >
-      <v-alert
-        :color="isErrorMsg ? 'error' : 'success'"
-        dark
-        border="top"
-        :icon="isErrorMsg ? 'mdi-alert' : 'mdi-check-circle'"
-        transition="scale-transition"
-      >
-        {{ responseMsg }}
-      </v-alert>
-    </v-row>
   </v-container>
 </template>
 
@@ -82,7 +66,6 @@
     },
     computed: {
       ...get('user', ['user']),
-      ...get('app', ['responseMsg', 'isErrorMsg']),
     },
   }
 </script>

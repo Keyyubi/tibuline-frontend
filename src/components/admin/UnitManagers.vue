@@ -29,7 +29,7 @@
         </v-chip>
       </template>
       <template v-slot:item.companyId="{ item }">
-        {{ item.companyId ? companies.find(e => e.id === item.companyId).name : 'Şirket bulunmuyor.'}}
+        {{ item.companyId ? companies.find(e => e.id === item.companyId).name : 'Şirket bulunmuyor.' }}
       </template>
     </v-data-table>
 
