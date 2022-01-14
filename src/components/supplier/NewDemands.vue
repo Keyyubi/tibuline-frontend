@@ -286,14 +286,12 @@
                 cols="12"
                 md="4"
               >
-                <v-autocomplete
-                  v-model="selectedDemand.contractId"
-                  :items="contracts"
-                  :item-text="e => 'Talep No. - ' + e.orderNumber"
-                  item-value="id"
-                  append-icon="mdi-eye"
-                  @click:append="openContract"
+                <v-text-field
                   label="Sözleşme"
+                  :value="getContractFilePath(1) || 'Sözleşme bulunmuyor'"
+                  append-icon="mdi-eye"
+                  @click:append="openContract(getContractFilePath(1))"
+                  readonly
                 />
               </v-col>
               <!-- Contract - 2 -->
@@ -303,9 +301,9 @@
               >
                 <v-text-field
                   label="İmzalı Sözleşme"
-                  :value="demandedConsultant.contractFilePath || 'İmzalı sözleşme bulunmuyor'"
+                  :value="getContractFilePath(2) || 'İmzalı sözleşme bulunmuyor'"
                   append-icon="mdi-eye"
-                  @click:append="openSignedContract"
+                  @click:append="openContract(getContractFilePath(2))"
                   readonly
                 />
               </v-col>
@@ -434,15 +432,20 @@
       this.$store.dispatch('supplier/getContracts')
     },
     methods: {
-      openContract () {
-        if (this.selectedDemand.contractId) {
-          const { filePath } = this.contracts.find(e => e.id === this.selectedDemand.contractId)
-          window.open(filePath, '_blank').focus()
+      getContractFilePath (type) {
+        let path = null
+        try {
+          type === 1
+          ? path = this.contracts.find(e => e.id === this.selectedDemand.contractId).filePath
+          : path = this.demandedConsultant.contractFilePath
+        } catch (error) {
+          path = null
         }
+        return path
       },
-      openSignedContract () {
-        if (this.demandedConsultant.contractFilePath) {
-          window.open(this.demandedConsultant.contractFilePath, '_blank').focus()
+      openContract (path) {
+        if (path) {
+          window.open(path, '_blank').focus()
         }
       },
       sleep (ms) {
@@ -515,19 +518,19 @@
       getProjectName (id) {
         if (id) {
           const result = this.projects.find(project => project.id === id)
-          return result.name
+          return result ? result.name : 'Bulunamadı'
         } else return 'Bulunamadı'
       },
       getJobTitleName (id) {
         if (id) {
           const result = this.jobTitles.find(jobTitle => jobTitle.id === id)
-          return result.name
+          return result ? result.name : 'Bulunamadı'
         } else return 'Bulunamadı'
       },
       getExperienceSpanName (id) {
         if (id) {
           const result = this.experienceSpans.find(experienceSpan => experienceSpan.id === id)
-          return result.name
+          return result ? result.name : 'Bulunamadı'
         } else return 'Bulunamadı'
       },
     },

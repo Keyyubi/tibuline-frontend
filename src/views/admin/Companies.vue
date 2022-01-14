@@ -59,8 +59,17 @@
                 </v-icon>
               </v-chip>
             </template>
+            <template v-slot:item.isSupplier="{ item }">
+              <v-checkbox
+                v-model="item.isSupplier"
+                disabled
+                :label="`${item.isSupplier ? 'Evet' : 'Hayır'}`"
+              />
+            </template>
           </v-data-table>
         </v-card>
+
+        <!-- Edit Dialog -->
         <v-dialog
           v-model="dialog"
           width="960"
@@ -111,10 +120,10 @@
                       md="4"
                     >
                       <v-text-field
-                        v-model="selectedCompany.tckN_VKN"
-                        v-mask="'###########'"
-                        label="TCKN / VKN"
-                        :rules="RULES.TCNO"
+                        v-model="selectedCompany.vkn"
+                        v-mask="'##########'"
+                        :rules="RULES.VKN"
+                        label="VKN"
                         required
                       />
                     </v-col>
@@ -228,10 +237,10 @@
                 md="4"
               >
                 <v-text-field
-                  v-model="newCompany.tckn_vkn"
-                  v-mask="'###########'"
-                  label="TCKN / VKN"
-                  :rules="RULES.TCNO"
+                  v-model="newCompany.vkn"
+                  v-mask="'##########'"
+                  label="VKN"
+                  :rules="RULES.VKN"
                   required
                 />
               </v-col>
@@ -339,7 +348,7 @@
         newCompany: {
           name: null,
           email: null,
-          tckn_vkn: null,
+          vkn: null,
           phone: null,
           address: null,
           isSupplier: false,
@@ -354,7 +363,8 @@
           { text: 'E-mail', value: 'email' },
           { text: 'Telefon', value: 'phone' },
           { text: 'Adres', value: 'address' },
-          { text: 'TCKN / VKN', value: 'tckn_vkn' },
+          { text: 'VKN', value: 'vkn' },
+          { text: 'Tedarikçi', value: 'isSupplier' },
         ],
         RULES,
       }

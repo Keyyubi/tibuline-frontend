@@ -13,20 +13,6 @@ const DEMAND_STATUSES = [
   { key: 'PENDING', status: 2, label: 'Sözleşme yüklendi' },
   { key: 'APPROVED', status: 3, label: 'Sözleşme imzalandı' },
   { key: 'COMPLITED', status: 4, label: 'Tamamlandı' },
-
-  // REVISED: { status: 1, label: 'Revize edildi' }, // If supplier asks for revise
-  // CONTRACT_PENDING: { status: 0, label: 'Sözleşme bekliyor' },
-  // CONTRACT_UPLOADED: { status: 0, label: 'Sözleşme yüklendi' }, // Consultant approved here
-
-  // // By Supplier
-  // CONSULTANT_UPLOADED: { status: 1, label: 'Aday yüklendi' }, // Pending for consultant confirmation
-  // PENDING_REVISE: { status: 2, label: 'Revize Belkiyor' },
-
-  // // By Manager
-  // APPROVED_BY_MANAGER: { status: 5, label: 'Aday Onaylandı' },
-  // WAITING_DEPARTMANT: 4, // On Manager
-  // APPROVED_BY_SUPPLIER: 6, // By Manager
-  // COMPLITED: 7,
 ]
 const ACTIVITY_STATUSES = {
   EDITABLE: 0,
@@ -68,6 +54,9 @@ const RULES = {
         return (res % 10) === Number(arr[arr.length - 1])
       } else return true
     })() || 'Kimlik numarası geçersiz.',
+  ],
+  VKN: [
+    v => (!!v && v.length === 10) || 'VKN 10 karakter olmalıdır.',
   ],
 }
 const CreateURL = (endpoint = '') => BASE_URL + (endpoint.startsWith('/') ? endpoint : '/' + endpoint)

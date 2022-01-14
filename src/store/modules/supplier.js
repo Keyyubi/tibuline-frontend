@@ -266,7 +266,7 @@ const actions = {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
 
-    axios.get(CreateURL('Demand/GetDemands'), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`Demand/GetDemandsBySupplierCompany/${currUser.companyId}`), GetPostHeaders(currUser.token))
       .then(({ data: res }) => {
         store.set('supplier/demands', res.data)
       })
