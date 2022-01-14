@@ -1,44 +1,75 @@
 import axios from 'axios'
 import { make } from 'vuex-pathify'
-import { CreateURL, GetPostHeaders, ROLE_IDS } from '@/util/globals'
+import { CreateURL, GetPostHeaders } from '@/util/globals'
 import store from '../index'
 
 // Data
 const state = {
   activities: [],
   budgets: [],
-  company: {},
-  consultants: [],
+  companies: [],
   contracts: [],
   costCenters: [],
   demands: [],
   demandedConsultant: [],
   experienceSpans: [],
-  unitManagers: [],
   jobTitles: [],
   projects: [],
+  respons: '',
 }
 
 const mutations = make.mutations(state)
 
 const actions = {
   // Create Methods
-  createActivity: (context, payload) => {
-    axios.post(CreateURL('Activity/SaveActivity'), payload, GetPostHeaders(store.get('user/user').token))
+  createDemand: (context, payload) => {
+    store.set('app/isLoading', true)
+
+    axios.post(CreateURL('Demand/SaveDemand'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
+        store.set('manager/demands', [...store.get('manager/demands'), res.data])
         context.commit('app/showAlert', { alertMessage: 'Başarıyla oluşturuldu.', alertType: 'success' })
       })
       .catch(error => {
         console.log('Error', error)
         context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'error' })
       })
+      .finally(() => {
+        store.set('app/isLoading', false)
+      })
   },
-  createConsultant: (context, payload) => {
+  createContract: (context, payload) => {
+    store.set('app/isLoading', true)
+    const token = store.get('user/user').token
+
+    axios.post(CreateURL('Contract/UploadContractDocuments/upload'), payload.formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+      .then(({ data: res }) => {
+        payload.sending.filePath = res.data
+        axios.post(CreateURL('Contract/SaveContract'), payload.sending, GetPostHeaders(token))
+        .then(({ data: res }) => {
+          store.set('manager/contracts', [...store.get('manager/contracts'), res.data])
+        context.commit('app/showAlert', { alertMessage: 'Başarıyla oluşturuldu.', alertType: 'success' })
+        })
+      })
+      .catch(error => {
+        console.log('Error', error)
+        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'error' })
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+      })
+  },
+  createProject: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('Consultant/SaveConsultant'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.post(CreateURL('Project/SaveProject'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
-        store.set('supplier/consultants', [...store.get('supplier/consultants'), res.data])
+        store.set('manager/projects', [...store.get('manager/projects'), res.data])
         context.commit('app/showAlert', { alertMessage: 'Başarıyla oluşturuldu.', alertType: 'success' })
       })
       .catch(error => {
@@ -51,56 +82,57 @@ const actions = {
   },
   // Update Methods
   updateActivity: (context, payload) => {
+    store.set('app/isLoading', true)
+
     axios.put(CreateURL('Activity/UpdateActivity'), payload, GetPostHeaders(store.get('user/user').token))
-      .then(() => {
-        context.commit('app/showAlert', { alertMessage: 'Başarıyla güncellendi.', alertType: 'success' })
-      })
-      .catch(error => {
-        console.log('Error', error)
-        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'error' })
-      })
-  },
-  updateConsultant: (context, payload) => {
-    axios.put(CreateURL('Consultant/UpdateConsultant'), payload, GetPostHeaders(store.get('user/user').token))
-      .then(() => {
-        context.commit('app/showAlert', { alertMessage: 'Başarıyla güncellendi.', alertType: 'success' })
-      })
-      .catch(error => {
-        console.log('Error', error)
-        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'error' })
-      })
-  },
-  updateDemand: (context, payload) => {
-    axios.put(CreateURL('Demand/UpdateDemand'), payload, GetPostHeaders(store.get('user/user').token))
       .then(() => {
         const arr = store.get('supplier/demands')
         const index = arr.findIndex(e => e.id === payload.id)
         arr[index] = payload
         store.set('supplier/demands', [...arr])
-        context.commit('app/showAlert', { alertMessage: 'Başarıyla güncellendi.', alertType: 'success' })
+        context.commit('app/showAlert', { alertMessage: 'Başarıyla oluşturuldu.', alertType: 'success' })
       })
       .catch(error => {
         console.log('Error', error)
         context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'error' })
       })
+      .finally(() => {
+        store.set('app/isLoading', false)
+      })
   },
-  uploadContract: (context, payload) => {
+  updateContract: (context, payload) => {
     store.set('app/isLoading', true)
-    const token = store.get('user/user').token
 
-    axios.post(CreateURL('Consultant/UploadConsultantDocuments'), payload.formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data',
-      },
-    })
-      .then(({ data: res }) => {
-        payload.sending.contractFilePath = res.data
-        axios.put(CreateURL('Consultant/UpdateConsultant'), payload.sending, GetPostHeaders(token))
-        .then(({ data: res }) => {
-          store.set('supplier/contracts', [...store.get('supplier/contracts'), res.data])
+    axios.put(CreateURL('Activity/UpdateActivity'), payload, GetPostHeaders(store.get('user/user').token))
+      .then(() => {
+        const arr = store.get('supplier/demands')
+        const index = arr.findIndex(e => e.id === payload.id)
+        arr[index] = payload
+        store.set('supplier/demands', [...arr])
         context.commit('app/showAlert', { alertMessage: 'Başarıyla oluşturuldu.', alertType: 'success' })
-        })
+      })
+      .catch(error => {
+        console.log('Error', error)
+        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'error' })
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+      })
+  },
+  updateDemand: (context, payload) => {
+    store.set('app/isLoading', true)
+
+    axios.put(CreateURL('Demand/UpdateDemand'), payload, GetPostHeaders(store.get('user/user').token))
+      .then(() => {
+        if (payload.consultantPayload && payload.consultantPayload.id) {
+          const consultant = { ...payload.consultantPayload }
+          axios.put(CreateURL('Consultant/UpdateConsultant'), consultant, GetPostHeaders(store.get('user/user').token))
+        }
+        const arr = store.get('manager/demands')
+        const index = arr.findIndex(e => e.id === payload.id)
+        arr[index] = payload
+        store.set('manager/demands', [...arr])
+        store.set('app/alertMessage', 'Başarıyla güncellendi.')
       })
       .catch(error => {
         console.log('Error', error)
@@ -111,27 +143,12 @@ const actions = {
       })
   },
   // Get Methods
-  getBudgetPlans: () => {
+  getBudgetPlansByCompany: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL(`BudgetCalculation/GetBudgetCalculationsByCompanyId/${store.get('user/user').companyId}`), GetPostHeaders(store.get('user/user').token))
+    axios.get(CreateURL(`BudgetCalculation/GetBudgetCalculationsByCompanyId/${payload}`), GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
-        store.set('supplier/budgets', res.data)
-      })
-      .catch(error => {
-        console.log('Error', error)
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
-  },
-  getConsultants: () => {
-    store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
-
-    axios.get(CreateURL(`Consultant/GetConsultantsByCompanyId/${currUser.companyId}`), GetPostHeaders(currUser.token))
-      .then(({ data: res }) => {
-        store.set('supplier/consultants', res.data)
+        store.set('manager/budgets', res.data)
       })
       .catch(error => {
         console.log('Error', error)
@@ -145,7 +162,7 @@ const actions = {
 
     axios.get(CreateURL(`Consultant/GetConsultantById/${payload}`), GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
-        store.set('supplier/demandedConsultant', res.data)
+        store.set('manager/demandedConsultant', res.data)
       })
       .catch(error => {
         console.log('Error', error)
@@ -171,7 +188,7 @@ const actions = {
             timed: false,
           }
         })
-        store.set('supplier/activities', arr)
+        store.set('manager/activities', arr)
       })
       .catch(error => {
         console.log('Error', error)
@@ -185,9 +202,24 @@ const actions = {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
 
-    axios.get(CreateURL(`Contract/GetContractsBySupplierCompany/${currUser.companyId}`), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`Contract/GetContractsByCreatedBy/${currUser.id}`), GetPostHeaders(currUser.token))
       .then(({ data: res }) => {
-        store.set('supplier/contracts', res.data)
+        store.set('manager/contracts', res.data)
+      })
+      .catch(error => {
+        console.log('Error', error)
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+      })
+  },
+  getCostCenters: () => {
+    store.set('app/isLoading', true)
+    const currUser = store.get('user/user')
+
+    axios.get(CreateURL('CostCenter/GetCostCenters'), GetPostHeaders(currUser.token))
+      .then(({ data: res }) => {
+        store.set('manager/costCenters', res.data)
       })
       .catch(error => {
         console.log('Error', error)
@@ -200,9 +232,9 @@ const actions = {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
 
-    axios.get(CreateURL(`Demand/GetDemandsBySupplierCompany/${currUser.companyId}`), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`Demand/GetDemandsByCreatedBy/${currUser.id}`), GetPostHeaders(currUser.token))
       .then(({ data: res }) => {
-        store.set('supplier/demands', res.data)
+        store.set('manager/demands', res.data)
       })
       .catch(error => {
         console.log('Error', error)
@@ -215,9 +247,9 @@ const actions = {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
 
-    axios.get(CreateURL(`ExperienceSpan/GetExperienceSpansByCompanyId/${currUser.companyId}`), GetPostHeaders(currUser.token))
+    axios.get(CreateURL('ExperienceSpan/GetExperienceSpans'), GetPostHeaders(currUser.token))
       .then(({ data: res }) => {
-        store.set('supplier/experienceSpans', res.data)
+        store.set('manager/experienceSpans', res.data)
       })
       .catch(error => {
         console.log('Error', error)
@@ -230,9 +262,39 @@ const actions = {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
 
-    axios.get(CreateURL(`JobTitle/GetJobTitlesByCompanyId/${currUser.companyId}`), GetPostHeaders(currUser.token))
+    axios.get(CreateURL('JobTitle/GetJobTitles'), GetPostHeaders(currUser.token))
       .then(({ data: res }) => {
-        store.set('supplier/jobTitles', res.data)
+        store.set('manager/jobTitles', res.data)
+      })
+      .catch(error => {
+        console.log('Error', error)
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+      })
+  },
+  getExperienceSpansByCompany: (context, payload) => {
+    store.set('app/isLoading', true)
+    const currUser = store.get('user/user')
+
+    axios.get(CreateURL(`ExperienceSpan/GetExperienceSpansByCompanyId/${payload}`), GetPostHeaders(currUser.token))
+      .then(({ data: res }) => {
+        store.set('manager/experienceSpans', res.data)
+      })
+      .catch(error => {
+        console.log('Error', error)
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+      })
+  },
+  getJobTitlesByCompany: (context, payload) => {
+    store.set('app/isLoading', true)
+    const currUser = store.get('user/user')
+
+    axios.get(CreateURL(`JobTitle/GetJobTitlesByCompanyId/${payload}`), GetPostHeaders(currUser.token))
+      .then(({ data: res }) => {
+        store.set('manager/jobTitles', res.data)
       })
       .catch(error => {
         console.log('Error', error)
@@ -245,9 +307,9 @@ const actions = {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
 
-    axios.get(CreateURL('Project/GetProjects'), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`Project/GetProjectsByAssignedTo/${currUser.id}`), GetPostHeaders(currUser.token))
       .then(({ data: res }) => {
-        store.set('supplier/projects', res.data)
+        store.set('manager/projects', res.data)
       })
       .catch(error => {
         console.log('Error', error)
@@ -256,31 +318,18 @@ const actions = {
         store.set('app/isLoading', false)
       })
   },
-  getUnitManagers: () => {
+  getSupplierCompanies: () => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL(`User/GetUsersByRoleId/${ROLE_IDS.UNIT_MANAGER}`), GetPostHeaders(store.get('user/user').token))
+    axios.get(CreateURL('Company/GetSupplierCompanies'), GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
-        store.set('supplier/unitManagers', res.data)
+        store.set('manager/companies', res.data)
       })
       .catch(error => {
         console.log('Error', error)
       })
       .finally(() => {
         store.set('app/isLoading', false)
-      })
-  },
-  // Delete methods
-  deleteActivity: (context, id) => {
-    const currUser = store.get('user/user')
-
-    axios.delete(CreateURL(`Activity/DeleteActivity/${id}`), GetPostHeaders(currUser.token))
-      .then(() => {
-        context.commit('app/showAlert', { alertMessage: 'Aktivite silindi.', alertType: 'error' })
-      })
-      .catch(error => {
-        console.log('Error', error)
-        context.commit('app/showAlert', { alertMessage: 'Aktivite silinirken hata oluştu.', alertType: 'error' })
       })
   },
 }

@@ -11,7 +11,7 @@ const supplierItems = [
   {
     title: 'Talepler',
     icon: 'mdi-account-plus',
-    to: '/supplier/requests',
+    to: '/supplier/demands',
   },
   {
     title: 'Danışmanlar',
@@ -34,7 +34,7 @@ const managerItems = [
   {
     title: 'Talepler',
     icon: 'mdi-account-plus',
-    to: '/unit-manager/requests',
+    to: '/unit-manager/demands',
   },
   {
     title: 'Sözleşmeler',
@@ -143,8 +143,8 @@ const state = {
   mini: false,
   isLoading: false,
   items: [],
-  responseMsg: '',
-  isErrorMsg: false,
+  alertMessage: '',
+  alertType: false,
   rules,
 }
 
@@ -171,13 +171,10 @@ const actions = {
         break
     }
   },
-  updateAlertMsg: (context, payload) => {
-    context.commit('responseMsg', payload.message)
-    context.commit('isErrorMsg', payload.isError)
-    setTimeout(() => {
-      context.commit('responseMsg', '')
-      context.commit('isErrorMsg', false)
-    }, 2000)
+  showAlert: (context, payload) => {
+    // Alert Types =>  'success', 'info', 'warning', 'error'
+    context.commit('alertMessage', payload.message)
+    context.commit('alertType', payload.type)
   },
   setLoading: (context, payload) => {
     context.commit('isLoading', payload)

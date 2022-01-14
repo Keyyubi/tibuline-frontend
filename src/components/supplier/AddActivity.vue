@@ -52,8 +52,7 @@
                     text
                     small
                     color="grey darken-2"
-                    :disabled="isMinMonth"
-                    @click="prev"
+                    @click="changeDate('prev')"
                   >
                     <v-icon small>
                       mdi-chevron-left
@@ -64,7 +63,7 @@
                     text
                     small
                     color="grey darken-2"
-                    @click="next"
+                    @click="changeDate('next')"
                   >
                     <v-icon small>
                       mdi-chevron-right
@@ -103,6 +102,8 @@
                   v-model="focus"
                   style="border-left:none"
                   color="primary"
+                  type="month"
+                  event-overlap-mode="column"
                   :events="activities"
                   :event-color="getEventColor"
                   @click:date="openDialog"
@@ -237,6 +238,7 @@
           class="white--text mr-3"
           color="green"
           depressed
+          @click="showConfirmation('send')"
         >
           Onaya Gönder
         </v-btn>
@@ -249,20 +251,6 @@
           Tüm Aktiviteleri Sil
         </v-btn>
       </v-col>
-    </v-row>
-
-    <!-- Alert Message -->
-    <v-row justify="center">
-      <v-alert
-        v-if="responseMsg.length > 0"
-        :color="isErrorMsg ? 'error' : 'success'"
-        dark
-        border="top"
-        :icon="isErrorMsg ? 'mdi-alert' : 'mdi-check-circle'"
-        transition="scale-transition"
-      >
-        {{ responseMsg }}
-      </v-alert>
     </v-row>
 
     <!-- Confirmation dialog -->
@@ -309,16 +297,16 @@
 
 <script>
   import { get } from 'vuex-pathify'
+  import { ACTIVITY_STATUSES as statuses } from '@/util/globals'
   export default {
     name: 'AddActivity',
     data: () => ({
-      e1: 1,
       focus: '',
+      e1: 1,
       dialog: false,
       confirmationType: '',
       confirmationMsg: '',
       confirmationDialog: false,
-      isMinMonth: true,
       reasonOfDeny: '',
       selectedEvent: {},
       selectedConsultant: null,
@@ -327,9 +315,9 @@
       totalDaysOff: 0,
       shiftStartAt: 9, // 0-23 as o'clock of the day
       shiftHours: 8, // as working hours
+      statuses,
     }),
     computed: {
-      ...get('app', ['responseMsg', 'isErrorMsg']),
       ...get('supplier', ['activities', 'consultants']),
     },
     mounted () {
@@ -337,34 +325,23 @@
     },
     methods: {
       selectConsultant () {
-        const yearMonth = this.$refs.calendar.lastEnd
-        console.log('year', yearMonth)
-        this.$store.dispatch('supplier/getConsultantActivities', this.selectedConsultant)
+        const { date } = this.$refs.calendar.lastEnd
+        const yearMonth = date.split('-')[0] + '-' + date.split('-')[1]
+        const payload = {
+          consultantId: this.selectedConsultant,
+          yearMonth,
+        }
+        this.$store.dispatch('supplier/getConsultantActivities', payload)
         this.calculateTotalHours()
         this.e1 = 2
       },
       getEventColor (event) {
         return event.color
       },
-      async prev () {
-        this.$store.dispatch('app/setLoading', true)
-        this.$refs.calendar.prev()
-        await this.sleep(250)
-        const current = new Date(this.$refs.calendar.value)
-        console.log('curr', current)
-        this.isMinMonth = new Date(current.getFullYear(), current.getMonth(), 1) < new Date()
-        setTimeout(() => {
-          console.log('cur2', new Date(this.$refs.calendar.value).toISOString())
-          this.$store.dispatch('app/setLoading', false)
-        }, 1500)
-      },
-      next () {
-        this.$refs.calendar.next()
-        this.isMinMonth = false
-      },
       newShiftEvent (date, name = `${this.shiftHours}s mesai`, shiftHours = this.shiftHours, overShiftHours = 0) {
-        const yearMonth = date.split('-')[0] + '-' + date.split('-')[1]
+        const yearMonth = `${date.split('-')[0]}-${date.split('-')[1]}`
         const consultantId = this.selectedConsultant
+
         return {
           date,
           name,
@@ -374,9 +351,9 @@
           end: new Date(date),
           color: 'green',
           timed: false,
-          isApprovedByManager: false,
           yearMonth,
           consultantId,
+          activityStatus: this.statuses.EDITABLE,
         }
       },
       openDialog (item) {
@@ -398,9 +375,8 @@
         }
 
         const end = this.$refs.calendar.lastEnd
-
         for (let i = 0; i < end.day; i++) {
-          const date = `${end.year}-${end.month}-${i < 9 ? '0' + (i + 1) : i + 1}`
+          const date = `${end.year}-${end.month < 10 ? '0' + end.month : end.month}-${i < 9 ? '0' + (i + 1) : i + 1}`
           const startDate = new Date(end.year, end.month - 1, i + 1)
 
           if (startDate.getDay() !== 0 && startDate.getDay() !== 6) {
@@ -451,24 +427,35 @@
           this.calculateTotalHours()
           await this.sleep(300)
           this.selectConsultant()
-        } else console.log('bulunamadi')
+        }
       },
       showConfirmation (type) {
         this.confirmationType = type
 
-        if (type === 'delete') {
-          if (this.activities.length > 0) {
-            this.confirmationMsg = 'Tüm aktiviteler silinecektir. Onaylıyor musunuz?'
-            this.confirmationDialog = true
-          } else {
-            this.$store.dispatch('app/updateAlertMsg', { message: 'Silinecek aktivite bulunamadı', isError: false })
+        if (this.activities.length > 0) {
+          switch (type) {
+            case 'delete':
+              this.confirmationMsg = 'Tüm aktiviteler silinecektir. Onaylıyor musunuz?'
+              this.confirmationDialog = true
+              break
+            case 'send':
+              this.confirmationMsg = 'Aktiviteler yönetici onayına gönderilecektir. Onaylıyor musunuz?'
+              this.confirmationDialog = true
+              break
+            case 'fill-monthly':
+              this.confirmationMsg = `Varolan aktiviteler ${this.shiftHours} saat olarak güncellenecektir. Onaylıyor musunuz?`
+              this.confirmationDialog = true
+              break
           }
         } else {
-          if (this.activities.length > 0) {
-            this.confirmationMsg = `Varolan aktiviteler ${this.shiftHours} saat olarak güncellenecektir. Onaylıyor musunuz?`
-            this.confirmationDialog = true
-          } else {
-            this.updateRange()
+          switch (type) {
+            case 'delete':
+            case 'send':
+              this.$store.dispatch('app/updateAlertMsg', { message: 'Bu dönem için aktivite bulunmuyor.', isError: false })
+              break
+            case 'fill-monthly':
+              this.updateRange()
+              break
           }
         }
       },
@@ -486,6 +473,22 @@
           this.confirmationDialog = false
           this.updateRange()
         }
+      },
+      async changeDate (type) {
+        type === 'next' ? this.$refs.calendar.next() : this.$refs.calendar.prev()
+        this.$store.dispatch('app/setLoading', true)
+
+        await this.sleep(250)
+
+        const { date } = this.$refs.calendar.lastEnd
+        const yearMonth = date.split('-')[0] + '-' + date.split('-')[1]
+        const consultantId = this.selectedConsultant
+
+        this.$store.dispatch('supplier/getConsultantActivities', { consultantId, yearMonth })
+
+        setTimeout(() => {
+          this.$store.dispatch('app/setLoading', false)
+        }, 750)
       },
     },
   }

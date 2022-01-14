@@ -45,75 +45,71 @@
           >
             <!-- eslint-disable-next-line -->
             <template v-slot:item.abbreviation="{ item }">
-              <v-dialog
-                v-model="dialog"
-                width="460"
-                :retain-focus="false"
+              <v-chip
+                class="ma-2"
+                color="primary"
+                dark
+                @click="editCostCenter(item)"
               >
-                <!-- eslint-disable-next-line -->
-                <template v-slot:activator="{ on, attrs }">
-                  <v-chip
-                    class="ma-2"
-                    color="primary"
-                    dark
-                    @click="editCostCenter(item)"
-                  >
-                    <b>{{ item.abbreviation }}</b>
-                    <v-icon right>
-                      mdi-arrow-right-bold
-                    </v-icon>
-                  </v-chip>
-                </template>
-
-                <v-card>
-                  <v-card-title class="text-h5 primary white--text">
-                    Masraf Merkezini Güncelle
-                  </v-card-title>
-
-                  <v-card-text>
-                    <v-container class="py-3">
-                      <v-row>
-                        <v-col>
-                          <v-text-field
-                            v-model="selectedCostCenter.abbreviation"
-                            label="Kısaltma"
-                          />
-                        </v-col>
-                        <v-col>
-                          <v-text-field
-                            v-model="selectedCostCenter.name"
-                            label="Masraf Merkezi"
-                          />
-                        </v-col>
-                      </v-row>
-                    </v-container>
-                  </v-card-text>
-
-                  <v-divider />
-
-                  <!-- Card Actions -->
-                  <v-card-actions>
-                    <v-spacer />
-                    <v-btn
-                      color="primary"
-                      depressed
-                      @click="updateCostCenter"
-                    >
-                      Güncelle
-                    </v-btn>
-                    <v-btn
-                      color="error"
-                      depressed
-                      @click="dialog = false"
-                    >
-                      Vazgeç
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
+                <b>{{ item.abbreviation }}</b>
+                <v-icon right>
+                  mdi-arrow-right-bold
+                </v-icon>
+              </v-chip>
             </template>
           </v-data-table>
         </v-card>
+        <v-dialog
+          v-model="dialog"
+          width="460"
+          :retain-focus="false"
+        >
+          <v-card>
+            <v-card-title class="text-h5 primary white--text">
+              Masraf Merkezini Güncelle
+            </v-card-title>
+
+            <v-card-text>
+              <v-container class="py-3">
+                <v-row>
+                  <v-col>
+                    <v-text-field
+                      v-model="selectedCostCenter.abbreviation"
+                      label="Kısaltma"
+                    />
+                  </v-col>
+                  <v-col>
+                    <v-text-field
+                      v-model="selectedCostCenter.name"
+                      label="Masraf Merkezi"
+                    />
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+
+            <v-divider />
+
+            <!-- Card Actions -->
+            <v-card-actions>
+              <v-spacer />
+              <v-btn
+                color="primary"
+                depressed
+                @click="updateCostCenter"
+              >
+                Güncelle
+              </v-btn>
+              <v-btn
+                color="error"
+                depressed
+                @click="dialog = false"
+              >
+                Vazgeç
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </v-tab-item>
 
       <v-tab-item value="newCostCenter">
@@ -156,20 +152,6 @@
               </v-col>
             </v-row>
           </v-form>
-
-          <!-- Alert Message -->
-          <v-row justify="center">
-            <v-alert
-              v-if="responseMsg.length > 0"
-              :color="isErrorMsg ? 'error' : 'success'"
-              dark
-              border="top"
-              :icon="isErrorMsg ? 'mdi-alert' : 'mdi-check-circle'"
-              transition="scale-transition"
-            >
-              {{ responseMsg }}
-            </v-alert>
-          </v-row>
         </v-container>
       </v-tab-item>
     </v-tabs-items>
@@ -199,7 +181,6 @@
       }
     },
     computed: {
-      ...get('app', ['responseMsg', 'isErrorMsg']),
       ...get('admin', ['costCenters']),
     },
     mounted () {

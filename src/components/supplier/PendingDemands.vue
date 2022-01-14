@@ -238,41 +238,58 @@
                 </v-row>
                 <v-row class="mt-3">
                   <v-col cols="4">
-                    <v-autocomplete
-                      ref="newConsultantSelect"
+                    <v-select
                       v-model="selectedRequest.consultant"
                       :items="consultants"
                       item-text="fullName"
                       item-value="id"
                       label="Aday"
                       return-object
-                    >
-                      <template v-slot:prepend-item>
-                        <v-list-item
-                          ripple
-                          @click="createConsultant"
-                        >
-                          <v-list-item-action>
-                            <v-icon color="success">
-                              mdi-plus
-                            </v-icon>
-                          </v-list-item-action>
-                          <v-list-item-content>
-                            <v-list-item-title>
-                              Yeni Danışman Oluştur
-                            </v-list-item-title>
-                          </v-list-item-content>
-                        </v-list-item>
-                        <v-divider class="mt-2" />
-                      </template>
-                    </v-autocomplete>
+                      disabled
+                    />
+                  </v-col>
+                  <v-col cols="4">
+                    <v-select
+                      v-model="selectedRequest.experience"
+                      :items="experiences"
+                      item-text="text"
+                      item-value="id"
+                      label="Tecrübe Aralığı"
+                      return-object
+                      disabled
+                    />
+                  </v-col>
+                  <v-col cols="4">
+                    <v-select
+                      v-model="selectedRequest.jobTitle"
+                      :items="jobTitles"
+                      item-text="title"
+                      item-value="id"
+                      label="Tecrübe Aralığı"
+                      return-object
+                      disabled
+                    />
+                  </v-col>
+                </v-row>
+                <v-row align="center">
+                  <v-divider class="mr-3" />Sözleşme Aşaması<v-divider class="ml-3" />
+                </v-row>
+                <v-row class="mt-3">
+                  <v-col cols="4">
+                    <v-text-field
+                      label="Sözleşmeyi Görüntüle"
+                      prepend-icon="mdi-eye"
+                      readonly
+                      @click="showContract"
+                      @click:prepend="showContract"
+                    />
                   </v-col>
                   <v-col cols="4">
                     <v-file-input
                       v-model="selectedRequest.contractUpload"
                       chips
                       multiple
-                      label="Aday Evraklarını Yükle"
+                      label="İmzalı Sözleşme Yükle"
                     />
                   </v-col>
                 </v-row>
@@ -312,45 +329,12 @@
         </v-chip>
       </template>
     </v-data-table>
-
-    <!-- New Consultant Dialog -->
-    <v-dialog
-      v-model="newConsultantDialog"
-      persistent
-      max-width="960"
-    >
-      <v-card>
-        <v-card-title class="text-h5">
-          Yeni Aday
-        </v-card-title>
-        <v-card-text>
-          Yeni aday oluşturma formu eklenecek
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn
-            color="green darken-1"
-            text
-            @click="newConsultantDialog = false"
-          >
-            Oluştur
-          </v-btn>
-          <v-btn
-            color="green darken-1"
-            text
-            @click="newConsultantDialog = false"
-          >
-            Vazgeç
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </v-card>
 </template>
 
 <script>
   export default {
-    name: 'NewRequests',
+    name: 'PendingDemands',
     data () {
       return {
         menu1: false,
@@ -360,7 +344,16 @@
         dialog: false,
         selectedRequest: {},
         selectedManager: '',
-        selectedConsultant: '',
+        selectedConsultant: {
+          id: 0,
+          firstName: 'John',
+          lastName: 'Doe',
+          fullName: 'John Doe',
+          birthday: '02/05/1994',
+          jobTitle: { id: 1, title: 'DevOps Uzmanı', abbr: 'DOPS' },
+          experience: { id: 1, text: '3-5 Yıl' },
+          contractUpload: null,
+        },
         newConsultantDialog: false,
         headers: [
           {
@@ -503,10 +496,9 @@
       updateRequest () {
         console.log('selected', this.selectedRequest)
       },
-      createConsultant () {
-        console.log('new consultant')
-        this.newConsultantDialog = true
-        this.$refs.newConsultantSelect.blur()
+      showContract () {
+        console.log('ok')
+        window.open('https://via.placeholder.com/1080x1920', '_blank').focus()
       },
     },
   }

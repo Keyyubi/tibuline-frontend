@@ -23,21 +23,15 @@ const actions = {
     store.set('app/isLoading', true)
 
     axios.post(CreateURL('User/CreateUser'), payload)
-      .then(res => {
-        store.set('app/isErrorMsg', false)
-        store.set('app/responseMsg', 'Kullanıcı başarıyla oluşturuldu.')
+      .then(() => {
+        context.commit('app/showAlert', { alertMessage: 'Kullanıcı başarıyla oluşturuldu.', alertType: 'success' })
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
+        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'success' })
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   createBudgetPlan: (context, payload) => {
@@ -46,19 +40,14 @@ const actions = {
     axios.post(CreateURL('BudgetCalculation/SaveBudgetCalculation'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/budgetPlans', [...store.get('admin/budgetPlans'), res.data])
-        store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
+        context.commit('app/showAlert', { alertMessage: 'Başarıyla oluşturuldu.', alertType: 'success' })
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
+        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'success' })
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   createCompany: (context, payload) => {
@@ -67,19 +56,14 @@ const actions = {
     axios.post(CreateURL('Company/SaveCompany'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/companies', [...store.get('admin/companies'), res.data])
-        store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
+        context.commit('app/showAlert', { alertMessage: 'Başarıyla oluşturuldu.', alertType: 'success' })
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
+        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'success' })
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   createCostCenter: (context, payload) => {
@@ -88,19 +72,14 @@ const actions = {
     axios.post(CreateURL('CostCenter/SaveCostCenter'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/costCenters', [...store.get('admin/costCenters'), res.data])
-        store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
+        context.commit('app/showAlert', { alertMessage: 'Başarıyla oluşturuldu.', alertType: 'success' })
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
+        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'success' })
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   createExperienceSpan: (context, payload) => {
@@ -109,19 +88,14 @@ const actions = {
     axios.post(CreateURL('ExperienceSpan/SaveExperienceSpan'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/experienceSpans', [...store.get('admin/experienceSpans'), res.data])
-        store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
+        context.commit('app/showAlert', { alertMessage: 'Başarıyla oluşturuldu.', alertType: 'success' })
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
+        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'success' })
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   createJobTitle: (context, payload) => {
@@ -130,19 +104,14 @@ const actions = {
     axios.post(CreateURL('JobTitle/SaveJobTitle'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/jobTitles', [...store.get('admin/jobTitles'), res.data])
-        store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
+        context.commit('app/showAlert', { alertMessage: 'Başarıyla oluşturuldu.', alertType: 'success' })
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
+        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'success' })
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   createProject: (context, payload) => {
@@ -151,19 +120,14 @@ const actions = {
     axios.post(CreateURL('Project/SaveProject'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/projects', [...store.get('admin/projects'), res.data])
-        store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
+        context.commit('app/showAlert', { alertMessage: 'Başarıyla oluşturuldu.', alertType: 'success' })
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
+        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'success' })
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   updateBudgetPlan: (context, payload) => {
@@ -175,19 +139,14 @@ const actions = {
         const index = arr.findIndex(e => e.id === payload.id)
         arr[index] = payload
         store.set('admin/budgetPlans', [...arr])
-        store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
+        context.commit('app/showAlert', { alertMessage: 'Başarıyla güncellendi.', alertType: 'success' })
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
+        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'success' })
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   updateCompany: (context, payload) => {
@@ -199,19 +158,14 @@ const actions = {
         const index = arr.findIndex(e => e.id === payload.id)
         arr[index] = payload
         store.set('admin/companies', [...arr])
-        store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
+        context.commit('app/showAlert', { alertMessage: 'Başarıyla güncellendi.', alertType: 'success' })
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
+        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'success' })
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   updateCostCenter: (context, payload) => {
@@ -223,19 +177,14 @@ const actions = {
         const index = arr.findIndex(e => e.id === payload.id)
         arr[index] = payload
         store.set('admin/costCenters', [...arr])
-        store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
+        context.commit('app/showAlert', { alertMessage: 'Başarıyla güncellendi.', alertType: 'success' })
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
+        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'success' })
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   updateExperienceSpan: (context, payload) => {
@@ -247,19 +196,14 @@ const actions = {
         const index = arr.findIndex(e => e.id === payload.id)
         arr[index] = payload
         store.set('admin/experienceSpans', [...arr])
-        store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
+        context.commit('app/showAlert', { alertMessage: 'Başarıyla güncellendi.', alertType: 'success' })
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
+        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'success' })
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   updateJobTitle: (context, payload) => {
@@ -271,19 +215,14 @@ const actions = {
         const index = arr.findIndex(e => e.id === payload.id)
         arr[index] = payload
         store.set('admin/jobTitles', [...arr])
-        store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
+        context.commit('app/showAlert', { alertMessage: 'Başarıyla güncellendi.', alertType: 'success' })
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
+        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'success' })
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   updateProject: (context, payload) => {
@@ -295,19 +234,14 @@ const actions = {
         const index = arr.findIndex(e => e.id === payload.id)
         arr[index] = payload
         store.set('admin/projects', [...arr])
-        store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
+        context.commit('app/showAlert', { alertMessage: 'Başarıyla güncellendi.', alertType: 'success' })
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
+        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'success' })
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   updateUser: (context, payload) => {
@@ -319,19 +253,14 @@ const actions = {
         const index = arr.findIndex(e => e.id === payload.id)
         arr[index] = payload
         store.set('admin/projects', [...arr])
-        store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
+        context.commit('app/showAlert', { alertMessage: 'Başarıyla güncellendi.', alertType: 'success' })
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
+        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'success' })
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   getBudgetPlans: () => {
@@ -343,35 +272,37 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   getCompanies: () => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL('Company/GetCompanys'), GetPostHeaders(store.get('user/user').token))
+    axios.get(CreateURL('Company/GetCompanies'), GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('admin/companies', res.data)
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
+      })
+  },
+  getSupplierCompanies: () => {
+    store.set('app/isLoading', true)
+
+    axios.get(CreateURL('Company/GetSupplierCompanies'), GetPostHeaders(store.get('user/user').token))
+      .then(({ data: res }) => {
+        store.set('admin/companies', res.data)
+      })
+      .catch(error => {
+        console.log('Error', error)
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
       })
   },
   getCostCenters: () => {
@@ -383,15 +314,9 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   getExperienceSpans: () => {
@@ -403,15 +328,9 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   getUnitManagers: () => {
@@ -423,15 +342,9 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   getJobTitles: () => {
@@ -443,15 +356,9 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   getProjects: () => {
@@ -463,15 +370,9 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   getSuppliers: () => {
@@ -483,15 +384,9 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
 }

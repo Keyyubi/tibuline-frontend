@@ -46,7 +46,7 @@
           v-model="valid"
           lazy-validation
         >
-          <v-container class="py-3">
+          <v-container class="my-4">
             <v-row>
               <!-- Username -->
               <v-col
@@ -206,20 +206,6 @@
                 </v-btn>
               </v-col>
             </v-row>
-
-            <!-- Alert Message -->
-            <v-row justify="center">
-              <v-alert
-                v-if="responseMsg.length > 0"
-                :color="isErrorMsg ? 'error' : 'success'"
-                dark
-                border="top"
-                :icon="isErrorMsg ? 'mdi-alert' : 'mdi-check-circle'"
-                transition="scale-transition"
-              >
-                {{ responseMsg }}
-              </v-alert>
-            </v-row>
           </v-container>
         </v-form>
       </v-tab-item>
@@ -259,7 +245,6 @@
     },
     computed: {
       ...get('user', ['user']),
-      ...get('app', ['responseMsg', 'isErrorMsg']),
       ...get('admin', ['companies']),
     },
     mounted () {

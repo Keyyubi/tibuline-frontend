@@ -47,138 +47,154 @@
           >
             <!-- eslint-disable-next-line -->
             <template v-slot:item.id="{ item }">
-              <v-dialog
-                v-model="dialog"
-                width="460"
-                :retain-focus="false"
+              <v-chip
+                class="ma-2"
+                color="primary"
+                dark
+                @click="editCompany(item)"
               >
-                <!-- eslint-disable-next-line -->
-                <template v-slot:activator="{ on, attrs }">
-                  <v-chip
-                    class="ma-2"
-                    color="primary"
-                    dark
-                    @click="editCompany(item)"
-                  >
-                    {{ item.id }}
-                    <v-icon right>
-                      mdi-arrow-right-bold
-                    </v-icon>
-                  </v-chip>
-                </template>
-
-                <v-card>
-                  <v-card-title class="text-h5 primary white--text">
-                    Şirketi Güncelle
-                  </v-card-title>
-
-                  <v-card-text>
-                    <v-container class="py-3">
-                      <v-form
-                        ref="editForm"
-                        v-model="editValid"
-                        lazy-validation
-                      >
-                        <v-row>
-                          <!-- Username -->
-                          <v-col
-                            cols="12"
-                            md="4"
-                          >
-                            <v-text-field
-                              v-model="selectedCompany.name"
-                              label="Şirket Adı"
-                              :rules="[v => !!v || 'Şirket adı boş geçilemez',]"
-                              required
-                            />
-                          </v-col>
-
-                          <!-- Email -->
-                          <v-col
-                            cols="12"
-                            md="4"
-                          >
-                            <v-text-field
-                              v-model="selectedCompany.email"
-                              label="E-mail"
-                              :rules="RULES.EMAIL"
-                              required
-                            />
-                          </v-col>
-
-                          <!-- TCKN -->
-                          <v-col
-                            cols="12"
-                            md="4"
-                          >
-                            <v-text-field
-                              v-model="selectedCompany.tckN_VKN"
-                              v-mask="'###########'"
-                              label="TCKN / VKN"
-                              :rules="RULES.TCNO"
-                              required
-                            />
-                          </v-col>
-
-                          <!-- Phone -->
-                          <v-col
-                            cols="12"
-                            md="4"
-                          >
-                            <v-text-field
-                              v-model="selectedCompany.phone"
-                              v-mask="'(###) ### ####'"
-                              label="Cep Telefonu"
-                              append-icon="mdi-close"
-                              prepend-icon="mdi-phone"
-                              :rules="RULES.PHONE"
-                              required
-                              @click:append="selectedCompany.phone = ''"
-                            />
-                          </v-col>
-
-                          <!-- Address -->
-                          <v-col
-                            cols="12"
-                            md="4"
-                          >
-                            <v-textarea
-                              v-model="selectedCompany.address"
-                              label="Adres"
-                              rows="3"
-                              required
-                            />
-                          </v-col>
-                        </v-row>
-                      </v-form>
-                    </v-container>
-                  </v-card-text>
-
-                  <v-divider />
-
-                  <!-- Card Actions -->
-                  <v-card-actions>
-                    <v-spacer />
-                    <v-btn
-                      color="primary"
-                      depressed
-                      @click="updateCompany()"
-                    >
-                      Güncelle
-                    </v-btn>
-                    <v-btn
-                      color="error"
-                      depressed
-                      @click="closeDialog()"
-                    >
-                      Vazgeç
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
+                {{ item.id }}
+                <v-icon right>
+                  mdi-arrow-right-bold
+                </v-icon>
+              </v-chip>
+            </template>
+            <template v-slot:item.isSupplier="{ item }">
+              <v-checkbox
+                v-model="item.isSupplier"
+                disabled
+                :label="`${item.isSupplier ? 'Evet' : 'Hayır'}`"
+              />
             </template>
           </v-data-table>
         </v-card>
+
+        <!-- Edit Dialog -->
+        <v-dialog
+          v-model="dialog"
+          width="960"
+          :retain-focus="false"
+        >
+          <v-card>
+            <v-card-title class="text-h5 primary white--text">
+              Şirketi Güncelle
+            </v-card-title>
+
+            <v-card-text>
+              <v-container class="py-3">
+                <v-form
+                  ref="editForm"
+                  v-model="editValid"
+                  lazy-validation
+                >
+                  <v-row>
+                    <!-- Username -->
+                    <v-col
+                      cols="12"
+                      md="4"
+                    >
+                      <v-text-field
+                        v-model="selectedCompany.name"
+                        label="Şirket Adı"
+                        :rules="[v => !!v || 'Şirket adı boş geçilemez',]"
+                        required
+                      />
+                    </v-col>
+
+                    <!-- Email -->
+                    <v-col
+                      cols="12"
+                      md="4"
+                    >
+                      <v-text-field
+                        v-model="selectedCompany.email"
+                        label="E-mail"
+                        :rules="RULES.EMAIL"
+                        required
+                      />
+                    </v-col>
+
+                    <!-- TCKN -->
+                    <v-col
+                      cols="12"
+                      md="4"
+                    >
+                      <v-text-field
+                        v-model="selectedCompany.vkn"
+                        v-mask="'##########'"
+                        :rules="RULES.VKN"
+                        label="VKN"
+                        required
+                      />
+                    </v-col>
+
+                    <!-- Phone -->
+                    <v-col
+                      cols="12"
+                      md="4"
+                    >
+                      <v-text-field
+                        v-model="selectedCompany.phone"
+                        v-mask="'(###) ### ####'"
+                        label="Cep Telefonu"
+                        append-icon="mdi-close"
+                        prepend-icon="mdi-phone"
+                        :rules="RULES.PHONE"
+                        required
+                        @click:append="selectedCompany.phone = ''"
+                      />
+                    </v-col>
+
+                    <!-- IsSupplier -->
+                    <v-col
+                      cols="12"
+                      md="4"
+                    >
+                      <v-checkbox
+                        v-model="selectedCompany.isSupplier"
+                        :label="`Tedarikçi Firma: ${selectedCompany.isSupplier ? 'Evet' : 'Hayır'}`"
+                      />
+                    </v-col>
+
+                    <!-- Address -->
+                    <v-col
+                      cols="12"
+                      md="4"
+                    >
+                      <v-textarea
+                        v-model="selectedCompany.address"
+                        label="Adres"
+                        rows="3"
+                        required
+                      />
+                    </v-col>
+                  </v-row>
+                </v-form>
+              </v-container>
+            </v-card-text>
+
+            <v-divider />
+
+            <!-- Card Actions -->
+            <v-card-actions>
+              <v-spacer />
+              <v-btn
+                color="primary"
+                depressed
+                @click="updateCompany()"
+              >
+                Güncelle
+              </v-btn>
+              <v-btn
+                color="error"
+                depressed
+                @click="closeDialog()"
+              >
+                Vazgeç
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </v-tab-item>
 
       <v-tab-item value="newCompany">
@@ -218,13 +234,13 @@
               <!-- TCKN -->
               <v-col
                 cols="12"
-                md="6"
+                md="4"
               >
                 <v-text-field
-                  v-model="newCompany.tckn_vkn"
-                  v-mask="'###########'"
-                  label="TCKN / VKN"
-                  :rules="RULES.TCNO"
+                  v-model="newCompany.vkn"
+                  v-mask="'##########'"
+                  label="VKN"
+                  :rules="RULES.VKN"
                   required
                 />
               </v-col>
@@ -232,7 +248,7 @@
               <!-- Phone -->
               <v-col
                 cols="12"
-                md="6"
+                md="4"
               >
                 <v-text-field
                   v-model="newCompany.phone"
@@ -243,6 +259,17 @@
                   :rules="RULES.PHONE"
                   required
                   @click:append="newCompany.phone = ''"
+                />
+              </v-col>
+
+              <!-- IsSupplier -->
+              <v-col
+                cols="12"
+                md="4"
+              >
+                <v-checkbox
+                  v-model="newCompany.isSupplier"
+                  :label="`Tedarikçi Firma: ${newCompany.isSupplier ? 'Evet' : 'Hayır'}`"
                 />
               </v-col>
 
@@ -285,20 +312,6 @@
               </v-col>
             </v-row>
           </v-form>
-
-          <!-- Alert Message -->
-          <v-row justify="center">
-            <v-alert
-              v-if="responseMsg.length > 0"
-              :color="isErrorMsg ? 'error' : 'success'"
-              dark
-              border="top"
-              :icon="isErrorMsg ? 'mdi-alert' : 'mdi-check-circle'"
-              transition="scale-transition"
-            >
-              {{ responseMsg }}
-            </v-alert>
-          </v-row>
         </v-container>
       </v-tab-item>
     </v-tabs-items>
@@ -321,9 +334,10 @@
         newCompany: {
           name: null,
           email: null,
-          tckn_vkn: null,
+          vkn: null,
           phone: null,
           address: null,
+          isSupplier: false,
         },
         headers: [
           {
@@ -335,13 +349,13 @@
           { text: 'E-mail', value: 'email' },
           { text: 'Telefon', value: 'phone' },
           { text: 'Adres', value: 'address' },
-          { text: 'TCKN / VKN', value: 'tckn_vkn' },
+          { text: 'VKN', value: 'vkn' },
+          { text: 'Tedarikçi', value: 'isSupplier' },
         ],
         RULES,
       }
     },
     computed: {
-      ...get('app', ['responseMsg', 'isErrorMsg']),
       ...get('admin', ['companies', 'jobTitles', 'experienceSpans']),
     },
     mounted () {

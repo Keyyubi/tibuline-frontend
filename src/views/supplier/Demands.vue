@@ -1,6 +1,6 @@
 <template>
   <v-container
-    id="requests-view"
+    id="demands-view"
     fluid
     tag="section"
   >
@@ -13,12 +13,12 @@
     >
       <v-tabs-slider />
 
-      <v-tab href="#newRequests">
+      <v-tab href="#newDemands">
         Yeni Talepler
         <v-icon>mdi-account-plus</v-icon>
       </v-tab>
 
-      <v-tab href="#pendingRequests">
+      <v-tab href="#pendingDemands">
         Açık Talepler
         <v-icon>mdi-account-multiple</v-icon>
       </v-tab>
@@ -27,12 +27,12 @@
     <div class="py3" />
 
     <v-tabs-items v-model="currentTab">
-      <v-tab-item value="newRequests">
-        <new-requests />
+      <v-tab-item value="newDemands">
+        <new-demands />
       </v-tab-item>
 
-      <v-tab-item value="pendingRequests">
-        <pending-requests />
+      <v-tab-item value="pendingDemands">
+        <pending-demands />
       </v-tab-item>
     </v-tabs-items>
   </v-container>
@@ -40,9 +40,9 @@
 
 <script>
   export default {
-    name: 'Talepler',
+    name: 'Demands',
     data () {
-      return { currentTab: 'newRequests' }
+      return { currentTab: 'newDemands' }
     },
   }
 </script>

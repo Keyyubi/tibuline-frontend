@@ -20,7 +20,7 @@
           class="ma-2"
           color="primary"
           dark
-          @click="seeDetails(item.id)"
+          @click="seeDetails(item)"
         >
           <b>{{ item.id }}</b>
           <v-icon right>
@@ -39,6 +39,27 @@
         </v-chip>
       </template>
     </v-data-table>
+
+    <v-dialog
+      v-model="dialog"
+      width="70%"
+      :retain-focus="false"
+      offset-x
+    >
+      <v-card>
+        <v-card-title class="text-h5 primary white--text">
+          Danışman Güncelle
+        </v-card-title>
+
+        <v-card-text>
+          <consultant-form
+            form-type="update"
+            :consultant="selectedConsultant"
+            @close-dialog="dialog = false"
+          />
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
@@ -49,6 +70,8 @@
     data () {
       return {
         searchWord: '',
+        dialog: false,
+        selectedConsultant: null,
         headers: [
           {
             text: 'Danışman No.',
@@ -75,8 +98,9 @@
       this.$store.dispatch('supplier/getConsultants')
     },
     methods: {
-      seeDetails (id) {
-        console.log('id', id)
+      seeDetails (consultant) {
+        this.selectedConsultant = { ...consultant }
+        this.dialog = true
       },
     },
   }

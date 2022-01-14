@@ -10,6 +10,22 @@
     height="70"
     flat
   >
+    <div
+      v-if="alertMessage.length > 0"
+      style="width: 100%; display: flex; justify-content: center; position: fixed; top: 0; left: 0; padding: 5px"
+    >
+      <!-- Alert Message -->
+      <v-alert
+        :type="alertType"
+        shaped
+        dense
+        border="top"
+        dismissible
+        transition="scale-transition"
+      >
+        {{ alertMessage }}
+      </v-alert>
+    </div>
     <v-app-bar-nav-icon
       class="hidden-md-and-up"
       @click="drawer = !drawer"
@@ -65,6 +81,7 @@
     },
 
     computed: {
+      ...get('app', ['alertMessage', 'alertType']),
       ...sync('app', [
         'drawer',
         'mini',

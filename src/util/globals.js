@@ -3,19 +3,22 @@ const IN_BROWSER = typeof window !== 'undefined'
 const IS_DEBUG = process.env.DEBUG === 'true'
 const IS_PROD = process.env.NODE_ENV === 'production'
 const BASE_URL = 'http://37.9.203.118:4647/api'
-const SITUATIONS = {
-  APPROVED: 0,
-  DENIED: 1,
-  WAITING_REVISE: 2,
-  WAITING_CONTRACT: 3,
-  ON_LAW_DPT: 4,
-  ON_BUYING_DPT: 5,
-  ACTIVE: 6,
-  PASSIVE: 7,
-  NOT_STARTED: 8,
-  ON_GOING: 9,
-  CANCELED: 10,
-  FINISHED: 11,
+const DEMAND_STATUSES = [
+  /* //**
+    * DEMAND FLOW with Statuses ==> CREATED 1 to PENDING  =>
+  */
+  // By Manager
+  { key: 'CREATED', status: 0, label: 'Oluşturuldu' },
+  { key: 'REPLIED', status: 1, label: 'Aday yüklendi' },
+  { key: 'PENDING', status: 2, label: 'Sözleşme yüklendi' },
+  { key: 'APPROVED', status: 3, label: 'Sözleşme imzalandı' },
+  { key: 'COMPLITED', status: 4, label: 'Tamamlandı' },
+]
+const ACTIVITY_STATUSES = {
+  EDITABLE: 0,
+  PENDING: 1,
+  REVISED: 2,
+  APPROVED: 3,
 }
 const ROLE_IDS = {
   ADMIN: 0,
@@ -52,6 +55,9 @@ const RULES = {
       } else return true
     })() || 'Kimlik numarası geçersiz.',
   ],
+  VKN: [
+    v => (!!v && v.length === 10) || 'VKN 10 karakter olmalıdır.',
+  ],
 }
 const CreateURL = (endpoint = '') => BASE_URL + (endpoint.startsWith('/') ? endpoint : '/' + endpoint)
 const GetPostHeaders = (token) => {
@@ -68,9 +74,10 @@ module.exports = {
   IN_BROWSER,
   IS_DEBUG,
   IS_PROD,
-  SITUATIONS,
+  DEMAND_STATUSES,
   ROLE_IDS,
   RULES,
+  ACTIVITY_STATUSES,
   CreateURL,
   GetPostHeaders,
 }
