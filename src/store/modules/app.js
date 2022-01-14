@@ -143,8 +143,8 @@ const state = {
   mini: false,
   isLoading: false,
   items: [],
-  responseMsg: '',
-  isErrorMsg: false,
+  alertMessage: '',
+  alertType: false,
   rules,
 }
 
@@ -172,12 +172,9 @@ const actions = {
     }
   },
   showAlert: (context, payload) => {
-    context.commit('responseMsg', payload.message)
-    context.commit('isErrorMsg', payload.isError)
-    setTimeout(() => {
-      context.commit('responseMsg', '')
-      context.commit('isErrorMsg', false)
-    }, 2000)
+    // Alert Types =>  'success', 'info', 'warning', 'error'
+    context.commit('alertMessage', payload.message)
+    context.commit('alertType', payload.type)
   },
   setLoading: (context, payload) => {
     context.commit('isLoading', payload)

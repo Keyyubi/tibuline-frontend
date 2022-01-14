@@ -28,19 +28,14 @@ const actions = {
     axios.post(CreateURL('Demand/SaveDemand'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('manager/demands', [...store.get('manager/demands'), res.data])
-        store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
+        context.commit('app/showAlert', { alertMessage: 'Başarıyla oluşturuldu.', alertType: 'success' })
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
+        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'error' })
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   createContract: (context, payload) => {
@@ -58,20 +53,15 @@ const actions = {
         axios.post(CreateURL('Contract/SaveContract'), payload.sending, GetPostHeaders(token))
         .then(({ data: res }) => {
           store.set('manager/contracts', [...store.get('manager/contracts'), res.data])
-          store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
+        context.commit('app/showAlert', { alertMessage: 'Başarıyla oluşturuldu.', alertType: 'success' })
         })
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
+        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'error' })
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   createProject: (context, payload) => {
@@ -80,19 +70,14 @@ const actions = {
     axios.post(CreateURL('Project/SaveProject'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('manager/projects', [...store.get('manager/projects'), res.data])
-        store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
+        context.commit('app/showAlert', { alertMessage: 'Başarıyla oluşturuldu.', alertType: 'success' })
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
+        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'error' })
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   // Update Methods
@@ -105,19 +90,14 @@ const actions = {
         const index = arr.findIndex(e => e.id === payload.id)
         arr[index] = payload
         store.set('supplier/demands', [...arr])
-        store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
+        context.commit('app/showAlert', { alertMessage: 'Başarıyla oluşturuldu.', alertType: 'success' })
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
+        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'error' })
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   updateContract: (context, payload) => {
@@ -129,19 +109,14 @@ const actions = {
         const index = arr.findIndex(e => e.id === payload.id)
         arr[index] = payload
         store.set('supplier/demands', [...arr])
-        store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
+        context.commit('app/showAlert', { alertMessage: 'Başarıyla oluşturuldu.', alertType: 'success' })
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
+        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'error' })
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   updateDemand: (context, payload) => {
@@ -157,19 +132,14 @@ const actions = {
         const index = arr.findIndex(e => e.id === payload.id)
         arr[index] = payload
         store.set('manager/demands', [...arr])
-        store.set('app/responseMsg', 'Başarıyla güncellendi.')
+        store.set('app/alertMessage', 'Başarıyla güncellendi.')
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
+        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'error' })
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   // Get Methods
@@ -182,15 +152,9 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   getConsultantById: (context, payload) => {
@@ -202,15 +166,10 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
+        context.commit('app/showAlert', { alertMessage: 'Danışman bilgileri alınırken bir hata oluştu.', alertType: 'error' })
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   getConsultantActivities: (context, payload) => {
@@ -233,15 +192,10 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
+        context.commit('app/showAlert', { alertMessage: 'Danışman aktiviteleri alınırken bir hata oluştu.', alertType: 'error' })
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   getContracts: () => {
@@ -254,15 +208,9 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   getCostCenters: () => {
@@ -275,15 +223,9 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   getDemands: () => {
@@ -296,18 +238,12 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
-  getExperienceSpans: (context, payload) => {
+  getExperienceSpans: () => {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
 
@@ -317,18 +253,12 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
-  getJobTitles: (context, payload) => {
+  getJobTitles: () => {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
 
@@ -338,15 +268,9 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   getExperienceSpansByCompany: (context, payload) => {
@@ -359,15 +283,9 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   getJobTitlesByCompany: (context, payload) => {
@@ -380,15 +298,9 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   getProjects: () => {
@@ -401,15 +313,9 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   getSupplierCompanies: () => {
@@ -421,15 +327,9 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
 }

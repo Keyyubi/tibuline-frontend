@@ -366,7 +366,6 @@
       RULES,
     }),
     computed: {
-      ...get('app', ['responseMsg', 'isErrorMsg']),
       ...get('user', ['user']),
       ...get('supplier', ['jobTitles', 'experienceSpans', 'projects', 'unitManagers']),
     },

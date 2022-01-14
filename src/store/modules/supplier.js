@@ -26,18 +26,11 @@ const actions = {
   createActivity: (context, payload) => {
     axios.post(CreateURL('Activity/SaveActivity'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
-        store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
+        context.commit('app/showAlert', { alertMessage: 'Başarıyla oluşturuldu.', alertType: 'success' })
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
-      })
-      .finally(() => {
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
+        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'error' })
       })
   },
   createConsultant: (context, payload) => {
@@ -46,54 +39,35 @@ const actions = {
     axios.post(CreateURL('Consultant/SaveConsultant'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('supplier/consultants', [...store.get('supplier/consultants'), res.data])
-        store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
+        context.commit('app/showAlert', { alertMessage: 'Başarıyla oluşturuldu.', alertType: 'success' })
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
+        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'error' })
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   // Update Methods
   updateActivity: (context, payload) => {
     axios.put(CreateURL('Activity/UpdateActivity'), payload, GetPostHeaders(store.get('user/user').token))
       .then(() => {
-        store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
+        context.commit('app/showAlert', { alertMessage: 'Başarıyla güncellendi.', alertType: 'success' })
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
-      })
-      .finally(() => {
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
+        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'error' })
       })
   },
   updateConsultant: (context, payload) => {
     axios.put(CreateURL('Consultant/UpdateConsultant'), payload, GetPostHeaders(store.get('user/user').token))
       .then(() => {
-        store.set('app/responseMsg', 'Başarıyla güncellendi.')
+        context.commit('app/showAlert', { alertMessage: 'Başarıyla güncellendi.', alertType: 'success' })
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
-      })
-      .finally(() => {
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
+        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'error' })
       })
   },
   updateDemand: (context, payload) => {
@@ -103,18 +77,11 @@ const actions = {
         const index = arr.findIndex(e => e.id === payload.id)
         arr[index] = payload
         store.set('supplier/demands', [...arr])
-        store.set('app/responseMsg', 'Başarıyla güncellendi.')
+        context.commit('app/showAlert', { alertMessage: 'Başarıyla güncellendi.', alertType: 'success' })
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
-      })
-      .finally(() => {
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
+        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'error' })
       })
   },
   uploadContract: (context, payload) => {
@@ -132,20 +99,15 @@ const actions = {
         axios.put(CreateURL('Consultant/UpdateConsultant'), payload.sending, GetPostHeaders(token))
         .then(({ data: res }) => {
           store.set('supplier/contracts', [...store.get('supplier/contracts'), res.data])
-          store.set('app/responseMsg', 'Başarıyla oluşturuldu.')
+        context.commit('app/showAlert', { alertMessage: 'Başarıyla oluşturuldu.', alertType: 'success' })
         })
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
+        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'error' })
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   // Get Methods
@@ -158,15 +120,9 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   getConsultants: () => {
@@ -179,15 +135,9 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   getConsultantById: (context, payload) => {
@@ -199,15 +149,10 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
+        context.commit('app/showAlert', { alertMessage: 'Danışman bilgileri alınırken bir hata oluştu.', alertType: 'error' })
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   getConsultantActivities: (context, payload) => {
@@ -230,15 +175,10 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
+        context.commit('app/showAlert', { alertMessage: 'Danışman aktiviteleri alınırken bir hata oluştu.', alertType: 'error' })
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   getContracts: () => {
@@ -251,15 +191,9 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   getDemands: () => {
@@ -272,15 +206,9 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   getExperienceSpans: () => {
@@ -293,15 +221,9 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   getJobTitles: () => {
@@ -314,15 +236,9 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   getProjects: () => {
@@ -335,15 +251,9 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   getUnitManagers: () => {
@@ -355,15 +265,9 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
       })
       .finally(() => {
         store.set('app/isLoading', false)
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
       })
   },
   // Delete methods
@@ -372,18 +276,11 @@ const actions = {
 
     axios.delete(CreateURL(`Activity/DeleteActivity/${id}`), GetPostHeaders(currUser.token))
       .then(() => {
-        store.set('app/responseMsg', 'Aktivite silindi.')
+        context.commit('app/showAlert', { alertMessage: 'Aktivite silindi.', alertType: 'error' })
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('app/isErrorMsg', true)
-        store.set('app/responseMsg', 'Bir hata oluştu.')
-      })
-      .finally(() => {
-        setTimeout(() => {
-          store.set('app/responseMsg', '')
-          store.set('app/isErrorMsg', false)
-        }, 2000)
+        context.commit('app/showAlert', { alertMessage: 'Aktivite silinirken hata oluştu.', alertType: 'error' })
       })
   },
 }

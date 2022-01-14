@@ -409,7 +409,6 @@
     },
     computed: {
       ...get('user', ['user']),
-      ...get('app', ['responseMsg', 'isErrorMsg']),
       ...get('admin', ['costCenters', 'projects']),
       ...get('supplier', [
         'unitManagers',

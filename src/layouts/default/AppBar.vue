@@ -11,18 +11,19 @@
     flat
   >
     <div
-      v-if="responseMsg.length > 0"
+      v-if="alertMessage.length > 0"
       style="width: 100%; display: flex; justify-content: center; position: fixed; top: 0; left: 0; padding: 5px"
     >
       <!-- Alert Message -->
       <v-alert
-        :color="isErrorMsg ? 'error' : 'success'"
-        dark
+        :type="alertType"
+        shaped
+        dense
         border="top"
-        :icon="isErrorMsg ? 'mdi-alert' : 'mdi-check-circle'"
+        dismissible
         transition="scale-transition"
       >
-        {{ responseMsg }}
+        {{ alertMessage }}
       </v-alert>
     </div>
     <v-app-bar-nav-icon
@@ -80,7 +81,7 @@
     },
 
     computed: {
-      ...get('app', ['responseMsg', 'isErrorMsg']),
+      ...get('app', ['alertMessage', 'alertType']),
       ...sync('app', [
         'drawer',
         'mini',

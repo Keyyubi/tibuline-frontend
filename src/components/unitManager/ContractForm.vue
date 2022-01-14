@@ -213,7 +213,6 @@
       jobStarting: null,
     }),
     computed: {
-      ...get('app', ['responseMsg', 'isErrorMsg']),
       ...get('user', ['user']),
       ...get('manager', ['companies']),
     },
@@ -263,7 +262,7 @@
           } else this.$store.dispatch('manager/updateContract', sending)
           this.$emit('close-dialog')
         } else {
-          this.$store.dispatch('app/showAlert', { message: 'Lütfen tüm alanları doldurunuz.', isError: true })
+          this.$store.dispatch('app/showAlert', { message: 'Lütfen tüm alanları doldurunuz.', type: 'warning' })
         }
       },
       clearForm () {

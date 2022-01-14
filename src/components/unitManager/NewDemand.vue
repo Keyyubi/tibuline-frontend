@@ -173,7 +173,7 @@
         })
 
         if (!isFilled) {
-          this.$store.dispatch('app/showAlert', { message: 'Lütfen tüm alanları doldurduğunuzdan emin olunuz.', isError: true })
+          this.$store.dispatch('app/showAlert', { message: 'Lütfen tüm alanları doldurduğunuzdan emin olunuz.', type: 'warning' })
         } else {
           this.$store.dispatch('manager/createDemand', this.demand)
         }

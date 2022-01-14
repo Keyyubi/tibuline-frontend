@@ -350,7 +350,6 @@
     },
     computed: {
       ...get('user', ['user']),
-      ...get('app', ['responseMsg', 'isErrorMsg']),
       ...get('manager', [
         'demands',
         'demandedConsultant',
@@ -439,7 +438,7 @@
         }
 
         if (isAllowedToUpdate) this.$store.dispatch('manager/updateDemand', payload)
-        else this.$store.dispatch('app/showAlert', { message: 'Bir değişiklik yapılmadı.', isError: true })
+        else this.$store.dispatch('app/showAlert', { message: 'Bir değişiklik yapılmadı.', type: 'info' })
         this.selectedDemand = {}
         this.dialog = false
       },
