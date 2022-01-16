@@ -19,6 +19,7 @@ const ACTIVITY_STATUSES = {
   PENDING: 1,
   REVISED: 2,
   APPROVED: 3,
+  INVOICED: 4,
 }
 const ROLE_IDS = {
   ADMIN: 0,

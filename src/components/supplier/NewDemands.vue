@@ -245,7 +245,6 @@
               <v-divider class="mr-3" />Aday ve Sözleşme Bilgileri<v-divider class="ml-3" />
             </v-row>
             <v-row
-              v-if="selectedDemand.consultantId && selectedDemand.consultantId > 0"
               class="mt-3"
             >
               <!-- Consultant -->

@@ -9,6 +9,7 @@ const state = {
   budgets: [],
   companies: [],
   contracts: [],
+  consultants: [],
   costCenters: [],
   demands: [],
   demandedConsultant: [],
@@ -167,6 +168,22 @@ const actions = {
       .catch(error => {
         console.log('Error', error)
         context.commit('app/showAlert', { alertMessage: 'Danışman bilgileri alınırken bir hata oluştu.', alertType: 'error' })
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+      })
+  },
+  getConsultants: (context, payload) => {
+    store.set('app/isLoading', true)
+
+    // axios.get(CreateURL(`Consultant/GetConsultants/${payload.consultantId}/${payload.yearMonth}`), GetPostHeaders(store.get('user/user').token))
+    axios.get(CreateURL('Consultant/GetConsultants'), GetPostHeaders(store.get('user/user').token))
+      .then(({ data: res }) => {
+        store.set('manager/consultants', res.data)
+      })
+      .catch(error => {
+        console.log('Error', error)
+        context.commit('app/showAlert', { alertMessage: 'Danışman aktiviteleri alınırken bir hata oluştu.', alertType: 'error' })
       })
       .finally(() => {
         store.set('app/isLoading', false)

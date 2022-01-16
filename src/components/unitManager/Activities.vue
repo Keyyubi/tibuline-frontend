@@ -199,7 +199,7 @@
       </v-col>
     </v-row>
 
-    <!-- Info and actions Footer -->
+    <!-- Info and Actions Footer -->
     <v-row
       v-if="selectedConsultant != null"
       class="d-flex justify-space-between"
@@ -233,22 +233,25 @@
         </v-chip>
       </v-col>
       <v-spacer />
+      <!-- Actions -->
       <v-col class="d-flex justify-flex-end">
         <v-btn
           class="white--text mr-3"
           color="green"
           depressed
-          @click="showConfirmation('send')"
+          :disabled="!(this.activities.length > 0)"
+          @click="showConfirmation('approve')"
         >
-          Onaya Gönder
+          Onayla
         </v-btn>
         <v-btn
           color="error"
           dark
           depressed
-          @click="showConfirmation('delete')"
+          :disabled="!(this.activities.length > 0)"
+          @click="showConfirmation('deny')"
         >
-          Tüm Aktiviteleri Sil
+          Reddet
         </v-btn>
       </v-col>
     </v-row>
@@ -261,13 +264,26 @@
     >
       <v-card>
         <v-card-title class="text-h5 primary white--text">
-          Onay
+          {{ confirmationType === 'approve' ? 'Onay' : 'Red Nedeni' }}
         </v-card-title>
-        <v-card-text class="text-h5 py-3">
+        <v-card-text
+          v-if="confirmationType === 'approve'"
+          class="text-h5 py-3"
+        >
           <v-icon large>
             mdi-alert
           </v-icon>
-          {{ confirmationMsg }}
+          Aktiviteler, onaylandıktan sonra değiştirilemezler. Danışmanın bu dönemki aktivitelerini naylıyor musunuz?
+        </v-card-text>
+        <v-card-text
+          v-else
+          class="text-h5 py-3"
+        >
+          <v-textarea
+            v-model="reasonOfDeny"
+            label="Red Nedeni"
+            placeholder="Lütfen tedarikçinize gönderilecek red mesajını giriniz. (Örn. 01/03/2022 günündeki aktivite yanlış girilmiş. )"
+          />
         </v-card-text>
         <v-card-actions>
           <v-spacer />
@@ -318,10 +334,10 @@
       statuses,
     }),
     computed: {
-      ...get('supplier', ['activities', 'consultants']),
+      ...get('manager', ['activities', 'consultants']),
     },
     mounted () {
-      this.$store.dispatch('supplier/getConsultants')
+      this.$store.dispatch('manager/getConsultants')
     },
     methods: {
       selectConsultant () {
@@ -331,7 +347,7 @@
           consultantId: this.selectedConsultant,
           yearMonth,
         }
-        this.$store.dispatch('supplier/getConsultantActivities', payload)
+        this.$store.dispatch('manager/getConsultantActivities', payload)
         this.calculateTotalHours()
         this.e1 = 2
       },
@@ -432,31 +448,15 @@
       showConfirmation (type) {
         this.confirmationType = type
 
-        if (this.activities.length > 0) {
-          switch (type) {
-            case 'delete':
-              this.confirmationMsg = 'Tüm aktiviteler silinecektir. Onaylıyor musunuz?'
-              this.confirmationDialog = true
-              break
-            case 'send':
-              this.confirmationMsg = 'Aktiviteler yönetici onayına gönderilecektir. Onaylıyor musunuz?'
-              this.confirmationDialog = true
-              break
-            case 'fill-monthly':
-              this.confirmationMsg = `Varolan aktiviteler ${this.shiftHours} saat olarak güncellenecektir. Onaylıyor musunuz?`
-              this.confirmationDialog = true
-              break
-          }
-        } else {
-          switch (type) {
-            case 'delete':
-            case 'send':
-              this.$store.dispatch('app/updateAlertMsg', { message: 'Bu dönem için aktivite bulunmuyor.', isError: false })
-              break
-            case 'fill-monthly':
-              this.updateRange()
-              break
-          }
+        switch (type) {
+          case 'deny':
+            this.confirmationMsg = 'Tüm aktiviteler silinecektir. Onaylıyor musunuz?'
+            this.confirmationDialog = true
+            break
+          case 'approve':
+            this.confirmationMsg = 'Aktiviteler yönetici onayına gönderilecektir. Onaylıyor musunuz?'
+            this.confirmationDialog = true
+            break
         }
       },
       async confirm () {
@@ -484,7 +484,7 @@
         const yearMonth = date.split('-')[0] + '-' + date.split('-')[1]
         const consultantId = this.selectedConsultant
 
-        this.$store.dispatch('supplier/getConsultantActivities', { consultantId, yearMonth })
+        this.$store.dispatch('manager/getConsultantActivities', { consultantId, yearMonth })
 
         setTimeout(() => {
           this.$store.dispatch('app/setLoading', false)

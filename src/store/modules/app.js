@@ -14,6 +14,11 @@ const supplierItems = [
     to: '/supplier/demands',
   },
   {
+    title: 'Sözleşmeler',
+    icon: 'mdi-file-document',
+    to: '/unit-manager/contracts',
+  },
+  {
     title: 'Danışmanlar',
     icon: 'mdi-account-group',
     to: '/supplier/consultants',

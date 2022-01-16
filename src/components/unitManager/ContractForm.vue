@@ -1,25 +1,32 @@
 <template>
   <v-container class="py-3">
     <v-row>
-      <!-- UnitManager -->
+      <!-- Supplier Company -->
       <v-col
         cols="12"
         md="4"
       >
-        <v-text-field
-          :value="user.firstName + ' ' + user.lastName"
-          label="Yönetici"
-          disabled
+        <v-autocomplete
+          v-model="contract.supplierCompanyId"
+          :items="companies"
+          item-text="name"
+          item-value="id"
+          label="Şirket"
         />
       </v-col>
 
+
+      <!-- Consultant -->
       <v-col
         cols="12"
         md="4"
       >
-        <v-text-field
-          v-model="contract.orderNumber"
-          label="Talep No. / Sipariş No."
+        <v-autocomplete
+          v-model="contract.supplierCompanyId"
+          :items="companies"
+          item-text="name"
+          item-value="id"
+          label="Danisman"
         />
       </v-col>
 
@@ -87,52 +94,6 @@
             @change="e => ending = getComputedDate(e)"
           />
         </v-menu>
-      </v-col>
-
-      <!-- JobStartDate -->
-      <v-col
-        cols="12"
-        md="4"
-      >
-        <v-menu
-          ref="menu3"
-          v-model="menu3"
-          :close-on-content-click="false"
-          transition="scale-transition"
-          offset-y
-          max-width="290px"
-          min-width="auto"
-        >
-          <template v-slot:activator="{ on, attrs }">
-            <v-text-field
-              v-model="jobStarting"
-              label="İşe Başlama Tarihi"
-              persistent-hint
-              prepend-icon="mdi-calendar"
-              v-bind="attrs"
-              v-on="on"
-            />
-          </template>
-          <v-date-picker
-            v-model="contract.jobStartDate"
-            no-title
-            @input="menu3 = false"
-            @change="e => jobStarting = getComputedDate(e)"
-          />
-        </v-menu>
-      </v-col>
-
-      <v-col
-        cols="12"
-        md="4"
-      >
-        <v-autocomplete
-          v-model="contract.supplierCompanyId"
-          :items="companies"
-          item-text="name"
-          item-value="id"
-          label="Şirket"
-        />
       </v-col>
 
       <v-col
