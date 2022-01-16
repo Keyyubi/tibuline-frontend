@@ -25,12 +25,12 @@ const actions = {
   // Create Methods
   createActivity: (context, payload) => {
     axios.post(CreateURL('Activity/SaveActivity'), payload, GetPostHeaders(store.get('user/user').token))
-      .then(({ data: res }) => {
-        context.commit('app/showAlert', { alertMessage: 'Başarıyla oluşturuldu.', alertType: 'success' })
+      .then(() => {
+        store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
       })
       .catch(error => {
         console.log('Error', error)
-        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'error' })
+        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
       })
   },
   createConsultant: (context, payload) => {
@@ -39,35 +39,77 @@ const actions = {
     axios.post(CreateURL('Consultant/SaveConsultant'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('supplier/consultants', [...store.get('supplier/consultants'), res.data])
-        context.commit('app/showAlert', { alertMessage: 'Başarıyla oluşturuldu.', alertType: 'success' })
+        store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
       })
       .catch(error => {
         console.log('Error', error)
-        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'error' })
+        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
       })
       .finally(() => {
         store.set('app/isLoading', false)
       })
   },
+  createContract: (context, payload) => {
+    store.set('app/isLoading', true)
+    const token = store.get('user/user').token
+    console.log('payload', payload)
+
+    if (payload.formData) {
+      axios.post(CreateURL('Contract/UploadContractDocuments/upload'), payload.formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+        .then(({ data: res }) => {
+          payload.sending.filePath = res.data
+          axios.post(CreateURL('Contract/SaveContract'), payload.sending, GetPostHeaders(token))
+          .then(({ data: res }) => {
+            store.set('manager/contracts', [...store.get('manager/contracts'), res.data])
+          store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
+          })
+        })
+        .catch(error => {
+          console.log('Error', error)
+          store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
+        })
+        .finally(() => {
+          store.set('app/isLoading', false)
+        })
+    } else {
+      axios.post(CreateURL('Contract/SaveContract'), payload.sending, GetPostHeaders(token))
+        .then(({ data: res }) => {
+          store.set('manager/contracts', [...store.get('manager/contracts'), res.data])
+        store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
+        })
+        .catch(error => {
+          console.log('Error', error)
+          store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
+        })
+        .finally(() => {
+          store.set('app/isLoading', false)
+        })
+    }
+  },
   // Update Methods
   updateActivity: (context, payload) => {
     axios.put(CreateURL('Activity/UpdateActivity'), payload, GetPostHeaders(store.get('user/user').token))
       .then(() => {
-        context.commit('app/showAlert', { alertMessage: 'Başarıyla güncellendi.', alertType: 'success' })
+        store.dispatch('app/showAlert', { message: 'Başarıyla güncellendi.', type: 'success' }, { root: true })
       })
       .catch(error => {
         console.log('Error', error)
-        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'error' })
+        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
       })
   },
   updateConsultant: (context, payload) => {
     axios.put(CreateURL('Consultant/UpdateConsultant'), payload, GetPostHeaders(store.get('user/user').token))
       .then(() => {
-        context.commit('app/showAlert', { alertMessage: 'Başarıyla güncellendi.', alertType: 'success' })
+        store.dispatch('app/showAlert', { message: 'Başarıyla güncellendi.', type: 'success' }, { root: true })
       })
       .catch(error => {
         console.log('Error', error)
-        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'error' })
+        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
       })
   },
   updateDemand: (context, payload) => {
@@ -77,11 +119,30 @@ const actions = {
         const index = arr.findIndex(e => e.id === payload.id)
         arr[index] = payload
         store.set('supplier/demands', [...arr])
-        context.commit('app/showAlert', { alertMessage: 'Başarıyla güncellendi.', alertType: 'success' })
+        store.dispatch('app/showAlert', { message: 'Başarıyla güncellendi.', type: 'success' }, { root: true })
       })
       .catch(error => {
         console.log('Error', error)
-        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'error' })
+        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
+      })
+  },
+  updateContract: (context, payload) => {
+    store.set('app/isLoading', true)
+
+    axios.put(CreateURL('Contract/UpdateContract'), payload, GetPostHeaders(store.get('user/user').token))
+      .then(() => {
+        const arr = store.get('supplier/contracts')
+        const index = arr.findIndex(e => e.id === payload.id)
+        arr[index] = payload
+        store.set('supplier/contracts', [...arr])
+        store.dispatch('app/showAlert', { message: 'Başarıyla güncellendi.', type: 'success' }, { root: true })
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
       })
   },
   uploadContract: (context, payload) => {
@@ -96,15 +157,17 @@ const actions = {
     })
       .then(({ data: res }) => {
         payload.sending.contractFilePath = res.data
-        axios.put(CreateURL('Consultant/UpdateConsultant'), payload.sending, GetPostHeaders(token))
+        axios.put(CreateURL('Consultant/UpdateConsultant'), payload.contractId, GetPostHeaders(token))
         .then(({ data: res }) => {
-          store.set('supplier/contracts', [...store.get('supplier/contracts'), res.data])
-        context.commit('app/showAlert', { alertMessage: 'Başarıyla oluşturuldu.', alertType: 'success' })
+          const arr = store.get('supplier/contracts')
+          arr.findIndex(e => e.id === payload.contractId).filePath = res.data
+          store.set('supplier/contracts', arr)
+         store.dispatch('app/showAlert', { message: 'Başarıyla yüklendi.', type: 'success' }, { root: true })
         })
       })
       .catch(error => {
         console.log('Error', error)
-        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'error' })
+        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
       })
       .finally(() => {
         store.set('app/isLoading', false)
@@ -149,7 +212,7 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        context.commit('app/showAlert', { alertMessage: 'Danışman bilgileri alınırken bir hata oluştu.', alertType: 'error' })
+        store.dispatch('app/showAlert', { message: 'Danışman bilgileri alınırken bir hata oluştu.', type: 'error' }, { root: true })
       })
       .finally(() => {
         store.set('app/isLoading', false)
@@ -175,7 +238,7 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        context.commit('app/showAlert', { alertMessage: 'Danışman aktiviteleri alınırken bir hata oluştu.', alertType: 'error' })
+        store.dispatch('app/showAlert', { message: 'Danışman aktiviteleri alınırken bir hata oluştu.', type: 'error' }, { root: true })
       })
       .finally(() => {
         store.set('app/isLoading', false)
@@ -276,11 +339,11 @@ const actions = {
 
     axios.delete(CreateURL(`Activity/DeleteActivity/${id}`), GetPostHeaders(currUser.token))
       .then(() => {
-        context.commit('app/showAlert', { alertMessage: 'Aktivite silindi.', alertType: 'error' })
+        store.dispatch('app/showAlert', { message: 'Aktivite silindi.', type: 'error' }, { root: true })
       })
       .catch(error => {
         console.log('Error', error)
-        context.commit('app/showAlert', { alertMessage: 'Aktivite silinirken hata oluştu.', alertType: 'error' })
+        store.dispatch('app/showAlert', { message: 'Aktivite silinirken hata oluştu.', type: 'error' }, { root: true })
       })
   },
 }

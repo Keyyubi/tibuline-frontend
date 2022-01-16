@@ -29,11 +29,11 @@ const actions = {
     axios.post(CreateURL('Demand/SaveDemand'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('manager/demands', [...store.get('manager/demands'), res.data])
-        context.commit('app/showAlert', { alertMessage: 'Başarıyla oluşturuldu.', alertType: 'success' })
+        store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
       })
       .catch(error => {
         console.log('Error', error)
-        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'error' })
+        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
       })
       .finally(() => {
         store.set('app/isLoading', false)
@@ -54,12 +54,12 @@ const actions = {
         axios.post(CreateURL('Contract/SaveContract'), payload.sending, GetPostHeaders(token))
         .then(({ data: res }) => {
           store.set('manager/contracts', [...store.get('manager/contracts'), res.data])
-        context.commit('app/showAlert', { alertMessage: 'Başarıyla oluşturuldu.', alertType: 'success' })
+        store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
         })
       })
       .catch(error => {
         console.log('Error', error)
-        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'error' })
+        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
       })
       .finally(() => {
         store.set('app/isLoading', false)
@@ -71,11 +71,11 @@ const actions = {
     axios.post(CreateURL('Project/SaveProject'), payload, GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('manager/projects', [...store.get('manager/projects'), res.data])
-        context.commit('app/showAlert', { alertMessage: 'Başarıyla oluşturuldu.', alertType: 'success' })
+        store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
       })
       .catch(error => {
         console.log('Error', error)
-        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'error' })
+        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
       })
       .finally(() => {
         store.set('app/isLoading', false)
@@ -91,11 +91,11 @@ const actions = {
         const index = arr.findIndex(e => e.id === payload.id)
         arr[index] = payload
         store.set('supplier/demands', [...arr])
-        context.commit('app/showAlert', { alertMessage: 'Başarıyla oluşturuldu.', alertType: 'success' })
+        store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
       })
       .catch(error => {
         console.log('Error', error)
-        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'error' })
+        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
       })
       .finally(() => {
         store.set('app/isLoading', false)
@@ -110,11 +110,11 @@ const actions = {
         const index = arr.findIndex(e => e.id === payload.id)
         arr[index] = payload
         store.set('supplier/demands', [...arr])
-        context.commit('app/showAlert', { alertMessage: 'Başarıyla oluşturuldu.', alertType: 'success' })
+        store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
       })
       .catch(error => {
         console.log('Error', error)
-        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'error' })
+        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
       })
       .finally(() => {
         store.set('app/isLoading', false)
@@ -133,11 +133,11 @@ const actions = {
         const index = arr.findIndex(e => e.id === payload.id)
         arr[index] = payload
         store.set('manager/demands', [...arr])
-        store.set('app/alertMessage', 'Başarıyla güncellendi.')
+        store.set('app/message', 'Başarıyla güncellendi.')
       })
       .catch(error => {
         console.log('Error', error)
-        context.commit('app/showAlert', { alertMessage: 'Bir hata oluştu.', alertType: 'error' })
+        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
       })
       .finally(() => {
         store.set('app/isLoading', false)
@@ -167,7 +167,7 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        context.commit('app/showAlert', { alertMessage: 'Danışman bilgileri alınırken bir hata oluştu.', alertType: 'error' })
+        store.dispatch('app/showAlert', { message: 'Danışman bilgileri alınırken bir hata oluştu.', type: 'error' }, { root: true })
       })
       .finally(() => {
         store.set('app/isLoading', false)
@@ -183,7 +183,7 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        context.commit('app/showAlert', { alertMessage: 'Danışman aktiviteleri alınırken bir hata oluştu.', alertType: 'error' })
+        store.dispatch('app/showAlert', { message: 'Danışman aktiviteleri alınırken bir hata oluştu.', type: 'error' }, { root: true })
       })
       .finally(() => {
         store.set('app/isLoading', false)
@@ -209,7 +209,7 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
-        context.commit('app/showAlert', { alertMessage: 'Danışman aktiviteleri alınırken bir hata oluştu.', alertType: 'error' })
+        store.dispatch('app/showAlert', { message: 'Danışman aktiviteleri alınırken bir hata oluştu.', type: 'error' }, { root: true })
       })
       .finally(() => {
         store.set('app/isLoading', false)

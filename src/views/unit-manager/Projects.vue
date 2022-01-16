@@ -60,11 +60,11 @@
 
             <!-- eslint-disable-next-line -->
             <template v-slot:item.startDate="{ item }">
-              {{ getComputedDate(item.startDate) }}
+              {{ getLocaleDate(item.startDate) }}
             </template>
             <!-- eslint-disable-next-line -->
             <template v-slot:item.endDate="{ item }">
-              {{ getComputedDate(item.endDate) }}
+              {{ getLocaleDate(item.endDate) }}
             </template>
             <!-- eslint-disable-next-line -->
             <template v-slot:item.assignedToId="{ item }">
@@ -153,7 +153,7 @@
                           v-model="selectedProject.startDate"
                           no-title
                           @input="menu3 = false"
-                          @change="e => selectedProject.starting = getComputedDate(e)"
+                          @change="e => selectedProject.starting = getLocaleDate(e)"
                         />
                       </v-menu>
                     </v-col>
@@ -186,7 +186,7 @@
                           v-model="selectedProject.endDate"
                           no-title
                           @input="menu4 = false"
-                          @change="e => selectedProject.ending = getComputedDate(e)"
+                          @change="e => selectedProject.ending = getLocaleDate(e)"
                         />
                       </v-menu>
                     </v-col>
@@ -299,7 +299,7 @@
                     v-model="newProject.startDate"
                     no-title
                     @input="menu1 = false"
-                    @change="e => newProject.starting = getComputedDate(e)"
+                    @change="e => newProject.starting = getLocaleDate(e)"
                   />
                 </v-menu>
               </v-col>
@@ -332,7 +332,7 @@
                     v-model="newProject.endDate"
                     no-title
                     @input="menu2 = false"
-                    @change="e => newProject.ending = getComputedDate(e)"
+                    @change="e => newProject.ending = getLocaleDate(e)"
                   />
                 </v-menu>
               </v-col>
@@ -434,8 +434,8 @@
       seeDetails (item) {
         this.selectedProject = { ...item }
         this.selectedProject.assignedToId = this.user.id
-        this.selectedProject.starting = this.getComputedDate(item.startDate)
-        this.selectedProject.ending = this.getComputedDate(item.endDate)
+        this.selectedProject.starting = this.getLocaleDate(item.startDate)
+        this.selectedProject.ending = this.getLocaleDate(item.endDate)
         this.dialog = true
       },
       updateProject () {
@@ -455,7 +455,7 @@
           this.$refs.form.reset()
         }
       },
-      getComputedDate (date) {
+      getLocaleDate (date) {
         const arr = date.split('T')[0].split('-')
         return `${arr[2]}/${arr[1]}/${arr[0]}`
       },

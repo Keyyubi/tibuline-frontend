@@ -9,10 +9,9 @@ const DEMAND_STATUSES = [
   */
   // By Manager
   { key: 'CREATED', status: 0, label: 'Oluşturuldu' },
-  { key: 'REPLIED', status: 1, label: 'Aday yüklendi' },
-  { key: 'PENDING', status: 2, label: 'Sözleşme yüklendi' },
-  { key: 'APPROVED', status: 3, label: 'Sözleşme imzalandı' },
-  { key: 'COMPLITED', status: 4, label: 'Tamamlandı' },
+  { key: 'REPLIED', status: 1, label: 'Aday yüklendi, sözleşme bekliyor' },
+  { key: 'PENDING', status: 2, label: 'Aday ve sözleşme yüklendi' },
+  { key: 'COMPLITED', status: 3, label: 'Tamamlandı' },
 ]
 const ACTIVITY_STATUSES = {
   EDITABLE: 0,

@@ -20,7 +20,7 @@
           class="ma-2"
           color="primary"
           dark
-          @click="seeContract(item)"
+          @click="editContract(item)"
         >
           <b>{{ item.id }}</b>
           <v-icon right>
@@ -29,18 +29,15 @@
         </v-chip>
       </template>
 
-      <template v-slot:item.supplierCompanyId="{ item }">
-        {{ item.supplierCompanyId ? companies.find(e => e.id === item.supplierCompanyId).name : 'Bulunamadı' }}
+      <template v-slot:item.consultantId="{ item }">
+        {{ getConsultantName(item.consultantId) }}
       </template>
 
       <template v-slot:item.startDate="{ item }">
-        {{ getComputedDate(item.startDate) }}
+        {{ getLocaleDate(item.startDate) }}
       </template>
       <template v-slot:item.endDate="{ item }">
-        {{ getComputedDate(item.endDate) }}
-      </template>
-      <template v-slot:item.jobStartDate="{ item }">
-        {{ getComputedDate(item.jobStartDate) }}
+        {{ getLocaleDate(item.endDate) }}
       </template>
 
       <template v-slot:item.isActive="{ item }">
@@ -51,14 +48,6 @@
         >
           {{ item.isActive ? 'Aktif' : 'Pasif' }}
         </v-chip>
-        <!-- <v-switch
-          v-model="item.isActive"
-          @change="editContract(item)"
-        >
-          <template v-slot:label>
-            {{ item.isActive ? 'Aktif' : 'Pasif' }}
-          </template>
-        </v-switch> -->
       </template>
 
       <template v-slot:item.delete="{ item }">
@@ -75,6 +64,26 @@
         </v-chip>
       </template>
     </v-data-table>
+
+    <!-- Edit Dialog -->
+    <v-dialog
+      v-model="editDialog"
+      persistent
+      width="75%"
+    >
+      <v-card>
+        <v-card-title class="text-h5 primary white--text">
+          Sözleşmeyi güncelle
+        </v-card-title>
+        <v-card-text>
+          <contract-form
+            form-type="update"
+            :contract="selectedContract"
+            @close-dialog="editDialog = false"
+          />
+        </v-card-text>
+      </v-card>
+    </v-dialog>
 
     <!-- Confirmation dialog -->
     <v-dialog
@@ -130,6 +139,7 @@
         requestType: 'all',
         searchWord: '',
         dialog: false,
+        editDialog: false,
         selectedContract: null,
         selectedContractId: null,
         headers: [
@@ -138,26 +148,25 @@
             align: 'start',
             value: 'id',
           },
-          { text: 'Tedarikçi', value: 'supplierCompanyId' },
+          { text: 'Aday', value: 'consultantId' },
           { text: 'Başl. Tar.', value: 'startDate' },
           { text: 'Bit. Tar.', value: 'endDate' },
-          { text: 'İş Başl. Tar.', value: 'jobStartDate' },
-          { text: 'Talep No.', value: 'orderNumber' },
-          { text: 'Sözleşme Durumu', value: 'isActive' },
           { text: 'Sözleşmeyi Sil', value: 'delete' },
         ],
       }
     },
     computed: {
-      ...get('manager', ['contracts', 'companies']),
+      ...get('user', ['user']),
+      ...get('supplier', ['contracts', 'consultants']),
     },
     mounted () {
-      this.$store.dispatch('manager/getContracts')
-      this.$store.dispatch('manager/getSupplierCompanies')
+      this.$store.dispatch('supplier/getContracts')
+      this.$store.dispatch('manager/getConsultants')
     },
     methods: {
       editContract (item) {
-        console.log('id', item)
+        this.selectedContract = { ...item }
+        this.editDialog = true
       },
       seeContract (item) {
         window.open(item.filePath, '_blank').focus()
@@ -174,9 +183,15 @@
         this.selectedContractId = null
         this.dialog = false
       },
-      getComputedDate (date) {
+      getLocaleDate (date) {
         const arr = date.split('T')[0].split('-')
         return `${arr[2]}/${arr[1]}/${arr[0]}`
+      },
+      getConsultantName (id) {
+        if (id) {
+          const consultant = this.consultants.find(e => e.id === id)
+          return consultant ? consultant.firstName + ' ' + consultant.lastName : 'Aday ismi bulunamadı.'
+        } return 'Bu aday bulunamadı.'
       },
     },
   }

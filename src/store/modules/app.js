@@ -16,7 +16,7 @@ const supplierItems = [
   {
     title: 'Sözleşmeler',
     icon: 'mdi-file-document',
-    to: '/unit-manager/contracts',
+    to: '/supplier/contracts',
   },
   {
     title: 'Danışmanlar',
@@ -149,7 +149,7 @@ const state = {
   isLoading: false,
   items: [],
   alertMessage: '',
-  alertType: false,
+  alertType: '',
   rules,
 }
 

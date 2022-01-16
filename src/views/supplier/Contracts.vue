@@ -49,15 +49,11 @@
         contractUpload: null,
 
         newContract: {
-          createdById: null,
-          orderNumber: null,
+          consultantId: null,
           isActive: false,
-          demandId: 0,
-          contractStatus: 0,
           filePath: null,
           startDate: null,
           endDate: null,
-          jobStartDate: null,
           supplierCompanyId: null,
         },
       }

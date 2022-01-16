@@ -172,70 +172,6 @@
                   :value="selectedDemand.totalBudget"
                 />
               </v-col>
-
-              <!-- Starting Date -->
-              <!-- <v-col
-                cols="12"
-                md="4"
-              >
-                <v-menu
-                  ref="menu1"
-                  v-model="selectedDemand.menu1"
-                  :close-on-content-click="false"
-                  transition="scale-transition"
-                  offset-y
-                  max-width="290px"
-                  min-width="auto"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      v-model="selectedDemand.startingDate"
-                      label="Başlangıç Tarihi"
-                      persistent-hint
-                      prepend-icon="mdi-calendar"
-                      v-bind="attrs"
-                      v-on="on"
-                    />
-                  </template>
-                  <v-date-picker
-                    v-model="selectedDemand.startingDate"
-                    no-title
-                    @input="menu1 = false"
-                  />
-                </v-menu>
-              </v-col> -->
-
-              <!-- Due Date -->
-              <!-- <v-col
-                cols="12"
-                md="4"
-              >
-                <v-menu
-                  ref="menu2"
-                  v-model="menu2"
-                  :close-on-content-click="false"
-                  transition="scale-transition"
-                  offset-y
-                  max-width="290px"
-                  min-width="auto"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      v-model="selectedDemand.endingDate"
-                      label="Bitiş Tarihi"
-                      persistent-hint
-                      prepend-icon="mdi-calendar"
-                      v-bind="attrs"
-                      v-on="on"
-                    />
-                  </template>
-                  <v-date-picker
-                    v-model="selectedDemand.endingDate"
-                    no-title
-                    @input="menu2 = false"
-                  />
-                </v-menu>
-              </v-col> -->
             </v-row>
 
             <v-row
@@ -247,63 +183,44 @@
             <v-row
               class="mt-3"
             >
-              <!-- Consultant -->
+              <!-- Contracts -->
               <v-col
                 cols="12"
                 md="4"
               >
                 <v-autocomplete
-                    ref="newConsultantSelect"
-                    v-model="selectedDemand.consultantId"
-                    :items="consultants"
-                    :item-text="e => e.firstName + ' ' + e.lastName"
-                    item-value="id"
-                    label="Aday"
-                  >
-                    <template v-slot:prepend-item>
-                      <v-list-item
-                        ripple
-                        @click="createConsultant"
-                      >
-                        <v-list-item-action>
-                          <v-icon color="success">
-                            mdi-plus
-                          </v-icon>
-                        </v-list-item-action>
-                        <v-list-item-content>
-                          <v-list-item-title>
-                            Yeni Danışman Oluştur
-                          </v-list-item-title>
-                        </v-list-item-content>
-                      </v-list-item>
-                      <v-divider class="mt-2" />
-                    </template>
-                  </v-autocomplete>
-              </v-col>
-              <!-- Contract - 1 -->
-              <v-col
-                cols="12"
-                md="4"
-              >
-                <v-text-field
+                  v-model="selectedDemand.contractId"
+                  :items="contracts"
+                  :item-text="e => getContractName(e)"
+                  item-value="id"
                   label="Sözleşme"
-                  :value="getContractFilePath(1) || 'Sözleşme bulunmuyor'"
-                  append-icon="mdi-eye"
-                  @click:append="openContract(getContractFilePath(1))"
-                  readonly
+                  @change="selectedContract = contracts.find(e => e.id === selectedDemand.contractId)"
                 />
               </v-col>
-              <!-- Contract - 2 -->
+
+              <!-- Starting Date -->
               <v-col
                 cols="12"
                 md="4"
               >
                 <v-text-field
-                  label="İmzalı Sözleşme"
-                  :value="getContractFilePath(2) || 'İmzalı sözleşme bulunmuyor'"
-                  append-icon="mdi-eye"
-                  @click:append="openContract(getContractFilePath(2))"
-                  readonly
+                  :value="selectedContract ? getLocaleDate(selectedContract.startDate) : 'Sözleşme seçiniz..'"
+                  label="Sözleşme Başl. Tar."
+                  prepend-icon="mdi-calendar"
+                  disabled
+                />
+              </v-col>
+
+              <!-- Due Date -->
+              <v-col
+                cols="12"
+                md="4"
+              >
+                <v-text-field
+                  :value="selectedContract ? getLocaleDate(selectedContract.endDate) : 'Sözleşme seçiniz..'"
+                  label="Sözleşme Bit. Tar."
+                  prepend-icon="mdi-calendar"
+                  disabled
                 />
               </v-col>
             </v-row>
@@ -374,7 +291,7 @@
         searchWord: '',
         dialog: false,
         selectedDemand: {},
-        selectedConsultant: '',
+        selectedContract: '',
         DEMAND_STATUSES,
         newConsultantDialog: false,
         newConsultant: {
@@ -530,6 +447,15 @@
           const result = this.experienceSpans.find(experienceSpan => experienceSpan.id === id)
           return result ? result.name : 'Bulunamadı'
         } else return 'Bulunamadı'
+      },
+      getContractName (item) {
+        const consultant = this.consultants.find(e => e.id === item.consultantId)
+        const res = 'Söz. No. ' + item.id + ' - ' + consultant.firstName + ' ' + consultant.lastName
+        return res
+      },
+      getLocaleDate (date) {
+        const arr = date.split('T')[0].split('-')
+        return `${arr[2]}/${arr[1]}/${arr[0]}`
       },
     },
   }
