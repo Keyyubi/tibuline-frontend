@@ -223,11 +223,12 @@
       }
     },
     computed: {
-      ...get('admin', ['companies', 'jobTitles']),
+      ...get('company', ['companies']),
+      ...get('jobTitle', ['jobTitles']),
     },
     mounted () {
-      this.$store.dispatch('admin/getJobTitles')
-      this.$store.dispatch('admin/getSupplierCompanies')
+      this.$store.dispatch('jobTitle/getJobTitles')
+      this.$store.dispatch('company/getSupplierCompanies')
     },
     methods: {
       uppercase () {
@@ -239,12 +240,12 @@
       },
       updateJobTitle () {
         this.dialog = false
-        this.$store.dispatch('admin/updateJobTitle', this.selectedJobTitle)
+        this.$store.dispatch('jobTitle/updateJobTitle', this.selectedJobTitle)
       },
       createJobTitle () {
         if (this.$refs.form.validate()) {
           this.dialog = false
-          this.$store.dispatch('admin/createJobTitle', this.newJobTitle)
+          this.$store.dispatch('jobTitle/createJobTitle', this.newJobTitle)
           this.$refs.form.reset()
         }
       },

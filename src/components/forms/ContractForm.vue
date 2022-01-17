@@ -232,10 +232,10 @@
     }),
     computed: {
       ...get('user', ['user']),
-      ...get('supplier', ['consultants']),
+      ...get('consultant', ['consultants']),
     },
     mounted () {
-      this.$store.dispatch('supplier/getConsultants')
+      this.$store.dispatch('consultant/getConsultants')
 
       this.contract.supplierCompanyId = this.user.company.id
 
@@ -262,8 +262,8 @@
           const payload = { ...this.contract }
 
           this.formType === 'create'
-            ? this.$store.dispatch('supplier/createContract', payload)
-            : this.$store.dispatch('supplier/updateContract', payload)
+            ? this.$store.dispatch('contract/createContract', payload)
+            : this.$store.dispatch('contract/updateContract', payload)
 
           this.clearForm()
           this.$emit('close-dialog')
@@ -280,7 +280,7 @@
         if (this.contractDocument !== null) {
           const formData = new FormData()
           formData.append('files', this.contractDocument)
-          this.$store.dispatch('supplier/uploadContract', { formData, id: this.contract.id })
+          this.$store.dispatch('contract/uploadContract', { formData, id: this.contract.id })
           this.contractDialog = false
         }
       },

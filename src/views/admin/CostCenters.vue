@@ -181,10 +181,10 @@
       }
     },
     computed: {
-      ...get('admin', ['costCenters']),
+      ...get('costCenter', ['costCenters']),
     },
     mounted () {
-      this.$store.dispatch('admin/getCostCenters')
+      this.$store.dispatch('costCenter/getCostCenters')
     },
     methods: {
       uppercase () {
@@ -196,12 +196,12 @@
       },
       updateCostCenter () {
         this.dialog = false
-        this.$store.dispatch('admin/updateCostCenter', this.selectedCostCenter)
+        this.$store.dispatch('costCenter/updateCostCenter', this.selectedCostCenter)
       },
       createCostCenter () {
         if (this.$refs.form.validate()) {
           this.dialog = false
-          this.$store.dispatch('admin/createCostCenter', this.newCostCenter)
+          this.$store.dispatch('costCenter/createCostCenter', this.newCostCenter)
           this.$refs.form.reset()
         }
       },

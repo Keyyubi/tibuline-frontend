@@ -12,7 +12,7 @@
 
     <v-data-table
       :headers="headers"
-      :items="unitManagers"
+      :items="users"
       :search="searchWord"
     >
       <template v-slot:item.userName="{ item }">
@@ -29,7 +29,7 @@
         </v-chip>
       </template>
       <template v-slot:item.companyId="{ item }">
-        {{ item.companyId ? companies.find(e => e.id === item.companyId).name : 'Şirket bulunmuyor.' }}
+        {{ companies.find(e => e.id === item.companyId).name }}
       </template>
     </v-data-table>
 
@@ -183,7 +183,10 @@
   import { get } from 'vuex-pathify'
   import { RULES } from '@/util/globals'
   export default {
-    name: 'UnitManagers',
+    name: 'UsersList',
+    props: {
+      role: { type: String },
+    },
     data () {
       return {
         valid: false,
@@ -206,10 +209,14 @@
       }
     },
     computed: {
-      ...get('admin', ['companies', 'unitManagers']),
+      ...get('company', ['companies']),
+      ...get('user', ['users']),
     },
     mounted () {
-      this.$store.dispatch('admin/getUnitManagers')
+      this.$store.dispatch('company/getCompanies')
+      this.role === 'suppliers'
+        ? this.$store.dispatch('user/getSuppliers')
+        : this.$store.dispatch('user/getUnitManagers')
     },
     methods: {
       seeDetails (user) {
@@ -217,8 +224,13 @@
         this.dialog = true
       },
       updateUser () {
-        this.$store.dispatch('admin/updateUser', this.selectedUser)
-        this.dialog = false
+        if (this.$refs.form.validate()) {
+          this.dialog = false
+          this.$store.dispatch('user/updateUser', this.selectedUser)
+          setTimeout(() => {
+            this.$store.dispatch('user/getSuppliers')
+          }, 500)
+        }
       },
     },
   }

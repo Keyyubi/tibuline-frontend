@@ -157,11 +157,12 @@
     },
     computed: {
       ...get('user', ['user']),
-      ...get('supplier', ['contracts', 'consultants']),
+      ...get('contract', ['contracts']),
+      ...get('consultant', ['consultants']),
     },
     mounted () {
-      this.$store.dispatch('supplier/getContracts')
-      this.$store.dispatch('manager/getConsultants')
+      this.$store.dispatch('contract/getContracts')
+      this.$store.dispatch('consultant/getConsultants')
     },
     methods: {
       editContract (item) {
@@ -177,7 +178,7 @@
         this.dialog = true
       },
       confirm () {
-        this.$store.dispatch('manager/deleteContract', this.selectedContractId)
+        console.log('will be delete action')
       },
       closeDialog () {
         this.selectedContractId = null

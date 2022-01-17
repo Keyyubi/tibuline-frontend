@@ -13,11 +13,11 @@
     >
       <v-tabs-slider />
 
-      <v-tab href="#budgetPlans">
+      <v-tab href="#budgets">
         Bütçe Planları
         <v-icon>mdi-currency-usd</v-icon>
       </v-tab>
-      <v-tab href="#newBudgetPlan">
+      <v-tab href="#newBudget">
         Yeni Bütçe Planı Oluştur
         <v-icon>mdi-plus-box-multiple</v-icon>
       </v-tab>
@@ -26,7 +26,7 @@
     <div class="py3" />
 
     <v-tabs-items v-model="currentTab">
-      <v-tab-item value="budgetPlans">
+      <v-tab-item value="budgets">
         <v-card>
           <v-card-title>
             <v-row>
@@ -42,7 +42,7 @@
 
           <v-data-table
             :headers="headers"
-            :items="budgetPlans"
+            :items="budgets"
             :search="searchWord"
           >
             <!-- eslint-disable-next-line -->
@@ -51,7 +51,7 @@
                 class="ma-2"
                 color="primary"
                 dark
-                @click="editBudgetPlan(item)"
+                @click="editBudget(item)"
               >
                 {{ item.id }}
                 <v-icon right>
@@ -91,7 +91,7 @@
                 <v-row>
                   <v-col cols="4">
                     <v-autocomplete
-                      v-model="selectedBudgetPlan.companyId"
+                      v-model="selectedBudget.companyId"
                       :items="companies"
                       item-text="name"
                       item-value="id"
@@ -100,7 +100,7 @@
                   </v-col>
                   <v-col cols="4">
                     <v-autocomplete
-                      v-model="selectedBudgetPlan.jobTitleId"
+                      v-model="selectedBudget.jobTitleId"
                       :items="jobTitles"
                       item-text="name"
                       item-value="id"
@@ -109,7 +109,7 @@
                   </v-col>
                   <v-col cols="4">
                     <v-autocomplete
-                      v-model="selectedBudgetPlan.experienceSpanId"
+                      v-model="selectedBudget.experienceSpanId"
                       :items="experienceSpans"
                       item-text="name"
                       item-value="id"
@@ -121,7 +121,7 @@
                   <v-col cols="10">
                     <v-subheader>Aylık Bütçe (min: 1.000,00₺, max: 100.000,00₺)</v-subheader>
                     <v-slider
-                      v-model="selectedBudgetPlan.monthlyBudget"
+                      v-model="selectedBudget.monthlyBudget"
                       :min="1000"
                       :max="100000.00"
                       append-icon="mdi-plus"
@@ -134,7 +134,7 @@
                     class="mt-4"
                   >
                     <v-text-field
-                      v-model="selectedBudgetPlan.monthlyBudget"
+                      v-model="selectedBudget.monthlyBudget"
                       type="number"
                       required
                     />
@@ -144,7 +144,7 @@
                   <v-col cols="10">
                     <v-subheader>Toplam Bütçe (min: 1.000,00₺, max: 100.000,00₺)</v-subheader>
                     <v-slider
-                      v-model="selectedBudgetPlan.totalBudget"
+                      v-model="selectedBudget.totalBudget"
                       :min="12000"
                       :max="1200000.00"
                       append-icon="mdi-plus"
@@ -157,7 +157,7 @@
                     class="mt-4"
                   >
                     <v-text-field
-                      v-model="selectedBudgetPlan.totalBudget"
+                      v-model="selectedBudget.totalBudget"
                       type="number"
                       required
                     />
@@ -174,7 +174,7 @@
               <v-btn
                 color="primary"
                 depressed
-                @click="updateBudgetPlan()"
+                @click="updateBudget()"
               >
                 Güncelle
               </v-btn>
@@ -190,37 +190,40 @@
         </v-dialog>
       </v-tab-item>
 
-      <v-tab-item value="newBudgetPlan">
+      <v-tab-item value="newBudget">
         <v-container class="py-3">
           <v-row>
             <v-col cols="4">
               <v-autocomplete
-                v-model="newBudgetPlan.companyId"
+                v-model="newBudget.companyId"
                 :items="companies"
                 item-text="name"
                 item-value="id"
                 label="Şirket"
                 :error-messages="companyError"
+                @change="getCompanyItems"
               />
             </v-col>
             <v-col cols="4">
               <v-autocomplete
-                v-model="newBudgetPlan.jobTitleId"
+                v-model="newBudget.jobTitleId"
                 :items="jobTitles"
                 item-text="name"
                 item-value="id"
                 label="Ünvan"
                 :error-messages="jobTitleError"
+                :disabled="newBudget.companyId == null"
               />
             </v-col>
             <v-col cols="4">
               <v-autocomplete
-                v-model="newBudgetPlan.experienceSpanId"
+                v-model="newBudget.experienceSpanId"
                 :items="experienceSpans"
                 item-text="name"
                 item-value="id"
                 label="Tecrübe Aralığı"
                 :error-messages="expSpanError"
+                :disabled="newBudget.companyId == null"
               />
             </v-col>
           </v-row>
@@ -228,7 +231,7 @@
             <v-col cols="10">
               <v-subheader>Aylık Bütçe (min: 1.000,00₺, max: 100.000,00₺)</v-subheader>
               <v-slider
-                v-model="newBudgetPlan.monthlyBudget"
+                v-model="newBudget.monthlyBudget"
                 :step="0.5"
                 :min="1000"
                 :max="100000.00"
@@ -242,7 +245,7 @@
               class="mt-4"
             >
               <v-text-field
-                v-model="newBudgetPlan.monthlyBudget"
+                v-model="newBudget.monthlyBudget"
                 type="number"
                 required
               />
@@ -252,7 +255,7 @@
             <v-col cols="10">
               <v-subheader>Toplam Bütçe (min: 1.000,00₺, max: 100.000,00₺)</v-subheader>
               <v-slider
-                v-model="newBudgetPlan.totalBudget"
+                v-model="newBudget.totalBudget"
                 :step="0.5"
                 :min="12000"
                 :max="1200000.00"
@@ -266,7 +269,7 @@
               class="mt-4"
             >
               <v-text-field
-                v-model="newBudgetPlan.totalBudget"
+                v-model="newBudget.totalBudget"
                 type="number"
                 required
               />
@@ -274,14 +277,14 @@
           </v-row>
           <v-row>
             <v-col cols="8">
-              <v-subheader>Saatlik Bütçe (Aylık 180 saat olarak hesaplanmıştır.): {{ Math.round((newBudgetPlan.monthlyBudget / 180) * 100) / 100 }} ₺</v-subheader>
+              <v-subheader>Saatlik Bütçe (Aylık 180 saat olarak hesaplanmıştır.): {{ Math.round((newBudget.monthlyBudget / 180) * 100) / 100 }} ₺</v-subheader>
             </v-col>
             <v-col cols="4">
               <v-btn
                 class="my-2"
                 width="100%"
                 color="primary"
-                @click="createBudgetPlan()"
+                @click="createBudget()"
               >
                 Oluştur
               </v-btn>
@@ -296,17 +299,17 @@
 <script>
   import { get } from 'vuex-pathify'
   export default {
-    name: 'BudgetPlans',
+    name: 'Budgets',
     data () {
       return {
-        currentTab: 'budgetPlans',
+        currentTab: 'budgets',
         searchWord: '',
         dialog: false,
         companyError: '',
         jobTitleError: '',
         expSpanError: '',
-        selectedBudgetPlan: {},
-        newBudgetPlan: {
+        selectedBudget: {},
+        newBudget: {
           companyId: null,
           experienceSpanId: null,
           jobTitleId: null,
@@ -328,27 +331,28 @@
       }
     },
     computed: {
-      ...get('admin', ['budgetPlans', 'companies', 'jobTitles', 'experienceSpans']),
+      ...get('budget', ['budgets']),
+      ...get('company', ['companies']),
+      ...get('jobTitle', ['jobTitles']),
+      ...get('experienceSpan', ['experienceSpans']),
     },
     mounted () {
-      this.$store.dispatch('admin/getCompanies')
-      this.$store.dispatch('admin/getJobTitles')
-      this.$store.dispatch('admin/getExperienceSpans')
-      this.$store.dispatch('admin/getBudgetPlans')
+      this.$store.dispatch('company/getCompanies')
+      this.$store.dispatch('budget/getBudgets')
     },
     methods: {
       setBudget (type) {
         if (type === 'monthly') {
-          this.newBudgetPlan.monthlyBudget = Math.round((this.newBudgetPlan.totalBudget / 12) * 100) / 100
+          this.newBudget.monthlyBudget = Math.round((this.newBudget.totalBudget / 12) * 100) / 100
         } else {
-          this.newBudgetPlan.totalBudget = Math.round((this.newBudgetPlan.monthlyBudget * 12) * 100) / 100
+          this.newBudget.totalBudget = Math.round((this.newBudget.monthlyBudget * 12) * 100) / 100
         }
       },
       setEditBudget (type) {
         if (type === 'monthly') {
-          this.selectedBudgetPlan.monthlyBudget = Math.round((this.selectedBudgetPlan.totalBudget / 12) * 100) / 100
+          this.selectedBudget.monthlyBudget = Math.round((this.selectedBudget.totalBudget / 12) * 100) / 100
         } else {
-          this.selectedBudgetPlan.totalBudget = Math.round((this.selectedBudgetPlan.monthlyBudget * 12) * 100) / 100
+          this.selectedBudget.totalBudget = Math.round((this.selectedBudget.monthlyBudget * 12) * 100) / 100
         }
       },
       getJobTitleName (id) {
@@ -366,32 +370,36 @@
         if (result) return result.name
         else return 'Bulunamadi'
       },
-      editBudgetPlan (item) {
-        this.selectedBudgetPlan = item
+      editBudget (item) {
+        this.selectedBudget = item
         this.dialog = true
       },
-      updateBudgetPlan () {
+      updateBudget () {
         this.dialog = false
-        this.$store.dispatch('admin/updateBudgetPlan', this.selectedBudgetPlan)
+        this.$store.dispatch('budget/updateBudget', this.selec)
       },
-      createBudgetPlan () {
-        if (!this.newBudgetPlan.companyId) {
+      createBudget () {
+        if (!this.newBudget.companyId) {
           this.companyError = 'Şirket seçmelisiniz.'
           return
         } else this.companyError = ''
-        if (!this.newBudgetPlan.jobTitleId) {
+        if (!this.newBudget.jobTitleId) {
           this.jobTitleError = 'Ünvan seçmelisiniz.'
           return
         } else this.jobTitleError = ''
-        if (!this.newBudgetPlan.experienceSpanId) {
+        if (!this.newBudget.experienceSpanId) {
           this.expSpanError = 'Tecrübe aralığı seçmelisiniz.'
           return
         } else this.expSpanError = ''
-        console.log('newBudget', this.newBudgetPlan)
+        console.log('newBudget', this.newBudget)
         this.dialog = false
-        const payload = { ...this.newBudgetPlan }
-        this.$store.dispatch('admin/createBudgetPlan', payload)
-        Object.keys(this.newBudgetPlan).forEach(e => { this.newBudgetPlan[e] = null })
+        const payload = { ...this.newBudget }
+        this.$store.dispatch('budget/createBudget', payload)
+        Object.keys(this.newBudget).forEach(e => { this.newBudget[e] = null })
+      },
+      getCompanyItems () {
+        this.$store.dispatch('jobTitle/getJobTitlesByCompanyId', this.newBudget.companyId)
+        this.$store.dispatch('experienceSpan/getExperienceSpansByCompanyId', this.newBudget.companyId)
       },
     },
   }

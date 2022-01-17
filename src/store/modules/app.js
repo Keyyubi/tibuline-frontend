@@ -42,11 +42,6 @@ const managerItems = [
     to: '/unit-manager/demands',
   },
   {
-    title: 'Sözleşmeler',
-    icon: 'mdi-file-document',
-    to: '/unit-manager/contracts',
-  },
-  {
     title: 'Projeler',
     icon: 'mdi-folder-table-outline',
     to: '/unit-manager/projects',

@@ -129,89 +129,33 @@
 </template>
 
 <script>
-  import { DEMAND_STATUSES } from '@/util/globals'
+  import { DEMAND_STATUSES as Statuses } from '@/util/globals'
   import { get } from 'vuex-pathify'
   export default {
     name: 'NewDemand',
     data () {
       return {
-        popup: null,
-        monthlyBudget: '',
-        totalBudget: '',
-        DEMAND_STATUSES,
+        Statuses,
         demand: {
           createdById: null,
-          costCenterId: 0,
-          supplierCompanyId: 0,
-          jobTitleId: 0,
-          experienceSpanId: 0,
-          monthlyBudget: 0,
-          totalBudget: 0,
-          projectId: 0,
-          demandStatus: DEMAND_STATUSES.find(e => e.key === 'CREATED').status,
+          costCenterId: null,
+          supplierCompanyId: null,
+          jobTitleId: null,
+          experienceSpanId: null,
+          monthlyBudget: null,
+          totalBudget: null,
+          projectId: null,
+          demandStatus: null,
         },
       }
     },
     computed: {
       ...get('user', ['user']),
-      ...get('manager', ['costCenters', 'experienceSpans', 'jobTitles', 'projects', 'companies', 'budgets']),
     },
     mounted () {
-      this.$store.dispatch('manager/getCostCenters')
-      this.$store.dispatch('manager/getProjects')
-      this.$store.dispatch('manager/getSupplierCompanies')
-      this.demand.createdById = this.user.id
-    },
-    methods: {
-      createDemand () {
-        const fields = ['costCenterId', 'supplierCompanyId', 'jobTitleId', 'experienceSpanId', 'projectId']
-        let isFilled = true
-        fields.forEach(e => {
-          if (isFilled && isFilled !== 0) {
-            isFilled = this.demand[e]
-          } else isFilled = false
-        })
-
-        if (!isFilled) {
-          this.$store.dispatch('app/showAlert', { message: 'Lütfen tüm alanları doldurduğunuzdan emin olunuz.', type: 'warning' })
-        } else {
-          this.$store.dispatch('manager/createDemand', this.demand)
-        }
-      },
-      selectTarget (target, id) {
-        switch (target) {
-          case 'supplier':
-            this.$store.dispatch('manager/getJobTitlesByCompany', id)
-            this.$store.dispatch('manager/getExperienceSpansByCompany', id)
-            this.$store.dispatch('manager/getBudgetPlansByCompany', id)
-            break
-          case 'jobTitle':
-            this.calculateBudget()
-            break
-          case 'experienceSpan':
-            this.calculateBudget()
-            break
-          default:
-            break
-        }
-      },
-      calculateBudget () {
-        if (this.demand.supplierCompanyId && this.demand.jobTitleId && this.demand.experienceSpanId) {
-          const budget = this.budgets.find(e => {
-            return e.experienceSpanId === this.demand.experienceSpanId && e.jobTitleId === this.demand.jobTitleId
-          })
-          if (budget) {
-            this.demand.monthlyBudget = budget.monthlyBudget
-            this.demand.totalBudget = budget.totalBudget
-          } else {
-            this.demand.monthlyBudget = 0
-            this.demand.totalBudget = 0
-          }
-        }
-      },
-      moneyMask (amount) {
-        return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(amount)
-      },
+      this.$store.dispatch('costCenter/getCostCenters')
+      this.$store.dispatch('projects/getProjects')
+      this.$store.dispatch('user/getSupplierCompanies')
     },
   }
 </script>

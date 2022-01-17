@@ -356,12 +356,14 @@
       }
     },
     computed: {
-      ...get('admin', ['companies', 'jobTitles', 'experienceSpans']),
+      ...get('company', ['companies']),
+      ...get('jobTitle', ['jobTitles']),
+      ...get('experienceSpan', ['experienceSpans']),
     },
     mounted () {
-      this.$store.dispatch('admin/getJobTitles')
-      this.$store.dispatch('admin/getExperienceSpans')
-      this.$store.dispatch('admin/getCompanies')
+      this.$store.dispatch('jobTitle/getJobTitles')
+      this.$store.dispatch('experienceSpan/getExperienceSpans')
+      this.$store.dispatch('company/getCompanies')
     },
     methods: {
       reset () {
@@ -378,13 +380,13 @@
       updateCompany () {
         if (this.$refs.editForm.validate()) {
           this.dialog = false
-          this.$store.dispatch('admin/updateCompany', this.selectedCompany)
+          this.$store.dispatch('company/updateCompany', this.selectedCompany)
         }
       },
       createCompany () {
         if (this.$refs.form.validate()) {
           this.dialog = false
-          this.$store.dispatch('admin/createCompany', this.newCompany)
+          this.$store.dispatch('company/createCompany', this.newCompany)
           this.$refs.form.reset()
         }
       },

@@ -159,7 +159,7 @@
         >
           <v-select
             v-model="consultant.unitManagerUserId"
-            :items="unitManagers"
+            :items="users"
             :item-text="e => e.firstName + ' ' + e.lastName"
             item-value="id"
             label="Yöneticisi"
@@ -366,14 +366,16 @@
       RULES,
     }),
     computed: {
-      ...get('user', ['user']),
-      ...get('supplier', ['jobTitles', 'experienceSpans', 'projects', 'unitManagers']),
+      ...get('user', ['user', 'users']),
+      ...get('jobTitle', ['jobTitles']),
+      ...get('experienceSpan', ['experienceSpans']),
+      ...get('project', ['projects']),
     },
     mounted () {
-      this.$store.dispatch('supplier/getJobTitles')
-      this.$store.dispatch('supplier/getUnitManagers')
-      this.$store.dispatch('supplier/getExperienceSpans')
-      this.$store.dispatch('supplier/getProjects')
+      this.$store.dispatch('jobTitle/getJobTitles')
+      this.$store.dispatch('user/getUnitManagers')
+      this.$store.dispatch('experienceSpan/getExperienceSpans')
+      this.$store.dispatch('project/getProjects')
 
       this.consultant.companyId = this.user.companyId
 
@@ -400,7 +402,7 @@
         if (this.contractDocument !== null) {
           const formData = new FormData()
           formData.append('files', this.contractDocument)
-          this.$store.dispatch('supplier/uploadContract', { formData, sending: this.consultant })
+          this.$store.dispatch('contract/uploadContract', { formData, sending: this.consultant })
           this.contractDialog = false
         }
       },
@@ -409,9 +411,9 @@
           const payload = { ...this.consultant }
 
           if (this.formType === 'create') {
-            this.$store.dispatch('supplier/createConsultant', payload)
+            this.$store.dispatch('consultant/createConsultant', payload)
             this.clearForm()
-          } else this.$store.dispatch('supplier/updateConsultant', payload)
+          } else this.$store.dispatch('consultant/updateConsultant', payload)
           this.$emit('close-dialog')
         }
       },

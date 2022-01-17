@@ -85,12 +85,29 @@
                     Aylık Aktiviteleri Doldur
                   </v-btn>
                   <v-spacer />
-                  <v-chip
+                  <v-tooltip
                     v-if="selectedConsultant != null"
-                    class="ma-2"
+                    left
                   >
-                    Çalışan: {{ consultants.find(e => e.id === selectedConsultant).firstName + ' ' + consultants.find(e => e.id === selectedConsultant).lastName }}
-                  </v-chip>
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-chip
+                        class="ma-2"
+                        color="primary"
+                        v-bind="attrs"
+                        v-on="on"
+                        @click="e1=1"
+                      >
+                        {{ consultants.find(e => e.id === selectedConsultant).firstName + ' ' + consultants.find(e => e.id === selectedConsultant).lastName }}
+                        <v-icon
+                          class="ml-4"
+                          size="18"
+                        >
+                          mdi-restore
+                        </v-icon>
+                      </v-chip>
+                    </template>
+                    <span>Danışmanı değiştir</span>
+                  </v-tooltip>
                 </v-toolbar>
               </v-sheet>
               <v-sheet
@@ -318,10 +335,11 @@
       statuses,
     }),
     computed: {
-      ...get('supplier', ['activities', 'consultants']),
+      ...get('activity', ['activities']),
+      ...get('consultant', ['consultants']),
     },
     mounted () {
-      this.$store.dispatch('supplier/getConsultants')
+      this.$store.dispatch('consultant/getConsultants')
     },
     methods: {
       selectConsultant () {
@@ -331,7 +349,7 @@
           consultantId: this.selectedConsultant,
           yearMonth,
         }
-        this.$store.dispatch('supplier/getConsultantActivities', payload)
+        this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonth', payload)
         this.calculateTotalHours()
         this.e1 = 2
       },
@@ -367,10 +385,12 @@
       },
       async updateRange () {
         this.$store.dispatch('app/setLoading', true)
+
         if (this.activities.length > 0) {
           for (let i = 0; i < this.activities.length; i++) {
-            this.$store.dispatch('supplier/deleteActivity', this.activities[i].id)
+            this.$store.dispatch('activity/deleteActivity', this.activities[i].id)
           }
+
           await this.sleep(1000)
         }
 
@@ -380,11 +400,12 @@
           const startDate = new Date(end.year, end.month - 1, i + 1)
 
           if (startDate.getDay() !== 0 && startDate.getDay() !== 6) {
-            this.$store.dispatch('supplier/createActivity', this.newShiftEvent(date, `${this.shiftHours}s mesai`))
+            this.$store.dispatch('activity/createActivity', this.newShiftEvent(date, `${this.shiftHours}s mesai`))
           }
         }
 
         await this.sleep(1000)
+
         this.selectConsultant()
         this.calculateTotalHours()
         this.$store.dispatch('app/setLoading', false)
@@ -419,9 +440,9 @@
           const index = this.activities.findIndex(e => e.date === this.selectedEvent.date)
 
           if (index !== -1) {
-            this.$store.dispatch('supplier/updateActivity', this.selectedEvent)
+            this.$store.dispatch('activity/updateActivity', this.selectedEvent)
           } else {
-            this.$store.dispatch('supplier/createActivity', this.selectedEvent)
+            this.$store.dispatch('activity/createActivity', this.selectedEvent)
           }
 
           this.calculateTotalHours()
@@ -465,7 +486,7 @@
           this.confirmationDialog = false
           const arr = this.activities.map(e => e.id)
           for (let i = 0; i < arr.length; i++) {
-            this.$store.dispatch('supplier/deleteActivity', arr[i])
+            this.$store.dispatch('activity/deleteActivity', arr[i])
           }
           await this.sleep(500)
           this.selectConsultant()
@@ -484,7 +505,7 @@
         const yearMonth = date.split('-')[0] + '-' + date.split('-')[1]
         const consultantId = this.selectedConsultant
 
-        this.$store.dispatch('supplier/getConsultantActivities', { consultantId, yearMonth })
+        this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonth', { consultantId, yearMonth })
 
         setTimeout(() => {
           this.$store.dispatch('app/setLoading', false)

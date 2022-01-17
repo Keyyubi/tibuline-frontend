@@ -33,11 +33,11 @@
 
     <v-tabs-items v-model="currentTab">
       <v-tab-item value="managers">
-        <unit-managers />
+        <users-list role="unitManagers" />
       </v-tab-item>
 
       <v-tab-item value="suppliers">
-        <suppliers />
+        <users-list role="suppliers" />
       </v-tab-item>
 
       <v-tab-item value="newUser">
@@ -58,6 +58,7 @@
                   label="Kullanıcı Adı"
                   :rules="[v => !!v || 'Kullanıcı adı boş geçilemez',]"
                   required
+                  @change="newUser.email = newUser.username + '@'"
                 />
               </v-col>
 
@@ -171,7 +172,7 @@
               >
                 <v-select
                   v-model="newUser.companyId"
-                  :items="companies"
+                  :items="companies.filter(e => e.isSupplier === (newUser.roleId === 2))"
                   item-text="name"
                   item-value="id"
                   label="Şirket"
@@ -245,10 +246,10 @@
     },
     computed: {
       ...get('user', ['user']),
-      ...get('admin', ['companies']),
+      ...get('company', ['companies']),
     },
     mounted () {
-      this.$store.dispatch('admin/getCompanies')
+      this.$store.dispatch('company/getCompanies')
     },
     methods: {
       reset () {
@@ -264,7 +265,7 @@
       },
       createUser () {
         if (this.$refs.form.validate()) {
-          this.$store.dispatch('admin/createUser', this.newUser)
+          this.$store.dispatch('user/createUser', this.newUser)
         }
       },
     },

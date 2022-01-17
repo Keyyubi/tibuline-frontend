@@ -86,16 +86,14 @@
       }
     },
     computed: {
-      ...get('supplier', [
-        'consultants',
-        'jobTitles',
-        'experienceSpans',
-        'projects',
-        'unitManagers',
-      ]),
+      ...get('consultant', ['consultants']),
+      ...get('jobTitle', ['jobTitles']),
+      ...get('experienceSpan', ['experienceSpans']),
+      ...get('project', ['projects']),
+      ...get('user', ['users']),
     },
     mounted () {
-      this.$store.dispatch('supplier/getConsultants')
+      this.$store.dispatch('consultant/getConsultants')
     },
     methods: {
       seeDetails (consultant) {

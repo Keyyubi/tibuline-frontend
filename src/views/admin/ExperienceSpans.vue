@@ -202,11 +202,12 @@
       }
     },
     computed: {
-      ...get('admin', ['companies', 'experienceSpans']),
+      ...get('company', ['companies']),
+      ...get('experienceSpan', ['experienceSpans']),
     },
     mounted () {
-      this.$store.dispatch('admin/getExperienceSpans')
-      this.$store.dispatch('admin/getSupplierCompanies')
+      this.$store.dispatch('experienceSpan/getExperienceSpans')
+      this.$store.dispatch('company/getSupplierCompanies')
     },
     methods: {
       editExperienceSpan (item) {
@@ -215,12 +216,12 @@
       },
       updateExperienceSpan () {
         this.dialog = false
-        this.$store.dispatch('admin/updateExperienceSpan', this.selectedExperienceSpan)
+        this.$store.dispatch('experienceSpan/updateExperienceSpan', this.selectedExperienceSpan)
       },
       createExperienceSpan () {
         if (this.$refs.form.validate()) {
           this.dialog = false
-          this.$store.dispatch('admin/createExperienceSpan', this.newExperienceSpan)
+          this.$store.dispatch('experienceSpan/createExperienceSpan', this.newExperienceSpan)
           this.$refs.form.reset()
         }
       },

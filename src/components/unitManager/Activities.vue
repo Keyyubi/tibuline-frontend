@@ -239,7 +239,7 @@
           class="white--text mr-3"
           color="green"
           depressed
-          :disabled="!(this.activities.length > 0)"
+          :disabled="!(activities.length > 0)"
           @click="showConfirmation('approve')"
         >
           Onayla
@@ -248,7 +248,7 @@
           color="error"
           dark
           depressed
-          :disabled="!(this.activities.length > 0)"
+          :disabled="!(activities.length > 0)"
           @click="showConfirmation('deny')"
         >
           Reddet
@@ -334,10 +334,11 @@
       statuses,
     }),
     computed: {
-      ...get('manager', ['activities', 'consultants']),
+      ...get('consultant', ['consultants']),
+      ...get('activity', ['activities']),
     },
     mounted () {
-      this.$store.dispatch('manager/getConsultants')
+      this.$store.dispatch('consultant/getConsultants')
     },
     methods: {
       selectConsultant () {
@@ -347,7 +348,7 @@
           consultantId: this.selectedConsultant,
           yearMonth,
         }
-        this.$store.dispatch('manager/getConsultantActivities', payload)
+        this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonth', payload)
         this.calculateTotalHours()
         this.e1 = 2
       },
@@ -385,7 +386,7 @@
         this.$store.dispatch('app/setLoading', true)
         if (this.activities.length > 0) {
           for (let i = 0; i < this.activities.length; i++) {
-            this.$store.dispatch('supplier/deleteActivity', this.activities[i].id)
+            this.$store.dispatch('activity/deleteActivity', this.activities[i].id)
           }
           await this.sleep(1000)
         }
@@ -396,7 +397,7 @@
           const startDate = new Date(end.year, end.month - 1, i + 1)
 
           if (startDate.getDay() !== 0 && startDate.getDay() !== 6) {
-            this.$store.dispatch('supplier/createActivity', this.newShiftEvent(date, `${this.shiftHours}s mesai`))
+            this.$store.dispatch('activity/createActivity', this.newShiftEvent(date, `${this.shiftHours}s mesai`))
           }
         }
 
@@ -435,9 +436,9 @@
           const index = this.activities.findIndex(e => e.date === this.selectedEvent.date)
 
           if (index !== -1) {
-            this.$store.dispatch('supplier/updateActivity', this.selectedEvent)
+            this.$store.dispatch('activity/updateActivity', this.selectedEvent)
           } else {
-            this.$store.dispatch('supplier/createActivity', this.selectedEvent)
+            this.$store.dispatch('activity/createActivity', this.selectedEvent)
           }
 
           this.calculateTotalHours()
@@ -465,7 +466,7 @@
           this.confirmationDialog = false
           const arr = this.activities.map(e => e.id)
           for (let i = 0; i < arr.length; i++) {
-            this.$store.dispatch('supplier/deleteActivity', arr[i])
+            this.$store.dispatch('activity/deleteActivity', arr[i])
           }
           await this.sleep(500)
           this.selectConsultant()
@@ -484,7 +485,7 @@
         const yearMonth = date.split('-')[0] + '-' + date.split('-')[1]
         const consultantId = this.selectedConsultant
 
-        this.$store.dispatch('manager/getConsultantActivities', { consultantId, yearMonth })
+        this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonth', { consultantId, yearMonth })
 
         setTimeout(() => {
           this.$store.dispatch('app/setLoading', false)

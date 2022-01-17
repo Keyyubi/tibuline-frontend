@@ -51,7 +51,7 @@
           :color="item.demandStatus === 0 ? 'orange' : 'green'"
           dark
         >
-          {{ DEMAND_STATUSES.find(e => e.status === item.demandStatus).label }}
+          {{ Labels[item.demandStatus] }}
         </v-chip>
       </template>
     </v-data-table>
@@ -303,10 +303,10 @@
           <v-btn
             color="primary"
             depressed
-            :disabled="selectedDemand.demandStatus === DEMAND_STATUSES.find(e => e.key === 'COMPLITED').status"
+            :disabled="selectedDemand.demandStatus === Statuses.COMPLITED"
             @click="updateDemand"
           >
-            {{ selectedDemand.demandStatus === DEMAND_STATUSES.find(e => e.key === 'APPROVED').status ? 'Tamamla' : 'Güncelle'}}
+            {{ selectedDemand.demandStatus === Statuses.APPROVED ? 'Tamamla' : 'Güncelle'}}
           </v-btn>
           <v-btn
             color="error"
@@ -322,7 +322,7 @@
 </template>
 
 <script>
-  import { DEMAND_STATUSES } from '@/util/globals'
+  import { DEMAND_STATUSES as Statuses, DEMAND_STATUS_LABELS as Labels } from '@/util/globals'
   import { get } from 'vuex-pathify'
   export default {
     name: 'AllDemands',
@@ -333,7 +333,8 @@
         contract: null,
         dialog: false,
         selectedDemand: {},
-        DEMAND_STATUSES,
+        Statuses,
+        Labels,
         headers: [
           {
             text: 'Talep No.',
@@ -350,25 +351,22 @@
     },
     computed: {
       ...get('user', ['user']),
-      ...get('manager', [
-        'demands',
-        'demandedConsultant',
-        'costCenters',
-        'experienceSpans',
-        'jobTitles',
-        'projects',
-        'companies',
-        'contracts',
-      ]),
+      ...get('demand', ['demands']),
+      ...get('costCenter', ['costCenters']),
+      ...get('experienceSpan', ['experienceSpans']),
+      ...get('jobTitle', ['jobTitles']),
+      ...get('project', ['projects']),
+      ...get('company', ['companies']),
+      ...get('contract', ['contracts']),
     },
     mounted () {
-      this.$store.dispatch('manager/getSupplierCompanies')
-      this.$store.dispatch('manager/getCostCenters')
-      this.$store.dispatch('manager/getJobTitles')
-      this.$store.dispatch('manager/getExperienceSpans')
-      this.$store.dispatch('manager/getProjects')
-      this.$store.dispatch('manager/getDemands')
-      this.$store.dispatch('manager/getContracts')
+      this.$store.dispatch('company/getSupplierCompanies')
+      this.$store.dispatch('costCenter/getCostCenters')
+      this.$store.dispatch('jobTitle/getJobTitles')
+      this.$store.dispatch('experienceSpan/getExperienceSpans')
+      this.$store.dispatch('project/getProjects')
+      this.$store.dispatch('demand/getDemands')
+      this.$store.dispatch('contract/getContracts')
     },
     methods: {
       openContract () {
@@ -386,11 +384,11 @@
         return new Promise(resolve => setTimeout(resolve, ms))
       },
       async showDemand (demand) {
-        this.$store.dispatch('manager/getJobTitlesByCompany', demand.supplierCompanyId)
-        this.$store.dispatch('manager/getExperienceSpansByCompany', demand.supplierCompanyId)
-        this.$store.dispatch('manager/getBudgetPlansByCompany', demand.supplierCompanyId)
+        this.$store.dispatch('jobTitle/getJobTitlesByCompanyId', demand.supplierCompanyId)
+        this.$store.dispatch('experienceSpan/getExperienceSpansByCompanyId', demand.supplierCompanyId)
+        this.$store.dispatch('budger/getBudgetsByCompanyId', demand.supplierCompanyId)
         if (demand.consultantId) {
-          this.$store.dispatch('manager/getConsultantById', demand.consultantId)
+          this.$store.dispatch('consultant/getConsultantById', demand.consultantId)
         }
         await this.sleep(250)
         this.selectedDemand = { ...demand }
@@ -399,9 +397,9 @@
       selectTarget (target, id) {
         switch (target) {
           case 'supplier':
-            this.$store.dispatch('manager/getJobTitlesByCompany', id)
-            this.$store.dispatch('manager/getExperienceSpansByCompany', id)
-            this.$store.dispatch('manager/getBudgetPlansByCompany', id)
+            this.$store.dispatch('jobTitle/getJobTitlesByCompanyId', id)
+            this.$store.dispatch('experienceSpan/getExperienceSpansByCompanyId', id)
+            this.$store.dispatch('budget/getBudgetsByCompanyId', id)
             break
           case 'jobTitle':
             this.calculateBudget()
@@ -417,19 +415,19 @@
         const payload = { ...this.selectedDemand }
         let isAllowedToUpdate = true
         switch (payload.demandStatus) {
-          case DEMAND_STATUSES.find(e => e.key === 'REPLIED').status:
+          case Statuses.REPLIED:
             if (payload.consultantId && payload.contractId) {
-              payload.demandStatus = DEMAND_STATUSES.find(e => e.key === 'PENDING').status
+              payload.demandStatus = Statuses.PENDING
             }
             break
-          case DEMAND_STATUSES.find(e => e.key === 'APPROVED').status:
+          case Statuses.APPROVED:
             if (this.demandedConsultant.contractFilePath && this.demandedConsultant.contractFilePath.length > 0) {
               payload.consultantPayload = {
                 id: payload.consultantId,
                 unitManagerUserId: this.user.id,
                 contractId: payload.contractId,
               }
-              payload.demandStatus = DEMAND_STATUSES.find(e => e.key === 'COMPLITED').status
+              payload.demandStatus = Statuses.COMPLITED
             }
             break
           default:
@@ -437,14 +435,14 @@
             break
         }
 
-        if (isAllowedToUpdate) this.$store.dispatch('manager/updateDemand', payload)
+        if (isAllowedToUpdate) this.$store.dispatch('demand/updateDemand', payload)
         else this.$store.dispatch('app/showAlert', { message: 'Bir değişiklik yapılmadı.', type: 'info' })
         this.selectedDemand = {}
         this.dialog = false
       },
       closeDialog () {
-        this.$store.dispatch('manager/getJobTitles')
-        this.$store.dispatch('manager/getExperienceSpans')
+        this.$store.dispatch('jobTitle/getJobTitles')
+        this.$store.dispatch('experienceSpan/getExperienceSpans')
         this.dialog = false
       },
       getSupplierName (id) {

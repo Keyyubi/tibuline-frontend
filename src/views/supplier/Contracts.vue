@@ -64,7 +64,7 @@
         const formData = new FormData()
         console.log(this.contractUpload[0])
         formData.append('image', this.contractUpload[0])
-        this.$store.dispatch('manager/createContract', formData)
+        this.$store.dispatch('contract/createContract', formData)
       },
     },
   }

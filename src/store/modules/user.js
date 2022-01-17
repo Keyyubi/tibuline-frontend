@@ -2,7 +2,7 @@
 import { make } from 'vuex-pathify'
 import axios from 'axios'
 // Globals
-import { IN_BROWSER, CreateURL, GetPostHeaders } from '@/util/globals'
+import { IN_BROWSER, CreateURL, GetPostHeaders, ROLE_IDS } from '@/util/globals'
 import store from '@/store/index'
 
 // Router
@@ -10,6 +10,7 @@ import router from '../../router'
 
 const state = {
   user: {},
+  users: [],
   dark: false,
   drawer: {
     image: 1,
@@ -90,6 +91,64 @@ const actions = {
   logout: ({ commit }) => {
     commit('user', {})
     router.push('/login/')
+  },
+  createUser: (context, payload) => {
+    store.set('app/isLoading', true)
+
+    axios.post(CreateURL('User/CreateUser'), payload)
+      .then(() => {
+        store.dispatch('app/showAlert', { message: 'Kullanıcı başarıyla oluşturuldu.', type: 'success' }, { root: true })
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+      })
+  },
+  updateUser: (context, payload) => {
+    store.set('app/isLoading', true)
+
+    axios.put(CreateURL('User/UpdateUser'), payload, GetPostHeaders(store.get('user/user').token))
+      .then(() => {
+        store.dispatch('app/showAlert', { message: 'Başarıyla güncellendi.', type: 'success' }, { root: true })
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+      })
+  },
+  getUnitManagers: () => {
+    store.set('app/isLoading', true)
+
+    axios.get(CreateURL(`User/GetUsersByRoleId/${ROLE_IDS.UNIT_MANAGER}`), GetPostHeaders(store.get('user/user').token))
+      .then(({ data: res }) => {
+        store.set('user/users', res.data)
+      })
+      .catch(error => {
+        console.log('Error', error)
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+      })
+  },
+  getSuppliers: () => {
+    store.set('app/isLoading', true)
+
+    axios.get(CreateURL(`User/GetUsersByRoleId/${ROLE_IDS.SUPPLIER}`), GetPostHeaders(store.get('user/user').token))
+      .then(({ data: res }) => {
+        store.set('user/users', res.data)
+      })
+      .catch(error => {
+        console.log('Error', error)
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+      })
   },
 }
 

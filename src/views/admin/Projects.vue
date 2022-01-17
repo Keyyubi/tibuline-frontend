@@ -120,7 +120,7 @@
                     <v-col cols="4">
                       <v-select
                         v-model="selectedProject.assignedToId"
-                        :items="unitManagers"
+                        :items="users"
                         :item-text="e => e.firstName + ' ' + e.lastName"
                         item-value="id"
                         label="Proje Sorumlusu"
@@ -268,7 +268,7 @@
               <v-col cols="4">
                 <v-autocomplete
                   v-model="newProject.assignedToId"
-                  :items="unitManagers"
+                  :items="users"
                   :item-text="item => item.firstName + ' ' + item.lastName"
                   itemprop="firstName"
                   item-value="id"
@@ -423,13 +423,14 @@
       }
     },
     computed: {
-      ...get('user', ['user']),
-      ...get('admin', ['projects', 'unitManagers', 'costCenters']),
+      ...get('user', ['user', 'users']),
+      ...get('project', ['projects']),
+      ...get('costCenter', ['costCenters']),
     },
     mounted () {
-      this.$store.dispatch('admin/getProjects')
-      this.$store.dispatch('admin/getCostCenters')
-      this.$store.dispatch('admin/getUnitManagers')
+      this.$store.dispatch('project/getProjects')
+      this.$store.dispatch('costCenter/getCostCenters')
+      this.$store.dispatch('user/getUnitManagers')
     },
     methods: {
       seeDetails (item) {
@@ -441,7 +442,7 @@
       updateProject () {
         const payload = { ...this.selectedProject }
         this.dialog = false
-        this.$store.dispatch('admin/updateProject', payload)
+        this.$store.dispatch('project/updateProject', payload)
       },
       createProject () {
         if (this.$refs.form.validate()) {
@@ -451,14 +452,13 @@
           delete payload.starting
           delete payload.ending
           this.dialog = false
-          this.$store.dispatch('admin/createProject', payload)
+          this.$store.dispatch('project/createProject', payload)
           this.$refs.form.reset()
         }
       },
       getProjectManager (id) {
-        console.log('id', id)
         if (id && id.length > 0) {
-          const user = this.unitManagers.find(e => e.id === id)
+          const user = this.users.find(e => e.id === id)
           return user.firstName + ' ' + user.lastName
         } else {
           return 'Atama yapılmadı'

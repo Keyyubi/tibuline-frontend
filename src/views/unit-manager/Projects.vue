@@ -423,11 +423,12 @@
     },
     computed: {
       ...get('user', ['user']),
-      ...get('manager', ['projects', 'costCenters']),
+      ...get('project', ['projects']),
+      ...get('costCenter', ['costCenters']),
     },
     mounted () {
-      this.$store.dispatch('manager/getProjects')
-      this.$store.dispatch('manager/getCostCenters')
+      this.$store.dispatch('project/getProjects')
+      this.$store.dispatch('costCenter/getCostCenters')
       this.newProject.assignedToId = this.user.id
     },
     methods: {
@@ -442,7 +443,7 @@
         this.dialog = false
         const payload = { ...this.selectedProject }
         payload.projectBudget = payload.projectBudget.replace('.', '').replace(',', '.')
-        this.$store.dispatch('manager/updateProject', payload)
+        this.$store.dispatch('project/updateProject', payload)
         this.$refs.editForm.reset()
       },
       createProject () {
@@ -451,7 +452,7 @@
           payload.projectBudget = payload.projectBudget.replace('.', '').replace(',', '.')
           payload.createdBy = this.user.id
           this.dialog = false
-          this.$store.dispatch('manager/createProject', payload)
+          this.$store.dispatch('project/createProject', payload)
           this.$refs.form.reset()
         }
       },
