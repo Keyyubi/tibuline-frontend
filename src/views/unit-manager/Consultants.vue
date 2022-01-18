@@ -23,7 +23,7 @@
 
     <v-tabs-items v-model="currentTab">
       <v-tab-item value="allConsultants">
-        <all-consultants />
+        <consultants-list />
       </v-tab-item>
     </v-tabs-items>
   </v-container>

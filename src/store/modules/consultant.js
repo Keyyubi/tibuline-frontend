@@ -51,7 +51,7 @@ const actions = {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
 
-    axios.get(CreateURL('Consultant/GetConsultants'), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`Consultant/GetConsultantsByCompanyId/${currUser.companyId}`), GetPostHeaders(currUser.token))
       .then(({ data: res }) => {
         store.set('consultant/consultants', res.data)
       })
@@ -62,11 +62,26 @@ const actions = {
         store.set('app/isLoading', false)
       })
   },
-  getConsultantsByCompany: (context, payload) => {
+  getConsultantsByManagerId: () => {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
 
-    axios.get(CreateURL(`Consultant/GetConsultantConsultantsByCompanyId/${payload}`), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`Consultant/GetConsultantsByManagerId/${currUser.id}`), GetPostHeaders(currUser.token))
+      .then(({ data: res }) => {
+        store.set('consultant/consultants', res.data)
+      })
+      .catch(error => {
+        console.log('Error', error)
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+      })
+  },
+  getAllConsultants: () => {
+    store.set('app/isLoading', true)
+    const currUser = store.get('user/user')
+
+    axios.get(CreateURL('Consultant/GetConsultants'), GetPostHeaders(currUser.token))
       .then(({ data: res }) => {
         store.set('consultant/consultants', res.data)
       })

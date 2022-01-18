@@ -107,6 +107,9 @@ const actions = {
     store.set('project/projects', [])
     store.set('user/users', [])
     store.set('user/user', {})
+    store.set('app/items', [])
+    store.set('app/alertMessage', '')
+    store.set('app/alertType', '')
 
     router.push('/login/')
   },

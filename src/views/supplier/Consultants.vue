@@ -28,7 +28,7 @@
 
     <v-tabs-items v-model="currentTab">
       <v-tab-item value="consultants">
-        <supplier-consultants />
+        <consultants-list />
       </v-tab-item>
 
       <v-tab-item value="newConsultant">

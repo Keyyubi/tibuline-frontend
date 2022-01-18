@@ -28,6 +28,12 @@
           </v-icon>
         </v-chip>
       </template>
+      <template v-slot:item.firstName="{ item }">
+        {{ item.firstName + ' ' + item.lastName }}
+      </template>
+      <template v-slot:item.unitManagerUserId="{ item }">
+        {{ getUnitManagerName(item.unitManagerUserId) }}
+      </template>
 
       <!-- eslint-disable-next-line -->
       <template v-slot:item.isActive="{ item }">
@@ -64,23 +70,27 @@
 </template>
 
 <script>
+  import { ROLE_IDS as Roles } from '@/util/globals'
   import { get } from 'vuex-pathify'
   export default {
-    name: 'SupplierConsultants',
+    name: 'ConsultantsList',
     data () {
       return {
         searchWord: '',
         dialog: false,
         selectedConsultant: null,
+        Roles,
         headers: [
           {
             text: 'Danışman No.',
             align: 'start',
             value: 'id',
           },
-          { text: 'Ad', value: 'firstName' },
-          { text: 'Soyad', value: 'lastName' },
-          { text: 'Yönetici', value: 'manager.fullName' },
+          { text: 'Ad Soyad', value: 'firstName' },
+          { text: 'Yönetici', value: 'unitManagerUserId' },
+          { text: 'Proje', value: 'projectId' },
+          { text: 'Söz. Baş. Tar.', value: 'contractId' },
+          { text: 'Söz. Bit. Tar.', value: 'contractId' },
           { text: 'Durumu', value: 'isActive' },
         ],
       }
@@ -90,15 +100,41 @@
       ...get('jobTitle', ['jobTitles']),
       ...get('experienceSpan', ['experienceSpans']),
       ...get('project', ['projects']),
-      ...get('user', ['users']),
+      ...get('user', ['user', 'users']),
     },
     mounted () {
-      this.$store.dispatch('consultant/getConsultants')
+      console.log('user', this.user)
+      if (this.user.roleId === Roles.UNIT_MANAGER) {
+        this.$store.dispatch('consultant/getConsultantsByManagerId')
+      } else {
+        this.$store.dispatch('user/getUnitManagers')
+        this.$store.dispatch('consultant/getConsultants')
+      }
     },
     methods: {
       seeDetails (consultant) {
         this.selectedConsultant = { ...consultant }
         this.dialog = true
+      },
+      getUnitManagerName (id) {
+        if (this.user.roleId === Roles.UNIT_MANAGER) {
+          return this.user.firstName + ' ' + this.user.lastName
+        } else {
+          const user = this.users.find(e => e.id === id)
+          return user ? user.firstName + ' ' + user.lastName : 'İsim bulunamadı.'
+        }
+      },
+      getProject (id) {
+        const project = this.projects.find(e => e.id === id)
+        return project ? project.name : 'Proje bulunmuyor.'
+      },
+      getContractStartDate (id) {
+        const contract = this.contracts.find(e => e.id === id)
+        return project ? project.name : 'Proje bulunmuyor.'
+      },
+      getContractEndDate (id) {
+        const project = this.projects.find(e => e.id === id)
+        return project ? project.name : 'Proje bulunmuyor.'
       },
     },
   }
