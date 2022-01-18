@@ -27,7 +27,7 @@
 
           <!-- Supplier -->
           <v-col
-            v-if="formType === 'create'"
+            v-if="user.roleId !== Roles.SUPPLIER"
             cols="12"
             md="4"
           >
@@ -37,6 +37,7 @@
               item-text="name"
               item-value="id"
               label="Tedarikçi Firma"
+              :readonly="demand.demandStatus !== Statuses.CREATED"
               @change="selectTarget('supplier', demand.supplierCompanyId)"
             />
           </v-col>
@@ -52,7 +53,7 @@
               item-text="name"
               item-value="id"
               label="Masraf Merkezi"
-              :readonly="formType !== 'create'"
+              :readonly="demand.demandStatus !== Statuses.CREATED"
               @change="selectTarget('costCenter', demand.costCenterId)"
             />
           </v-col>
@@ -68,7 +69,7 @@
               item-text="name"
               item-value="id"
               label="Ünvan"
-              :readonly="formType !== 'create'"
+              :readonly="demand.demandStatus !== Statuses.CREATED"
               @change="selectTarget('jobTitle', demand.jobTitleId)"
             />
           </v-col>
@@ -84,7 +85,7 @@
               item-text="name"
               item-value="id"
               label="Tecrübe Aralığı"
-              :readonly="formType !== 'create'"
+              :readonly="demand.demandStatus !== Statuses.CREATED"
               @change="selectTarget('experienceSpan', demand.experienceSpanId)"
             />
           </v-col>
@@ -101,7 +102,7 @@
               item-text="name"
               item-value="id"
               label="Proje"
-              :readonly="formType !== 'create'"
+              :readonly="demand.demandStatus !== Statuses.CREATED"
               @change="selectTarget('projectId', demand.projectId)"
             />
           </v-col>
@@ -157,12 +158,19 @@
             md="4"
           >
             <v-autocomplete
+              v-if="user.roleId === Roles.SUPPLIER"
               v-model="demand.contractId"
               :items="contracts"
               :item-text="e => getContractName(e)"
               item-value="id"
               label="Sözleşme"
               @change="selectedContract = contracts.find(e => e.id === demand.contractId)"
+            />
+            <v-text-field
+              v-else
+              label="Sözleşme"
+              :value="selectedContract ? getContractName(selectedContract) : 'Sözleşme bulunmuyor..'"
+              readonly
             />
           </v-col>
 
@@ -215,7 +223,7 @@
         :disabled="demand.demandStatus === Statuses.COMPLITED"
         @click="updateDemand"
       >
-        {{ formType === 'update' ? 'Onaya Gönder' : 'Onayla' }}
+        {{ demand.demandStatus === Statuses.CREATED ? 'Güncelle' : (formType === 'update' ? 'Onaya Gönder' : 'Onayla') }}
       </v-btn>
       <v-btn
         color="error"
@@ -229,7 +237,7 @@
 </template>
 
 <script>
-  import { DEMAND_STATUSES as Statuses, CheckIsNull } from '@/util/globals'
+  import { DEMAND_STATUSES as Statuses, CheckIsNull, ROLE_IDS as Roles } from '@/util/globals'
   import { get } from 'vuex-pathify'
   export default {
     name: 'DemandForm',
@@ -240,6 +248,7 @@
     data: () => ({
       selectedContract: null,
       Statuses,
+      Roles,
     }),
     computed: {
       ...get('user', ['user', 'users']),
@@ -258,10 +267,8 @@
 
       if (this.formType === 'create') {
         this.demand.createdById = this.user.id
-
-        this.$store.dispatch('costCenter/getCostCenters')
-        this.$store.dispatch('project/getProjects')
-        this.$store.dispatch('company/getSupplierCompanies')
+      } else if (this.formType !== 'create' && this.demand.contractId) {
+        this.selectedContract = this.contracts.find(e => e.id === this.demand.contractId)
       }
     },
     methods: {
@@ -333,13 +340,21 @@
       // FormType === 'update'
       updateDemand () {
         const payload = { ...this.demand }
-        if (!this.demand.conractId) {
-          this.$store.dispatch('app/showAlert', { message: 'Lütfen tüm alanları doldurduğunuzdan emin olunuz.', type: 'warning' })
+
+        if (this.formType === 'approve') {
+          payload.demandStatus = Statuses.COMPLITED
+          this.$store.dispatch('demand/completeDemand', payload)
         } else {
-          payload.demandStatus = this.selectedContract.filePath ? Statuses.REPLIED : Statuses.REPLIED_WITH_CONTRACT
+          if (payload.contractId) {
+            payload.demandStatus = this.selectedContract.filePath ? Statuses.REPLIED_WITH_CONTRACT : Statuses.REPLIED
+          }
           this.$store.dispatch('demand/updateDemand', payload)
-          this.$emit('close-dialog')
         }
+
+        this.$emit('close-dialog')
+      },
+      compliteDemand () {
+
       },
     },
   }

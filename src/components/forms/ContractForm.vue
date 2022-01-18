@@ -55,7 +55,7 @@
             v-model="contract.startDate"
             no-title
             @input="menu1 = false"
-            @change="e => starting = getLocaleDate(e)"
+            @change="selectStartDate"
           />
         </v-menu>
       </v-col>
@@ -245,6 +245,16 @@
       }
     },
     methods: {
+      selectStartDate () {
+        this.starting = this.getLocaleDate(this.contract.startDate)
+
+        if (this.formType === 'create') {
+          const str = this.contract.startDate.split('-')
+          str[0] = Number(str[0]) + 1
+          this.contract.endDate = str.join('-')
+          this.ending = this.getLocaleDate(this.contract.endDate)
+        }
+      },
       getLocaleDate (date) {
         const arr = date.split('T')[0].split('-')
         return `${arr[2]}/${arr[1]}/${arr[0]}`

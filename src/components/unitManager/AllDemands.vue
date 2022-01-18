@@ -60,263 +60,11 @@
       width="960"
       persistent
     >
-      <v-card>
-        <v-card-title class="text-h5 primary white--text">
-          Talep Detayları
-        </v-card-title>
-
-        <v-card-text>
-          <v-container class="py-3">
-            <v-row>
-              <v-col
-                cols="12"
-                md="4"
-              >
-                <v-text-field
-                  disabled
-                  label="Birim Müdürü"
-                  :value="user.firstName + ' ' + user.lastName"
-                />
-              </v-col>
-
-              <!-- Supplier -->
-              <v-col
-                cols="12"
-                md="4"
-              >
-                <v-select
-                  v-model="selectedDemand.supplierCompanyId"
-                  :items="companies"
-                  item-text="name"
-                  item-value="id"
-                  label="Tedarikçi Firma"
-                  disabled
-                />
-              </v-col>
-
-              <!-- Cost Center -->
-              <v-col
-                cols="12"
-                md="4"
-              >
-                <v-select
-                  v-model="selectedDemand.costCenterId"
-                  :items="costCenters"
-                  item-text="name"
-                  item-value="id"
-                  label="Masraf Merkezi"
-                />
-              </v-col>
-
-              <!-- Job Title -->
-              <v-col
-                cols="12"
-                md="4"
-              >
-                <v-select
-                  v-model="selectedDemand.jobTitleId"
-                  :items="jobTitles"
-                  item-text="name"
-                  item-value="id"
-                  label="Ünvan"
-                />
-              </v-col>
-
-              <!-- Experience -->
-              <v-col
-                cols="12"
-                md="4"
-              >
-                <v-select
-                  v-model="selectedDemand.experienceSpanId"
-                  :items="experienceSpans"
-                  item-text="name"
-                  item-value="id"
-                  label="Tecrübe Aralığı"
-                />
-              </v-col>
-
-              <!-- Project -->
-              <v-col
-                cols="6"
-                md="4"
-                class="text-right"
-              >
-                <v-select
-                  v-model="selectedDemand.projectId"
-                  :items="projects"
-                  item-text="name"
-                  item-value="id"
-                  label="Proje"
-                />
-              </v-col>
-
-              <!-- Monthly Budget -->
-              <v-col
-                cols="12"
-                md="4"
-              >
-                <v-text-field
-                  color="purple"
-                  disabled
-                  label="Aylık Bütçe"
-                  type="number"
-                  :value="selectedDemand.monthlyBudget"
-                />
-              </v-col>
-
-              <!-- Total Budget -->
-              <v-col
-                cols="12"
-                md="4"
-              >
-                <v-text-field
-                  color="purple"
-                  disabled
-                  label="Toplam Bütçe"
-                  type="number"
-                  :value="selectedDemand.totalBudget"
-                />
-              </v-col>
-
-              <!-- Starting Date -->
-              <!-- <v-col
-                cols="12"
-                md="4"
-              >
-                <v-menu
-                  ref="menu1"
-                  v-model="selectedDemand.menu1"
-                  :close-on-content-click="false"
-                  transition="scale-transition"
-                  offset-y
-                  max-width="290px"
-                  min-width="auto"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      v-model="selectedDemand.startingDate"
-                      label="Başlangıç Tarihi"
-                      persistent-hint
-                      prepend-icon="mdi-calendar"
-                      v-bind="attrs"
-                      v-on="on"
-                    />
-                  </template>
-                  <v-date-picker
-                    v-model="selectedDemand.startingDate"
-                    no-title
-                    @input="menu1 = false"
-                  />
-                </v-menu>
-              </v-col> -->
-
-              <!-- Due Date -->
-              <!-- <v-col
-                cols="12"
-                md="4"
-              >
-                <v-menu
-                  ref="menu2"
-                  v-model="menu2"
-                  :close-on-content-click="false"
-                  transition="scale-transition"
-                  offset-y
-                  max-width="290px"
-                  min-width="auto"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      v-model="selectedDemand.endingDate"
-                      label="Bitiş Tarihi"
-                      persistent-hint
-                      prepend-icon="mdi-calendar"
-                      v-bind="attrs"
-                      v-on="on"
-                    />
-                  </template>
-                  <v-date-picker
-                    v-model="selectedDemand.endingDate"
-                    no-title
-                    @input="menu2 = false"
-                  />
-                </v-menu>
-              </v-col> -->
-            </v-row>
-
-            <v-row align="center">
-              <v-divider class="mr-3" />Aday ve Sözleşme Bilgileri<v-divider class="ml-3" />
-            </v-row>
-            <v-row
-              v-if="selectedDemand.consultantId && selectedDemand.consultantId > 0"
-              class="mt-3"
-            >
-              <v-col
-                cols="12"
-                md="4"
-              >
-                <v-select
-                  v-model="selectedDemand.consultantId"
-                  :items="[demandedConsultant]"
-                  :item-text="e => e.firstName + ' ' + e.lastName"
-                  item-value="id"
-                  label="Aday"
-                  readonly
-                />
-              </v-col>
-              <!-- Contract -1 -->
-              <v-col
-                cols="12"
-                md="4"
-              >
-                <v-autocomplete
-                  v-model="selectedDemand.contractId"
-                  :items="contracts.filter(e => e.supplierCompanyId === selectedDemand.supplierCompanyId)"
-                  :item-text="e => 'Talep No. - ' + e.orderNumber"
-                  item-value="id"
-                  append-icon="mdi-eye"
-                  @click:append="openContract"
-                  label="Sözleşme"
-                />
-              </v-col>
-              <!-- Contract - 2 -->
-              <v-col
-                cols="12"
-                md="4"
-              >
-                <v-text-field
-                  label="İmzalı Sözleşme"
-                  :value="demandedConsultant.contractFilePath || 'İmzalı sözleşme bulunmuyor'"
-                  append-icon="mdi-eye"
-                  @click:append="openSignedContract"
-                  readonly
-                />
-              </v-col>
-            </v-row>
-          </v-container>
-        </v-card-text>
-
-        <v-divider />
-
-        <v-card-actions>
-          <v-spacer />
-          <v-btn
-            color="primary"
-            depressed
-            :disabled="selectedDemand.demandStatus === Statuses.COMPLITED"
-            @click="updateDemand"
-          >
-            {{ selectedDemand.demandStatus === Statuses.APPROVED ? 'Tamamla' : 'Güncelle'}}
-          </v-btn>
-          <v-btn
-            color="error"
-            depressed
-            @click="closeDialog"
-          >
-            Vazgeç
-          </v-btn>
-        </v-card-actions>
-      </v-card>
+      <demand-form
+        :formType="demandFormType"
+        :demand="selectedDemand"
+        @close-dialog="closeDialog()"
+      />
     </v-dialog>
   </v-card>
 </template>
@@ -328,7 +76,7 @@
     name: 'AllDemands',
     data () {
       return {
-        demandType: 'all',
+        demandFormType: 'update',
         searchWord: '',
         contract: null,
         dialog: false,
@@ -352,7 +100,6 @@
     computed: {
       ...get('user', ['user']),
       ...get('demand', ['demands']),
-      ...get('costCenter', ['costCenters']),
       ...get('experienceSpan', ['experienceSpans']),
       ...get('jobTitle', ['jobTitles']),
       ...get('project', ['projects']),
@@ -361,7 +108,7 @@
     },
     mounted () {
       this.$store.dispatch('company/getSupplierCompanies')
-      this.$store.dispatch('costCenter/getCostCenters')
+      this.$store.dispatch('costCenter/getCostCenters') // For Demand-Form
       this.$store.dispatch('jobTitle/getJobTitles')
       this.$store.dispatch('experienceSpan/getExperienceSpans')
       this.$store.dispatch('project/getProjects')
@@ -369,76 +116,19 @@
       this.$store.dispatch('contract/getContracts')
     },
     methods: {
-      openContract () {
-        if (this.selectedDemand.contractId) {
-          const { filePath } = this.contracts.find(e => e.id === this.selectedDemand.contractId)
-          window.open(filePath, '_blank').focus()
-        }
-      },
-      openSignedContract () {
-        if (this.demandedConsultant.contractFilePath) {
-          window.open(this.demandedConsultant.contractFilePath, '_blank').focus()
-        }
-      },
       sleep (ms) {
         return new Promise(resolve => setTimeout(resolve, ms))
       },
       async showDemand (demand) {
         this.$store.dispatch('jobTitle/getJobTitlesByCompanyId', demand.supplierCompanyId)
         this.$store.dispatch('experienceSpan/getExperienceSpansByCompanyId', demand.supplierCompanyId)
-        this.$store.dispatch('budger/getBudgetsByCompanyId', demand.supplierCompanyId)
-        if (demand.consultantId) {
-          this.$store.dispatch('consultant/getConsultantById', demand.consultantId)
-        }
+        this.$store.dispatch('budget/getBudgetsByCompanyId', demand.supplierCompanyId)
+
         await this.sleep(250)
+
+        this.demandFormType = demand.contractId ? 'approve' : 'update'
         this.selectedDemand = { ...demand }
         this.dialog = true
-      },
-      selectTarget (target, id) {
-        switch (target) {
-          case 'supplier':
-            this.$store.dispatch('jobTitle/getJobTitlesByCompanyId', id)
-            this.$store.dispatch('experienceSpan/getExperienceSpansByCompanyId', id)
-            this.$store.dispatch('budget/getBudgetsByCompanyId', id)
-            break
-          case 'jobTitle':
-            this.calculateBudget()
-            break
-          case 'experienceSpan':
-            this.calculateBudget()
-            break
-          default:
-            break
-        }
-      },
-      updateDemand () {
-        const payload = { ...this.selectedDemand }
-        let isAllowedToUpdate = true
-        switch (payload.demandStatus) {
-          case Statuses.REPLIED:
-            if (payload.consultantId && payload.contractId) {
-              payload.demandStatus = Statuses.PENDING
-            }
-            break
-          case Statuses.APPROVED:
-            if (this.demandedConsultant.contractFilePath && this.demandedConsultant.contractFilePath.length > 0) {
-              payload.consultantPayload = {
-                id: payload.consultantId,
-                unitManagerUserId: this.user.id,
-                contractId: payload.contractId,
-              }
-              payload.demandStatus = Statuses.COMPLITED
-            }
-            break
-          default:
-            isAllowedToUpdate = false
-            break
-        }
-
-        if (isAllowedToUpdate) this.$store.dispatch('demand/updateDemand', payload)
-        else this.$store.dispatch('app/showAlert', { message: 'Bir değişiklik yapılmadı.', type: 'info' })
-        this.selectedDemand = {}
-        this.dialog = false
       },
       closeDialog () {
         this.$store.dispatch('jobTitle/getJobTitles')
