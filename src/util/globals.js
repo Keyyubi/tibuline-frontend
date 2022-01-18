@@ -62,21 +62,6 @@ const RULES = {
     v => (!!v && v.length === 10) || 'VKN 10 karakter olmalıdır.',
   ],
 }
-const CheckIsNull = (arr) => {
-  let isNull = false
-  arr.forEach(e => { if (!e) isNull = true })
-
-  return isNull
-}
-const CreateURL = (endpoint = '') => BASE_URL + (endpoint.startsWith('/') ? endpoint : '/' + endpoint)
-const GetPostHeaders = (token) => {
-  return {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-type': 'application/json',
-    },
-  }
-}
 
 module.exports = {
   EN_LOCALE_ONLY,
@@ -88,7 +73,5 @@ module.exports = {
   ROLE_IDS,
   RULES,
   ACTIVITY_STATUSES,
-  CreateURL,
-  GetPostHeaders,
-  CheckIsNull,
+  BASE_URL,
 }

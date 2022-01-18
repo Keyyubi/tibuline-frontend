@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { make } from 'vuex-pathify'
-import { CreateURL, GetPostHeaders } from '@/util/globals'
+import { CreateURL, GetPostHeaders } from '@/util/helpers'
 import store from '../index'
 
 const getMappedActivities = (items = []) => {

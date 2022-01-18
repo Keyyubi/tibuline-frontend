@@ -2,7 +2,8 @@
 import { make } from 'vuex-pathify'
 import axios from 'axios'
 // Globals
-import { IN_BROWSER, CreateURL, GetPostHeaders, ROLE_IDS } from '@/util/globals'
+import { IN_BROWSER, ROLE_IDS } from '@/util/globals'
+import { CreateURL, GetPostHeaders } from '@/util/helpers'
 import store from '@/store/index'
 
 // Router
@@ -74,22 +75,39 @@ const actions = {
             ...loggedUser,
             company: res.data,
           }
-          context.commit('user', loggedUser)
+          store.set('user/user', loggedUser)
           context.dispatch('app/updateItems', loggedUser.roleId, { root: true })
+          store.set('app/alertMessage', '')
           router.push('/')
         })
       })
     })
-    .catch((error) => {
-      context.commit('user', {})
-      console.error('Error on login', error)
+    .catch(({ response }) => {
+      store.set('user/user', {})
+
+      //  ? ERROR HANDLING EXAMPLE
+      //  * response has the all info about error. Like Status or Data
+      const res = response.data
+      store.set('app/alertMessage', res.error.errors[0])
     })
     .finally(() => setTimeout(() => {
         store.set('app/isLoading', false)
-      }, 1500))
+        store.set('app/alertMessage', '')
+      }, 2000))
   },
-  logout: ({ commit }) => {
-    commit('user', {})
+  logout: () => {
+    store.set('activity/activities', [])
+    store.set('budget/budgets', [])
+    store.set('company/companies', [])
+    store.set('consultant/consultants', [])
+    store.set('contract/contracts', [])
+    store.set('demand/demands', [])
+    store.set('experienceSpan/experienceSpans', [])
+    store.set('jobTitle/jobTitles', [])
+    store.set('project/projects', [])
+    store.set('user/users', [])
+    store.set('user/user', {})
+
     router.push('/login/')
   },
   createUser: (context, payload) => {

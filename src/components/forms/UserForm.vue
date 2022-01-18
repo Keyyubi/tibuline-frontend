@@ -209,7 +209,8 @@
 </template>
 
 <script>
-  import { DEMAND_STATUSES as Statuses, CheckIsNull } from '@/util/globals'
+  import { DEMAND_STATUSES as Statuses } from '@/util/globals'
+  import { CheckIsNull } from '@/util/helpers'
   import { get } from 'vuex-pathify'
   export default {
     name: 'UserForm',

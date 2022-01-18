@@ -40,16 +40,27 @@
             @click:append="() => (showPwd = !showPwd)"
           />
 
-          <v-checkbox
+          <!-- <v-checkbox
             v-model="rememberMe"
             label="Beni Hatırla"
             color="success"
-          />
+          /> -->
 
           <v-btn
+            v-if="alertMessage.length > 0"
+            width="100%"
+            color="error"
+            class="mt-5 mr-4"
+            depressed
+            outlined
+          >
+            {{ alertMessage }}
+          </v-btn>
+          <v-btn
+            v-else
             width="100%"
             color="success"
-            class="mr-4"
+            class="mt-5 mr-4"
             :disabled="isLoading"
             depressed
             @click="validate"
@@ -89,7 +100,7 @@
       rememberMe: false,
     }),
     computed: {
-      ...get('app', ['isLoading']),
+      ...get('app', ['isLoading', 'alertMessage']),
     },
     methods: {
       validate () {

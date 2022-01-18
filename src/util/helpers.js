@@ -1,3 +1,4 @@
+import { BASE_URL } from './globals'
 export function leadingSlash (str) {
   return str.startsWith('/') ? str : '/' + str
 }
@@ -8,4 +9,20 @@ export function trailingSlash (str) {
 
 export const wait = timeout => {
   return new Promise(resolve => setTimeout(resolve, timeout))
+}
+
+export const CheckIsNull = (arr) => {
+  let isNull = false
+  arr.forEach(e => { if (!e) isNull = true })
+
+  return isNull
+}
+export const CreateURL = (endpoint = '') => BASE_URL + (endpoint.startsWith('/') ? endpoint : '/' + endpoint)
+export const GetPostHeaders = (token) => {
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-type': 'application/json',
+    },
+  }
 }
