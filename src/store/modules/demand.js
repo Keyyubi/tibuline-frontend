@@ -62,11 +62,26 @@ const actions = {
         store.set('app/isLoading', false)
       })
   },
-  getDemandsByCompany: (context, payload) => {
+  getDemandsByCreatedBy: () => {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
 
-    axios.get(CreateURL(`Demand/GetDemandsByCompanyId/${payload}`), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`Demand/GetDemandsByCreatedBy/${currUser.id}`), GetPostHeaders(currUser.token))
+      .then(({ data: res }) => {
+        store.set('demand/demands', res.data)
+      })
+      .catch(error => {
+        console.log('Error', error)
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+      })
+  },
+  getDemandsBySupplierCompany: () => {
+    store.set('app/isLoading', true)
+    const currUser = store.get('user/user')
+
+    axios.get(CreateURL(`Demand/GetDemandsBySupplierCompany/${currUser.companyId}`), GetPostHeaders(currUser.token))
       .then(({ data: res }) => {
         store.set('demand/demands', res.data)
       })

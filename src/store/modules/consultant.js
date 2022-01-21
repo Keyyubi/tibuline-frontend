@@ -62,6 +62,21 @@ const actions = {
         store.set('app/isLoading', false)
       })
   },
+  getConsultantById: (context, payload) => {
+    store.set('app/isLoading', true)
+    const currUser = store.get('user/user')
+
+    axios.get(CreateURL(`Consultant/GetConsultantById/${payload}`), GetPostHeaders(currUser.token))
+      .then(({ data: res }) => {
+        store.set('consultant/consultants', [res.data])
+      })
+      .catch(error => {
+        console.log('Error', error)
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+      })
+  },
   getConsultantsByManagerId: () => {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')

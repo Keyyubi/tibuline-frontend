@@ -130,7 +130,7 @@
       },
       getContractStartDate (id) {
         const contract = this.contracts.find(e => e.id === id)
-        return project ? project.name : 'Proje bulunmuyor.'
+        return contract ? contract.name : 'Proje bulunmuyor.'
       },
       getContractEndDate (id) {
         const project = this.projects.find(e => e.id === id)

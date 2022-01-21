@@ -205,6 +205,7 @@
 
     <v-divider />
 
+    <!-- Actions -->
     <v-card-actions>
       <v-spacer />
       <v-btn
@@ -270,6 +271,7 @@
         this.demand.createdById = this.user.id
       } else if (this.formType !== 'create' && this.demand.contractId) {
         this.selectedContract = this.contracts.find(e => e.id === this.demand.contractId)
+        this.$store.dispatch('consultant/getConsultantById', this.selectedContract.consultantId)
       }
     },
     methods: {
@@ -344,18 +346,14 @@
 
         if (this.formType === 'approve') {
           payload.demandStatus = Statuses.COMPLITED
-          this.$store.dispatch('demand/completeDemand', payload)
         } else {
           if (payload.contractId) {
             payload.demandStatus = this.selectedContract.filePath ? Statuses.REPLIED_WITH_CONTRACT : Statuses.REPLIED
           }
-          this.$store.dispatch('demand/updateDemand', payload)
         }
+        this.$store.dispatch('demand/updateDemand', payload)
 
         this.$emit('close-dialog')
-      },
-      compliteDemand () {
-
       },
     },
   }

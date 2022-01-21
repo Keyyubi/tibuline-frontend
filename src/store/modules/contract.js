@@ -62,6 +62,21 @@ const actions = {
         store.set('app/isLoading', false)
       })
   },
+  getContractById: (context, payload) => {
+    store.set('app/isLoading', true)
+    const currUser = store.get('user/user')
+
+    axios.get(CreateURL(`Contract/GetContractById/${payload}`), GetPostHeaders(currUser.token))
+      .then(({ data: res }) => {
+        store.set('contract/contracts', [res.data])
+      })
+      .catch(error => {
+        console.log('Error', error)
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+      })
+  },
   getContractsByCompany: (context, payload) => {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')

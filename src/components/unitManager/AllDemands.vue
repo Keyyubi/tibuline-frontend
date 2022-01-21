@@ -111,9 +111,8 @@
       this.$store.dispatch('costCenter/getCostCenters') // For Demand-Form
       this.$store.dispatch('jobTitle/getJobTitles')
       this.$store.dispatch('experienceSpan/getExperienceSpans')
-      this.$store.dispatch('project/getProjects')
-      this.$store.dispatch('demand/getDemands')
-      this.$store.dispatch('contract/getContracts')
+      this.$store.dispatch('project/getProjectsByAssignedTo')
+      this.$store.dispatch('demand/getDemandsByCreatedBy')
     },
     methods: {
       sleep (ms) {
@@ -123,10 +122,15 @@
         this.$store.dispatch('jobTitle/getJobTitlesByCompanyId', demand.supplierCompanyId)
         this.$store.dispatch('experienceSpan/getExperienceSpansByCompanyId', demand.supplierCompanyId)
         this.$store.dispatch('budget/getBudgetsByCompanyId', demand.supplierCompanyId)
+        this.demandFormType = 'update'
+
+        if (demand.contractId) {
+          this.$store.dispatch('contract/getContractById', demand.contractId)
+          this.demandFormType = 'approve'
+        }
 
         await this.sleep(250)
 
-        this.demandFormType = demand.contractId ? 'approve' : 'update'
         this.selectedDemand = { ...demand }
         this.dialog = true
       },
