@@ -17,11 +17,6 @@
         Yeni Talepler
         <v-icon>mdi-account-plus</v-icon>
       </v-tab>
-
-      <v-tab href="#pendingDemands">
-        Açık Talepler
-        <v-icon>mdi-account-multiple</v-icon>
-      </v-tab>
     </v-tabs>
 
     <div class="py3" />
@@ -29,10 +24,6 @@
     <v-tabs-items v-model="currentTab">
       <v-tab-item value="newDemands">
         <new-demands />
-      </v-tab-item>
-
-      <v-tab-item value="pendingDemands">
-        <pending-demands />
       </v-tab-item>
     </v-tabs-items>
   </v-container>

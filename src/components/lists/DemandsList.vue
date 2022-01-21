@@ -77,7 +77,7 @@
   } from '@/util/globals'
   import { get } from 'vuex-pathify'
   export default {
-    name: 'ConsultantsList',
+    name: 'DemandsList',
     data () {
       return {
         demandFormType: 'update',

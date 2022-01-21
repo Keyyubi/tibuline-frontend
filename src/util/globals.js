@@ -17,7 +17,7 @@ const DEMAND_STATUS_LABELS = [
   'Tamamlandı',
 ]
 const ACTIVITY_STATUSES = {
-  EDITABLE: 0,
+  CREATED: 0,
   PENDING: 1,
   REVISED: 2,
   APPROVED: 3,

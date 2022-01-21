@@ -34,6 +34,15 @@
       <template v-slot:item.unitManagerUserId="{ item }">
         {{ getUnitManagerName(item.unitManagerUserId) }}
       </template>
+      <template v-slot:item.projectId="{ item }">
+        {{ getProjectName(item.projectId) }}
+      </template>
+      <template v-slot:item.startDate="{ item }">
+        {{ getLocaleDate(item.startDate) }}
+      </template>
+      <template v-slot:item.endDate="{ item }">
+        {{ getLocaleDate(item.endDate) }}
+      </template>
 
       <!-- eslint-disable-next-line -->
       <template v-slot:item.isActive="{ item }">
@@ -89,26 +98,28 @@
           { text: 'Ad Soyad', value: 'firstName' },
           { text: 'Yönetici', value: 'unitManagerUserId' },
           { text: 'Proje', value: 'projectId' },
-          { text: 'Söz. Baş. Tar.', value: 'contractId' },
-          { text: 'Söz. Bit. Tar.', value: 'contractId' },
+          { text: 'Söz. Baş. Tar.', value: 'startDate' },
+          { text: 'Söz. Bit. Tar.', value: 'endDate' },
           { text: 'Durumu', value: 'isActive' },
         ],
       }
     },
     computed: {
       ...get('consultant', ['consultants']),
+      ...get('contract', ['contracts']),
       ...get('jobTitle', ['jobTitles']),
       ...get('experienceSpan', ['experienceSpans']),
       ...get('project', ['projects']),
       ...get('user', ['user', 'users']),
     },
     mounted () {
-      console.log('user', this.user)
       if (this.user.roleId === Roles.UNIT_MANAGER) {
         this.$store.dispatch('consultant/getConsultantsByManagerId')
+        this.$store.dispatch('project/getProjectsByAssignedTo')
       } else {
         this.$store.dispatch('user/getUnitManagers')
         this.$store.dispatch('consultant/getConsultants')
+        this.$store.dispatch('project/getProjects')
       }
     },
     methods: {
@@ -124,17 +135,15 @@
           return user ? user.firstName + ' ' + user.lastName : 'İsim bulunamadı.'
         }
       },
-      getProject (id) {
+      getProjectName (id) {
         const project = this.projects.find(e => e.id === id)
         return project ? project.name : 'Proje bulunmuyor.'
       },
-      getContractStartDate (id) {
-        const contract = this.contracts.find(e => e.id === id)
-        return contract ? contract.name : 'Proje bulunmuyor.'
-      },
-      getContractEndDate (id) {
-        const project = this.projects.find(e => e.id === id)
-        return project ? project.name : 'Proje bulunmuyor.'
+      getLocaleDate (date) {
+        if (date) {
+          const arr = date.split('T')[0].split('-')
+          return `${arr[2]}/${arr[1]}/${arr[0]}`
+        } else return 'Sözleşme bulunmuyor.'
       },
     },
   }

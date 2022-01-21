@@ -25,6 +25,7 @@
           </v-stepper-header>
 
           <v-stepper-items>
+            <!-- Consultant Selection -->
             <v-stepper-content
               step="1"
               class="mx-0"
@@ -33,7 +34,7 @@
               <v-autocomplete
                 v-model="selectedConsultant"
                 class="mt-5"
-                :items="consultants"
+                :items="consultants.filter(e => e.isActive === true)"
                 :item-text="e => e.firstName + ' ' + e.lastName"
                 item-value="id"
                 label="Danışman"
@@ -45,6 +46,7 @@
               step="2"
               class="pa-0 mx-0"
             >
+              <!-- Toolbar -->
               <v-sheet height="64">
                 <v-toolbar flat>
                   <v-btn
@@ -110,6 +112,7 @@
                   </v-tooltip>
                 </v-toolbar>
               </v-sheet>
+              <!-- Calendar -->
               <v-sheet
                 height="600"
                 width="100%"
@@ -314,9 +317,12 @@
 
 <script>
   import { get } from 'vuex-pathify'
-  import { ACTIVITY_STATUSES as statuses } from '@/util/globals'
+  import { ACTIVITY_STATUSES as Statuses } from '@/util/globals'
   export default {
     name: 'AddActivity',
+    props: {
+      activityType: { type: String, default: 'create' },
+    },
     data: () => ({
       focus: '',
       e1: 1,
@@ -332,7 +338,7 @@
       totalDaysOff: 0,
       shiftStartAt: 9, // 0-23 as o'clock of the day
       shiftHours: 8, // as working hours
-      statuses,
+      Statuses,
     }),
     computed: {
       ...get('activity', ['activities']),
@@ -345,11 +351,13 @@
       selectConsultant () {
         const { date } = this.$refs.calendar.lastEnd
         const yearMonth = date.split('-')[0] + '-' + date.split('-')[1]
+        const activityStatus = this.activityType === 'revised' ? Statuses.REVISED : Statuses.CREATED
         const payload = {
           consultantId: this.selectedConsultant,
           yearMonth,
+          activityStatus,
         }
-        this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonth', payload)
+        this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonthAndStatus', { ...payload, activityStatus })
         this.calculateTotalHours()
         this.e1 = 2
       },
@@ -371,7 +379,7 @@
           timed: false,
           yearMonth,
           consultantId,
-          activityStatus: this.statuses.EDITABLE,
+          activityStatus: this.Statuses.CREATED,
         }
       },
       openDialog (item) {
@@ -382,33 +390,6 @@
       },
       sleep (ms) {
         return new Promise(resolve => setTimeout(resolve, ms))
-      },
-      async updateRange () {
-        this.$store.dispatch('app/setLoading', true)
-
-        if (this.activities.length > 0) {
-          for (let i = 0; i < this.activities.length; i++) {
-            this.$store.dispatch('activity/deleteActivity', this.activities[i].id)
-          }
-
-          await this.sleep(1000)
-        }
-
-        const end = this.$refs.calendar.lastEnd
-        for (let i = 0; i < end.day; i++) {
-          const date = `${end.year}-${end.month < 10 ? '0' + end.month : end.month}-${i < 9 ? '0' + (i + 1) : i + 1}`
-          const startDate = new Date(end.year, end.month - 1, i + 1)
-
-          if (startDate.getDay() !== 0 && startDate.getDay() !== 6) {
-            this.$store.dispatch('activity/createActivity', this.newShiftEvent(date, `${this.shiftHours}s mesai`))
-          }
-        }
-
-        await this.sleep(1000)
-
-        this.selectConsultant()
-        this.calculateTotalHours()
-        this.$store.dispatch('app/setLoading', false)
       },
       setEventTime (event) {
         event.name = `${event.shiftHours}s mesai ${event.overShiftHours ? ' - ' + event.overShiftHours + 's fazla mesai' : ''}`
@@ -433,23 +414,6 @@
           }
         }
       },
-      async creteOrUpdateEvent () {
-        if (this.selectedEvent.date) {
-          this.$store.dispatch('app/setLoading', true)
-          this.dialog = false
-          const index = this.activities.findIndex(e => e.date === this.selectedEvent.date)
-
-          if (index !== -1) {
-            this.$store.dispatch('activity/updateActivity', this.selectedEvent)
-          } else {
-            this.$store.dispatch('activity/createActivity', this.selectedEvent)
-          }
-
-          this.calculateTotalHours()
-          await this.sleep(300)
-          this.selectConsultant()
-        }
-      },
       showConfirmation (type) {
         this.confirmationType = type
 
@@ -472,27 +436,83 @@
           switch (type) {
             case 'delete':
             case 'send':
-              this.$store.dispatch('app/updateAlertMsg', { message: 'Bu dönem için aktivite bulunmuyor.', isError: false })
+              this.$store.dispatch('app/updateAlertMsg', { message: 'Bu dönem için aktivite bulunmuyor.', type: 'warning' })
               break
             case 'fill-monthly':
-              this.updateRange()
+              this.createMonthly()
               break
           }
         }
       },
-      async confirm () {
-        if (this.confirmationType === 'delete') {
-          this.$store.dispatch('app/setLoading', true)
-          this.confirmationDialog = false
-          const arr = this.activities.map(e => e.id)
-          for (let i = 0; i < arr.length; i++) {
-            this.$store.dispatch('activity/deleteActivity', arr[i])
+      async createMonthly () {
+        this.$store.dispatch('app/setLoading', true)
+
+        const end = this.$refs.calendar.lastEnd
+        for (let i = 0; i < end.day; i++) {
+          const date = `${end.year}-${end.month < 10 ? '0' + end.month : end.month}-${i < 9 ? '0' + (i + 1) : i + 1}`
+          const startDate = new Date(end.year, end.month - 1, i + 1)
+
+          if (startDate.getDay() !== 0 && startDate.getDay() !== 6) {
+            this.$store.dispatch('activity/createActivity', this.newShiftEvent(date, `${this.shiftHours}s mesai`))
           }
-          await this.sleep(500)
+        }
+
+        await this.sleep(1000)
+
+        this.selectConsultant()
+        this.calculateTotalHours()
+        this.$store.dispatch('app/setLoading', false)
+      },
+      async deleteActivitiesMonthly () {
+        this.$store.dispatch('app/setLoading', true)
+        const arr = this.activities.map(e => e.id)
+        for (let i = 0; i < arr.length; i++) {
+          this.$store.dispatch('activity/deleteActivity', arr[i])
+        }
+
+        await this.sleep(1000)
+        this.$store.dispatch('app/setLoading', false)
+      },
+      async creteOrUpdateEvent () {
+        if (this.selectedEvent.date) {
+          this.$store.dispatch('app/setLoading', true)
+          this.dialog = false
+          const index = this.activities.findIndex(e => e.date === this.selectedEvent.date)
+
+          if (index !== -1) {
+            this.$store.dispatch('activity/updateActivity', this.selectedEvent)
+          } else {
+            this.$store.dispatch('activity/createActivity', this.selectedEvent)
+          }
+
+          this.calculateTotalHours()
+          await this.sleep(300)
           this.selectConsultant()
-        } else {
-          this.confirmationDialog = false
-          this.updateRange()
+        }
+      },
+      async confirm () {
+        this.confirmationDialog = false
+
+        switch (this.confirmationType) {
+          case 'delete':
+            this.deleteActivitiesMonthly()
+            break
+          case 'send':
+            this.$store.dispatch('app/setLoading', true)
+            this.confirmationDialog = false
+
+            this.activities.forEach(obj => {
+              obj.activityStatus = Statuses.PENDING
+              this.$store.dispatch('activity/updateActivity', obj)
+            })
+
+            await this.sleep(1000)
+            this.selectConsultant()
+            break
+          case 'fill-monthly':
+            if (this.activities.length > 0) this.deleteActivitiesMonthly()
+            this.createMonthly()
+            break
         }
       },
       async changeDate (type) {
