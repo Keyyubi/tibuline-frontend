@@ -74,33 +74,17 @@ const actions = {
   getActivityPeriodsByConsultantId: (context, payload) => {
     store.set('app/isLoading', true)
 
-    const approvedPeriods = [
-      { id: 1, name: '2022-01', consultantId: 6, totalShiftHours: 150, totalOverShiftHours: 20, isInvoiced: false },
-      { id: 2, name: '2022-02', consultantId: 6, totalShiftHours: 140, totalOverShiftHours: 0, isInvoiced: false },
-      { id: 3, name: '2022-03', consultantId: 7, totalShiftHours: 140, totalOverShiftHours: 0, isInvoiced: false },
-      { id: 4, name: '2022-04', consultantId: 6, totalShiftHours: 140, totalOverShiftHours: 0, isInvoiced: false },
-      { id: 5, name: '2022-05', consultantId: 8, totalShiftHours: 140, totalOverShiftHours: 0, isInvoiced: false },
-      { id: 6, name: '2022-06', consultantId: 6, totalShiftHours: 135, totalOverShiftHours: 15, isInvoiced: false },
-      { id: 7, name: '2021-10', consultantId: 7, totalShiftHours: 150, totalOverShiftHours: 0, isInvoiced: false },
-      { id: 8, name: '2021-11', consultantId: 6, totalShiftHours: 140, totalOverShiftHours: 0, isInvoiced: false },
-      { id: 9, name: '2021-12', consultantId: 8, totalShiftHours: 120, totalOverShiftHours: 20, isInvoiced: false },
-    ]
-
-    const filtered = approvedPeriods.filter(e => e.consultantId === payload) || approvedPeriods
-    store.set('activityPeriod/activityPeriods', filtered)
-    store.set('app/isLoading', false)
-
-    // axios.get(CreateURL(`ActivityPeriod/GetActivityPeriodsByConsultantId/${payload}`), GetPostHeaders(store.get('user/user').token))
-    //   .then(({ data: res }) => {
-    //     store.set('activityPeriod/activityPeriods', res.data)
-    //   })
-    //   .catch(error => {
-    //     console.log('Error', error)
-    //     store.dispatch('app/showAlert', { message: 'Danışman aktiviteleri alınırken bir hata oluştu.', type: 'error' }, { root: true })
-    //   })
-    //   .finally(() => {
-    //     store.set('app/isLoading', false)
-    //   })
+    axios.get(CreateURL(`ActivityPeriod/GetActivityPeriodsByConsultantId/${payload}`), GetPostHeaders(store.get('user/user').token))
+      .then(({ data: res }) => {
+        store.set('activityPeriod/activityPeriods', res.data)
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.dispatch('app/showAlert', { message: 'Danışman aktiviteleri alınırken bir hata oluştu.', type: 'error' }, { root: true })
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+      })
   },
 }
 

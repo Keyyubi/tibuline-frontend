@@ -83,10 +83,10 @@ const actions = {
     const currUser = store.get('user/user')
 
     axios.get(
-      CreateURL(`Budget/GetBudgetsByCompanyIdAndExperienceSpanIdAndJobTitleId/${payload.consultantId}/${payload.experienceSpanId}/${payload.jobTitleId}`),
+      CreateURL(`Budget/GetBudgetsByCompanyIdAndExperienceSpanIdAndJobTitleId/${payload.companyId}/${payload.experienceSpanId}/${payload.jobTitleId}`),
       GetPostHeaders(currUser.token))
       .then(({ data: res }) => {
-        store.set('budget/budgets', res.data)
+        store.set('budget/invoiceBudget', res.data[0])
       })
       .catch(error => {
         console.log('Error', error)
@@ -94,6 +94,10 @@ const actions = {
       .finally(() => {
         store.set('app/isLoading', false)
       })
+  },
+  resetStore: () => {
+    store.set('budget/budgets', [])
+    store.set('budget/invoiceBudget', {})
   },
 }
 

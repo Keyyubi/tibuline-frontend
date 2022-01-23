@@ -92,6 +92,9 @@ const actions = {
         store.set('app/isLoading', false)
       })
   },
+  resetStore: () => {
+    store.set('experienceSpan/experienceSpans', [])
+  },
 }
 
 const getters = {}
