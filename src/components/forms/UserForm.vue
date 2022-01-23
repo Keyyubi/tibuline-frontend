@@ -271,6 +271,7 @@
         } else {
           this.demand.demandStatus = Statuses.CREATED
           this.$store.dispatch('demand/createDemand', this.demand)
+          this.reset()
           this.$emit('close-dialog')
         }
       },
@@ -317,8 +318,16 @@
         } else {
           payload.demandStatus = this.selectedContract.filePath ? Statuses.REPLIED : Statuses.REPLIED_WITH_CONTRACT
           this.$store.dispatch('demand/updateDemand', payload)
+          this.reset()
           this.$emit('close-dialog')
         }
+      },
+      reset () {
+        this.demand.costCenterId = null
+        this.demand.supplierCompanyId = null
+        this.demand.jobTitleId = null
+        this.demand.experienceSpanId = null
+        this.demand.projectId = null
       },
     },
   }

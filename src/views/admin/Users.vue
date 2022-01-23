@@ -10,6 +10,7 @@
       centered
       dark
       icons-and-text
+      @change="changeTab"
     >
       <v-tabs-slider />
 
@@ -250,6 +251,7 @@
     },
     mounted () {
       this.$store.dispatch('company/getCompanies')
+      this.$store.dispatch('user/getUnitManagers')
     },
     methods: {
       reset () {
@@ -265,7 +267,16 @@
       },
       createUser () {
         if (this.$refs.form.validate()) {
-          this.$store.dispatch('user/createUser', this.newUser)
+          const payload = { ...this.newUser }
+          this.$store.dispatch('user/createUser', payload)
+          this.reset()
+        }
+      },
+      changeTab () {
+        if (this.currentTab === 'suppliers') {
+          this.$store.dispatch('user/getSuppliers')
+        } else {
+          this.$store.dispatch('user/getUnitManagers')
         }
       },
     },

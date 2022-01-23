@@ -459,7 +459,7 @@
       getProjectManager (id) {
         if (id && id.length > 0) {
           const user = this.users.find(e => e.id === id)
-          return user.firstName + ' ' + user.lastName
+          return user ? user.firstName + ' ' + user.lastName : 'Atama yapılmadı'
         } else {
           return 'Atama yapılmadı'
         }

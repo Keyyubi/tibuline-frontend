@@ -10,6 +10,7 @@
       centered
       dark
       icons-and-text
+      @change="changeTab"
     >
       <v-tabs-slider />
 
@@ -96,7 +97,7 @@
           <budget-form
             form-type="update"
             :budget="selectedBudget"
-            @close-dialog="dilaog = false"
+            @close-dialog="dialog = false"
           />
         </v-dialog>
       </v-tab-item>
@@ -180,6 +181,10 @@
       showBudget (item) {
         this.selectedBudget = { ...item }
         this.dialog = true
+      },
+      changeTab () {
+        this.$store.dispatch('jobTitle/getJobTitles')
+        this.$store.dispatch('experienceSpan/getExperienceSpans')
       },
     },
   }

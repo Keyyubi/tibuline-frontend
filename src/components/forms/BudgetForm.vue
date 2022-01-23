@@ -177,12 +177,16 @@
       ...get('jobTitle', ['jobTitles']),
       ...get('experienceSpan', ['experienceSpans']),
     },
+    mounted () {
+      if (this.formType !== 'create') this.selectedCompany = this.companies.find(e => e.id === this.budget.companyId)
+    },
     methods: {
       moneyMask (amount) {
         return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(amount)
       },
       getCompanyItems () {
         const { id } = this.selectedCompany
+        this.budget.companyId = id
         this.$store.dispatch('jobTitle/getJobTitlesByCompanyId', id)
         this.$store.dispatch('experienceSpan/getExperienceSpansByCompanyId', id)
       },

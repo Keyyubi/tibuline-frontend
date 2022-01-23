@@ -13,7 +13,7 @@ export const wait = timeout => {
 
 export const CheckIsNull = (arr) => {
   let isNull = false
-  arr.forEach(e => { if (!e) isNull = true })
+  arr.forEach(e => { if (!e && typeof e !== 'number') isNull = true })
 
   return isNull
 }

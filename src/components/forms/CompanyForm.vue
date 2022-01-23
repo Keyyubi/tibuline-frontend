@@ -191,17 +191,14 @@
     }),
     methods: {
       reset () {
-        const fields = [
-          this.company.name,
-          this.company.email,
-          this.company.vkn,
-          this.company.phone,
-          this.company.address,
-          this.company.invoiceType,
-          this.company.dailyShiftHours,
-          this.company.isSupplier,
-        ]
-        fields.forEach(e => { e = null })
+        this.company.name = null
+        this.company.email = null
+        this.company.vkn = null
+        this.company.phone = null
+        this.company.address = null
+        this.company.invoiceType = null
+        this.company.dailyShiftHours = null
+        this.company.isSupplier = null
       },
       updateCompany () {
         const fields = [
@@ -211,9 +208,8 @@
           this.company.phone,
           this.company.address,
           this.company.invoiceType,
-          this.company.dailyShiftHours,
         ]
-        console.log('check', fields)
+
         if (!CheckIsNull(fields)) {
           const target = this.formType === 'create' ? 'company/createCompany' : 'company/updateCompany'
           this.$store.dispatch(target, this.company)

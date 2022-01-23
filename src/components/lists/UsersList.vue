@@ -126,7 +126,7 @@
                   md="4"
                 >
                   <v-text-field
-                    v-model="selectedUser.TCKN"
+                    v-model="selectedUser.tckn"
                     v-mask="'###########'"
                     label="TCKN"
                     :rules="RULES.TCNO"
@@ -214,9 +214,6 @@
     },
     mounted () {
       this.$store.dispatch('company/getCompanies')
-      this.role === 'suppliers'
-        ? this.$store.dispatch('user/getSuppliers')
-        : this.$store.dispatch('user/getUnitManagers')
     },
     methods: {
       seeDetails (user) {
@@ -227,9 +224,6 @@
         if (this.$refs.form.validate()) {
           this.dialog = false
           this.$store.dispatch('user/updateUser', this.selectedUser)
-          setTimeout(() => {
-            this.$store.dispatch('user/getSuppliers')
-          }, 500)
         }
       },
     },
