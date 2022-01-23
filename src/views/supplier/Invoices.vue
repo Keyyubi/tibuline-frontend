@@ -210,13 +210,13 @@
           hourly: null,
           daily: null,
           monthly: null,
-        }
+        },
       }
     },
     computed: {
       ...get('user', ['user']),
       ...get('consultant', ['consultants']),
-      ...get('budget', ['budgets']),
+      ...get('budget', ['invoiceBudget']),
       ...get('jobTitle', ['jobTitles']),
       ...get('experienceSpan', ['experienceSpans']),
       ...get('activity', ['activities']),
@@ -238,8 +238,8 @@
         setTimeout(() => {
           this.$store.dispatch('jobTitle/getJobTitleById', jobTitleId)
           this.$store.dispatch('experienceSpan/getExperienceSpanById', experienceSpanId)
-          // this.$store.dispatch('budget/getBudgetsByParams', { consultantId, experienceSpanId, jobTitleId })
-          this.$store.dispatch('budget/getBudgetsByCompanyId', this.user.companyId)
+          this.$store.dispatch('budget/getBudgetsByParams', { consultantId, experienceSpanId, jobTitleId })
+          // this.$store.dispatch('budget/getBudgetsByCompanyId', this.user.companyId)
           this.$store.dispatch('app/setLoading', true)
         }, 500)
 
@@ -257,13 +257,6 @@
         this.description += this.jobTitles[0].name + ' - ' + this.experienceSpans[0].name + '\n\n'
         this.description += 'Dönem: ' + this.selectedPeriod.name.split('-')[1] + '/' + this.selectedPeriod.name.split('-')[0] + '\n'
         this.description += this.selectedPeriod.totalShiftHours + ' saat mesai - ' + this.selectedPeriod.totalOverShiftHours + ' fazla mesai'
-
-
-        let str = `${this.selectedConsultant.firstName.toUpperCase()} ${this.selectedConsultant.lastName.toUpperCase()} - ${this.jobTitles[0].name} - ${this.experienceSpans[0].name}
-        Dönem: ${this.selectedPeriod.name.split('-')[1]}/${this.selectedPeriod.name.split('-')[0]}
-        ${this.selectedPeriod.totalShiftHours} saat mesai -
-        ${this.selectedPeriod.totalOverShiftHours} fazla mesai
-        `
       },
       updateActivities () {
         if (this.activities.length > 0) {

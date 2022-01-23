@@ -6,6 +6,7 @@ import store from '../index'
 // Data
 const state = {
   budgets: [],
+  invoiceBudget: {},
 }
 
 const mutations = make.mutations(state)

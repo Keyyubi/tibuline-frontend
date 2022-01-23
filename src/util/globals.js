@@ -16,19 +16,19 @@ const DEMAND_STATUS_LABELS = [
   'Aday ve sözleşme yüklendi',
   'Tamamlandı',
 ]
-const ACTIVITY_STATUSES = {
+const ACTIVITY_STATUSES = Object.freeze({
   CREATED: 0,
   PENDING: 1,
   REVISED: 2,
   APPROVED: 3,
   INVOICED: 4,
-}
-const ROLE_IDS = {
+})
+const ROLE_IDS = Object.freeze({
   ADMIN: 0,
   UNIT_MANAGER: 1,
   SUPPLIER: 2,
-}
-const RULES = {
+})
+const RULES = Object.freeze({
   EMAIL: [
     v => !!v || 'E-mail is required',
     v => /.+@.+/.test(v) || 'E-mail must be valid',
@@ -61,7 +61,12 @@ const RULES = {
   VKN: [
     v => (!!v && v.length === 10) || 'VKN 10 karakter olmalıdır.',
   ],
-}
+})
+const INVOICE_TYPES = Object.freeze({
+  HOURLY: 0, // Adam/Saat
+  DAILY: 1, // Adam/Gun
+  MONTHLY: 2, // Adam/Ay
+})
 
 module.exports = {
   EN_LOCALE_ONLY,
@@ -74,4 +79,5 @@ module.exports = {
   RULES,
   ACTIVITY_STATUSES,
   BASE_URL,
+  INVOICE_TYPES,
 }

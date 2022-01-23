@@ -98,6 +98,7 @@ const actions = {
   logout: () => {
     store.set('activity/activities', [])
     store.set('budget/budgets', [])
+    store.set('budget/invoiceBudget', {})
     store.set('company/companies', [])
     store.set('consultant/consultants', [])
     store.set('contract/contracts', [])
