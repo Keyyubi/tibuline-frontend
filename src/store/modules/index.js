@@ -1,5 +1,6 @@
 export { default as app } from './app'
 export { default as activity } from './activity'
+export { default as activityPeriod } from './activityPeriod'
 export { default as budget } from './budget'
 export { default as company } from './company'
 export { default as consultant } from './consultant'

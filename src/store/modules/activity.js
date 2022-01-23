@@ -99,7 +99,9 @@ const actions = {
         store.dispatch('app/showAlert', { message: 'Danışman aktiviteleri alınırken bir hata oluştu.', type: 'error' }, { root: true })
       })
       .finally(() => {
-        store.set('app/isLoading', false)
+        setTimeout(() => {
+          store.set('app/isLoading', false)
+        }, 1000)
       })
   },
   getActivitiesByConsultantIdAndYearMonthAndStatus: (context, payload) => {

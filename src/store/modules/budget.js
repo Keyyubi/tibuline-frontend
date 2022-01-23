@@ -77,6 +77,23 @@ const actions = {
         store.set('app/isLoading', false)
       })
   },
+  getBudgetsByParams: (context, payload) => {
+    store.set('app/isLoading', true)
+    const currUser = store.get('user/user')
+
+    axios.get(
+      CreateURL(`Budget/GetBudgetsByCompanyIdAndExperienceSpanIdAndJobTitleId/${payload.consultantId}/${payload.experienceSpanId}/${payload.jobTitleId}`),
+      GetPostHeaders(currUser.token))
+      .then(({ data: res }) => {
+        store.set('budget/budgets', res.data)
+      })
+      .catch(error => {
+        console.log('Error', error)
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+      })
+  },
 }
 
 const getters = {}

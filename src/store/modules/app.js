@@ -28,6 +28,11 @@ const supplierItems = [
     icon: 'mdi-check',
     to: '/supplier/add-activity',
   },
+  {
+    title: 'Faturalar',
+    icon: 'mdi-cash-register',
+    to: '/supplier/invoices/',
+  },
 ]
 
 const managerItems = [
