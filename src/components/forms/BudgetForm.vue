@@ -13,7 +13,7 @@
           <v-col cols="4">
             <v-autocomplete
               v-model="selectedCompany"
-              :items="companies"
+              :items="companies.filter(e => e.isSupplier === true)"
               item-text="name"
               item-value="id"
               label="Şirket"

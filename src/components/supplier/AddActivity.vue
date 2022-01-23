@@ -152,6 +152,7 @@
                               :max="shiftHours"
                               append-icon="mdi-plus"
                               prepend-icon="mdi-minus"
+                              :disabled="selectedEvent.activityStatus === Statuses.INVOICED"
                               @change="setEventTime(selectedEvent)"
                             />
                           </v-col>
@@ -162,6 +163,7 @@
                             <v-text-field
                               v-model="selectedEvent.shiftHours"
                               type="number"
+                              :disabled="selectedEvent.activityStatus === Statuses.INVOICED"
                               required
                             />
                           </v-col>
@@ -176,6 +178,7 @@
                               :max="shiftHours"
                               append-icon="mdi-plus"
                               prepend-icon="mdi-minus"
+                              :disabled="selectedEvent.activityStatus === Statuses.INVOICED"
                               @change="setEventTime(selectedEvent)"
                             />
                           </v-col>
@@ -186,6 +189,7 @@
                             <v-text-field
                               v-model="selectedEvent.overShiftHours"
                               type="number"
+                              :disabled="selectedEvent.activityStatus === Statuses.INVOICED"
                               required
                             />
                           </v-col>

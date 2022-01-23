@@ -246,6 +246,7 @@
       totalDaysOff: 0,
       shiftStartAt: 9, // 0-23 as o'clock of the day
       shiftHours: 8, // as working hours
+      period: '',
       Statuses,
     }),
     computed: {
@@ -258,10 +259,10 @@
     methods: {
       selectConsultant () {
         const { date } = this.$refs.calendar.lastEnd
-        const yearMonth = date.split('-')[0] + '-' + date.split('-')[1]
+        this.period = date.split('-')[0] + '-' + date.split('-')[1]
         const payload = {
           consultantId: this.selectedConsultant,
-          yearMonth,
+          yearMonth: this.period,
           activityStatus: Statuses.PENDING,
         }
         this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonthAndStatus', payload)
@@ -309,6 +310,17 @@
 
         await this.sleep(1000)
 
+        const activityPeriodObj = {
+          name: this.period,
+          consultantId: this.selectConsultant,
+          totalShiftHours: this.totalWorkHours,
+          totalOverShiftHours: this.totalExtraHours,
+          isInvoiced: false,
+        }
+        this.$store.dispatch('activityPeriod/createActivityPeriod', activityPeriodObj)
+
+        await this.sleep(500)
+
         this.selectConsultant()
       },
       async changeDate (type) {
@@ -318,11 +330,11 @@
         await this.sleep(250)
 
         const { date } = this.$refs.calendar.lastEnd
-        const yearMonth = date.split('-')[0] + '-' + date.split('-')[1]
+        this.period = date.split('-')[0] + '-' + date.split('-')[1]
         const consultantId = this.selectedConsultant
         const activityStatus = Statuses.PENDING
 
-        this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonthAndStatus', { consultantId, yearMonth, activityStatus })
+        this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonthAndStatus', { consultantId, yearMonth: this.period, activityStatus })
 
         setTimeout(() => {
           this.$store.dispatch('app/setLoading', false)
