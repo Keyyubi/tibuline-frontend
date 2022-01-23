@@ -35,7 +35,6 @@
                 item-text="name"
                 item-value="id"
                 label="Müşteri"
-                return-object
                 @change="selectConsultant"
               />
             </v-col>
@@ -48,7 +47,7 @@
                 :items="consultants.filter(e => e.isActive === true)"
                 :item-text="e => e.firstName + ' ' + e.lastName"
                 item-value="id"
-                label="Aktitesi Onaylanan Danışmanlar"
+                label="Aktivitesi Onaylanan Danışmanlar"
                 return-object
                 @change="selectConsultant"
               />
