@@ -27,9 +27,23 @@
           <v-row>
             <v-col
               cols="12"
-              md="6"
+              md="4"
             >
-              <v-select
+              <v-autocomplete
+                v-model="newInvoice.customerCompanyId"
+                :items="companies.filter(e => e.isSupplier === false)"
+                item-text="name"
+                item-value="id"
+                label="Müşteri"
+                return-object
+                @change="selectConsultant"
+              />
+            </v-col>
+            <v-col
+              cols="12"
+              md="4"
+            >
+              <v-autocomplete
                 v-model="selectedConsultant"
                 :items="consultants.filter(e => e.isActive === true)"
                 :item-text="e => e.firstName + ' ' + e.lastName"
@@ -41,7 +55,7 @@
             </v-col>
             <v-col
               cols="12"
-              md="6"
+              md="4"
             >
               <v-select
                 v-model="selectedPeriod"
@@ -309,10 +323,12 @@
       ...get('jobTitle', ['jobTitles']),
       ...get('experienceSpan', ['experienceSpans']),
       ...get('activity', ['activities']),
+      ...get('company', ['companies']),
       ...get('activityPeriod', ['activityPeriods']),
     },
     mounted () {
       this.$store.dispatch('consultant/getConsultants')
+      this.$store.dispatch('company/getCompanies')
       this.newInvoice.supplierCompanyId = this.user.company.id
       this.newInvoice.createdById = this.user.id
     },
