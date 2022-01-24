@@ -53,7 +53,7 @@
                 dark
                 @click="showCompany(item)"
               >
-                Güncelle
+                <b>Güncelle</b>
                 <v-icon right>
                   mdi-arrow-right-bold
                 </v-icon>

@@ -53,7 +53,7 @@
           email: '',
           phone: '',
           tckn: '',
-          isActive: true,
+          isActive: false,
           projectId: 0,
           unitManagerUserId: '',
           contractId: 0,

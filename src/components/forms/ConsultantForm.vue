@@ -1,323 +1,318 @@
 <template>
   <v-container class="py-3">
-    <v-form
-      ref="form"
-      v-model="valid"
+    <v-row
+      class="my-3"
+      align="center"
     >
-      <v-row
-        class="my-3"
-        align="center"
+      <v-divider class="mr-3" /><span class="grey--text">Kişisel Bilgileri</span><v-divider class="ml-3" />
+    </v-row>
+    <v-row>
+      <!-- Firstname -->
+      <v-col
+        cols="12"
+        md="4"
       >
-        <v-divider class="mr-3" /><span class="grey--text">Kişisel Bilgileri</span><v-divider class="ml-3" />
-      </v-row>
-      <v-row>
-        <!-- Firstname -->
-        <v-col
-          cols="12"
-          md="4"
-        >
-          <v-text-field
-            v-model="consultant.firstname"
-            label="Adı"
-            :rules="[v => !!v || 'Ad boş geçilemez',]"
-            required
-            :disabled="user.roleId !== Roles.SUPPLIER"
-          />
-        </v-col>
+        <v-text-field
+          v-model="consultant.firstname"
+          label="Adı"
+          :rules="[v => !!v || 'Ad boş geçilemez',]"
+          required
+          :disabled="user.roleId !== Roles.SUPPLIER"
+        />
+      </v-col>
 
-        <!-- Lastname -->
-        <v-col
-          cols="12"
-          md="4"
-        >
-          <v-text-field
-            v-model="consultant.lastname"
-            label="Soyadı"
-            :rules="[v => !!v || 'Soyad boş geçilemez',]"
-            required
-            :disabled="user.roleId !== Roles.SUPPLIER"
-          />
-        </v-col>
+      <!-- Lastname -->
+      <v-col
+        cols="12"
+        md="4"
+      >
+        <v-text-field
+          v-model="consultant.lastname"
+          label="Soyadı"
+          :rules="[v => !!v || 'Soyad boş geçilemez',]"
+          required
+          :disabled="user.roleId !== Roles.SUPPLIER"
+        />
+      </v-col>
 
-        <!-- Company -->
-        <v-col
-          cols="12"
-          md="4"
-        >
-          <v-select
-            v-model="consultant.companyId"
-            :items="[user.company]"
-            item-text="name"
-            item-value="id"
-            label="Şirket"
-            disabled
-          />
-        </v-col>
+      <!-- Company -->
+      <v-col
+        cols="12"
+        md="4"
+      >
+        <v-select
+          v-model="consultant.companyId"
+          :items="[user.company]"
+          item-text="name"
+          item-value="id"
+          label="Şirket"
+          disabled
+        />
+      </v-col>
 
-        <!-- Phone -->
-        <v-col
-          cols="12"
-          md="3"
-        >
-          <v-text-field
-            v-model="consultant.phone"
-            v-mask="'(###) ### ####'"
-            label="Cep Telefonu"
-            append-icon="mdi-close"
-            prepend-icon="mdi-phone"
-            :rules="RULES.PHONE"
-            required
-            :disabled="user.roleId !== Roles.SUPPLIER"
-            @click:append="consultant.phone = ''"
-          />
-        </v-col>
+      <!-- Phone -->
+      <v-col
+        cols="12"
+        md="3"
+      >
+        <v-text-field
+          v-model="consultant.phone"
+          v-mask="'(###) ### ####'"
+          label="Cep Telefonu"
+          append-icon="mdi-close"
+          prepend-icon="mdi-phone"
+          :rules="RULES.PHONE"
+          required
+          :disabled="user.roleId !== Roles.SUPPLIER"
+          @click:append="consultant.phone = ''"
+        />
+      </v-col>
 
-        <!-- Email -->
-        <v-col
-          cols="12"
-          md="3"
-        >
-          <v-text-field
-            v-model="consultant.email"
-            label="E-mail"
-            :rules="RULES.EMAIL"
-            required
-            :disabled="user.roleId !== Roles.SUPPLIER"
-          />
-        </v-col>
+      <!-- Email -->
+      <v-col
+        cols="12"
+        md="3"
+      >
+        <v-text-field
+          v-model="consultant.email"
+          label="E-mail"
+          :rules="RULES.EMAIL"
+          required
+          :disabled="user.roleId !== Roles.SUPPLIER"
+        />
+      </v-col>
 
-        <!-- Birthday -->
-        <v-col
-          cols="12"
-          md="3"
+      <!-- Birthday -->
+      <v-col
+        cols="12"
+        md="3"
+      >
+        <v-menu
+          ref="menu"
+          v-model="menu"
+          :close-on-content-click="false"
+          transition="scale-transition"
+          offset-y
+          max-width="290px"
+          min-width="auto"
         >
-          <v-menu
-            ref="menu"
-            v-model="menu"
-            :close-on-content-click="false"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="auto"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              <v-text-field
-                v-model="localeDate"
-                label="Doğum Günü"
-                prepend-icon="mdi-calendar"
-                readonly
-                :disabled="user.roleId !== Roles.SUPPLIER"
-                v-bind="attrs"
-                v-on="on"
-              />
-            </template>
-            <v-date-picker
-              v-model="date"
-              :max="`${new Date().getFullYear()}-12-31`"
-              min="1950-01-01"
-              @input="menu = false"
-              @change="save"
+          <template v-slot:activator="{ on, attrs }">
+            <v-text-field
+              v-model="localeDate"
+              label="Doğum Günü"
+              prepend-icon="mdi-calendar"
+              readonly
+              :disabled="user.roleId !== Roles.SUPPLIER"
+              v-bind="attrs"
+              v-on="on"
             />
-          </v-menu>
-        </v-col>
-
-        <!-- TCKN -->
-        <v-col
-          cols="12"
-          md="3"
-        >
-          <v-text-field
-            v-model="consultant.tckn"
-            v-mask="'###########'"
-            label="TCKN"
-            :rules="RULES.TCNO"
-            required
-            :disabled="user.roleId !== Roles.SUPPLIER"
+          </template>
+          <v-date-picker
+            v-model="date"
+            :max="`${new Date().getFullYear()}-12-31`"
+            min="1950-01-01"
+            @input="menu = false"
+            @change="save"
           />
-        </v-col>
-      </v-row>
+        </v-menu>
+      </v-col>
 
-      <v-row
-        class="my-3"
-        align="center"
+      <!-- TCKN -->
+      <v-col
+        cols="12"
+        md="3"
       >
-        <v-divider class="mr-3" /><span class="grey--text">Şirket Bilgileri</span><v-divider class="ml-3" />
-      </v-row>
-      <v-row class="mb-3">
-        <!-- Project -->
-        <v-col
-          cols="12"
-          md="4"
-        >
-          <v-select
-            v-model="consultant.projectId"
-            :items="projects"
-            item-text="name"
-            item-value="id"
-            label="Projesi"
-            :disabled="user.roleId !== Roles.SUPPLIER"
-          />
-        </v-col>
+        <v-text-field
+          v-model="consultant.tckn"
+          v-mask="'###########'"
+          label="TCKN"
+          :rules="RULES.TCNO"
+          required
+          :disabled="user.roleId !== Roles.SUPPLIER"
+        />
+      </v-col>
+    </v-row>
 
-        <!-- Unit Manager -->
-        <v-col
-          cols="12"
-          md="4"
-        >
-          <v-select
-            v-model="consultant.unitManagerUserId"
-            :items="users"
-            :item-text="e => e.firstname + ' ' + e.lastname"
-            item-value="id"
-            label="Yöneticisi"
-            :disabled="user.roleId !== Roles.SUPPLIER"
-          />
-        </v-col>
-
-        <!-- JobTitle -->
-        <v-col
-          cols="12"
-          md="4"
-        >
-          <v-autocomplete
-            v-model="consultant.jobTitleId"
-            :items="jobTitles"
-            :item-text="e => e.abbreviation + ' - ' + e.name"
-            item-value="id"
-            label="Ünvanı"
-            :disabled="user.roleId !== Roles.SUPPLIER"
-          />
-        </v-col>
-
-        <!-- ExperienceSpan -->
-        <v-col
-          cols="12"
-          md="4"
-        >
-          <v-select
-            v-model="consultant.experienceSpanId"
-            :items="experienceSpans"
-            item-text="name"
-            item-value="id"
-            label="Tecrübe Aralığı"
-            :disabled="user.roleId !== Roles.SUPPLIER"
-          />
-        </v-col>
-
-        <!-- isActive -->
-        <v-col
-          cols="12"
-          md="3"
-        >
-          <v-checkbox
-            v-model="consultant.isActive"
-            :label="`Aktif Danışman: ${consultant.isActive ? 'Evet' : 'Hayır'}`"
-            :disabled="user.roleId !== Roles.SUPPLIER"
-          />
-        </v-col>
-      </v-row>
-
-      <v-row
-        class="my-3"
-        align="center"
+    <v-row
+      class="my-3"
+      align="center"
+    >
+      <v-divider class="mr-3" /><span class="grey--text">Şirket Bilgileri</span><v-divider class="ml-3" />
+    </v-row>
+    <v-row class="mb-3">
+      <!-- Project -->
+      <v-col
+        cols="12"
+        md="4"
       >
-        <v-divider class="mr-3" /><span class="grey--text">Evrakları</span><v-divider class="ml-3" />
-      </v-row>
-      <v-row class="mb-3">
-        <!-- Personal Documents -->
-        <v-col
-          cols="12"
-          md="6"
-        >
-          <v-file-input
-            v-model="files"
-            label="Kişisel Evrakları"
-            accept="image/*, .pdf"
-            counter
-            multiple
-            show-size
-            small-chips
-            :disabled="user.roleId !== Roles.SUPPLIER"
-          />
-        </v-col>
+        <v-select
+          v-model="consultant.projectId"
+          :items="projects"
+          item-text="name"
+          item-value="id"
+          label="Projesi"
+          :disabled="user.roleId !== Roles.SUPPLIER"
+        />
+      </v-col>
 
-        <!-- Contract -->
-        <v-col
-          cols="12"
-          md="6"
-        >
-          İmzalı Sözleşme:
-          <v-btn-toggle
-            tile
-            color="primary"
-            group
-          >
-            <v-btn
-              color="primary"
-              depressed
-              outlined
-              :disabled="!consultant.contractFilePath"
-              @click="showContract"
-            >
-              Görüntüle
-            </v-btn>
-            <v-btn
-              color="primary"
-              depressed
-              outlined
-              :disabled="user.roleId !== Roles.SUPPLIER || consultant.contractFilePath"
-              @click="contractDialog = true"
-            >
-              Yükle
-            </v-btn>
-          </v-btn-toggle>
-        </v-col>
-      </v-row>
+      <!-- Unit Manager -->
+      <v-col
+        cols="12"
+        md="4"
+      >
+        <v-select
+          v-model="consultant.unitManagerUserId"
+          :items="users"
+          :item-text="e => e.firstname + ' ' + e.lastname"
+          item-value="id"
+          label="Yöneticisi"
+          :disabled="user.roleId !== Roles.SUPPLIER"
+        />
+      </v-col>
 
-      <!-- Actions -->
-      <v-row class="my-3">
-        <v-col
-          v-if="formType === 'create'"
-          cols="6"
+      <!-- JobTitle -->
+      <v-col
+        cols="12"
+        md="4"
+      >
+        <v-autocomplete
+          v-model="consultant.jobTitleId"
+          :items="jobTitles"
+          :item-text="e => e.abbreviation + ' - ' + e.name"
+          item-value="id"
+          label="Ünvanı"
+          :disabled="user.roleId !== Roles.SUPPLIER"
+        />
+      </v-col>
+
+      <!-- ExperienceSpan -->
+      <v-col
+        cols="12"
+        md="4"
+      >
+        <v-select
+          v-model="consultant.experienceSpanId"
+          :items="experienceSpans"
+          item-text="name"
+          item-value="id"
+          label="Tecrübe Aralığı"
+          :disabled="user.roleId !== Roles.SUPPLIER"
+        />
+      </v-col>
+
+      <!-- isActive -->
+      <v-col
+        cols="12"
+        md="3"
+      >
+        <v-checkbox
+          v-model="consultant.isActive"
+          :label="`Aktif Danışman: ${consultant.isActive ? 'Evet' : 'Hayır'}`"
+          :disabled="user.roleId !== Roles.SUPPLIER"
+        />
+      </v-col>
+    </v-row>
+
+    <v-row
+      class="my-3"
+      align="center"
+    >
+      <v-divider class="mr-3" /><span class="grey--text">Evrakları</span><v-divider class="ml-3" />
+    </v-row>
+    <v-row class="mb-3">
+      <!-- Personal Documents -->
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <v-file-input
+          v-model="files"
+          label="Kişisel Evrakları"
+          accept="image/*, .pdf"
+          counter
+          multiple
+          show-size
+          small-chips
+          :disabled="user.roleId !== Roles.SUPPLIER"
+        />
+      </v-col>
+
+      <!-- Contract -->
+      <v-col
+        cols="12"
+        md="6"
+      >
+        İmzalı Sözleşme:
+        <v-btn-toggle
+          tile
+          color="primary"
+          group
         >
           <v-btn
-            color="warning"
-            width="100%"
+            color="primary"
             depressed
             outlined
-            @click="reset()"
+            :disabled="!consultant.contractFilePath"
+            @click="showContract"
           >
-            Formu Temizle
+            Görüntüle
           </v-btn>
-        </v-col>
-        <v-col
-          cols="6"
-          class="text-right"
-        >
           <v-btn
             color="primary"
-            width="100%"
             depressed
-            @click="createOrUpdateConsultant()"
+            outlined
+            :disabled="user.roleId !== Roles.SUPPLIER || consultant.contractFilePath"
+            @click="contractDialog = true"
           >
-            {{ formType === 'create' ? 'Oluştur' : 'Güncelle' }}
+            Yükle
           </v-btn>
-        </v-col>
-        <v-col
-          v-if="formType !== 'create'"
-          cols="6"
+        </v-btn-toggle>
+      </v-col>
+    </v-row>
+
+    <!-- Actions -->
+    <v-row class="my-3">
+      <v-col
+        v-if="formType === 'create'"
+        cols="6"
+      >
+        <v-btn
+          color="warning"
+          width="100%"
+          depressed
+          outlined
+          @click="reset()"
         >
-          <v-btn
-            color="error"
-            width="100%"
-            depressed
-            @click="$emit('close-dialog')"
-          >
-            Vazgeç
-          </v-btn>
-        </v-col>
-      </v-row>
-    </v-form>
+          Formu Temizle
+        </v-btn>
+      </v-col>
+      <v-col
+        cols="6"
+        class="text-right"
+      >
+        <v-btn
+          color="primary"
+          width="100%"
+          depressed
+          @click="createOrUpdateConsultant()"
+        >
+          {{ formType === 'create' ? 'Oluştur' : 'Güncelle' }}
+        </v-btn>
+      </v-col>
+      <v-col
+        v-if="formType !== 'create'"
+        cols="6"
+      >
+        <v-btn
+          color="error"
+          width="100%"
+          depressed
+          @click="$emit('close-dialog')"
+        >
+          Vazgeç
+        </v-btn>
+      </v-col>
+    </v-row>
     <v-dialog
       v-model="contractDialog"
       persistent
@@ -359,8 +354,9 @@
 </template>
 
 <script>
-  import { get } from 'vuex-pathify'
   import { RULES, ROLE_IDS as Roles } from '@/util/globals'
+  import { CheckIsNull } from '@/util/helpers'
+  import { get } from 'vuex-pathify'
   export default {
     name: 'ConsultantForm',
     props: {
@@ -368,7 +364,6 @@
       consultant: { type: Object, default: null },
     },
     data: () => ({
-      valid: false,
       menu: false,
       date: null,
       files: [],
@@ -420,21 +415,33 @@
         }
       },
       createOrUpdateConsultant () {
-        if (this.$refs.form.validate()) {
+        const fields = [
+          this.consultant.firstname,
+          this.consultant.lastname,
+          this.consultant.birthday,
+          this.consultant.email,
+          this.consultant.phone,
+          this.consultant.tckn,
+          this.consultant.companyId,
+          this.consultant.jobTitleId,
+          this.consultant.experienceSpanId,
+        ]
+        if (!CheckIsNull(fields)) {
           const payload = { ...this.consultant }
 
           if (this.formType === 'create') {
             this.$store.dispatch('consultant/createConsultant', payload)
-            this.clearForm()
+            this.reset()
           } else this.$store.dispatch('consultant/updateConsultant', payload)
           this.$emit('close-dialog')
         }
       },
-      clearForm () {
+      reset () {
         this.consultant.email = this.consultant.phone = this.consultant.TCKN = ''
         this.consultant.firstname = this.consultant.lastname = ''
         this.consultant.birthday = this.localeDate = this.date = null
-        this.$refs.form.resetValidation()
+        this.consultant.projectId = this.consultant.unitManagerUserId = null
+        this.consultant.jobTitleId = this.consultant.experienceSpanId = null
       },
     },
   }
