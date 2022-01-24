@@ -17,10 +17,11 @@
           md="4"
         >
           <v-text-field
-            v-model="consultant.firstName"
+            v-model="consultant.firstname"
             label="Adı"
             :rules="[v => !!v || 'Ad boş geçilemez',]"
             required
+            :disabled="user.roleId !== Roles.SUPPLIER"
           />
         </v-col>
 
@@ -30,10 +31,11 @@
           md="4"
         >
           <v-text-field
-            v-model="consultant.lastName"
+            v-model="consultant.lastname"
             label="Soyadı"
             :rules="[v => !!v || 'Soyad boş geçilemez',]"
             required
+            :disabled="user.roleId !== Roles.SUPPLIER"
           />
         </v-col>
 
@@ -65,6 +67,7 @@
             prepend-icon="mdi-phone"
             :rules="RULES.PHONE"
             required
+            :disabled="user.roleId !== Roles.SUPPLIER"
             @click:append="consultant.phone = ''"
           />
         </v-col>
@@ -79,6 +82,7 @@
             label="E-mail"
             :rules="RULES.EMAIL"
             required
+            :disabled="user.roleId !== Roles.SUPPLIER"
           />
         </v-col>
 
@@ -102,6 +106,7 @@
                 label="Doğum Günü"
                 prepend-icon="mdi-calendar"
                 readonly
+                :disabled="user.roleId !== Roles.SUPPLIER"
                 v-bind="attrs"
                 v-on="on"
               />
@@ -127,6 +132,7 @@
             label="TCKN"
             :rules="RULES.TCNO"
             required
+            :disabled="user.roleId !== Roles.SUPPLIER"
           />
         </v-col>
       </v-row>
@@ -149,6 +155,7 @@
             item-text="name"
             item-value="id"
             label="Projesi"
+            :disabled="user.roleId !== Roles.SUPPLIER"
           />
         </v-col>
 
@@ -159,10 +166,11 @@
         >
           <v-select
             v-model="consultant.unitManagerUserId"
-            :items="unitManagers"
-            :item-text="e => e.firstName + ' ' + e.lastName"
+            :items="users"
+            :item-text="e => e.firstname + ' ' + e.lastname"
             item-value="id"
             label="Yöneticisi"
+            :disabled="user.roleId !== Roles.SUPPLIER"
           />
         </v-col>
 
@@ -177,6 +185,7 @@
             :item-text="e => e.abbreviation + ' - ' + e.name"
             item-value="id"
             label="Ünvanı"
+            :disabled="user.roleId !== Roles.SUPPLIER"
           />
         </v-col>
 
@@ -191,6 +200,7 @@
             item-text="name"
             item-value="id"
             label="Tecrübe Aralığı"
+            :disabled="user.roleId !== Roles.SUPPLIER"
           />
         </v-col>
 
@@ -202,6 +212,7 @@
           <v-checkbox
             v-model="consultant.isActive"
             :label="`Aktif Danışman: ${consultant.isActive ? 'Evet' : 'Hayır'}`"
+            :disabled="user.roleId !== Roles.SUPPLIER"
           />
         </v-col>
       </v-row>
@@ -226,6 +237,7 @@
             multiple
             show-size
             small-chips
+            :disabled="user.roleId !== Roles.SUPPLIER"
           />
         </v-col>
 
@@ -253,7 +265,7 @@
               color="primary"
               depressed
               outlined
-              :disabled="consultant.contractFilePath"
+              :disabled="user.roleId !== Roles.SUPPLIER || consultant.contractFilePath"
               @click="contractDialog = true"
             >
               Yükle
@@ -348,7 +360,7 @@
 
 <script>
   import { get } from 'vuex-pathify'
-  import { RULES } from '@/util/globals'
+  import { RULES, ROLE_IDS as Roles } from '@/util/globals'
   export default {
     name: 'ConsultantForm',
     props: {
@@ -363,17 +375,20 @@
       localeDate: null,
       contractDialog: false,
       contractDocument: null,
+      Roles,
       RULES,
     }),
     computed: {
-      ...get('user', ['user']),
-      ...get('supplier', ['jobTitles', 'experienceSpans', 'projects', 'unitManagers']),
+      ...get('user', ['user', 'users']),
+      ...get('jobTitle', ['jobTitles']),
+      ...get('experienceSpan', ['experienceSpans']),
+      ...get('project', ['projects']),
     },
     mounted () {
-      this.$store.dispatch('supplier/getJobTitles')
-      this.$store.dispatch('supplier/getUnitManagers')
-      this.$store.dispatch('supplier/getExperienceSpans')
-      this.$store.dispatch('supplier/getProjects')
+      this.$store.dispatch('jobTitle/getJobTitles')
+      this.$store.dispatch('user/getUnitManagers')
+      this.$store.dispatch('experienceSpan/getExperienceSpans')
+      this.$store.dispatch('project/getProjects')
 
       this.consultant.companyId = this.user.companyId
 
@@ -400,7 +415,7 @@
         if (this.contractDocument !== null) {
           const formData = new FormData()
           formData.append('files', this.contractDocument)
-          this.$store.dispatch('supplier/uploadContract', { formData, sending: this.consultant })
+          this.$store.dispatch('contract/uploadContract', { formData, sending: this.consultant })
           this.contractDialog = false
         }
       },
@@ -409,15 +424,15 @@
           const payload = { ...this.consultant }
 
           if (this.formType === 'create') {
-            this.$store.dispatch('supplier/createConsultant', payload)
+            this.$store.dispatch('consultant/createConsultant', payload)
             this.clearForm()
-          } else this.$store.dispatch('supplier/updateConsultant', payload)
+          } else this.$store.dispatch('consultant/updateConsultant', payload)
           this.$emit('close-dialog')
         }
       },
       clearForm () {
         this.consultant.email = this.consultant.phone = this.consultant.TCKN = ''
-        this.consultant.firstName = this.consultant.lastName = ''
+        this.consultant.firstname = this.consultant.lastname = ''
         this.consultant.birthday = this.localeDate = this.date = null
         this.$refs.form.resetValidation()
       },

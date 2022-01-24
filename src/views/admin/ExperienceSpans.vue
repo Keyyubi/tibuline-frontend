@@ -75,27 +75,35 @@
             </v-card-title>
 
             <v-card-text>
-              <v-container class="py-3">
-                <v-row>
-                  <v-col>
-                    <v-text-field
-                      v-model="selectedExperienceSpan.name"
-                      label="Tecrübe Aralığı"
-                    />
-                  </v-col>
-                  <v-col>
-                    <v-autocomplete
-                      v-model="selectedExperienceSpan.companyId"
-                      :items="companies"
-                      item-text="name"
-                      item-value="id"
-                      label="Şirket"
-                      :rules="[v => v > 0 || 'Bu alan boş geçilemez.']"
-                      required
-                    />
-                  </v-col>
-                </v-row>
-              </v-container>
+              <v-form
+                ref="editForm"
+                v-model="editValid"
+                lazy-validation
+              >
+                <v-container class="py-3">
+                  <v-row>
+                    <v-col>
+                      <v-text-field
+                        v-model="selectedExperienceSpan.name"
+                        label="Tecrübe Aralığı"
+                        :rules="[v => !!v || 'Bu alan boş geçilemez.']"
+                        required
+                      />
+                    </v-col>
+                    <v-col>
+                      <v-autocomplete
+                        v-model="selectedExperienceSpan.companyId"
+                        :items="companies"
+                        item-text="name"
+                        item-value="id"
+                        label="Şirket"
+                        :rules="[v => v > 0 || 'Bu alan boş geçilemez.']"
+                        required
+                      />
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-form>
             </v-card-text>
 
             <v-divider />
@@ -185,6 +193,7 @@
     data () {
       return {
         valid: true,
+        editValid: true,
         currentTab: 'experienceSpans',
         searchWord: '',
         dialog: false,
@@ -202,11 +211,12 @@
       }
     },
     computed: {
-      ...get('admin', ['companies', 'experienceSpans']),
+      ...get('company', ['companies']),
+      ...get('experienceSpan', ['experienceSpans']),
     },
     mounted () {
-      this.$store.dispatch('admin/getExperienceSpans')
-      this.$store.dispatch('admin/getSupplierCompanies')
+      this.$store.dispatch('experienceSpan/getExperienceSpans')
+      this.$store.dispatch('company/getSupplierCompanies')
     },
     methods: {
       editExperienceSpan (item) {
@@ -214,13 +224,15 @@
         this.dialog = true
       },
       updateExperienceSpan () {
-        this.dialog = false
-        this.$store.dispatch('admin/updateExperienceSpan', this.selectedExperienceSpan)
+        if (this.$refs.editForm.validate()) {
+          this.dialog = false
+          this.$store.dispatch('experienceSpan/updateExperienceSpan', this.selectedExperienceSpan)
+        }
       },
       createExperienceSpan () {
         if (this.$refs.form.validate()) {
           this.dialog = false
-          this.$store.dispatch('admin/createExperienceSpan', this.newExperienceSpan)
+          this.$store.dispatch('experienceSpan/createExperienceSpan', this.newExperienceSpan)
           this.$refs.form.reset()
         }
       },

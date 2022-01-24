@@ -14,6 +14,11 @@ const supplierItems = [
     to: '/supplier/demands',
   },
   {
+    title: 'Sözleşmeler',
+    icon: 'mdi-file-document',
+    to: '/supplier/contracts',
+  },
+  {
     title: 'Danışmanlar',
     icon: 'mdi-account-group',
     to: '/supplier/consultants',
@@ -22,6 +27,11 @@ const supplierItems = [
     title: 'Aktivite Ekle',
     icon: 'mdi-check',
     to: '/supplier/add-activity',
+  },
+  {
+    title: 'Faturalar',
+    icon: 'mdi-cash-register',
+    to: '/supplier/invoices/',
   },
 ]
 
@@ -35,11 +45,6 @@ const managerItems = [
     title: 'Talepler',
     icon: 'mdi-account-plus',
     to: '/unit-manager/demands',
-  },
-  {
-    title: 'Sözleşmeler',
-    icon: 'mdi-file-document',
-    to: '/unit-manager/contracts',
   },
   {
     title: 'Projeler',
@@ -106,36 +111,6 @@ const adminItems = [
   },
 ]
 
-const rules = {
-  emailRules: [
-    v => !!v || 'E-mail is required',
-    v => /.+@.+/.test(v) || 'E-mail must be valid',
-  ],
-  passwordRules: [
-    v => !!v || 'Şifre boş geçilemez',
-    v =>
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\\$%\\^&\\*\\+\\.])(?=.{8,})/.test(v) ||
-      'Şifre en az 8 karakter olup, büyük harf, küçük harf, rakam ve özel karakter içermelidir!',
-  ],
-  phoneRules: [
-    v => !!v || 'Telefon numarası girmelisiniz',
-    v => (v && v.length === 14) || 'Lütfen başında 0 olmadan 10 haneli olarak giriniz.',
-    v => /^(\(5.)/.test(v) || 'Telefon numarası 5 ile başlamalıdır.',
-  ],
-  tcnoRules: [
-    v => !!v || 'T.C. Kimlik Numarası giriniz.',
-    v => (v && v.length === 11) || 'Kimlik numarası 11 haneli olmalıdır.',
-    v => (() => {
-      const arr = Array.from(v)
-      let res = 0
-      for (let i = 0; i < arr.length - 1; i++) {
-        res += Number(arr[i])
-      }
-      return (res % 10) === Number(arr[arr.length - 1])
-    })() || 'Kimlik numarası geçersiz.',
-  ],
-}
-
 // Data
 const state = {
   drawer: null,
@@ -144,8 +119,7 @@ const state = {
   isLoading: false,
   items: [],
   alertMessage: '',
-  alertType: false,
-  rules,
+  alertType: '',
 }
 
 const mutations = make.mutations(state)

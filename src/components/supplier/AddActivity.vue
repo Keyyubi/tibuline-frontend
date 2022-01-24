@@ -25,6 +25,7 @@
           </v-stepper-header>
 
           <v-stepper-items>
+            <!-- Consultant Selection -->
             <v-stepper-content
               step="1"
               class="mx-0"
@@ -33,8 +34,8 @@
               <v-autocomplete
                 v-model="selectedConsultant"
                 class="mt-5"
-                :items="consultants"
-                :item-text="e => e.firstName + ' ' + e.lastName"
+                :items="consultants.filter(e => e.isActive === true)"
+                :item-text="e => e.firstname + ' ' + e.lastname"
                 item-value="id"
                 label="Danışman"
                 @change="selectConsultant"
@@ -45,6 +46,7 @@
               step="2"
               class="pa-0 mx-0"
             >
+              <!-- Toolbar -->
               <v-sheet height="64">
                 <v-toolbar flat>
                   <v-btn
@@ -85,14 +87,32 @@
                     Aylık Aktiviteleri Doldur
                   </v-btn>
                   <v-spacer />
-                  <v-chip
+                  <v-tooltip
                     v-if="selectedConsultant != null"
-                    class="ma-2"
+                    left
                   >
-                    Çalışan: {{ consultants.find(e => e.id === selectedConsultant).firstName + ' ' + consultants.find(e => e.id === selectedConsultant).lastName }}
-                  </v-chip>
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-chip
+                        class="ma-2"
+                        color="primary"
+                        v-bind="attrs"
+                        v-on="on"
+                        @click="e1=1"
+                      >
+                        {{ consultants.find(e => e.id === selectedConsultant).firstname + ' ' + consultants.find(e => e.id === selectedConsultant).lastname }}
+                        <v-icon
+                          class="ml-4"
+                          size="18"
+                        >
+                          mdi-restore
+                        </v-icon>
+                      </v-chip>
+                    </template>
+                    <span>Danışmanı değiştir</span>
+                  </v-tooltip>
                 </v-toolbar>
               </v-sheet>
+              <!-- Calendar -->
               <v-sheet
                 height="600"
                 width="100%"
@@ -132,6 +152,7 @@
                               :max="shiftHours"
                               append-icon="mdi-plus"
                               prepend-icon="mdi-minus"
+                              :disabled="selectedEvent.activityStatus === Statuses.INVOICED"
                               @change="setEventTime(selectedEvent)"
                             />
                           </v-col>
@@ -142,6 +163,7 @@
                             <v-text-field
                               v-model="selectedEvent.shiftHours"
                               type="number"
+                              :disabled="selectedEvent.activityStatus === Statuses.INVOICED"
                               required
                             />
                           </v-col>
@@ -156,6 +178,7 @@
                               :max="shiftHours"
                               append-icon="mdi-plus"
                               prepend-icon="mdi-minus"
+                              :disabled="selectedEvent.activityStatus === Statuses.INVOICED"
                               @change="setEventTime(selectedEvent)"
                             />
                           </v-col>
@@ -166,6 +189,7 @@
                             <v-text-field
                               v-model="selectedEvent.overShiftHours"
                               type="number"
+                              :disabled="selectedEvent.activityStatus === Statuses.INVOICED"
                               required
                             />
                           </v-col>
@@ -297,9 +321,12 @@
 
 <script>
   import { get } from 'vuex-pathify'
-  import { ACTIVITY_STATUSES as statuses } from '@/util/globals'
+  import { ACTIVITY_STATUSES as Statuses } from '@/util/globals'
   export default {
     name: 'AddActivity',
+    props: {
+      activityType: { type: String, default: 'create' },
+    },
     data: () => ({
       focus: '',
       e1: 1,
@@ -315,23 +342,26 @@
       totalDaysOff: 0,
       shiftStartAt: 9, // 0-23 as o'clock of the day
       shiftHours: 8, // as working hours
-      statuses,
+      Statuses,
     }),
     computed: {
-      ...get('supplier', ['activities', 'consultants']),
+      ...get('activity', ['activities']),
+      ...get('consultant', ['consultants']),
     },
     mounted () {
-      this.$store.dispatch('supplier/getConsultants')
+      this.$store.dispatch('consultant/getConsultants')
     },
     methods: {
       selectConsultant () {
         const { date } = this.$refs.calendar.lastEnd
         const yearMonth = date.split('-')[0] + '-' + date.split('-')[1]
+        const activityStatus = this.activityType === 'revised' ? Statuses.REVISED : Statuses.CREATED
         const payload = {
           consultantId: this.selectedConsultant,
           yearMonth,
+          activityStatus,
         }
-        this.$store.dispatch('supplier/getConsultantActivities', payload)
+        this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonthAndStatus', { ...payload, activityStatus })
         this.calculateTotalHours()
         this.e1 = 2
       },
@@ -353,7 +383,7 @@
           timed: false,
           yearMonth,
           consultantId,
-          activityStatus: this.statuses.EDITABLE,
+          activityStatus: this.Statuses.CREATED,
         }
       },
       openDialog (item) {
@@ -364,30 +394,6 @@
       },
       sleep (ms) {
         return new Promise(resolve => setTimeout(resolve, ms))
-      },
-      async updateRange () {
-        this.$store.dispatch('app/setLoading', true)
-        if (this.activities.length > 0) {
-          for (let i = 0; i < this.activities.length; i++) {
-            this.$store.dispatch('supplier/deleteActivity', this.activities[i].id)
-          }
-          await this.sleep(1000)
-        }
-
-        const end = this.$refs.calendar.lastEnd
-        for (let i = 0; i < end.day; i++) {
-          const date = `${end.year}-${end.month < 10 ? '0' + end.month : end.month}-${i < 9 ? '0' + (i + 1) : i + 1}`
-          const startDate = new Date(end.year, end.month - 1, i + 1)
-
-          if (startDate.getDay() !== 0 && startDate.getDay() !== 6) {
-            this.$store.dispatch('supplier/createActivity', this.newShiftEvent(date, `${this.shiftHours}s mesai`))
-          }
-        }
-
-        await this.sleep(1000)
-        this.selectConsultant()
-        this.calculateTotalHours()
-        this.$store.dispatch('app/setLoading', false)
       },
       setEventTime (event) {
         event.name = `${event.shiftHours}s mesai ${event.overShiftHours ? ' - ' + event.overShiftHours + 's fazla mesai' : ''}`
@@ -412,23 +418,6 @@
           }
         }
       },
-      async creteOrUpdateEvent () {
-        if (this.selectedEvent.date) {
-          this.$store.dispatch('app/setLoading', true)
-          this.dialog = false
-          const index = this.activities.findIndex(e => e.date === this.selectedEvent.date)
-
-          if (index !== -1) {
-            this.$store.dispatch('supplier/updateActivity', this.selectedEvent)
-          } else {
-            this.$store.dispatch('supplier/createActivity', this.selectedEvent)
-          }
-
-          this.calculateTotalHours()
-          await this.sleep(300)
-          this.selectConsultant()
-        }
-      },
       showConfirmation (type) {
         this.confirmationType = type
 
@@ -451,27 +440,83 @@
           switch (type) {
             case 'delete':
             case 'send':
-              this.$store.dispatch('app/updateAlertMsg', { message: 'Bu dönem için aktivite bulunmuyor.', isError: false })
+              this.$store.dispatch('app/updateAlertMsg', { message: 'Bu dönem için aktivite bulunmuyor.', type: 'warning' })
               break
             case 'fill-monthly':
-              this.updateRange()
+              this.createMonthly()
               break
           }
         }
       },
-      async confirm () {
-        if (this.confirmationType === 'delete') {
-          this.$store.dispatch('app/setLoading', true)
-          this.confirmationDialog = false
-          const arr = this.activities.map(e => e.id)
-          for (let i = 0; i < arr.length; i++) {
-            this.$store.dispatch('supplier/deleteActivity', arr[i])
+      async createMonthly () {
+        this.$store.dispatch('app/setLoading', true)
+
+        const end = this.$refs.calendar.lastEnd
+        for (let i = 0; i < end.day; i++) {
+          const date = `${end.year}-${end.month < 10 ? '0' + end.month : end.month}-${i < 9 ? '0' + (i + 1) : i + 1}`
+          const startDate = new Date(end.year, end.month - 1, i + 1)
+
+          if (startDate.getDay() !== 0 && startDate.getDay() !== 6) {
+            this.$store.dispatch('activity/createActivity', this.newShiftEvent(date, `${this.shiftHours}s mesai`))
           }
-          await this.sleep(500)
+        }
+
+        await this.sleep(1000)
+
+        this.selectConsultant()
+        this.calculateTotalHours()
+        this.$store.dispatch('app/setLoading', false)
+      },
+      async deleteActivitiesMonthly () {
+        this.$store.dispatch('app/setLoading', true)
+        const arr = this.activities.map(e => e.id)
+        for (let i = 0; i < arr.length; i++) {
+          this.$store.dispatch('activity/deleteActivity', arr[i])
+        }
+
+        await this.sleep(1000)
+        this.$store.dispatch('app/setLoading', false)
+      },
+      async creteOrUpdateEvent () {
+        if (this.selectedEvent.date) {
+          this.$store.dispatch('app/setLoading', true)
+          this.dialog = false
+          const index = this.activities.findIndex(e => e.date === this.selectedEvent.date)
+
+          if (index !== -1) {
+            this.$store.dispatch('activity/updateActivity', this.selectedEvent)
+          } else {
+            this.$store.dispatch('activity/createActivity', this.selectedEvent)
+          }
+
+          this.calculateTotalHours()
+          await this.sleep(300)
           this.selectConsultant()
-        } else {
-          this.confirmationDialog = false
-          this.updateRange()
+        }
+      },
+      async confirm () {
+        this.confirmationDialog = false
+
+        switch (this.confirmationType) {
+          case 'delete':
+            this.deleteActivitiesMonthly()
+            break
+          case 'send':
+            this.$store.dispatch('app/setLoading', true)
+            this.confirmationDialog = false
+
+            this.activities.forEach(obj => {
+              obj.activityStatus = Statuses.PENDING
+              this.$store.dispatch('activity/updateActivity', obj)
+            })
+
+            await this.sleep(1000)
+            this.selectConsultant()
+            break
+          case 'fill-monthly':
+            if (this.activities.length > 0) this.deleteActivitiesMonthly()
+            this.createMonthly()
+            break
         }
       },
       async changeDate (type) {
@@ -484,7 +529,7 @@
         const yearMonth = date.split('-')[0] + '-' + date.split('-')[1]
         const consultantId = this.selectedConsultant
 
-        this.$store.dispatch('supplier/getConsultantActivities', { consultantId, yearMonth })
+        this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonth', { consultantId, yearMonth })
 
         setTimeout(() => {
           this.$store.dispatch('app/setLoading', false)

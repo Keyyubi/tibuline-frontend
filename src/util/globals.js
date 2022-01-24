@@ -3,32 +3,35 @@ const IN_BROWSER = typeof window !== 'undefined'
 const IS_DEBUG = process.env.DEBUG === 'true'
 const IS_PROD = process.env.NODE_ENV === 'production'
 const BASE_URL = 'http://37.9.203.118:4647/api'
-const DEMAND_STATUSES = [
-  /* //**
-    * DEMAND FLOW with Statuses ==> CREATED 1 to PENDING  =>
-  */
-  // By Manager
-  { key: 'CREATED', status: 0, label: 'Oluşturuldu' },
-  { key: 'REPLIED', status: 1, label: 'Aday yüklendi' },
-  { key: 'PENDING', status: 2, label: 'Sözleşme yüklendi' },
-  { key: 'APPROVED', status: 3, label: 'Sözleşme imzalandı' },
-  { key: 'COMPLITED', status: 4, label: 'Tamamlandı' },
+const DEMAND_STATUSES = {
+  CREATED: 0,
+  REPLIED: 1,
+  REPLIED_WITH_CONTRACT: 2,
+  COMPLITED: 3,
+}
+const DEMAND_STATUS_LABELS = [
+  //! IT's important the arrays order. Will work with keys as indexes
+  'Oluşturuldu',
+  'Aday yüklendi, sözleşme bekliyor',
+  'Aday ve sözleşme yüklendi',
+  'Tamamlandı',
 ]
-const ACTIVITY_STATUSES = {
-  EDITABLE: 0,
+const ACTIVITY_STATUSES = Object.freeze({
+  CREATED: 0,
   PENDING: 1,
   REVISED: 2,
   APPROVED: 3,
-}
-const ROLE_IDS = {
+  INVOICED: 4,
+})
+const ROLE_IDS = Object.freeze({
   ADMIN: 0,
   UNIT_MANAGER: 1,
   SUPPLIER: 2,
-}
-const RULES = {
+})
+const RULES = Object.freeze({
   EMAIL: [
-    v => !!v || 'E-mail is required',
-    v => /.+@.+/.test(v) || 'E-mail must be valid',
+    v => !!v || 'E-mail alanı boş geçilemez.',
+    v => /.+@.+/.test(v) || 'E-mail adresi geçerli değil.',
   ],
   PASSWORD: [
     v => !!v || 'Şifre boş geçilemez',
@@ -58,16 +61,12 @@ const RULES = {
   VKN: [
     v => (!!v && v.length === 10) || 'VKN 10 karakter olmalıdır.',
   ],
-}
-const CreateURL = (endpoint = '') => BASE_URL + (endpoint.startsWith('/') ? endpoint : '/' + endpoint)
-const GetPostHeaders = (token) => {
-  return {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-type': 'application/json',
-    },
-  }
-}
+})
+const INVOICE_TYPES = Object.freeze({
+  HOURLY: 0, // Adam/Saat
+  DAILY: 1, // Adam/Gun
+  MONTHLY: 2, // Adam/Ay
+})
 
 module.exports = {
   EN_LOCALE_ONLY,
@@ -75,9 +74,10 @@ module.exports = {
   IS_DEBUG,
   IS_PROD,
   DEMAND_STATUSES,
+  DEMAND_STATUS_LABELS,
   ROLE_IDS,
   RULES,
   ACTIVITY_STATUSES,
-  CreateURL,
-  GetPostHeaders,
+  BASE_URL,
+  INVOICE_TYPES,
 }

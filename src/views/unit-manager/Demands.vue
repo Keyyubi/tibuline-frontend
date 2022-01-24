@@ -31,17 +31,35 @@
         <all-demands />
       </v-tab-item>
       <v-tab-item value="newDemand">
-        <new-demand />
+        <demand-form
+          form-type="create"
+          :demand="newDemand"
+        />
       </v-tab-item>
     </v-tabs-items>
   </v-container>
 </template>
 
 <script>
+  import DemandForm from '../../components/forms/DemandForm.vue'
   export default {
     name: 'Demands',
+    components: { DemandForm },
     data () {
-      return { currentTab: 'allDemand' }
+      return {
+        currentTab: 'allDemand',
+        newDemand: {
+          createdById: null,
+          costCenterId: null,
+          supplierCompanyId: null,
+          jobTitleId: null,
+          experienceSpanId: null,
+          monthlyBudget: null,
+          totalBudget: null,
+          projectId: null,
+          demandStatus: null,
+        },
+      }
     },
   }
 </script>

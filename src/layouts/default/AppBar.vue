@@ -22,6 +22,7 @@
         border="top"
         dismissible
         transition="scale-transition"
+        @click="dismiss"
       >
         {{ alertMessage }}
       </v-alert>
@@ -79,7 +80,6 @@
       //   './widgets/Search'
       // ),
     },
-
     computed: {
       ...get('app', ['alertMessage', 'alertType']),
       ...sync('app', [
@@ -87,6 +87,13 @@
         'mini',
       ]),
       name: get('route/name'),
+    },
+    methods: {
+      dismiss () {
+        setTimeout(() => {
+          this.$store.dispatch('app/showAlert', { message: '', type: '' })
+        }, 250)
+      },
     },
   }
 </script>

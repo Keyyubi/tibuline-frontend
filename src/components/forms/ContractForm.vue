@@ -1,32 +1,36 @@
 <template>
   <v-container class="py-3">
     <v-row>
-      <!-- UnitManager -->
+      <!-- Supplier Company -->
       <v-col
         cols="12"
-        md="4"
+        md="6"
       >
         <v-text-field
-          :value="user.firstName + ' ' + user.lastName"
-          label="Yönetici"
+          :value="user.company.name"
+          label="Şirket"
           disabled
         />
       </v-col>
 
+      <!-- Consultant -->
       <v-col
         cols="12"
-        md="4"
+        md="6"
       >
-        <v-text-field
-          v-model="contract.orderNumber"
-          label="Talep No. / Sipariş No."
+        <v-autocomplete
+          v-model="contract.consultantId"
+          :items="consultants"
+          :item-text="e => e.firstname + ' ' + e.lastname"
+          item-value="id"
+          label="Danışman"
         />
       </v-col>
 
       <!-- StartDate -->
       <v-col
         cols="12"
-        md="4"
+        :md="formType === 'create' ? '6' : '4'"
       >
         <v-menu
           ref="menu1"
@@ -51,7 +55,7 @@
             v-model="contract.startDate"
             no-title
             @input="menu1 = false"
-            @change="e => starting = getComputedDate(e)"
+            @change="selectStartDate"
           />
         </v-menu>
       </v-col>
@@ -59,7 +63,7 @@
       <!-- EndDate -->
       <v-col
         cols="12"
-        md="4"
+        :md="formType === 'create' ? '6' : '4'"
       >
         <v-menu
           ref="menu2"
@@ -84,66 +88,42 @@
             v-model="contract.endDate"
             no-title
             @input="menu2 = false"
-            @change="e => ending = getComputedDate(e)"
+            @change="e => ending = getLocaleDate(e)"
           />
         </v-menu>
       </v-col>
 
-      <!-- JobStartDate -->
+      <!-- Contract File -->
       <v-col
+        v-if="formType !== 'create'"
         cols="12"
         md="4"
       >
-        <v-menu
-          ref="menu3"
-          v-model="menu3"
-          :close-on-content-click="false"
-          transition="scale-transition"
-          offset-y
-          max-width="290px"
-          min-width="auto"
+        Sözleşme:
+        <v-btn-toggle
+          tile
+          color="primary"
+          group
         >
-          <template v-slot:activator="{ on, attrs }">
-            <v-text-field
-              v-model="jobStarting"
-              label="İşe Başlama Tarihi"
-              persistent-hint
-              prepend-icon="mdi-calendar"
-              v-bind="attrs"
-              v-on="on"
-            />
-          </template>
-          <v-date-picker
-            v-model="contract.jobStartDate"
-            no-title
-            @input="menu3 = false"
-            @change="e => jobStarting = getComputedDate(e)"
-          />
-        </v-menu>
-      </v-col>
-
-      <v-col
-        cols="12"
-        md="4"
-      >
-        <v-autocomplete
-          v-model="contract.supplierCompanyId"
-          :items="companies"
-          item-text="name"
-          item-value="id"
-          label="Şirket"
-        />
-      </v-col>
-
-      <v-col
-        cols="12"
-        md="4"
-      >
-        <v-file-input
-          v-model="contractDocument"
-          chips
-          label="Sözleşme Yükle"
-        />
+          <v-btn
+            color="primary"
+            depressed
+            outlined
+            :disabled="!(contract.filePath && contract.filePath.length > 0) "
+            @click="showContract"
+          >
+            Görüntüle
+          </v-btn>
+          <v-btn
+            color="primary"
+            depressed
+            outlined
+            :disabled="(contract.filePath && contract.filePath.length > 0) "
+            @click="contractDialog = true"
+          >
+            Yükle
+          </v-btn>
+        </v-btn-toggle>
       </v-col>
     </v-row>
 
@@ -158,7 +138,7 @@
           width="100%"
           depressed
           outlined
-          @click="reset()"
+          @click="clearForm()"
         >
           Formu Temizle
         </v-btn>
@@ -190,6 +170,45 @@
         </v-btn>
       </v-col>
     </v-row>
+
+    <!-- ContractFile dialog -->
+    <v-dialog
+      v-model="contractDialog"
+      persistent
+    >
+      <v-card>
+        <v-card-title>
+          Sözleşme Yükle
+        </v-card-title>
+        <v-card-text>
+          <v-file-input
+            v-model="contractDocument"
+            chips
+            label="Sözleşme"
+          />
+        </v-card-text>
+        <v-card-actions>
+          <v-btn
+            color="primary"
+            width="50%"
+            depressed
+            small
+            @click="uploadContract"
+          >
+            Yükle
+          </v-btn>
+          <v-btn
+            color="error"
+            width="50%"
+            depressed
+            small
+            @click="contractDialog = false"
+          >
+            Vazgeç
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -203,75 +222,82 @@
     },
     data: () => ({
       contractDocument: null,
+      contractDialog: false,
       menu1: false,
       menu2: false,
-      menu3: false,
       file: null,
       date: null,
       starting: null,
       ending: null,
-      jobStarting: null,
     }),
     computed: {
       ...get('user', ['user']),
-      ...get('manager', ['companies']),
+      ...get('consultant', ['consultants']),
     },
     mounted () {
-      this.$store.dispatch('manager/getSupplierCompanies')
+      this.$store.dispatch('consultant/getConsultants')
 
-      this.contract.createdById = this.user.id
+      this.contract.supplierCompanyId = this.user.company.id
+
+      if (this.formType !== 'create') {
+        this.starting = this.getLocaleDate(this.contract.startDate)
+        this.ending = this.getLocaleDate(this.contract.endDate)
+      }
     },
     methods: {
-      save (date) {
-        const arr = date.split('-')
+      selectStartDate () {
+        this.starting = this.getLocaleDate(this.contract.startDate)
 
-        this.localeDate = `${arr[2]}/${arr[1]}/${arr[0]}`
-        this.contract.birthday = new Date(date).toISOString()
-        this.$refs.menu.save(date)
+        if (this.formType === 'create') {
+          const str = this.contract.startDate.split('-')
+          str[0] = Number(str[0]) + 1
+          this.contract.endDate = str.join('-')
+          this.ending = this.getLocaleDate(this.contract.endDate)
+        }
       },
-      getComputedDate (date) {
+      getLocaleDate (date) {
         const arr = date.split('T')[0].split('-')
         return `${arr[2]}/${arr[1]}/${arr[0]}`
-      },
-      createDocument () {
-        const formData = new FormData()
-        formData.append('files', this.file)
-
-        this.$store.dispatch('manager/uploadDocument', formData)
       },
       createOrUpdateContract () {
         let isNull = false
         const arr = [
-          this.contract.contractStatus,
-          this.contract.filePath,
           this.contract.startDate,
           this.contract.endDate,
-          this.contract.jobStartDate,
-          this.contract.supplierCompanyId,
+          this.contract.consultantId,
         ]
         arr.forEach(e => { if (!e) isNull = true })
 
         if (!isNull) {
-          const sending = { ...this.contract }
+          const payload = { ...this.contract }
 
-          if (this.formType === 'create') {
-            const formData = new FormData()
-            formData.append('files', this.contractDocument)
-            this.$store.dispatch('manager/createContract', { formData, sending })
-            this.clearForm()
-          } else this.$store.dispatch('manager/updateContract', sending)
+          this.formType === 'create'
+            ? this.$store.dispatch('contract/createContract', payload)
+            : this.$store.dispatch('contract/updateContract', payload)
+
+          this.clearForm()
           this.$emit('close-dialog')
         } else {
           this.$store.dispatch('app/showAlert', { message: 'Lütfen tüm alanları doldurunuz.', type: 'warning' })
         }
       },
+      showContract () {
+        if (this.contract.filePath) {
+          window.open(this.contract.filePath, '_blank').focus()
+        }
+      },
+      uploadContract () {
+        if (this.contractDocument !== null) {
+          const formData = new FormData()
+          formData.append('files', this.contractDocument)
+          this.$store.dispatch('contract/uploadContract', { formData, id: this.contract.id })
+          this.contractDialog = false
+        }
+      },
       clearForm () {
-        this.contract.contractStatus = 0
         this.contract.filePath = null
         this.contract.startDate = null
         this.contract.endDate = null
-        this.contract.jobStartDate = null
-        this.contract.supplierCompanyId = null
       },
     },
   }

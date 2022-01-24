@@ -41,76 +41,6 @@
                 @change="selectConsultant"
               />
             </v-stepper-content>
-
-            <!-- Calendar -->
-            <v-stepper-content
-              step="2"
-              class="pa-0 mx-0"
-            >
-              <v-sheet height="64">
-                <v-toolbar flat>
-                  <v-btn
-                    fab
-                    text
-                    small
-                    color="grey darken-2"
-                    @click="changeDate('prev')"
-                  >
-                    <v-icon small>
-                      mdi-chevron-left
-                    </v-icon>
-                  </v-btn>
-                  <v-btn
-                    fab
-                    text
-                    small
-                    color="grey darken-2"
-                    @click="changeDate('next')"
-                  >
-                    <v-icon small>
-                      mdi-chevron-right
-                    </v-icon>
-                  </v-btn>
-                  <v-toolbar-title v-if="$refs.calendar">
-                    {{ $refs.calendar.title }}
-                  </v-toolbar-title>
-                  <v-spacer />
-                  <v-btn
-                    outlined
-                    small
-                    color="primary darken-1"
-                    @click="showConfirmation('fill-monthly')"
-                  >
-                    <v-icon small>
-                      mdi-calendar-month
-                    </v-icon>
-                    Aylık Aktiviteleri Doldur
-                  </v-btn>
-                  <v-spacer />
-                  <v-chip
-                    v-if="selectedConsultant != null"
-                    class="ma-2"
-                  >
-                    Çalışan: {{ consultants.find(e => e.id === selectedConsultant).firstname + ' ' + consultants.find(e => e.id === selectedConsultant).lastname }}
-                  </v-chip>
-                </v-toolbar>
-              </v-sheet>
-              <v-sheet
-                height="600"
-                width="100%"
-              >
-                <v-calendar
-                  ref="calendar"
-                  v-model="focus"
-                  style="border-left:none"
-                  color="primary"
-                  type="month"
-                  event-overlap-mode="column"
-                  :events="activities"
-                  :event-color="getEventColor"
-                />
-              </v-sheet>
-            </v-stepper-content>
           </v-stepper-items>
         </v-stepper>
       </v-col>
@@ -232,7 +162,7 @@
   import { get } from 'vuex-pathify'
   import { ACTIVITY_STATUSES as Statuses } from '@/util/globals'
   export default {
-    name: 'Activities',
+    name: 'InvoiceActivities',
     data: () => ({
       focus: '',
       e1: 1,
@@ -246,24 +176,31 @@
       totalDaysOff: 0,
       shiftStartAt: 9, // 0-23 as o'clock of the day
       shiftHours: 8, // as working hours
-      period: '',
       Statuses,
+      approvedPeriods: {
+        id: 0,
+        name: '2022-01',
+        consultantId: 1,
+        totalShiftHours: 180,
+        totalOverShiftHours: 40,
+        isInvoiced: false,
+      },
     }),
     computed: {
       ...get('consultant', ['consultants']),
       ...get('activity', ['activities']),
     },
     mounted () {
-      this.$store.dispatch('consultant/getConsultantsByManagerId')
+      this.$store.dispatch('consultant/getConsultants')
     },
     methods: {
       selectConsultant () {
         const { date } = this.$refs.calendar.lastEnd
-        this.period = date.split('-')[0] + '-' + date.split('-')[1]
+        const yearMonth = date.split('-')[0] + '-' + date.split('-')[1]
         const payload = {
           consultantId: this.selectedConsultant,
-          yearMonth: this.period,
-          activityStatus: Statuses.PENDING,
+          yearMonth,
+          activityStatus: Statuses.APPROVED,
         }
         this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonthAndStatus', payload)
         this.calculateTotalHours()
@@ -310,17 +247,6 @@
 
         await this.sleep(1000)
 
-        const activityPeriodObj = {
-          name: this.period,
-          consultantId: this.selectConsultant,
-          totalShiftHours: this.totalWorkHours,
-          totalOverShiftHours: this.totalExtraHours,
-          isInvoiced: false,
-        }
-        this.$store.dispatch('activityPeriod/createActivityPeriod', activityPeriodObj)
-
-        await this.sleep(500)
-
         this.selectConsultant()
       },
       async changeDate (type) {
@@ -330,11 +256,11 @@
         await this.sleep(250)
 
         const { date } = this.$refs.calendar.lastEnd
-        this.period = date.split('-')[0] + '-' + date.split('-')[1]
+        const yearMonth = date.split('-')[0] + '-' + date.split('-')[1]
         const consultantId = this.selectedConsultant
         const activityStatus = Statuses.PENDING
 
-        this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonthAndStatus', { consultantId, yearMonth: this.period, activityStatus })
+        this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonthAndStatus', { consultantId, yearMonth, activityStatus })
 
         setTimeout(() => {
           this.$store.dispatch('app/setLoading', false)

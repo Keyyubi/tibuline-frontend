@@ -25,8 +25,7 @@ const router = new Router({
 
       // Unit Manager Routes
       route('unit-manager/Demands', null, 'unit-manager/demands'),
-      route('unit-manager/Contracts', null, 'unit-manager/contracts'),
-      route('unit-manager/Projects', null, 'unit-manager/projects'),
+      route('unit-manager/Projects', { default: 'admin/Project' }, 'unit-manager/projects'),
       route('unit-manager/Consultants', null, 'unit-manager/consultants'),
       route('unit-manager/ActivitiesCosts', null, 'unit-manager/activities-costs'),
       route('unit-manager/Bills', null, 'unit-manager/bills'),
@@ -35,6 +34,8 @@ const router = new Router({
       route('supplier/Demands', null, 'supplier/demands'),
       route('supplier/AddActivity', null, 'supplier/add-activity'),
       route('supplier/Consultants', null, 'supplier/consultants'),
+      route('supplier/Contracts', null, 'supplier/contracts'),
+      route('supplier/Invoices', null, 'supplier/invoices'),
 
        // Admin Routes
        route('admin/Users', null, 'admin/users'),

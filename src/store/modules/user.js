@@ -2,7 +2,8 @@
 import { make } from 'vuex-pathify'
 import axios from 'axios'
 // Globals
-import { IN_BROWSER, CreateURL, GetPostHeaders } from '@/util/globals'
+import { IN_BROWSER, ROLE_IDS } from '@/util/globals'
+import { CreateURL, GetPostHeaders } from '@/util/helpers'
 import store from '@/store/index'
 
 // Router
@@ -10,6 +11,7 @@ import router from '../../router'
 
 const state = {
   user: {},
+  users: [],
   dark: false,
   drawer: {
     image: 1,
@@ -73,23 +75,106 @@ const actions = {
             ...loggedUser,
             company: res.data,
           }
-          context.commit('user', loggedUser)
+          store.set('user/user', loggedUser)
           context.dispatch('app/updateItems', loggedUser.roleId, { root: true })
+          store.set('app/alertMessage', '')
           router.push('/')
         })
       })
     })
-    .catch((error) => {
-      context.commit('user', {})
-      console.error('Error on login', error)
+    .catch(({ response }) => {
+      store.set('user/user', {})
+
+      //  ? ERROR HANDLING EXAMPLE
+      //  * response has the all info about error. Like Status or Data
+      const res = response.data
+      store.set('app/alertMessage', res.error.errors[0])
     })
     .finally(() => setTimeout(() => {
         store.set('app/isLoading', false)
-      }, 1500))
+        store.set('app/alertMessage', '')
+      }, 2000))
   },
-  logout: ({ commit }) => {
-    commit('user', {})
+  logout: () => {
+    store.set('activity/activities', [])
+    store.set('budget/budgets', [])
+    store.set('budget/invoiceBudget', {})
+    store.set('company/companies', [])
+    store.set('consultant/consultants', [])
+    store.set('contract/contracts', [])
+    store.set('demand/demands', [])
+    store.set('experienceSpan/experienceSpans', [])
+    store.set('jobTitle/jobTitles', [])
+    store.set('project/projects', [])
+    store.set('user/users', [])
+    store.set('user/user', {})
+    store.set('app/items', [])
+    store.set('app/alertMessage', '')
+    store.set('app/alertType', '')
+
     router.push('/login/')
+  },
+  createUser: (context, payload) => {
+    store.set('app/isLoading', true)
+
+    axios.post(CreateURL('User/CreateUser'), payload)
+      .then(() => {
+        store.dispatch('app/showAlert', { message: 'Kullanıcı başarıyla oluşturuldu.', type: 'success' }, { root: true })
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+      })
+  },
+  updateUser: (context, payload) => {
+    store.set('app/isLoading', true)
+
+    axios.put(CreateURL('User/UpdateUser'), payload, GetPostHeaders(store.get('user/user').token))
+      .then(() => {
+        const arr = store.get('user/users')
+        const index = arr.findIndex(e => e.id === payload.id)
+        arr[index] = payload
+        store.set('user/users', [...arr])
+        store.dispatch('app/showAlert', { message: 'Başarıyla güncellendi.', type: 'success' }, { root: true })
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+      })
+  },
+  getUnitManagers: () => {
+    store.set('app/isLoading', true)
+
+    axios.get(CreateURL(`User/GetUsersByRoleId/${ROLE_IDS.UNIT_MANAGER}`), GetPostHeaders(store.get('user/user').token))
+      .then(({ data: res }) => {
+        store.set('user/users', res.data)
+      })
+      .catch(error => {
+        console.log('Error', error)
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+      })
+  },
+  getSuppliers: () => {
+    store.set('app/isLoading', true)
+
+    axios.get(CreateURL(`User/GetUsersByRoleId/${ROLE_IDS.SUPPLIER}`), GetPostHeaders(store.get('user/user').token))
+      .then(({ data: res }) => {
+        store.set('user/users', res.data)
+      })
+      .catch(error => {
+        console.log('Error', error)
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+      })
   },
 }
 

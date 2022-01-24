@@ -44,14 +44,14 @@
             :search="searchWord"
           >
             <!-- eslint-disable-next-line -->
-            <template v-slot:item.abbreviation="{ item }">
+            <template v-slot:item.id="{ item }">
               <v-chip
                 class="ma-2"
                 color="primary"
                 dark
-                @click="editCostCenter(item)"
+                @click="showCostCenter(item)"
               >
-                <b>{{ item.abbreviation }}</b>
+                <b>Güncelle</b>
                 <v-icon right>
                   mdi-arrow-right-bold
                 </v-icon>
@@ -70,22 +70,33 @@
             </v-card-title>
 
             <v-card-text>
-              <v-container class="py-3">
-                <v-row>
-                  <v-col>
-                    <v-text-field
-                      v-model="selectedCostCenter.abbreviation"
-                      label="Kısaltma"
-                    />
-                  </v-col>
-                  <v-col>
-                    <v-text-field
-                      v-model="selectedCostCenter.name"
-                      label="Masraf Merkezi"
-                    />
-                  </v-col>
-                </v-row>
-              </v-container>
+              <v-form
+                ref="editForm"
+                v-model="editValid"
+                lazy-validation
+              >
+                <v-container class="py-3">
+                  <v-row>
+                    <v-col>
+                      <v-text-field
+                        v-model="selectedCostCenter.abbreviation"
+                        label="Kısaltma"
+                        :rules="[
+                          v => (!!v && v.length >= 3) || 'Kısaltma en az 3 karakter olmalıdır']"
+                        required
+                      />
+                    </v-col>
+                    <v-col>
+                      <v-text-field
+                        v-model="selectedCostCenter.name"
+                        label="Masraf Merkezi"
+                        :rules="[v => !!v || 'Bu alan boş geçilemez.']"
+                        required
+                      />
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-form>
             </v-card-text>
 
             <v-divider />
@@ -165,6 +176,7 @@
     data () {
       return {
         valid: true,
+        editValid: true,
         currentTab: 'costCenters',
         searchWord: '',
         dialog: false,
@@ -172,36 +184,39 @@
         newCostCenter: { abbreviation: '', name: '' },
         headers: [
           {
-            text: 'Kısaltma',
+            text: 'Güncelle',
             align: 'start',
-            value: 'abbreviation',
+            value: 'id',
           },
+          { text: 'Kısaltma', value: 'abbreviation' },
           { text: 'Masraf Merkezi', value: 'name' },
         ],
       }
     },
     computed: {
-      ...get('admin', ['costCenters']),
+      ...get('costCenter', ['costCenters']),
     },
     mounted () {
-      this.$store.dispatch('admin/getCostCenters')
+      this.$store.dispatch('costCenter/getCostCenters')
     },
     methods: {
       uppercase () {
         this.newCostCenter.abbreviation = this.newCostCenter.abbreviation.toUpperCase()
       },
-      editCostCenter (item) {
+      showCostCenter (item) {
         this.selectedCostCenter = { ...item }
         this.dialog = true
       },
       updateCostCenter () {
-        this.dialog = false
-        this.$store.dispatch('admin/updateCostCenter', this.selectedCostCenter)
+        if (this.$refs.editForm.validate()) {
+          this.$store.dispatch('costCenter/updateCostCenter', this.selectedCostCenter)
+          this.dialog = false
+        }
       },
       createCostCenter () {
         if (this.$refs.form.validate()) {
           this.dialog = false
-          this.$store.dispatch('admin/createCostCenter', this.newCostCenter)
+          this.$store.dispatch('costCenter/createCostCenter', this.newCostCenter)
           this.$refs.form.reset()
         }
       },
