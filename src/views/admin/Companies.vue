@@ -62,7 +62,7 @@
             <template v-slot:item.isSupplier="{ item }">
               <div style="width: 100%; padding-left: 15%;">
                 <v-icon>
-                  {{item.isSupplier ? 'mdi-check' : 'mdi-close' }}
+                  {{ item.isSupplier ? 'mdi-check' : 'mdi-close' }}
                 </v-icon>
               </div>
             </template>
