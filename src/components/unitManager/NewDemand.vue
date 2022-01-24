@@ -9,7 +9,7 @@
           disabled
           color="purple"
           label="Birim Müdürü"
-          :value="user.firstName + ' ' + user.lastName"
+          :value="user.firstname + ' ' + user.lastname"
         />
       </v-col>
 

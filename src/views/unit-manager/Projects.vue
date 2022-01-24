@@ -68,7 +68,7 @@
             </template>
             <!-- eslint-disable-next-line -->
             <template v-slot:item.assignedToId="{ item }">
-              {{ user.firstName + ' ' + user.lastName }}
+              {{ user.firstname + ' ' + user.lastname }}
             </template>
             <!-- eslint-disable-next-line -->
             <template v-slot:item.projectBudget="{ item }">
@@ -119,7 +119,7 @@
                     <!-- Unit Manager -->
                     <v-col cols="4">
                       <v-text-field
-                        :value="user.firstName + ' ' + user.lastName"
+                        :value="user.firstname + ' ' + user.lastname"
                         label="Proje Sorumlusu"
                         disabled
                       />
@@ -265,7 +265,7 @@
               <!-- Unit Manager -->
               <v-col cols="4">
                 <v-text-field
-                  :value="user.firstName + ' ' + user.lastName"
+                  :value="user.firstname + ' ' + user.lastname"
                   label="Proje Sorumlusu"
                   disabled
                 />

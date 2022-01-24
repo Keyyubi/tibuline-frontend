@@ -191,7 +191,7 @@
       getConsultantName (id) {
         if (id) {
           const consultant = this.consultants.find(e => e.id === id)
-          return consultant ? consultant.firstName + ' ' + consultant.lastName : 'Aday ismi bulunamadı.'
+          return consultant ? consultant.firstname + ' ' + consultant.lastname : 'Aday ismi bulunamadı.'
         } return 'Bu aday bulunamadı.'
       },
     },

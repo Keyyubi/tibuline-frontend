@@ -151,7 +151,7 @@
       getConsultantName (id) {
         if (id) {
           const result = this.consultants.find(consultant => consultant.id === id)
-          return result ? result.firstName + ' ' + result.lastName : 'Bulunamadı'
+          return result ? result.firstname + ' ' + result.lastname : 'Bulunamadı'
         } else return 'Bulunamadı'
       },
       getProjectName (id) {
@@ -174,7 +174,7 @@
       },
       getContractName (item) {
         const consultant = this.consultants.find(e => e.id === item.consultantId)
-        const res = 'Söz. No. ' + item.id + ' - ' + consultant.firstName + ' ' + consultant.lastName
+        const res = 'Söz. No. ' + item.id + ' - ' + consultant.firstname + ' ' + consultant.lastname
         return res
       },
       getLocaleDate (date) {
@@ -183,10 +183,10 @@
       },
       getUnitManagerName (id) {
         if (this.user.roleId === Roles.UNIT_MANAGER) {
-          return this.user.firstName + ' ' + this.user.lastName
+          return this.user.firstname + ' ' + this.user.lastname
         } else {
           const user = this.users.find(e => e.id === id)
-          return user ? user.firstName + ' ' + user.lastName : 'İsim bulunamadı.'
+          return user ? user.firstname + ' ' + user.lastname : 'İsim bulunamadı.'
         }
       },
       getContractStartDate (id) {

@@ -62,11 +62,11 @@ const actions = {
         store.set('app/isLoading', false)
       })
   },
-  getProjectsByAssignedTo: (context, payload) => {
+  getProjectsByAssignedTo: () => {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
 
-    axios.get(CreateURL(`Project/GetProjectsByAssignedTo/${payload}`), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`Project/GetProjectsByAssignedTo/${currUser.id}`), GetPostHeaders(currUser.token))
       .then(({ data: res }) => {
         store.set('project/projects', res.data)
       })

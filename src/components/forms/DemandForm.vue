@@ -18,7 +18,7 @@
             <v-select
               v-model="demand.createdById"
               :items="users"
-              :item-text="e => e.firstName + ' ' + e.lastName"
+              :item-text="e => e.firstname + ' ' + e.lastname"
               item-value="id"
               label="Yönetici"
               disabled
@@ -281,7 +281,7 @@
       },
       getContractName (item) {
         const consultant = this.consultants.find(e => e.id === item.consultantId)
-        const res = 'Söz. No. ' + item.id + ' - ' + consultant.firstName + ' ' + consultant.lastName
+        const res = 'Söz. No. ' + item.id + ' - ' + consultant.firstname + ' ' + consultant.lastname
         return res
       },
       moneyMask (amount) {

@@ -124,7 +124,7 @@
       getConsultantName (id) {
         if (id) {
           const result = this.consultants.find(consultant => consultant.id === id)
-          return result ? result.firstName + ' ' + result.lastName : 'Bulunamadı'
+          return result ? result.firstname + ' ' + result.lastname : 'Bulunamadı'
         } else return 'Bulunamadı'
       },
       getProjectName (id) {

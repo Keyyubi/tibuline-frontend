@@ -17,7 +17,7 @@
           md="4"
         >
           <v-text-field
-            v-model="consultant.firstName"
+            v-model="consultant.firstname"
             label="Adı"
             :rules="[v => !!v || 'Ad boş geçilemez',]"
             required
@@ -31,7 +31,7 @@
           md="4"
         >
           <v-text-field
-            v-model="consultant.lastName"
+            v-model="consultant.lastname"
             label="Soyadı"
             :rules="[v => !!v || 'Soyad boş geçilemez',]"
             required
@@ -167,7 +167,7 @@
           <v-select
             v-model="consultant.unitManagerUserId"
             :items="users"
-            :item-text="e => e.firstName + ' ' + e.lastName"
+            :item-text="e => e.firstname + ' ' + e.lastname"
             item-value="id"
             label="Yöneticisi"
             :disabled="user.roleId !== Roles.SUPPLIER"
@@ -432,7 +432,7 @@
       },
       clearForm () {
         this.consultant.email = this.consultant.phone = this.consultant.TCKN = ''
-        this.consultant.firstName = this.consultant.lastName = ''
+        this.consultant.firstname = this.consultant.lastname = ''
         this.consultant.birthday = this.localeDate = this.date = null
         this.$refs.form.resetValidation()
       },

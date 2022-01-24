@@ -67,7 +67,7 @@
         </v-card>
         <v-dialog
           v-model="dialog"
-          width="460"
+          width="720"
           :retain-focus="false"
         >
           <v-card>
@@ -76,33 +76,44 @@
             </v-card-title>
 
             <v-card-text>
-              <v-container class="py-3">
-                <v-row>
-                  <v-col>
-                    <v-text-field
-                      v-model="selectedJobTitle.abbreviation"
-                      label="Kısaltma"
-                    />
-                  </v-col>
-                  <v-col>
-                    <v-text-field
-                      v-model="selectedJobTitle.name"
-                      label="Ünvan"
-                    />
-                  </v-col>
-                  <v-col>
-                    <v-autocomplete
-                      v-model="selectedJobTitle.companyId"
-                      :items="companies"
-                      item-text="name"
-                      item-value="id"
-                      label="Şirket"
-                      :rules="[v => v > 0 || 'Bu alan boş geçilemez.']"
-                      required
-                    />
-                  </v-col>
-                </v-row>
-              </v-container>
+              <v-form
+                ref="editForm"
+                v-model="editValid"
+                lazy-validation
+              >
+                <v-container class="py-3">
+                  <v-row>
+                    <v-col>
+                      <v-text-field
+                        v-model="selectedJobTitle.abbreviation"
+                        label="Kısaltma"
+                        :rules="[
+                          v => (!!v && v.length >= 3) || 'Kısaltma en az 3 karakter olmalıdır']"
+                        required
+                      />
+                    </v-col>
+                    <v-col>
+                      <v-text-field
+                        v-model="selectedJobTitle.name"
+                        label="Ünvan"
+                        :rules="[v => !!v || 'Bu alan boş geçilemez.']"
+                        required
+                      />
+                    </v-col>
+                    <v-col>
+                      <v-autocomplete
+                        v-model="selectedJobTitle.companyId"
+                        :items="companies"
+                        item-text="name"
+                        item-value="id"
+                        label="Şirket"
+                        :rules="[v => v > 0 || 'Bu alan boş geçilemez.']"
+                        required
+                      />
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-form>
             </v-card-text>
 
             <v-divider />
@@ -206,6 +217,7 @@
     data () {
       return {
         valid: true,
+        editValid: true,
         currentTab: 'jobTitles',
         searchWord: '',
         dialog: false,
@@ -239,8 +251,10 @@
         this.dialog = true
       },
       updateJobTitle () {
-        this.dialog = false
-        this.$store.dispatch('jobTitle/updateJobTitle', this.selectedJobTitle)
+        if (this.$refs.editForm.validate()) {
+          this.dialog = false
+          this.$store.dispatch('jobTitle/updateJobTitle', this.selectedJobTitle)
+        }
       },
       createJobTitle () {
         if (this.$refs.form.validate()) {

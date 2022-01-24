@@ -35,7 +35,7 @@
                 v-model="selectedConsultant"
                 class="mt-5"
                 :items="consultants.filter(e => e.isActive === true)"
-                :item-text="e => e.firstName + ' ' + e.lastName"
+                :item-text="e => e.firstname + ' ' + e.lastname"
                 item-value="id"
                 label="Danışman"
                 @change="selectConsultant"

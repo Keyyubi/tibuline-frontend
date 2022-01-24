@@ -30,8 +30,8 @@ const ROLE_IDS = Object.freeze({
 })
 const RULES = Object.freeze({
   EMAIL: [
-    v => !!v || 'E-mail is required',
-    v => /.+@.+/.test(v) || 'E-mail must be valid',
+    v => !!v || 'E-mail alanı boş geçilemez.',
+    v => /.+@.+/.test(v) || 'E-mail adresi geçerli değil.',
   ],
   PASSWORD: [
     v => !!v || 'Şifre boş geçilemez',

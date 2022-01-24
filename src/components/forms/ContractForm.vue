@@ -21,7 +21,7 @@
         <v-autocomplete
           v-model="contract.consultantId"
           :items="consultants"
-          :item-text="e => e.firstName + ' ' + e.lastName"
+          :item-text="e => e.firstname + ' ' + e.lastname"
           item-value="id"
           label="Danışman"
         />

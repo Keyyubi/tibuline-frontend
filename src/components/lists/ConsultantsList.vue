@@ -28,8 +28,8 @@
           </v-icon>
         </v-chip>
       </template>
-      <template v-slot:item.firstName="{ item }">
-        {{ item.firstName + ' ' + item.lastName }}
+      <template v-slot:item.firstname="{ item }">
+        {{ item.firstname + ' ' + item.lastname }}
       </template>
       <template v-slot:item.unitManagerUserId="{ item }">
         {{ getUnitManagerName(item.unitManagerUserId) }}
@@ -95,7 +95,7 @@
             align: 'start',
             value: 'id',
           },
-          { text: 'Ad Soyad', value: 'firstName' },
+          { text: 'Ad Soyad', value: 'firstname' },
           { text: 'Yönetici', value: 'unitManagerUserId' },
           { text: 'Proje', value: 'projectId' },
           { text: 'Söz. Baş. Tar.', value: 'startDate' },
@@ -129,10 +129,10 @@
       },
       getUnitManagerName (id) {
         if (this.user.roleId === Roles.UNIT_MANAGER) {
-          return this.user.firstName + ' ' + this.user.lastName
+          return this.user.firstname + ' ' + this.user.lastname
         } else {
           const user = this.users.find(e => e.id === id)
-          return user ? user.firstName + ' ' + user.lastName : 'İsim bulunamadı.'
+          return user ? user.firstname + ' ' + user.lastname : 'İsim bulunamadı.'
         }
       },
       getProjectName (id) {

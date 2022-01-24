@@ -35,7 +35,7 @@
                 v-model="selectedConsultant"
                 class="mt-5"
                 :items="consultants.filter(e => e.isActive === true)"
-                :item-text="e => e.firstName + ' ' + e.lastName"
+                :item-text="e => e.firstname + ' ' + e.lastname"
                 item-value="id"
                 label="Danışman"
                 @change="selectConsultant"
@@ -91,7 +91,7 @@
                     v-if="selectedConsultant != null"
                     class="ma-2"
                   >
-                    Çalışan: {{ consultants.find(e => e.id === selectedConsultant).firstName + ' ' + consultants.find(e => e.id === selectedConsultant).lastName }}
+                    Çalışan: {{ consultants.find(e => e.id === selectedConsultant).firstname + ' ' + consultants.find(e => e.id === selectedConsultant).lastname }}
                   </v-chip>
                 </v-toolbar>
               </v-sheet>

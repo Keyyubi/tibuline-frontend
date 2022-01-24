@@ -45,7 +45,7 @@
               <v-autocomplete
                 v-model="selectedConsultant"
                 :items="consultants.filter(e => e.isActive === true)"
-                :item-text="e => e.firstName + ' ' + e.lastName"
+                :item-text="e => e.firstname + ' ' + e.lastname"
                 item-value="id"
                 label="Aktivitesi Onaylanan Danışmanlar"
                 return-object
@@ -89,7 +89,7 @@
             >
               <v-list-item three-line>
                 <v-list-item-content>
-                  <v-list-item-title>{{ selectedConsultant ? selectedConsultant.firstName + ' ' + selectedConsultant.lastName : 'Danışman' }}</v-list-item-title>
+                  <v-list-item-title>{{ selectedConsultant ? selectedConsultant.firstname + ' ' + selectedConsultant.lastname : 'Danışman' }}</v-list-item-title>
                   <v-list-item-subtitle>{{ (experienceSpans && experienceSpans.length > 0) ? experienceSpans[0].name : 'Tecrübe Aralığı' }}</v-list-item-subtitle>
                   <v-list-item-subtitle>{{ (jobTitles && jobTitles.length > 0) ? jobTitles[0].name : 'Ünvan' }}</v-list-item-subtitle>
                 </v-list-item-content>
@@ -357,7 +357,7 @@
         }, 500)
       },
       selectPeriod () {
-        this.description = this.selectedConsultant.firstName.toUpperCase() + ' ' + this.selectedConsultant.lastName.toUpperCase() + '\n'
+        this.description = this.selectedConsultant.firstname.toUpperCase() + ' ' + this.selectedConsultant.lastname.toUpperCase() + '\n'
         this.description += this.jobTitles[0].name + ' - ' + this.experienceSpans[0].name + '\n\n'
         this.description += 'Dönem: ' + this.selectedPeriod.name.split('-')[1] + '/' + this.selectedPeriod.name.split('-')[0] + '\n'
         this.description += this.selectedPeriod.totalShiftHours + ' saat mesai - ' + this.selectedPeriod.totalOverShiftHours + ' fazla mesai'

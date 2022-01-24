@@ -49,7 +49,7 @@
                 class="ma-2"
                 color="primary"
                 dark
-                @click="editCostCenter(item)"
+                @click="showCostCenter(item)"
               >
                 <b>{{ item.abbreviation }}</b>
                 <v-icon right>
@@ -70,22 +70,33 @@
             </v-card-title>
 
             <v-card-text>
-              <v-container class="py-3">
-                <v-row>
-                  <v-col>
-                    <v-text-field
-                      v-model="selectedCostCenter.abbreviation"
-                      label="Kısaltma"
-                    />
-                  </v-col>
-                  <v-col>
-                    <v-text-field
-                      v-model="selectedCostCenter.name"
-                      label="Masraf Merkezi"
-                    />
-                  </v-col>
-                </v-row>
-              </v-container>
+              <v-form
+                ref="editForm"
+                v-model="editValid"
+                lazy-validation
+              >
+                <v-container class="py-3">
+                  <v-row>
+                    <v-col>
+                      <v-text-field
+                        v-model="selectedCostCenter.abbreviation"
+                        label="Kısaltma"
+                        :rules="[
+                          v => (!!v && v.length >= 3) || 'Kısaltma en az 3 karakter olmalıdır']"
+                        required
+                      />
+                    </v-col>
+                    <v-col>
+                      <v-text-field
+                        v-model="selectedCostCenter.name"
+                        label="Masraf Merkezi"
+                        :rules="[v => !!v || 'Bu alan boş geçilemez.']"
+                        required
+                      />
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-form>
             </v-card-text>
 
             <v-divider />
@@ -165,6 +176,7 @@
     data () {
       return {
         valid: true,
+        editValid: true,
         currentTab: 'costCenters',
         searchWord: '',
         dialog: false,
@@ -190,13 +202,15 @@
       uppercase () {
         this.newCostCenter.abbreviation = this.newCostCenter.abbreviation.toUpperCase()
       },
-      editCostCenter (item) {
+      showCostCenter (item) {
         this.selectedCostCenter = { ...item }
         this.dialog = true
       },
       updateCostCenter () {
-        this.dialog = false
-        this.$store.dispatch('costCenter/updateCostCenter', this.selectedCostCenter)
+        if (this.$refs.editForm.validate()) {
+          this.$store.dispatch('costCenter/updateCostCenter', this.selectedCostCenter)
+          this.dialog = false
+        }
       },
       createCostCenter () {
         if (this.$refs.form.validate()) {

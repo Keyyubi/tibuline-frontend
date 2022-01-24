@@ -47,8 +47,8 @@
       return {
         currentTab: 'consultants',
         newConsultant: {
-          firstName: '',
-          lastName: '',
+          firstname: '',
+          lastname: '',
           birthday: null,
           email: '',
           phone: '',
