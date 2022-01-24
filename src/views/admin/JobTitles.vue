@@ -46,14 +46,14 @@
             :search="searchWord"
           >
             <!-- eslint-disable-next-line -->
-            <template v-slot:item.abbreviation="{ item }">
+            <template v-slot:item.id="{ item }">
               <v-chip
                 class="ma-2"
                 color="primary"
                 dark
                 @click="editJobTitle(item)"
               >
-                <b>{{ item.abbreviation }}</b>
+                <b>Güncelle</b>
                 <v-icon right>
                   mdi-arrow-right-bold
                 </v-icon>
@@ -225,10 +225,11 @@
         newJobTitle: { abbreviation: '', name: '', companyId: null },
         headers: [
           {
-            text: 'Kısaltma',
+            text: 'Güncelle',
             align: 'start',
-            value: 'abbreviation',
+            value: 'id',
           },
+          { text: 'Kısaltma', value: 'abbreviation' },
           { text: 'Ünvan', value: 'name' },
           { text: 'Şirket', value: 'companyId' },
         ],

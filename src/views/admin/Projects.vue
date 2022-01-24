@@ -27,37 +27,11 @@
 
     <v-tabs-items v-model="currentTab">
       <v-tab-item value="projects">
-        <v-card>
-          <v-card-title>
-            <v-text-field
-              v-model="searchWord"
-              append-icon="mdi-magnify"
-              label="Search"
-              single-line
-              hide-details
-            />
-          </v-card-title>
-
-          <projects-list />
-        </v-card>
-
-        <!-- EDIT DIALOG -->
-        <v-dialog
-          v-model="dialog"
-          width="960"
-          :retain-focus="false"
-        >
-          <project-from
-            form-type="update"
-            :project="selectedProject"
-            @close-dialog="dialog = false"
-          />
-        </v-dialog>
-        <!-- END OF EDIT DIALOG -->
+        <projects-list />
       </v-tab-item>
 
       <v-tab-item value="newProject">
-        <project-from
+        <project-form
           form-type="create"
           :project="newProject"
         />
@@ -67,11 +41,8 @@
 </template>
 
 <script>
-  import { get } from 'vuex-pathify'
-  import ProjectsList from '../../components/lists/ProjectsList.vue'
   export default {
     name: 'Projects',
-    components: { ProjectsList },
     data () {
       return {
         currentTab: 'projects',
@@ -88,16 +59,6 @@
           projectStatus: 0,
         },
       }
-    },
-    computed: {
-      ...get('user', ['user', 'users']),
-      ...get('project', ['projects']),
-      ...get('costCenter', ['costCenters']),
-    },
-    mounted () {
-      this.$store.dispatch('project/getProjects')
-      this.$store.dispatch('costCenter/getCostCenters')
-      this.$store.dispatch('user/getUnitManagers')
     },
   }
 </script>

@@ -53,18 +53,18 @@
                 dark
                 @click="showCompany(item)"
               >
-                {{ item.id }}
+                Güncelle
                 <v-icon right>
                   mdi-arrow-right-bold
                 </v-icon>
               </v-chip>
             </template>
             <template v-slot:item.isSupplier="{ item }">
-              <v-checkbox
-                v-model="item.isSupplier"
-                disabled
-                :label="`${item.isSupplier ? 'Evet' : 'Hayır'}`"
-              />
+              <div style="width: 100%; padding-left: 15%;">
+                <v-icon>
+                  {{item.isSupplier ? 'mdi-check' : 'mdi-close' }}
+                </v-icon>
+              </div>
             </template>
           </v-data-table>
         </v-card>

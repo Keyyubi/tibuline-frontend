@@ -44,14 +44,14 @@
             :search="searchWord"
           >
             <!-- eslint-disable-next-line -->
-            <template v-slot:item.abbreviation="{ item }">
+            <template v-slot:item.id="{ item }">
               <v-chip
                 class="ma-2"
                 color="primary"
                 dark
                 @click="showCostCenter(item)"
               >
-                <b>{{ item.abbreviation }}</b>
+                <b>Güncelle</b>
                 <v-icon right>
                   mdi-arrow-right-bold
                 </v-icon>
@@ -184,10 +184,11 @@
         newCostCenter: { abbreviation: '', name: '' },
         headers: [
           {
-            text: 'Kısaltma',
+            text: 'Güncelle',
             align: 'start',
-            value: 'abbreviation',
+            value: 'id',
           },
+          { text: 'Kısaltma', value: 'abbreviation' },
           { text: 'Masraf Merkezi', value: 'name' },
         ],
       }

@@ -233,6 +233,8 @@
       this.$store.dispatch('company/getCompanies')
       if (this.user.roleId === Roles.UNIT_MANAGER) {
         this.project.assignedToId = this.user.id
+      } else {
+        this.$store.dispatch('user/getUnitManagers')
       }
       if (this.formType === 'create') {
         this.project.createdBy = this.user.id

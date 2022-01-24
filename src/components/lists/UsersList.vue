@@ -15,14 +15,14 @@
       :items="users"
       :search="searchWord"
     >
-      <template v-slot:item.username="{ item }">
+      <template v-slot:item.id="{ item }">
         <v-chip
           class="ma-2"
           color="primary"
           dark
           @click="showUser(item)"
         >
-          <b>{{ item.username }}</b>
+          <b>Güncelle</b>
           <v-icon right>
             mdi-arrow-right-bold
           </v-icon>
@@ -63,10 +63,11 @@
         selectedUser: {},
         headers: [
           {
-            text: 'Kullanıcı Adı',
+            text: 'Güncelle',
             align: 'start',
-            value: 'username',
+            value: 'id',
           },
+          { text: 'Kullanıcı Adı', value: 'username' },
           { text: 'Adı', value: 'firstname' },
           { text: 'Soyadı', value: 'lastname' },
           { text: 'Şirket', value: 'companyId' },

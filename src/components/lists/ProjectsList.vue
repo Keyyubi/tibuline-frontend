@@ -66,7 +66,7 @@
   import { ROLE_IDS as Roles } from '@/util/globals'
   import { get } from 'vuex-pathify'
   export default {
-    name: 'UsersList',
+    name: 'ProjectsList',
     data () {
       return {
         valid: false,
