@@ -54,7 +54,7 @@
                 dark
                 @click="showBudget(item)"
               >
-                {{ item.id }}
+                Güncelle
                 <v-icon right>
                   mdi-arrow-right-bold
                 </v-icon>
