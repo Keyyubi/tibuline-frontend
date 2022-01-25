@@ -225,24 +225,7 @@
         cols="12"
         md="6"
       >
-        <v-file-input
-          v-model="files"
-          label="Kişisel Evrakları"
-          accept="image/*, .pdf"
-          counter
-          multiple
-          show-size
-          small-chips
-          :disabled="user.roleId !== Roles.SUPPLIER"
-        />
-      </v-col>
-
-      <!-- Contract -->
-      <v-col
-        cols="12"
-        md="6"
-      >
-        İmzalı Sözleşme:
+        Kişisel Evrakları:
         <v-btn-toggle
           tile
           color="primary"
@@ -252,8 +235,8 @@
             color="primary"
             depressed
             outlined
-            :disabled="!consultant.contractFilePath"
-            @click="showContract"
+            :disabled="!consultant.filePath"
+            @click="listDialog = true"
           >
             Görüntüle
           </v-btn>
@@ -262,7 +245,7 @@
             depressed
             outlined
             :disabled="user.roleId !== Roles.SUPPLIER || consultant.contractFilePath"
-            @click="contractDialog = true"
+            @click="dialog = true"
           >
             Yükle
           </v-btn>
@@ -313,19 +296,27 @@
         </v-btn>
       </v-col>
     </v-row>
+
+    <!-- Personal Documents -->
     <v-dialog
-      v-model="contractDialog"
+      v-model="dialog"
       persistent
+      width="460"
     >
       <v-card>
-        <v-card-title>
-          İmzalı Sözleşme Yükle
+        <v-card-title class="text-h5 primary white--text">
+          Personel Evrakları Yükle
         </v-card-title>
         <v-card-text>
           <v-file-input
-            v-model="contractDocument"
-            chips
-            label="Sözleşme"
+            v-model="personalFiles"
+            label="Kişisel Evrakları"
+            accept="image/*, .pdf"
+            counter
+            multiple
+            show-size
+            small-chips
+            :disabled="user.roleId !== Roles.SUPPLIER"
           />
         </v-card-text>
         <v-card-actions>
@@ -334,7 +325,7 @@
             width="50%"
             depressed
             small
-            @click="uploadContract"
+            @click="uploadFiles"
           >
             Yükle
           </v-btn>
@@ -343,9 +334,51 @@
             width="50%"
             depressed
             small
-            @click="contractDialog = false"
+            @click="closeUploadDialog()"
           >
             Vazgeç
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Personal Files Show -->
+    <v-dialog
+      v-model="listDialog"
+      width="460"
+    >
+      <v-card>
+        <v-card-title class="text-h5 primary white--text">
+          Personel Evrakları
+        </v-card-title>
+        <v-card-text>
+          <v-list>
+            <v-list-item-group>
+              <v-list-item
+                v-for="(item, i) in personalFiles"
+                :key="i"
+                @click="showFile(item)"
+              >
+                <v-list-item-icon>
+                  <v-icon>mdi-file</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title v-text="'Dosya ' + (i + 1)" />
+                </v-list-item-content>
+              </v-list-item>
+            </v-list-item-group>
+          </v-list>
+        </v-card-text>
+        <v-divider />
+        <v-card-actions>
+          <v-btn
+            color="error"
+            width="100%"
+            depressed
+            small
+            @click="listDialog = false"
+          >
+            Kapat
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -368,8 +401,10 @@
       date: null,
       files: [],
       localeDate: null,
-      contractDialog: false,
-      contractDocument: null,
+      dialog: false,
+      listDialog: false,
+      dialogType: '',
+      personalFiles: [],
       Roles,
       RULES,
     }),
@@ -385,11 +420,15 @@
       this.$store.dispatch('experienceSpan/getExperienceSpans')
       this.$store.dispatch('project/getProjects')
 
-      this.consultant.companyId = this.user.companyId
-
       if (this.formType !== 'create') {
         const arr = this.consultant.birthday.split('T')[0].split('-')
         this.localeDate = `${arr[2]}/${arr[1]}/${arr[0]}`
+      } else {
+        this.consultant.companyId = this.user.companyId
+      }
+
+      if (this.consultant.filePath) {
+        this.personalFiles = this.consultant.filePath.split(',')
       }
     },
     methods: {
@@ -400,18 +439,21 @@
         this.consultant.birthday = new Date(date).toISOString()
         this.$refs.menu.save(date)
       },
-      showContract () {
-        console.log('contract doc', this.consultant.contractFilePath)
-        if (this.consultant.contractFilePath) {
-          window.open(this.consultant.contractFilePath, '_blank').focus()
-        }
+      showFile (filePath) {
+        window.open(filePath, '_blank').focus()
       },
-      uploadContract () {
-        if (this.contractDocument !== null) {
+      closeUploadDialog () {
+        this.personalFiles = []
+        this.dialog = false
+      },
+      uploadFiles () {
+        if (this.personalFiles.length) {
           const formData = new FormData()
-          formData.append('files', this.contractDocument)
-          this.$store.dispatch('contract/uploadContract', { formData, sending: this.consultant })
-          this.contractDialog = false
+          Array.from(Array(this.personalFiles.length).keys()).map(x => {
+            formData.append('files', this.personalFiles[x], this.personalFiles[x].name)
+          })
+          this.$store.dispatch('consultant/uploadFiles', { formData, sending: this.consultant })
+          this.closeUploadDialog()
         }
       },
       createOrUpdateConsultant () {

@@ -175,9 +175,10 @@
     <v-dialog
       v-model="contractDialog"
       persistent
+      width="460"
     >
       <v-card>
-        <v-card-title>
+        <v-card-title class="text-h5 primary white--text">
           Sözleşme Yükle
         </v-card-title>
         <v-card-text>
@@ -185,6 +186,7 @@
             v-model="contractDocument"
             chips
             label="Sözleşme"
+            accept="image/*, .pdf"
           />
         </v-card-text>
         <v-card-actions>
@@ -292,6 +294,7 @@
           formData.append('files', this.contractDocument)
           this.$store.dispatch('contract/uploadContract', { formData, id: this.contract.id })
           this.contractDialog = false
+          this.$emit('close-dialog')
         }
       },
       clearForm () {

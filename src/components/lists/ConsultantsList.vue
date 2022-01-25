@@ -106,7 +106,6 @@
     },
     computed: {
       ...get('consultant', ['consultants']),
-      ...get('contract', ['contracts']),
       ...get('jobTitle', ['jobTitles']),
       ...get('experienceSpan', ['experienceSpans']),
       ...get('project', ['projects']),

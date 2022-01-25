@@ -47,6 +47,35 @@ const actions = {
         store.set('app/isLoading', false)
       })
   },
+  uploadFiles: (context, payload) => {
+    store.set('app/isLoading', true)
+    const token = store.get('user/user').token
+
+    axios.post(CreateURL('Consultant/UploadConsultantDocuments'), payload.formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+      .then(({ data: res }) => {
+        payload.sending.filePath = res.data
+        axios.put(CreateURL('Consultant/UpdateConsultant'), payload.sending, GetPostHeaders(token))
+        .then(() => {
+          const arr = store.get('consultant/consultants')
+          const index = arr.findIndex(e => e.id === payload.sending.id)
+          arr[index] = payload.sending
+          store.set('consultant/consultants', arr)
+         store.dispatch('app/showAlert', { message: 'Başarıyla yüklendi.', type: 'success' }, { root: true })
+        })
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+      })
+  },
   getConsultants: () => {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')

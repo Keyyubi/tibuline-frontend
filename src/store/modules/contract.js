@@ -96,18 +96,21 @@ const actions = {
     store.set('app/isLoading', true)
     const token = store.get('user/user').token
 
-    axios.post(CreateURL('Consultant/UploadConsultantDocuments'), payload.formData, {
+    axios.post(CreateURL('Contract/UploadContractDocuments/upload'), payload.formData, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'multipart/form-data',
       },
     })
       .then(({ data: res }) => {
-        payload.sending.contractFilePath = res.data
-        axios.put(CreateURL('Consultant/UpdateConsultant'), payload.contractId, GetPostHeaders(token))
-        .then(({ data: res }) => {
-          const arr = store.get('contract/contracts')
-          arr.findIndex(e => e.id === payload.contractId).filePath = res.data
+        const arr = store.get('contract/contracts')
+        const index = arr.findIndex(e => e.id === payload.id)
+        const contract = arr[index]
+        contract.filePath = res.data
+
+        axios.put(CreateURL('Contract/UpdateContract'), contract, GetPostHeaders(token))
+        .then(() => {
+          arr[index] = contract
           store.set('contract/contracts', arr)
          store.dispatch('app/showAlert', { message: 'Başarıyla yüklendi.', type: 'success' }, { root: true })
         })
