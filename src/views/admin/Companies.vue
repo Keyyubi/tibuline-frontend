@@ -112,6 +112,7 @@
           invoiceType: null,
           dailyShiftHours: null,
           isSupplier: false,
+          fileDirectory: null,
         },
         headers: [
           {

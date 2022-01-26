@@ -33,11 +33,10 @@
           >
             <v-select
               v-model="demand.supplierCompanyId"
-              :items="companies"
+              :items="companies.filter(e => e.isSupplier === true)"
               item-text="name"
               item-value="id"
               label="Tedarikçi Firma"
-              :readonly="demand.demandStatus !== Statuses.CREATED"
               @change="selectTarget('supplier', demand.supplierCompanyId)"
             />
           </v-col>
@@ -53,7 +52,6 @@
               item-text="name"
               item-value="id"
               label="Masraf Merkezi"
-              :readonly="demand.demandStatus !== Statuses.CREATED"
               @change="selectTarget('costCenter', demand.costCenterId)"
             />
           </v-col>
@@ -69,7 +67,6 @@
               item-text="name"
               item-value="id"
               label="Ünvan"
-              :readonly="demand.demandStatus !== Statuses.CREATED"
               @change="selectTarget('jobTitle', demand.jobTitleId)"
             />
           </v-col>
@@ -85,7 +82,6 @@
               item-text="name"
               item-value="id"
               label="Tecrübe Aralığı"
-              :readonly="demand.demandStatus !== Statuses.CREATED"
               @change="selectTarget('experienceSpan', demand.experienceSpanId)"
             />
           </v-col>
@@ -102,7 +98,6 @@
               item-text="name"
               item-value="id"
               label="Proje"
-              :readonly="demand.demandStatus !== Statuses.CREATED"
               @change="selectTarget('projectId', demand.projectId)"
             />
           </v-col>
@@ -141,6 +136,7 @@
           </v-col>
         </v-row>
 
+        <!-- Consultant and Contract Info -->
         <v-row
           v-if="formType !== 'create'"
           class="my-3"
@@ -281,7 +277,7 @@
       },
       getContractName (item) {
         const consultant = this.consultants.find(e => e.id === item.consultantId)
-        const res = 'Söz. No. ' + item.id + ' - ' + consultant.firstname + ' ' + consultant.lastname
+        const res = consultant ? 'Söz. No. ' + item.id + ' - ' + consultant.firstname + ' ' + consultant.lastname : ''
         return res
       },
       moneyMask (amount) {

@@ -11,6 +11,14 @@
         indeterminate
       />
     </v-overlay>
+
+    <alert-box />
+
+    <v-app-bar-nav-icon
+      class="hidden-md-and-up"
+      @click="drawer = !drawer"
+    />
+
     <default-bar />
 
     <default-drawer />
@@ -29,6 +37,10 @@
     name: 'DefaultLayout',
 
     components: {
+      AlertBox: () => import(
+        /* webpackChunkName: "default-app-bar" */
+        './Alert'
+      ),
       DefaultBar: () => import(
         /* webpackChunkName: "default-app-bar" */
         './AppBar'

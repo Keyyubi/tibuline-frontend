@@ -209,6 +209,7 @@
       user: { type: Object, default: null },
     },
     data: () => ({
+      showPwd: false,
       roles: [
         { label: 'Tam yetkili', value: 99 },
         { label: 'Sistem yöneticisi', value: 0 },
@@ -239,7 +240,6 @@
         const fields = [
           this.user.username,
           this.user.email,
-          this.user.password,
           this.user.tckn,
           this.user.phone,
           this.user.firstname,
@@ -247,6 +247,8 @@
           this.user.roleId,
           this.user.companyId,
         ]
+
+        if (this.formType === 'create') fields.push(this.user.password)
 
         if (!CheckIsNull(fields)) {
           const target = this.formType === 'create' ? 'user/createUser' : 'user/updateUser'

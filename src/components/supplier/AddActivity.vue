@@ -262,6 +262,7 @@
           class="white--text mr-3"
           color="green"
           depressed
+          :disabled="activities.length === 0"
           @click="showConfirmation('send')"
         >
           Onaya Gönder
@@ -270,6 +271,7 @@
           color="error"
           dark
           depressed
+          :disabled="activities.length === 0"
           @click="showConfirmation('delete')"
         >
           Tüm Aktiviteleri Sil
@@ -324,9 +326,6 @@
   import { ACTIVITY_STATUSES as Statuses } from '@/util/globals'
   export default {
     name: 'AddActivity',
-    props: {
-      activityType: { type: String, default: 'create' },
-    },
     data: () => ({
       focus: '',
       e1: 1,
@@ -355,13 +354,11 @@
       selectConsultant () {
         const { date } = this.$refs.calendar.lastEnd
         const yearMonth = date.split('-')[0] + '-' + date.split('-')[1]
-        const activityStatus = this.activityType === 'revised' ? Statuses.REVISED : Statuses.CREATED
         const payload = {
           consultantId: this.selectedConsultant,
           yearMonth,
-          activityStatus,
         }
-        this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonthAndStatus', { ...payload, activityStatus })
+        this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonth', { ...payload })
         this.calculateTotalHours()
         this.e1 = 2
       },
@@ -440,7 +437,7 @@
           switch (type) {
             case 'delete':
             case 'send':
-              this.$store.dispatch('app/updateAlertMsg', { message: 'Bu dönem için aktivite bulunmuyor.', type: 'warning' })
+              this.$store.dispatch('app/showAlert', { message: 'Bu dönem için aktivite bulunmuyor.', type: 'warning' })
               break
             case 'fill-monthly':
               this.createMonthly()
@@ -475,6 +472,7 @@
         }
 
         await this.sleep(1000)
+        this.selectConsultant()
         this.$store.dispatch('app/setLoading', false)
       },
       async creteOrUpdateEvent () {

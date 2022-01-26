@@ -136,8 +136,10 @@ const actions = {
       .then(() => {
         const arr = store.get('user/users')
         const index = arr.findIndex(e => e.id === payload.id)
+        console.log('paylo', payload)
         arr[index] = payload
-        store.set('user/users', [...arr])
+
+        store.set('user/users', arr)
         store.dispatch('app/showAlert', { message: 'Başarıyla güncellendi.', type: 'success' }, { root: true })
       })
       .catch(error => {

@@ -35,7 +35,7 @@
                 item-text="name"
                 item-value="id"
                 label="Müşteri"
-                @change="selectConsultant"
+                @change="selectCompany"
               />
             </v-col>
             <v-col
@@ -213,7 +213,6 @@
           <!-- Actions -->
           <v-row>
             <v-col
-              v-if="formType === 'create'"
               cols="6"
             >
               <v-btn
@@ -221,7 +220,6 @@
                 width="100%"
                 depressed
                 outlined
-                @click="reset()"
               >
                 Formu Temizle
               </v-btn>
@@ -337,6 +335,11 @@
       this.$store.dispatch('budget/resetStore')
     },
     methods: {
+      selectCompany () {
+        const { id } = this.selectedCompany
+
+        this.$store.dispatch('consultants/getConsultantsByCompanyId', id)
+      },
       selectConsultant () {
         this.$store.dispatch('experienceSpan/resetStore')
         this.$store.dispatch('jobTitle/resetStore')

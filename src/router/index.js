@@ -25,7 +25,7 @@ const router = new Router({
 
       // Unit Manager Routes
       route('unit-manager/Demands', null, 'unit-manager/demands'),
-      route('unit-manager/Projects', { default: 'admin/Project' }, 'unit-manager/projects'),
+      route('unit-manager/Projects', { default: 'admin/Projects' }, 'unit-manager/projects'),
       route('unit-manager/Consultants', null, 'unit-manager/consultants'),
       route('unit-manager/ActivitiesCosts', null, 'unit-manager/activities-costs'),
       route('unit-manager/Bills', null, 'unit-manager/bills'),

@@ -255,8 +255,10 @@
         this.project.costCenterId = 0
         this.project.startDate = null
         this.project.endDate = null
-        this.project.projectBudget = null
+        this.project.projectBudget = ''
         this.project.projectStatus = 0
+        this.starting = null
+        this.ending = null
       },
       updateProject () {
         const fields = [

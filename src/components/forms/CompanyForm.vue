@@ -70,7 +70,7 @@
           <!-- IsSupplier -->
           <v-col
             cols="12"
-            md="4"
+            md="3"
           >
             <v-checkbox
               v-model="company.isSupplier"
@@ -82,7 +82,7 @@
           <!-- DailyShiftHours -->
           <v-col
             cols="12"
-            md="4"
+            md="3"
           >
             <v-text-field
               v-model="company.dailyShiftHours"
@@ -98,7 +98,7 @@
           <!-- InvoiceType -->
           <v-col
             cols="12"
-            md="4"
+            md="3"
           >
             <v-select
               v-model="company.invoiceType"
@@ -106,6 +106,29 @@
               item-text="name"
               item-value="id"
               label="Faturalandırma Türü"
+            />
+          </v-col>
+
+          <!-- File Directory Name -->
+          <v-col
+            cols="12"
+            md="3"
+            class="d-flex justify-center align-center"
+          >
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  mdi-information-outline
+                </v-icon>
+              </template>
+              <span>Yüklenecek evrakların kaydedilmesi için oluşturulacak klasörün adı.</span>
+            </v-tooltip>
+            <v-text-field
+              v-model="company.fileDirectory"
+              label="Şirket Klasör Adı"
             />
           </v-col>
 
