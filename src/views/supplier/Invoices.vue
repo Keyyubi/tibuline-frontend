@@ -27,24 +27,23 @@
           <v-row>
             <v-col
               cols="12"
-              md="4"
+              md="3"
             >
               <v-autocomplete
-                v-model="newInvoice.customerCompanyId"
-                :items="companies.filter(e => e.isSupplier === false)"
-                item-text="name"
+                v-model="newInvoice.unitManagerUserId"
+                :items="users"
+                :item-text="e => e.firstname + ' ' + e.lastname"
                 item-value="id"
                 label="Müşteri"
-                @change="selectCompany"
               />
             </v-col>
             <v-col
               cols="12"
-              md="4"
+              md="3"
             >
               <v-autocomplete
                 v-model="selectedConsultant"
-                :items="consultants.filter(e => e.isActive === true)"
+                :items="consultants.filter(e => e.isActive === true && e.unitManagerUserId === newInvoice.unitManagerUserId)"
                 :item-text="e => e.firstname + ' ' + e.lastname"
                 item-value="id"
                 label="Aktivitesi Onaylanan Danışmanlar"
@@ -54,7 +53,7 @@
             </v-col>
             <v-col
               cols="12"
-              md="4"
+              md="3"
             >
               <v-select
                 v-model="selectedPeriod"
@@ -65,6 +64,18 @@
                 label="Danışmanın Onaylanan Dönemleri"
                 return-object
                 @change="selectPeriod"
+              />
+            </v-col>
+            <v-col
+              cols="12"
+              md="3"
+            >
+              <v-file-input
+                v-model="invoiceFile"
+                small-chips
+                label="Fatura (PDF)"
+                accept=".pdf"
+                :disabled="!selectedPeriod"
               />
             </v-col>
             <v-col v-if="selectedConsultant && selectedPeriod">
@@ -296,8 +307,10 @@
         selectedPeriod: null,
         description: '',
         confirmationDialog: false,
+        invoiceFile: null,
 
         newInvoice: {
+          unitManagerUserId: null,
           supplierCompanyId: null,
           customerCompanyId: null,
           createdById: null,
@@ -314,7 +327,7 @@
       }
     },
     computed: {
-      ...get('user', ['user']),
+      ...get('user', ['user', 'users']),
       ...get('consultant', ['consultants']),
       ...get('budget', ['invoiceBudget']),
       ...get('jobTitle', ['jobTitles']),
@@ -326,6 +339,7 @@
     mounted () {
       this.$store.dispatch('consultant/getConsultants')
       this.$store.dispatch('company/getCompanies')
+      this.$store.dispatch('user/getUnitManagers')
       this.newInvoice.supplierCompanyId = this.user.company.id
       this.newInvoice.createdById = this.user.id
     },
@@ -335,11 +349,6 @@
       this.$store.dispatch('budget/resetStore')
     },
     methods: {
-      selectCompany () {
-        const { id } = this.selectedCompany
-
-        this.$store.dispatch('consultants/getConsultantsByCompanyId', id)
-      },
       selectConsultant () {
         this.$store.dispatch('experienceSpan/resetStore')
         this.$store.dispatch('jobTitle/resetStore')
@@ -368,18 +377,16 @@
         if (this.invoiceBudget) {
           switch (this.user.company.invoiceType) {
             case this.InvoiceTypes.HOURLY:
-              this.newInvoice.amount = this.invoiceBudget.hourlyBudget
-              this.newInvoice.taxAmount = this.invoiceBudget.hourlyBudget * 0.18
+              this.newInvoice.amount = this.invoiceBudget.hourlyBudget * (this.selectedPeriod.totalShiftHours + this.selectedPeriod.totalOverShiftHours)
               break
             case this.InvoiceTypes.DAILY:
               this.newInvoice.amount = this.invoiceBudget.dailyBudget
-              this.newInvoice.taxAmount = this.invoiceBudget.dailyBudget * 0.18
               break
             case this.InvoiceTypes.MONTHLY:
               this.newInvoice.amount = this.invoiceBudget.monthlyBudget
-              this.newInvoice.taxAmount = this.invoiceBudget.monthlyBudget * 0.18
               break
           }
+          this.newInvoice.taxAmount = this.newInvoice.amount * 0.18
           this.newInvoice.totalAmount = this.newInvoice.amount + this.newInvoice.taxAmount
         } else {
           this.newInvoice.amount = 0
@@ -387,14 +394,11 @@
           this.newInvoice.totalAmount = 0
         }
       },
-      updateActivities () {
-        if (this.activities.length > 0) {
-          const { length } = this.activities
-          for (let i = 0; i < length; i++) {
-            const element = { ...this.activities[i], activityStatus: Statuses.INVOICED }
-            this.$store.dispatch('activity/updateActivity', element)
-          }
-        }
+      getMappedActivities () {
+        return this.activities.map(e => {
+          e.activityStatus = Statuses.INVOICED
+          return e
+        })
       },
       moneyMask (amount) {
         return amount ? new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(amount) : 'Bütçe bilgisi bulunmuyor'
@@ -403,7 +407,8 @@
         this.newInvoice.description = this.description
         this.newInvoice.period = this.selectedPeriod.name
         this.newInvoice.consultantId = this.selectedConsultant.id
-        this.newInvoice.invoiceDate = new Date()
+        this.newInvoice.invoiceDate = new Date().toISOString()
+        this.newInvoice.customerCompanyId = this.users.find(e => e.id === this.newInvoice.unitManagerUserId).companyId
 
         const fields = [
           this.newInvoice.supplierCompanyId,
@@ -416,12 +421,15 @@
           this.newInvoice.amount,
           this.newInvoice.taxAmount,
           this.newInvoice.totalAmount,
-          this.newInvoice.isPaid,
         ]
 
-        if (!CheckIsNull(fields)) {
+        if (!CheckIsNull(fields) && this.invoiceFile) {
+          console.log('file', this.invoiceFile)
+          const formData = new FormData()
+          formData.append('files', this.invoiceFile, this.invoiceFile.name)
+
           const payload = { ...this.newInvoice }
-          this.$store.dispatch('invoice/createInvoice', payload)
+          this.$store.dispatch('invoice/createInvoice', { invoice: payload, formData, activities: this.getMappedActivities() })
         } else {
           this.$store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' })
         }

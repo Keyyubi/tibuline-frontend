@@ -32,7 +32,7 @@
               style="border-left: none"
             >
               <v-autocomplete
-                v-model="selectedConsultant"
+                v-model="selectedConsultantId"
                 class="mt-5"
                 :items="consultants.filter(e => e.isActive === true)"
                 :item-text="e => e.firstname + ' ' + e.lastname"
@@ -88,10 +88,10 @@
                   </v-btn>
                   <v-spacer />
                   <v-chip
-                    v-if="selectedConsultant != null"
+                    v-if="selectedConsultantId != null"
                     class="ma-2"
                   >
-                    Çalışan: {{ consultants.find(e => e.id === selectedConsultant).firstname + ' ' + consultants.find(e => e.id === selectedConsultant).lastname }}
+                    Çalışan: {{ consultants.find(e => e.id === selectedConsultantId).firstname + ' ' + consultants.find(e => e.id === selectedConsultantId).lastname }}
                   </v-chip>
                 </v-toolbar>
               </v-sheet>
@@ -118,7 +118,7 @@
 
     <!-- Info and Actions Footer -->
     <v-row
-      v-if="selectedConsultant != null"
+      v-if="selectedConsultantId != null"
       class="d-flex justify-space-between"
     >
       <v-col class="d-flex">
@@ -240,7 +240,7 @@
       confirmationMsg: '',
       confirmationDialog: false,
       reasonOfDeny: '',
-      selectedConsultant: null,
+      selectedConsultantId: null,
       totalWorkHours: 0,
       totalExtraHours: 0,
       totalDaysOff: 0,
@@ -261,7 +261,7 @@
         const { date } = this.$refs.calendar.lastEnd
         this.period = date.split('-')[0] + '-' + date.split('-')[1]
         const payload = {
-          consultantId: this.selectedConsultant,
+          consultantId: this.selectedConsultantId,
           yearMonth: this.period,
           activityStatus: Statuses.PENDING,
         }
@@ -280,19 +280,13 @@
         this.totalExtraHours = 0
         this.totalDaysOff = 0
 
-        const end = this.$refs.calendar.lastEnd
-
-        for (let i = 0; i < end.day; i++) {
-          const date = `${end.year}-${end.month}-${i < 9 ? '0' + (i + 1) : i + 1}`
-          const event = this.activities.find(e => e.date === date)
-          if (event && event.date) {
-            this.totalWorkHours += event.shiftHours
-            this.totalExtraHours += event.overShiftHours
-            if (new Date(date).getDay() !== 0 && new Date(date).getDay() !== 6 && event.shiftHours === 0 && event.overShiftHours === 0) {
-              this.totalDaysOff++
-            }
+        this.activities.forEach(el => {
+          this.totalWorkHours += el.shiftHours
+          this.totalExtraHours += el.overShiftHours
+          if (new Date(el.date).getDay() !== 0 && new Date(el.date).getDay() !== 6 && el.shiftHours === 0 && el.overShiftHours === 0) {
+            this.totalDaysOff++
           }
-        }
+        })
       },
       showConfirmation (type) {
         this.confirmationType = type
@@ -300,6 +294,7 @@
       },
       async confirm () {
         this.$store.dispatch('app/setLoading', true)
+        this.calculateTotalHours()
         this.confirmationDialog = false
 
         const status = this.confirmationType === 'approve' ? Statuses.APPROVED : Statuses.REVISED
@@ -310,13 +305,16 @@
 
         await this.sleep(1000)
 
+        console.log('selected', this.selectedConsultantId)
+
         const activityPeriodObj = {
           name: this.period,
-          consultantId: this.selectConsultant,
+          consultantId: this.selectedConsultantId,
           totalShiftHours: this.totalWorkHours,
           totalOverShiftHours: this.totalExtraHours,
           isInvoiced: false,
         }
+
         this.$store.dispatch('activityPeriod/createActivityPeriod', activityPeriodObj)
 
         await this.sleep(500)
@@ -331,7 +329,7 @@
 
         const { date } = this.$refs.calendar.lastEnd
         this.period = date.split('-')[0] + '-' + date.split('-')[1]
-        const consultantId = this.selectedConsultant
+        const consultantId = this.selectedConsultantId
         const activityStatus = Statuses.PENDING
 
         this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonthAndStatus', { consultantId, yearMonth: this.period, activityStatus })
