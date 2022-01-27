@@ -14,18 +14,19 @@ const actions = {
   // Create Methods
   createInvoice: (context, payload) => {
     store.set('app/isLoading', true)
-    const { token } = store.get('user/user')
+    const currUser = store.get('user/user')
+    payload.formData.append('CompanyId', currUser.companyId)
 
     axios.post(CreateURL('Invoice/UploadInvoiceDocuments/upload'), payload.formData, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${currUser.token}`,
         'Content-Type': 'multipart/form-data',
       },
     })
       .then(({ data: res }) => {
         payload.invoice.invoiceFilePath = res.data
 
-        axios.post(CreateURL('Invoce/SaveInvoice'), payload.invoice, GetPostHeaders(token))
+        axios.post(CreateURL('Invoce/SaveInvoice'), payload.invoice, GetPostHeaders(currUser.token))
         .then(({ data: createdInvoice }) => {
           store.set('invoice/invoices', [...store.get('invoice/invoices'), createdInvoice.data])
           store.dispatch('app/showAlert', { message: 'Fatura oluşturuldu.', type: 'success' }, { root: true })

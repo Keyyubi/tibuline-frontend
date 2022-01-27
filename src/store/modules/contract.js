@@ -94,11 +94,12 @@ const actions = {
   },
   uploadContract: (context, payload) => {
     store.set('app/isLoading', true)
-    const token = store.get('user/user').token
+    const currUser = store.get('user/user')
+    payload.formData.append('CompanyId', currUser.companyId)
 
     axios.post(CreateURL('Contract/UploadContractDocuments/upload'), payload.formData, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${currUser.token}`,
         'Content-Type': 'multipart/form-data',
       },
     })
@@ -108,7 +109,7 @@ const actions = {
         const contract = arr[index]
         contract.filePath = res.data
 
-        axios.put(CreateURL('Contract/UpdateContract'), contract, GetPostHeaders(token))
+        axios.put(CreateURL('Contract/UpdateContract'), contract, GetPostHeaders(currUser.token))
         .then(() => {
           arr[index] = contract
           store.set('contract/contracts', arr)

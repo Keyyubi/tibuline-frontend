@@ -129,6 +129,7 @@
             <v-text-field
               v-model="company.fileDirectory"
               label="Şirket Klasör Adı"
+              required
             />
           </v-col>
 
@@ -231,6 +232,7 @@
           this.company.phone,
           this.company.address,
           this.company.invoiceType,
+          this.company.fileDirectory,
         ]
 
         if (!CheckIsNull(fields)) {

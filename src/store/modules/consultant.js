@@ -49,17 +49,18 @@ const actions = {
   },
   uploadFiles: (context, payload) => {
     store.set('app/isLoading', true)
-    const token = store.get('user/user').token
+    const currUser = store.get('user/user')
+    payload.formData.append('CompanyId', currUser.companyId)
 
-    axios.post(CreateURL('Consultant/UploadConsultantDocuments'), payload.formData, {
+    axios.post(CreateURL('Consultant/UploadConsultantDocuments/upload'), payload.formData, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${currUser.token}`,
         'Content-Type': 'multipart/form-data',
       },
     })
       .then(({ data: res }) => {
         payload.sending.filePath = res.data
-        axios.put(CreateURL('Consultant/UpdateConsultant'), payload.sending, GetPostHeaders(token))
+        axios.put(CreateURL('Consultant/UpdateConsultant'), payload.sending, GetPostHeaders(currUser.token))
         .then(() => {
           const arr = store.get('consultant/consultants')
           const index = arr.findIndex(e => e.id === payload.sending.id)

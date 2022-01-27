@@ -125,6 +125,7 @@
         this.demandFormType = 'update'
 
         if (demand.contractId) {
+          console.log('gettin contract', demand.contractId)
           this.$store.dispatch('contract/getContractById', demand.contractId)
           this.demandFormType = 'approve'
         }

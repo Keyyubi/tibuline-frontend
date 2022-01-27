@@ -204,7 +204,7 @@
             width="50%"
             depressed
             small
-            @click="contractDialog = false"
+            @click="closeContractDialog()"
           >
             Vazgeç
           </v-btn>
@@ -239,11 +239,11 @@
     mounted () {
       this.$store.dispatch('consultant/getConsultants')
 
-      this.contract.supplierCompanyId = this.user.company.id
-
       if (this.formType !== 'create') {
         this.starting = this.getLocaleDate(this.contract.startDate)
         this.ending = this.getLocaleDate(this.contract.endDate)
+      } else {
+        this.contract.supplierCompanyId = this.user.company.id
       }
     },
     methods: {
@@ -291,16 +291,23 @@
       uploadContract () {
         if (this.contractDocument !== null) {
           const formData = new FormData()
-          formData.append('files', this.contractDocument)
+          formData.append('Files', this.contractDocument, this.contractDocument.name)
           this.$store.dispatch('contract/uploadContract', { formData, id: this.contract.id })
-          this.contractDialog = false
+          this.$store.dispatch('app/setLoading', true)
+          setTimeout(() => {
+            this.closeContractDialog()
+            this.$store.dispatch('app/setLoading', false)
+          }, 500)
           this.$emit('close-dialog')
         }
       },
       clearForm () {
-        this.contract.filePath = null
         this.contract.startDate = null
         this.contract.endDate = null
+      },
+      closeContractDialog () {
+        this.contractDocument = null
+        this.contractDialog = false
       },
     },
   }
