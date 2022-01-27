@@ -114,6 +114,9 @@ const actions = {
                           store.set('consultant/consultants', [consultant.data])
                         })
                     })
+                } else {
+                  store.set('contract/contracts', [])
+                  store.set('consultant/consultants', [])
                 }
               })
           })

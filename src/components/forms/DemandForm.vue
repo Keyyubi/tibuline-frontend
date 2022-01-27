@@ -272,7 +272,7 @@
           const arr = type === 'starting' ? contract.startDate.split('T')[0].split('-') : contract.endDate.split('T')[0].split('-')
           return `${arr[2]}/${arr[1]}/${arr[0]}`
         } else {
-          return 'Sözleşme seçilmedi..'
+          return 'Sözleşme bulunmuyor.'
         }
       },
       getContractName (item = null) {
@@ -280,7 +280,7 @@
           item = this.contracts.find(e => e.id === this.demand.contractId)
         }
         const consultant = this.consultants.find(e => e.id === item.consultantId)
-        const res = consultant ? 'Söz. No. ' + item.id + ' - ' + consultant.firstname + ' ' + consultant.lastname : ''
+        const res = consultant ? 'Söz. No. ' + item.id + ' - ' + consultant.firstname + ' ' + consultant.lastname : 'Sözleşme bulunmuyor.'
         return res
       },
       moneyMask (amount) {
