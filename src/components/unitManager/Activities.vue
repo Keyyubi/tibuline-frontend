@@ -32,12 +32,13 @@
               style="border-left: none"
             >
               <v-autocomplete
-                v-model="selectedConsultantId"
+                v-model="selectedConsultant"
                 class="mt-5"
                 :items="consultants.filter(e => e.isActive === true)"
                 :item-text="e => e.firstname + ' ' + e.lastname"
                 item-value="id"
                 label="Danışman"
+                return-object
                 @change="selectConsultant"
               />
             </v-stepper-content>
@@ -75,24 +76,26 @@
                     {{ $refs.calendar.title }}
                   </v-toolbar-title>
                   <v-spacer />
-                  <v-btn
-                    outlined
-                    small
-                    color="primary darken-1"
-                    @click="showConfirmation('fill-monthly')"
-                  >
-                    <v-icon small>
-                      mdi-calendar-month
-                    </v-icon>
-                    Aylık Aktiviteleri Doldur
-                  </v-btn>
-                  <v-spacer />
-                  <v-chip
-                    v-if="selectedConsultantId != null"
-                    class="ma-2"
-                  >
-                    Çalışan: {{ consultants.find(e => e.id === selectedConsultantId).firstname + ' ' + consultants.find(e => e.id === selectedConsultantId).lastname }}
-                  </v-chip>
+                  <v-tooltip left>
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-chip
+                        class="ma-2"
+                        color="primary"
+                        v-bind="attrs"
+                        v-on="on"
+                        @click="e1=1; selectedConsultant = null"
+                      >
+                        {{ selectedConsultant ? selectedConsultant.firstname + ' ' + selectedConsultant.lastname : '' }}
+                        <v-icon
+                          class="ml-4"
+                          size="18"
+                        >
+                          mdi-restore
+                        </v-icon>
+                      </v-chip>
+                    </template>
+                    <span>Danışmanı değiştir</span>
+                  </v-tooltip>
                 </v-toolbar>
               </v-sheet>
               <v-sheet
@@ -118,7 +121,7 @@
 
     <!-- Info and Actions Footer -->
     <v-row
-      v-if="selectedConsultantId != null"
+      v-if="selectedConsultant != null"
       class="d-flex justify-space-between"
     >
       <v-col class="d-flex">
@@ -240,7 +243,7 @@
       confirmationMsg: '',
       confirmationDialog: false,
       reasonOfDeny: '',
-      selectedConsultantId: null,
+      selectedConsultant: null,
       totalWorkHours: 0,
       totalExtraHours: 0,
       totalDaysOff: 0,
@@ -261,7 +264,7 @@
         const { date } = this.$refs.calendar.lastEnd
         this.period = date.split('-')[0] + '-' + date.split('-')[1]
         const payload = {
-          consultantId: this.selectedConsultantId,
+          consultantId: this.selectedConsultant.id,
           yearMonth: this.period,
           activityStatus: Statuses.PENDING,
         }
@@ -305,11 +308,9 @@
 
         await this.sleep(1000)
 
-        console.log('selected', this.selectedConsultantId)
-
         const activityPeriodObj = {
           name: this.period,
-          consultantId: this.selectedConsultantId,
+          consultantId: this.selectedConsultant.id,
           totalShiftHours: this.totalWorkHours,
           totalOverShiftHours: this.totalExtraHours,
           isInvoiced: false,
@@ -329,7 +330,7 @@
 
         const { date } = this.$refs.calendar.lastEnd
         this.period = date.split('-')[0] + '-' + date.split('-')[1]
-        const consultantId = this.selectedConsultantId
+        const consultantId = this.selectedConsultant.id
         const activityStatus = Statuses.PENDING
 
         this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonthAndStatus', { consultantId, yearMonth: this.period, activityStatus })

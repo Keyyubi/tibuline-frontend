@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="alertMessage.length > 0"
-    style="width: 100%; display: flex; justify-content: center; position: fixed; top: 10px; left: 0; padding: 5px; z-index: 100;"
+    style="width: auto; display: flex; justify-content: center; position: fixed; top: 10px; left: 50%; padding: 5px; z-index: 100;"
   >
     <!-- Alert Message -->
     <v-alert

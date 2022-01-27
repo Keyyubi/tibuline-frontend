@@ -38,6 +38,7 @@
                 :item-text="e => e.firstname + ' ' + e.lastname"
                 item-value="id"
                 label="Danışman"
+                return-object
                 @change="selectConsultant"
               />
             </v-stepper-content>
@@ -87,19 +88,16 @@
                     Aylık Aktiviteleri Doldur
                   </v-btn>
                   <v-spacer />
-                  <v-tooltip
-                    v-if="selectedConsultant != null"
-                    left
-                  >
+                  <v-tooltip left>
                     <template v-slot:activator="{ on, attrs }">
                       <v-chip
                         class="ma-2"
                         color="primary"
                         v-bind="attrs"
                         v-on="on"
-                        @click="e1=1"
+                        @click="e1=1; selectedConsultant = null"
                       >
-                        {{ consultants.find(e => e.id === selectedConsultant).firstname + ' ' + consultants.find(e => e.id === selectedConsultant).lastname }}
+                        {{ selectedConsultant ? selectedConsultant.firstname + ' ' + selectedConsultant.lastname : '' }}
                         <v-icon
                           class="ml-4"
                           size="18"
@@ -355,7 +353,7 @@
         const { date } = this.$refs.calendar.lastEnd
         const yearMonth = date.split('-')[0] + '-' + date.split('-')[1]
         const payload = {
-          consultantId: this.selectedConsultant,
+          consultantId: this.selectedConsultant.id,
           yearMonth,
         }
         this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonth', { ...payload })
@@ -367,7 +365,7 @@
       },
       newShiftEvent (date, name = `${this.shiftHours}s mesai`, shiftHours = this.shiftHours, overShiftHours = 0) {
         const yearMonth = `${date.split('-')[0]}-${date.split('-')[1]}`
-        const consultantId = this.selectedConsultant
+        const consultantId = this.selectedConsultant.id
 
         return {
           date,
@@ -525,7 +523,7 @@
 
         const { date } = this.$refs.calendar.lastEnd
         const yearMonth = date.split('-')[0] + '-' + date.split('-')[1]
-        const consultantId = this.selectedConsultant
+        const consultantId = this.selectedConsultant.id
 
         this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonth', { consultantId, yearMonth })
 
