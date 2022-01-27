@@ -92,6 +92,39 @@ const actions = {
         store.set('app/isLoading', false)
       })
   },
+  getDemandDetailsForManager: (c, demand) => {
+    store.set('app/isLoading', true)
+    const currUser = store.get('user/user')
+
+    axios.get(CreateURL(`JobTitle/GetJobTitlesByCompanyId/${demand.supplierCompanyId}`), GetPostHeaders(currUser.token))
+      .then(({ data: jobTitles }) => {
+        store.set('jobTitle/jobTitles', jobTitles.data)
+        axios.get(CreateURL(`ExperienceSpan/GetExperienceSpansByCompanyId/${demand.supplierCompanyId}`), GetPostHeaders(currUser.token))
+          .then(({ data: experienceSpans }) => {
+            store.set('experienceSpan/experienceSpans', experienceSpans.data)
+            axios.get(CreateURL(`Budget/GetBudgetsByCompanyId/${demand.supplierCompanyId}`), GetPostHeaders(currUser.token))
+              .then(({ data: budgets }) => {
+                store.set('budget/budgets', budgets.data)
+                if (demand.contractId) {
+                  axios.get(CreateURL(`Contract/GetContractById/${demand.contractId}`), GetPostHeaders(currUser.token))
+                    .then(({ data: contract }) => {
+                      store.set('contract/contracts', [contract.data])
+                      axios.get(CreateURL(`Consultant/GetConsultantById/${contract.data.consultantId}`), GetPostHeaders(currUser.token))
+                        .then(({ data: consultant }) => {
+                          store.set('consultant/consultants', [consultant.data])
+                        })
+                    })
+                }
+              })
+          })
+      })
+      .catch(error => {
+        console.log('Error', error)
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+      })
+  },
 }
 
 const getters = {}

@@ -119,20 +119,10 @@
         return new Promise(resolve => setTimeout(resolve, ms))
       },
       async showDemand (demand) {
-        this.$store.dispatch('jobTitle/getJobTitlesByCompanyId', demand.supplierCompanyId)
-        this.$store.dispatch('experienceSpan/getExperienceSpansByCompanyId', demand.supplierCompanyId)
-        this.$store.dispatch('budget/getBudgetsByCompanyId', demand.supplierCompanyId)
-        this.demandFormType = 'update'
-
-        if (demand.contractId) {
-          console.log('gettin contract', demand.contractId)
-          this.$store.dispatch('contract/getContractById', demand.contractId)
-          this.demandFormType = 'approve'
-        }
-
-        await this.sleep(250)
-
+        this.$store.dispatch('demand/getDemandDetailsForManager', demand)
+        this.demandFormType = demand.contractId ? 'approve' : 'update'
         this.selectedDemand = { ...demand }
+
         this.dialog = true
       },
       closeDialog () {

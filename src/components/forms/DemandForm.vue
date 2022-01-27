@@ -160,12 +160,11 @@
               :item-text="e => getContractName(e)"
               item-value="id"
               label="Sözleşme"
-              @change="selectedContract = contracts.find(e => e.id === demand.contractId)"
             />
             <v-text-field
               v-else
               label="Sözleşme"
-              :value="selectedContract ? getContractName(selectedContract) : 'Sözleşme bulunmuyor..'"
+              :value="getContractName()"
               readonly
             />
           </v-col>
@@ -176,7 +175,7 @@
             md="4"
           >
             <v-text-field
-              :value="selectedContract ? getLocaleDate(selectedContract.startDate) : 'Sözleşme seçilmedi..'"
+              :value="getContractDate('starting')"
               label="Sözleşme Başl. Tar."
               prepend-icon="mdi-calendar"
               disabled
@@ -189,7 +188,7 @@
             md="4"
           >
             <v-text-field
-              :value="selectedContract ? getLocaleDate(selectedContract.endDate) : 'Sözleşme seçilmedi..'"
+              :value="getContractDate()"
               label="Sözleşme Bit. Tar."
               prepend-icon="mdi-calendar"
               disabled
@@ -244,7 +243,6 @@
       demand: { type: Object, default: null },
     },
     data: () => ({
-      selectedContract: null,
       Statuses,
       Roles,
     }),
@@ -265,17 +263,22 @@
 
       if (this.formType === 'create') {
         this.demand.createdById = this.user.id
-      } else if (this.formType !== 'create' && this.demand.contractId) {
-        this.selectedContract = this.contracts.find(e => e.id === this.demand.contractId)
-        this.$store.dispatch('consultant/getConsultantById', this.selectedContract.consultantId)
       }
     },
     methods: {
-      getLocaleDate (date) {
-        const arr = date.split('T')[0].split('-')
-        return `${arr[2]}/${arr[1]}/${arr[0]}`
+      getContractDate (type) {
+        const contract = this.contracts.find(e => e.id === this.demand.contractId)
+        if (contract) {
+          const arr = type === 'starting' ? contract.startDate.split('T')[0].split('-') : contract.endDate.split('T')[0].split('-')
+          return `${arr[2]}/${arr[1]}/${arr[0]}`
+        } else {
+          return 'Sözleşme seçilmedi..'
+        }
       },
-      getContractName (item) {
+      getContractName (item = null) {
+        if (!item) {
+          item = this.contracts.find(e => e.id === this.demand.contractId)
+        }
         const consultant = this.consultants.find(e => e.id === item.consultantId)
         const res = consultant ? 'Söz. No. ' + item.id + ' - ' + consultant.firstname + ' ' + consultant.lastname : ''
         return res
@@ -344,7 +347,8 @@
           payload.demandStatus = Statuses.COMPLITED
         } else {
           if (payload.contractId) {
-            payload.demandStatus = this.selectedContract.filePath ? Statuses.REPLIED_WITH_CONTRACT : Statuses.REPLIED
+            const contract = this.contracts.find(e => e.id === this.demand.contractId)
+            payload.demandStatus = contract.filePath ? Statuses.REPLIED_WITH_CONTRACT : Statuses.REPLIED
           }
         }
         this.$store.dispatch('demand/updateDemand', payload)
