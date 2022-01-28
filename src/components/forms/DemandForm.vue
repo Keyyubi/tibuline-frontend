@@ -16,6 +16,7 @@
             md="4"
           >
             <v-select
+              v-if="user.roleId === Roles.SUPPLIER"
               v-model="demand.createdById"
               :items="users"
               :item-text="e => e.firstname + ' ' + e.lastname"
@@ -23,21 +24,33 @@
               label="Yönetici"
               disabled
             />
+            <v-text-field
+              v-else
+              :value="user.firstname + ' ' + user.lastname"
+              label="Yönetici"
+              disabled
+            />
           </v-col>
 
           <!-- Supplier -->
           <v-col
-            v-if="user.roleId !== Roles.SUPPLIER"
             cols="12"
             md="4"
           >
             <v-select
+              v-if="user.roleId !== Roles.SUPPLIER"
               v-model="demand.supplierCompanyId"
               :items="companies.filter(e => e.isSupplier === true)"
               item-text="name"
               item-value="id"
               label="Tedarikçi Firma"
               @change="selectTarget('supplier', demand.supplierCompanyId)"
+            />
+            <v-text-field
+              v-else
+              :value="user.company.name"
+              label="Tedarikçi Firma"
+              disabled
             />
           </v-col>
 
@@ -63,7 +76,7 @@
           >
             <v-select
               v-model="demand.jobTitleId"
-              :items="jobTitles"
+              :items="jobTitles.filter(e => e.companyId === demand.supplierCompanyId)"
               item-text="name"
               item-value="id"
               label="Ünvan"
@@ -78,7 +91,7 @@
           >
             <v-select
               v-model="demand.experienceSpanId"
-              :items="experienceSpans"
+              :items="experienceSpans.filter(e => e.companyId === demand.supplierCompanyId)"
               item-text="name"
               item-value="id"
               label="Tecrübe Aralığı"
@@ -253,16 +266,17 @@
       ...get('consultant', ['consultants']),
       ...get('contract', ['contracts']),
       ...get('costCenter', ['costCenters']),
-      ...get('demand', ['demands']),
       ...get('experienceSpan', ['experienceSpans']),
       ...get('jobTitle', ['jobTitles']),
       ...get('project', ['projects']),
     },
     mounted () {
-      this.$store.dispatch('user/getUnitManagers')
+      this.$store.dispatch('costCenter/getCostCenters')
 
       if (this.formType === 'create') {
         this.demand.createdById = this.user.id
+      } else if (this.user.roleId === Roles.SUPPLIER) {
+        this.$store.dispatch('user/getUnitManagers')
       }
     },
     methods: {
@@ -345,14 +359,12 @@
 
         if (this.formType === 'approve') {
           payload.demandStatus = Statuses.COMPLITED
-        } else {
-          if (payload.contractId) {
-            const contract = this.contracts.find(e => e.id === this.demand.contractId)
-            payload.demandStatus = contract.filePath ? Statuses.REPLIED_WITH_CONTRACT : Statuses.REPLIED
-          }
+        } else if (this.user.roleId === Roles.SUPPLIER && payload.contractId) {
+          const contract = this.contracts.find(e => e.id === this.demand.contractId)
+          payload.demandStatus = contract.filePath ? Statuses.REPLIED_WITH_CONTRACT : Statuses.REPLIED
         }
-        this.$store.dispatch('demand/updateDemand', payload)
 
+        this.$store.dispatch('demand/updateDemand', payload)
         this.$emit('close-dialog')
       },
     },

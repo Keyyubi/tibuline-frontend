@@ -1,11 +1,13 @@
 import axios from 'axios'
 import { make } from 'vuex-pathify'
 import { CreateURL, GetPostHeaders } from '@/util/helpers'
+import { ROLE_IDS } from '@/util/globals'
 import store from '../index'
 
 // Data
 const state = {
   demands: [],
+  isLoading: false,
 }
 
 const mutations = make.mutations(state)
@@ -62,70 +64,43 @@ const actions = {
         store.set('app/isLoading', false)
       })
   },
-  getDemandsByCreatedBy: () => {
+  getDemandsWithDetails: (c, role) => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
+    store.set('demand/isLoading', true)
 
-    axios.get(CreateURL(`Demand/GetDemandsByCreatedBy/${currUser.id}`), GetPostHeaders(currUser.token))
+    const currUser = store.get('user/user')
+    const url = role === ROLE_IDS.UNIT_MANAGER
+      ? CreateURL(`Demand/GetDemandsByCreatedBy/${currUser.id}`)
+      : CreateURL(`Demand/GetDemandsBySupplierCompany/${currUser.companyId}`)
+
+    axios.get(url, GetPostHeaders(currUser.token))
       .then(({ data: res }) => {
-        store.set('demand/demands', res.data)
-      })
-      .catch(error => {
-        console.log('Error', error)
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
-  },
-  getDemandsBySupplierCompany: () => {
-    store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
-
-    axios.get(CreateURL(`Demand/GetDemandsBySupplierCompany/${currUser.companyId}`), GetPostHeaders(currUser.token))
-      .then(({ data: res }) => {
-        store.set('demand/demands', res.data)
-      })
-      .catch(error => {
-        console.log('Error', error)
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
-  },
-  getDemandDetailsForManager: (c, demand) => {
-    store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
-
-    axios.get(CreateURL(`JobTitle/GetJobTitlesByCompanyId/${demand.supplierCompanyId}`), GetPostHeaders(currUser.token))
-      .then(({ data: jobTitles }) => {
-        store.set('jobTitle/jobTitles', jobTitles.data)
-        axios.get(CreateURL(`ExperienceSpan/GetExperienceSpansByCompanyId/${demand.supplierCompanyId}`), GetPostHeaders(currUser.token))
-          .then(({ data: experienceSpans }) => {
-            store.set('experienceSpan/experienceSpans', experienceSpans.data)
-            axios.get(CreateURL(`Budget/GetBudgetsByCompanyId/${demand.supplierCompanyId}`), GetPostHeaders(currUser.token))
-              .then(({ data: budgets }) => {
-                store.set('budget/budgets', budgets.data)
-                if (demand.contractId) {
-                  axios.get(CreateURL(`Contract/GetContractById/${demand.contractId}`), GetPostHeaders(currUser.token))
-                    .then(({ data: contract }) => {
-                      store.set('contract/contracts', [contract.data])
-                      axios.get(CreateURL(`Consultant/GetConsultantById/${contract.data.consultantId}`), GetPostHeaders(currUser.token))
-                        .then(({ data: consultant }) => {
-                          store.set('consultant/consultants', [consultant.data])
-                        })
-                    })
-                } else {
-                  store.set('contract/contracts', [])
-                  store.set('consultant/consultants', [])
-                }
+        const demands = [...res.data].map(el => {
+          if (el.contractId) {
+            axios.get(CreateURL(`Contract/GetContractById/${el.contractId}`), GetPostHeaders(currUser.token))
+              .then(({ data: contract }) => {
+                el.contract = contract.data
+                axios.get(CreateURL(`Consultant/GetConsultantById/${contract.data.consultantId}`), GetPostHeaders(currUser.token))
+                  .then(({ data: consultant }) => {
+                    el.consultant = consultant.data
+                  })
               })
-          })
+          } else {
+            el.contract = null
+            el.consultant = null
+          }
+          return el
+        })
+        store.set('demand/demands', demands)
       })
       .catch(error => {
         console.log('Error', error)
       })
       .finally(() => {
-        store.set('app/isLoading', false)
+        setTimeout(() => {
+          store.set('demand/isLoading', false)
+          store.set('app/isLoading', false)
+        }, 1000)
       })
   },
 }

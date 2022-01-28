@@ -12,7 +12,7 @@ const DEMAND_STATUSES = {
 const DEMAND_STATUS_LABELS = [
   //! IT's important the arrays order. Will work with keys as indexes
   'Oluşturuldu',
-  'Aday yüklendi, sözleşme bekliyor',
+  'Aday yüklendi',
   'Aday ve sözleşme yüklendi',
   'Tamamlandı',
 ]

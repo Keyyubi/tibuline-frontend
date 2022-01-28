@@ -28,7 +28,7 @@
 
     <v-tabs-items v-model="currentTab">
       <v-tab-item value="allDemands">
-        <all-demands />
+        <demands-list />
       </v-tab-item>
       <v-tab-item value="newDemand">
         <demand-form

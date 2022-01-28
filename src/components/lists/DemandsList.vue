@@ -1,6 +1,6 @@
 <template>
   <v-card>
-    <v-card-title>
+    <v-card-title v-if="!isLoading">
       <v-text-field
         v-model="searchWord"
         append-icon="mdi-magnify"
@@ -10,7 +10,22 @@
       />
     </v-card-title>
 
+    <v-sheet
+      v-if="isLoading"
+      width="100%"
+      height="400"
+      class="d-flex justify-center align-center"
+    >
+      <v-progress-circular
+        size="100"
+        width="10"
+        indeterminate
+        color="primary"
+      />
+    </v-sheet>
+
     <v-data-table
+      v-else
       :headers="headers"
       :items="demands"
       :search="searchWord"
@@ -42,8 +57,14 @@
       <template v-slot:item.projectId="{ item }">
         {{ getProjectName(item.projectId) }}
       </template>
-      <template v-slot:item.consultantId="{ item }">
-        {{ getConsultantName(item.consultantId) }}
+      <template v-slot:item.contract="{ item }">
+        {{ getContractName(item) }}
+      </template>
+      <template v-slot:item.contract.startDate="{ item }">
+        {{ getContractDate(item, 'start') }}
+      </template>
+      <template v-slot:item.contract.endDate="{ item }">
+        {{ getContractDate(item, 'end') }}
       </template>
 
       <template v-slot:item.demandStatus="{ item }">
@@ -55,26 +76,24 @@
         </v-chip>
       </template>
     </v-data-table>
+
+    <!-- Demand Form Dialog -->
     <v-dialog
       v-model="dialog"
       width="960"
       persistent
     >
       <demand-form
-        :formType="demandFormType"
+        :form-type="demandFormType"
         :demand="selectedDemand"
-        @close-dialog="closeDialog()"
+        @close-dialog="dialog = false"
       />
     </v-dialog>
   </v-card>
 </template>
 
 <script>
-  import {
-    DEMAND_STATUSES as Statuses,
-    DEMAND_STATUS_LABELS as Labels,
-    ROLE_IDS as Roles,
-  } from '@/util/globals'
+  import { DEMAND_STATUS_LABELS as Labels, ROLE_IDS as Roles } from '@/util/globals'
   import { get } from 'vuex-pathify'
   export default {
     name: 'DemandsList',
@@ -82,120 +101,107 @@
       return {
         demandFormType: 'update',
         searchWord: '',
-        contract: null,
         dialog: false,
         selectedDemand: {},
-        Statuses,
         Labels,
-        headers: [
-          {
-            text: 'Talep No.',
-            align: 'start',
-            value: 'id',
-          },
-          { text: 'Tedarikçi', value: 'supplierCompanyId' },
-          { text: 'Ünvan', value: 'jobTitleId' },
-          { text: 'Tecrübe Aralığı', value: 'experienceSpanId' },
-          { text: 'Proje', value: 'projectId' },
-          { text: 'Sözleşme', value: 'contractId' },
-          { text: 'Baş. Tar.', value: 'consultantId' },
-          { text: 'Bit. Tar.', value: 'consultantId' },
-          { text: 'Talep Durumu', value: 'demandStatus' },
-        ],
       }
     },
     computed: {
-      ...get('user', ['user']),
-      ...get('demand', ['demands']),
+      ...get('user', ['user', 'users']),
+      ...get('demand', ['demands', 'isLoading']),
       ...get('experienceSpan', ['experienceSpans']),
       ...get('jobTitle', ['jobTitles']),
       ...get('project', ['projects']),
       ...get('company', ['companies']),
       ...get('contract', ['contracts']),
+      headers () {
+        const arr = [
+          {
+            text: 'Talep No.',
+            align: 'start',
+            value: 'id',
+          },
+          { text: 'changable', value: 'id' },
+          { text: 'Ünvan', value: 'jobTitleId' },
+          { text: 'Tecrübe', value: 'experienceSpanId' },
+          { text: 'Proje', value: 'projectId' },
+          { text: 'Sözleşme/Aday', value: 'contract' },
+          { text: 'Söz. Baş. Tar.', value: 'contract.startDate' },
+          { text: 'Söz. Bit. Tar.', value: 'contract.endDate' },
+          { text: 'Talep Durumu', value: 'demandStatus' },
+        ]
+
+        arr[1] = this.user.roleId === Roles.UNIT_MANAGER ? { text: 'Tedarikçi', value: 'supplierCompanyId' } : { text: 'Yönetici', value: 'createdById' }
+
+        return arr
+      },
     },
     mounted () {
-      this.$store.dispatch('company/getSupplierCompanies')
-      this.$store.dispatch('costCenter/getCostCenters') // For Demand-Form
-      this.$store.dispatch('jobTitle/getJobTitles')
-      this.$store.dispatch('experienceSpan/getExperienceSpans')
-      this.$store.dispatch('demand/getDemands')
-      this.$store.dispatch('contract/getContracts')
+      if (this.user.roleId === Roles.UNIT_MANAGER) {
+        this.$store.dispatch('jobTitle/getJobTitles')
+        this.$store.dispatch('experienceSpan/getExperienceSpans')
+        this.$store.dispatch('project/getProjectsByAssignedTo')
+        this.$store.dispatch('company/getSupplierCompanies')
+      } else if (this.user.roleId === Roles.SUPPLIER) {
+        this.$store.dispatch('jobTitle/getJobTitlesByCompanyId', this.user.companyId)
+        this.$store.dispatch('experienceSpan/getExperienceSpansByCompanyId', this.user.companyId)
+        this.$store.dispatch('user/getUnitManagers')
+        this.$store.dispatch('project/getProjects')
+        this.$store.dispatch('consultant/getConsultants')
+        this.$store.dispatch('contract/getContracts')
+      }
 
-      // Only For UnitManager side
-      this.$store.dispatch('project/getProjectsByAssignedTo')
-
-      // Only For Supplier side
-      this.$store.dispatch('project/getProjectsById')
-      this.$store.dispatch('demand/getDemandsByCompanyId')
-      this.$store.dispatch('user/getUnitManagers')
-      this.$store.dispatch('consultant/getConsultants')
-
-      this.$store.dispatch('contract/getContracts')
+      this.$store.dispatch('demand/getDemandsWithDetails', this.user.roleId)
     },
     methods: {
-      async showDemand (demand) {
-        if (this.user.roleId === Roles.UNIT_MANAGER) {
-          this.$store.dispatch('jobTitle/getJobTitlesByCompanyId', demand.supplierCompanyId)
-          this.$store.dispatch('experienceSpan/getExperienceSpansByCompanyId', demand.supplierCompanyId)
-          this.$store.dispatch('budget/getBudgetsByCompanyId', demand.supplierCompanyId)
-
-          await this.sleep(250)
-
-          const contract = this.contracts.find(e => e.id === demand.contractId)
-          if (contract) this.$store.dispatch('consultant/getConsultantById', contract.consultantId)
-          this.demandFormType = demand.contractId ? 'approve' : 'update'
-          this.selectedDemand = { ...demand }
+      showDemand (demand) {
+        this.demandFormType = 'update'
+        if (this.user.roleId === Roles.UNIT_MANAGER && demand.contractId) {
+          this.demandFormType = 'approve'
         }
+        this.selectedDemand = { ...demand }
+
         this.dialog = true
       },
-      getConsultantName (id) {
-        if (id) {
-          const result = this.consultants.find(consultant => consultant.id === id)
-          return result ? result.firstname + ' ' + result.lastname : 'Bulunamadı'
+      getSupplierName (id) {
+        if (id && this.companies && this.companies.length > 0) {
+          const result = this.companies.find(supplier => supplier.id === id)
+          return result ? result.name.slice(0, 30) + '...' : 'Bulunamadı'
         } else return 'Bulunamadı'
       },
       getProjectName (id) {
-        if (id) {
+        if (id && this.projects && this.projects.length > 0) {
           const result = this.projects.find(project => project.id === id)
           return result ? result.name : 'Bulunamadı'
         } else return 'Bulunamadı'
       },
       getJobTitleName (id) {
-        if (id) {
+        if (id && this.jobTitles && this.jobTitles.length > 0) {
           const result = this.jobTitles.find(jobTitle => jobTitle.id === id)
           return result ? result.name : 'Bulunamadı'
         } else return 'Bulunamadı'
       },
       getExperienceSpanName (id) {
-        if (id) {
+        if (id && this.experienceSpans && this.experienceSpans.length > 0) {
           const result = this.experienceSpans.find(experienceSpan => experienceSpan.id === id)
           return result ? result.name : 'Bulunamadı'
         } else return 'Bulunamadı'
       },
-      getContractName (item) {
-        const consultant = this.consultants.find(e => e.id === item.consultantId)
-        const res = 'Söz. No. ' + item.id + ' - ' + consultant.firstname + ' ' + consultant.lastname
-        return res
-      },
-      getLocaleDate (date) {
-        const arr = date.split('T')[0].split('-')
-        return `${arr[2]}/${arr[1]}/${arr[0]}`
-      },
-      getUnitManagerName (id) {
-        if (this.user.roleId === Roles.UNIT_MANAGER) {
-          return this.user.firstname + ' ' + this.user.lastname
+      getContractDate (item, type) {
+        const { contract } = item
+        if (contract) {
+          const arr = type === 'starting' ? contract.startDate.split('T')[0].split('-') : contract.endDate.split('T')[0].split('-')
+          return `${arr[2]}/${arr[1]}/${arr[0]}`
         } else {
-          const user = this.users.find(e => e.id === id)
-          return user ? user.firstname + ' ' + user.lastname : 'İsim bulunamadı.'
+          return ' - '
         }
       },
-      getContractStartDate (id) {
-        const contract = this.contracts.find(e => e.id === id)
-        return contract ? contract.name : 'Proje bulunmuyor.'
-      },
-      getContractEndDate (id) {
-        const project = this.projects.find(e => e.id === id)
-        return project ? project.name : 'Proje bulunmuyor.'
+      getContractName (demand) {
+        if (demand.contract !== null && demand.consultant !== null) {
+          return demand.contract.id + ' - ' + demand.consultant.firstname + ' ' + demand.consultant.lastname
+        } else {
+          return ' - '
+        }
       },
     },
   }
