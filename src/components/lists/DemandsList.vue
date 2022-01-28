@@ -45,8 +45,8 @@
         </v-chip>
       </template>
 
-      <template v-slot:item.supplierCompanyId="{ item }">
-        {{ getSupplierName(item.supplierCompanyId) }}
+      <template v-slot:item.changable="{ item }">
+        {{ getColumnLabel(item) }}
       </template>
       <template v-slot:item.jobTitleId="{ item }">
         {{ getJobTitleName(item.jobTitleId) }}
@@ -121,7 +121,7 @@
             align: 'start',
             value: 'id',
           },
-          { text: 'changable', value: 'id' },
+          { text: 'text', value: 'changable' },
           { text: 'Ünvan', value: 'jobTitleId' },
           { text: 'Tecrübe', value: 'experienceSpanId' },
           { text: 'Proje', value: 'projectId' },
@@ -131,7 +131,7 @@
           { text: 'Talep Durumu', value: 'demandStatus' },
         ]
 
-        arr[1] = this.user.roleId === Roles.UNIT_MANAGER ? { text: 'Tedarikçi', value: 'supplierCompanyId' } : { text: 'Yönetici', value: 'createdById' }
+        arr[1].text = this.user.roleId === Roles.UNIT_MANAGER ? 'Tedarikçi' : 'Yönetici'
 
         return arr
       },
@@ -163,11 +163,18 @@
 
         this.dialog = true
       },
-      getSupplierName (id) {
-        if (id && this.companies && this.companies.length > 0) {
-          const result = this.companies.find(supplier => supplier.id === id)
-          return result ? result.name.slice(0, 30) + '...' : 'Bulunamadı'
-        } else return 'Bulunamadı'
+      getColumnLabel (item) {
+        try {
+          if (this.user.roleId === Roles.UNIT_MANAGER) {
+            const result = this.companies.find(supplier => supplier.id === item.supplierCompanyId)
+            return result.name.slice(0, 30) + '...'
+          } else if (this.user.roleId === Roles.SUPPLIER) {
+            const result = this.users.find(manager => manager.id === item.createdById)
+            return result.firstname + ' ' + result.lastname
+          }
+        } catch {
+          return 'Bulunamadı'
+        }
       },
       getProjectName (id) {
         if (id && this.projects && this.projects.length > 0) {

@@ -238,16 +238,37 @@
             :disabled="!consultant.filePath"
             @click="listDialog = true"
           >
-            Görüntüle
+            {{ !consultant.filePath ? 'Kişisel evrakları bulunmuyor' : 'Görüntüle' }}
           </v-btn>
+          <v-btn
+            v-if="user.roleId === Roles.SUPPLIER"
+            color="primary"
+            depressed
+            outlined
+            @click="dialog = true"
+          >
+            Yükle
+          </v-btn>
+        </v-btn-toggle>
+      </v-col>
+      <v-col
+        cols="12"
+        md="6"
+      >
+        Sözleşme Evrakı:
+        <v-btn-toggle
+          tile
+          color="primary"
+          group
+        >
           <v-btn
             color="primary"
             depressed
             outlined
-            :disabled="user.roleId !== Roles.SUPPLIER || consultant.contractFilePath"
-            @click="dialog = true"
+            :disabled="!consultant.contractFilePath"
+            @click="listDialog = true"
           >
-            Yükle
+            {{ !consultant.contractFilePath ? 'Sözleşme evrakı bulunmuyor' : 'Görüntüle' }}
           </v-btn>
         </v-btn-toggle>
       </v-col>
@@ -309,7 +330,7 @@
         </v-card-title>
         <v-card-text>
           <v-file-input
-            v-model="personalFiles"
+            v-model="files"
             label="Kişisel Evrakları"
             accept="image/*, .pdf"
             counter
@@ -355,7 +376,7 @@
           <v-list>
             <v-list-item-group>
               <v-list-item
-                v-for="(item, i) in personalFiles"
+                v-for="(item, i) in consultant.personalFiles"
                 :key="i"
                 @click="showFile(item)"
               >
@@ -394,7 +415,27 @@
     name: 'ConsultantForm',
     props: {
       formType: { type: String, default: 'create' },
-      consultant: { type: Object, default: null },
+      consultant: {
+        type: Object,
+        default: () => {
+          return {
+            firstname: '',
+            lastname: '',
+            birthday: null,
+            email: '',
+            phone: '',
+            tckn: '',
+            isActive: false,
+            projectId: 0,
+            unitManagerUserId: '',
+            contractId: 0,
+            companyId: 0,
+            jobTitleId: 0,
+            experienceSpanId: 0,
+            personalFiles: '',
+          }
+        },
+      },
     },
     data: () => ({
       menu: false,
@@ -404,7 +445,6 @@
       dialog: false,
       listDialog: false,
       dialogType: '',
-      personalFiles: [],
       Roles,
       RULES,
     }),
@@ -426,10 +466,6 @@
       } else {
         this.consultant.companyId = this.user.companyId
       }
-
-      if (this.consultant.filePath) {
-        this.personalFiles = this.consultant.filePath.split(',')
-      }
     },
     methods: {
       save (date) {
@@ -443,14 +479,14 @@
         window.open(filePath, '_blank').focus()
       },
       closeUploadDialog () {
-        this.personalFiles = []
+        this.files = []
         this.dialog = false
       },
       uploadFiles () {
-        if (this.personalFiles.length) {
+        if (this.files.length) {
           const formData = new FormData()
-          Array.from(Array(this.personalFiles.length).keys()).map(x => {
-            formData.append('files', this.personalFiles[x], this.personalFiles[x].name)
+          Array.from(Array(this.files.length).keys()).map(x => {
+            formData.append('files', this.files[x], this.files[x].name)
           })
           this.$store.dispatch('consultant/uploadFiles', { formData, sending: this.consultant })
           this.closeUploadDialog()

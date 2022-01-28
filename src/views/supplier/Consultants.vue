@@ -32,7 +32,7 @@
       </v-tab-item>
 
       <v-tab-item value="newConsultant">
-        <consultant-form :consultant="newConsultant" />
+        <consultant-form />
       </v-tab-item>
     </v-tabs-items>
   </v-container>
@@ -40,28 +40,11 @@
 
 <script>
   import { get } from 'vuex-pathify'
-  import { RULES } from '@/util/globals'
   export default {
     name: 'Consultants',
     data () {
       return {
         currentTab: 'consultants',
-        newConsultant: {
-          firstname: '',
-          lastname: '',
-          birthday: null,
-          email: '',
-          phone: '',
-          tckn: '',
-          isActive: false,
-          projectId: 0,
-          unitManagerUserId: '',
-          contractId: 0,
-          companyId: 0,
-          jobTitleId: 0,
-          experienceSpanId: 0,
-        },
-        RULES,
       }
     },
     computed: {
