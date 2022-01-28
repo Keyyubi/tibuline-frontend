@@ -292,7 +292,7 @@
         if (this.contractDocument !== null) {
           const formData = new FormData()
           formData.append('Files', this.contractDocument, this.contractDocument.name)
-          this.$store.dispatch('contract/uploadContract', { formData, id: this.contract.id })
+          this.$store.dispatch('contract/uploadContract', { formData, contract: this.contract })
           this.$store.dispatch('app/setLoading', true)
           setTimeout(() => {
             this.closeContractDialog()

@@ -104,16 +104,19 @@ const actions = {
       },
     })
       .then(({ data: res }) => {
-        const arr = store.get('contract/contracts')
-        const index = arr.findIndex(e => e.id === payload.id)
-        const contract = arr[index]
-        contract.filePath = res.data
+        payload.contract.filePath = res.data
 
-        axios.put(CreateURL('Contract/UpdateContract'), contract, GetPostHeaders(currUser.token))
+        axios.put(CreateURL('Contract/UpdateContract'), payload.contract, GetPostHeaders(currUser.token))
         .then(() => {
-          arr[index] = contract
+          const arr = store.get('contract/contracts')
+          const index = arr.findIndex(e => e.id === payload.id)
+          arr[index] = payload.contract
           store.set('contract/contracts', arr)
          store.dispatch('app/showAlert', { message: 'Başarıyla yüklendi.', type: 'success' }, { root: true })
+        })
+        .then(() => {
+          const consultant = { id: payload.contract.consultantId, contractFilePath: payload.contract.filePath }
+          axios.post(CreateURL('Consultant/UpdateConsultantContractFilePath'), consultant, GetPostHeaders(currUser.token))
         })
       })
       .catch(error => {
