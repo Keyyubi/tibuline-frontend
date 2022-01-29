@@ -10,47 +10,52 @@
     <v-card-text>
       <v-container class="py-3">
         <v-row>
+          <!-- Company -->
           <v-col cols="4">
             <v-autocomplete
-              v-model="selectedCompany"
+              v-model="budget.companyId"
               :items="companies.filter(e => e.isSupplier === true)"
               item-text="name"
               item-value="id"
               label="Şirket"
-              return-object
-              @change="getCompanyItems"
+              :disabled="formType !== 'create'"
             />
           </v-col>
+
+          <!-- JobTitle -->
           <v-col cols="4">
             <v-autocomplete
               v-model="budget.jobTitleId"
-              :items="jobTitles"
+              :items="jobTitles.filter(e => e.id === budget.companyId)"
               item-text="name"
               item-value="id"
               label="Ünvan"
             />
           </v-col>
+
+          <!-- ExperienceSpan -->
           <v-col cols="4">
             <v-autocomplete
               v-model="budget.experienceSpanId"
-              :items="experienceSpans"
+              :items="experienceSpans.filter(e => e.id === budget.companyId)"
               item-text="name"
               item-value="id"
               label="Tecrübe Aralığı"
             />
           </v-col>
         </v-row>
+
+        <!-- Budget -->
         <v-row>
           <v-col
             cols="12"
             md="3"
           >
             <v-text-field
-              v-model="budget.hourlyBudget"
-              v-mask="currencyMask"
+              v-model="hourly"
               prepend-icon="mdi-currency-try"
               label="Bütçe (Adam/Saat)"
-              :disabled="!selectedCompany || selectedCompany.invoiceType != InvoiceTypes.HOURLY"
+              :disabled="invoiceType !== InvoiceTypes.HOURLY"
             />
           </v-col>
           <v-col
@@ -58,11 +63,10 @@
             md="3"
           >
             <v-text-field
-              v-model="budget.dailyBudget"
-              v-mask="currencyMask"
+              v-model="daily"
               prepend-icon="mdi-currency-try"
               label="Bütçe (Adam/Gün)"
-              :disabled="!selectedCompany || selectedCompany.invoiceType != InvoiceTypes.DAILY"
+              :disabled="invoiceType !== InvoiceTypes.DAILY"
             />
           </v-col>
           <v-col
@@ -70,11 +74,12 @@
             md="3"
           >
             <v-text-field
-              v-model="budget.monthlyBudget"
-              v-mask="currencyMask"
+              v-model="monthly"
+              clearable
               prepend-icon="mdi-currency-try"
               label="Bütçe (Adam/Ay)"
-              :disabled="!selectedCompany || selectedCompany.invoiceType != InvoiceTypes.MONTHLY"
+              :disabled="invoiceType !== InvoiceTypes.MONTHLY"
+              @keypress="isValidNum"
             />
           </v-col>
           <v-col
@@ -132,7 +137,7 @@
             color="error"
             width="100%"
             depressed
-            @click="$emit('close-dialog')"
+            @click="closeForm()"
           >
             Vazgeç
           </v-btn>
@@ -167,7 +172,6 @@
         { id: 1, name: 'Adam/Gün' },
         { id: 2, name: 'Adam/Ay' },
       ],
-      selectedCompany: null,
       currencyMask,
       InvoiceTypes,
     }),
@@ -176,32 +180,62 @@
       ...get('company', ['companies']),
       ...get('jobTitle', ['jobTitles']),
       ...get('experienceSpan', ['experienceSpans']),
-    },
-    mounted () {
-      if (this.formType !== 'create') this.selectedCompany = this.companies.find(e => e.id === this.budget.companyId)
+      invoiceType () {
+        if (this.budget.companyId) {
+          const company = this.companies.find(e => e.id === this.budget.companyId)
+          return company.invoiceType
+        } else return null
+      },
+      hourly: {
+        get: function () {
+          return new Intl.NumberFormat('tr-TR').format(this.budget.hourlyBudget)
+        },
+        // setter
+        set: function (newValue) {
+          if (newValue && newValue.length > 0) {
+            const str = newValue.replaceAll('.', '').replaceAll(',', '.')
+            this.budget.hourlyBudget = Number(str)
+          }
+        },
+      },
+      daily: {
+        get: function () {
+          return new Intl.NumberFormat('tr-TR').format(this.budget.daily)
+        },
+        // setter
+        set: function (newValue) {
+          if (newValue && newValue.length > 0) {
+            const str = newValue.replaceAll('.', '').replaceAll(',', '.')
+            this.budget.daily = Number(str)
+          }
+        },
+      },
+      monthly: {
+        get: function () {
+          return new Intl.NumberFormat('tr-TR').format(this.budget.monthlyBudget)
+        },
+        // setter
+        set: function (newValue) {
+          if (newValue && newValue.length > 0) {
+            const str = newValue.replaceAll('.', '').replaceAll(',', '.')
+            this.budget.monthlyBudget = Number(str)
+          }
+        },
+      },
     },
     methods: {
       moneyMask (amount) {
         return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(amount)
       },
-      getCompanyItems () {
-        const { id } = this.selectedCompany
-        this.budget.companyId = id
-        this.$store.dispatch('jobTitle/getJobTitlesByCompanyId', id)
-        this.$store.dispatch('experienceSpan/getExperienceSpansByCompanyId', id)
-      },
       getInformattedMoney (value) {
         return Number(value.replaceAll('.', '').replaceAll(',', '.'))
       },
       reset () {
-        this.selectedCompany = null
         this.budget.companyId = null
         this.budget.jobTitleId = null
         this.budget.experienceSpanId = null
-        this.budget.hourlyBudget = 0
-        this.budget.dailyBudget = 0
-        this.budget.monthlyBudget = 0
-        this.budget.totalBudget = 0
+        this.hourly = null
+        this.daily = null
       },
       updateBudget () {
         const fields = [
@@ -210,17 +244,35 @@
           this.budget.experienceSpanId,
         ]
         if (!CheckIsNull(fields)) {
-          console.log('this.budget1', this.budget)
           this.budget.hourlyBudget = this.getInformattedMoney(this.budget.hourlyBudget)
           this.budget.dailyBudget = this.getInformattedMoney(this.budget.dailyBudget)
           this.budget.monthlyBudget = this.getInformattedMoney(this.budget.monthlyBudget)
           this.budget.totalBudget = this.getInformattedMoney(this.budget.totalBudget)
-          console.log('this.budget2', this.budget)
+
           const target = this.formType === 'create' ? 'budget/createBudget' : 'budget/updateBudget'
           this.$store.dispatch(target, this.budget)
           this.reset()
           this.$emit('close-dialog')
         }
+      },
+      getCompanyInvoiceType () {
+        if (this.budget.companyId) {
+          const company = this.companies.find(e => e.id === this.budget.companyId)
+          return company.invoiceType
+        } else return null
+      },
+      isValidNum (evt) {
+        evt = (evt) || window.event
+        const charCode = (evt.which) ? evt.which : evt.keyCode
+        if ((charCode > 31 && (charCode < 48 || charCode > 57)) && charCode !== 44) {
+          evt.preventDefault()
+        } else if (this.monthly.length > 0 && this.monthly.includes(',') && this.monthly.split(',')[1].length === 2) {
+          evt.preventDefault()
+        } else return true
+      },
+      closeForm () {
+        this.reset()
+        this.$emit('close-dialog')
       },
     },
   }

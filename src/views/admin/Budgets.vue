@@ -10,7 +10,6 @@
       centered
       dark
       icons-and-text
-      @change="changeTab"
     >
       <v-tabs-slider />
 
@@ -126,10 +125,10 @@
           companyId: null,
           experienceSpanId: null,
           jobTitleId: null,
-          hourlyBudget: null,
-          dailyBudget: null,
-          monthlyBudget: null,
-          totalBudget: null,
+          hourlyBudget: 0,
+          dailyBudget: 0,
+          monthlyBudget: 0,
+          totalBudget: 0,
         },
         headers: [
           {
@@ -181,10 +180,6 @@
       showBudget (item) {
         this.selectedBudget = { ...item }
         this.dialog = true
-      },
-      changeTab () {
-        this.$store.dispatch('jobTitle/getJobTitles')
-        this.$store.dispatch('experienceSpan/getExperienceSpans')
       },
     },
   }
