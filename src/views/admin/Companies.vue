@@ -84,10 +84,7 @@
       </v-tab-item>
 
       <v-tab-item value="newCompany">
-        <company-form
-          form-type="create"
-          :company="newCompany"
-        />
+        <company-form />
       </v-tab-item>
     </v-tabs-items>
   </v-container>
@@ -103,17 +100,6 @@
         searchWord: '',
         dialog: false,
         selectedCompany: {},
-        newCompany: {
-          name: null,
-          email: null,
-          vkn: null,
-          phone: null,
-          address: null,
-          invoiceType: null,
-          dailyShiftHours: null,
-          isSupplier: false,
-          fileDirectory: null,
-        },
         headers: [
           {
             text: 'Güncelle',

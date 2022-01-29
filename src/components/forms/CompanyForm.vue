@@ -67,10 +67,29 @@
             />
           </v-col>
 
+          <!-- Address -->
+          <v-col cols="12">
+            <v-textarea
+              v-model="company.address"
+              label="Adres"
+              rows="1"
+              required
+            />
+          </v-col>
+        </v-row>
+
+        <!-- Invoice and Documents info -->
+        <v-row
+          class="my-3"
+          align="center"
+        >
+          <v-divider class="mr-3" />Fatura ve Dosyalama Bilgileri<v-divider class="ml-3" />
+        </v-row>
+        <v-row>
           <!-- IsSupplier -->
           <v-col
             cols="12"
-            md="3"
+            md="4"
           >
             <v-checkbox
               v-model="company.isSupplier"
@@ -79,40 +98,10 @@
             />
           </v-col>
 
-          <!-- DailyShiftHours -->
-          <v-col
-            cols="12"
-            md="3"
-          >
-            <v-text-field
-              v-model="company.dailyShiftHours"
-              label="Günlük çalışma saati (İş günü)"
-              append-icon="mdi-clock"
-              type="number"
-              min="0"
-              max="24"
-              :disabled="company.isSupplier"
-            />
-          </v-col>
-
-          <!-- InvoiceType -->
-          <v-col
-            cols="12"
-            md="3"
-          >
-            <v-select
-              v-model="company.invoiceType"
-              :items="billTypes"
-              item-text="name"
-              item-value="id"
-              label="Faturalandırma Türü"
-            />
-          </v-col>
-
           <!-- File Directory Name -->
           <v-col
             cols="12"
-            md="3"
+            md="4"
             class="d-flex justify-center align-center"
           >
             <v-tooltip top>
@@ -133,13 +122,64 @@
             />
           </v-col>
 
-          <!-- Address -->
-          <v-col cols="12">
-            <v-textarea
-              v-model="company.address"
-              label="Adres"
-              rows="2"
-              required
+          <!-- InvoiceType -->
+          <v-col
+            cols="12"
+            md="4"
+          >
+            <v-select
+              v-model="company.invoiceType"
+              :items="billTypes"
+              item-text="name"
+              item-value="id"
+              label="Faturalandırma Türü"
+              :disabled="!company.isSupplier"
+            />
+          </v-col>
+        </v-row>
+        <v-row v-if="!company.isSupplier">
+          <!-- DailyShiftHours -->
+          <v-col
+            cols="12"
+            md="4"
+          >
+            <v-text-field
+              v-model="company.dailyShiftHours"
+              label="Günlük çalışma saati (İş günü)"
+              append-icon="mdi-clock"
+              type="number"
+              min="0"
+              max="24"
+            />
+          </v-col>
+
+          <!-- MonthlyWorkHours -->
+          <v-col
+            cols="12"
+            md="4"
+          >
+            <v-text-field
+              v-model="company.monthlyWorkHours"
+              label="Aylık çalışma saati (Max.)"
+              append-icon="mdi-calendar-clock"
+              type="number"
+              min="0"
+              max="300"
+            />
+          </v-col>
+
+          <!-- OverShiftMultiplier -->
+          <v-col
+            cols="12"
+            md="4"
+          >
+            <v-text-field
+              v-model="company.overShiftMultiplier"
+              label="Fazla mesai çarpanı"
+              append-icon="mdi-sort-clock-descending"
+              type="number"
+              min="0"
+              max="10"
             />
           </v-col>
         </v-row>
@@ -148,7 +188,7 @@
     <v-divider />
 
     <!-- Card Actions -->
-    <v-card-actions>
+    <v-card-actions class="pa-4">
       <v-row>
         <v-col
           v-if="formType === 'create'"
@@ -203,7 +243,24 @@
     name: 'CompanyForm',
     props: {
       formType: { type: String, default: 'create' },
-      company: { type: Object, default: null },
+      company: {
+        type: Object,
+        default: () => {
+          return {
+            name: null,
+            email: null,
+            vkn: null,
+            phone: null,
+            address: null,
+            invoiceType: null,
+            dailyShiftHours: null,
+            isSupplier: false,
+            fileDirectory: null,
+            overtimeMultiplier: null,
+            monthlyWorkHours: null,
+          }
+        },
+      },
     },
     data: () => ({
       billTypes: [
@@ -231,13 +288,26 @@
           this.company.vkn,
           this.company.phone,
           this.company.address,
-          this.company.invoiceType,
           this.company.fileDirectory,
         ]
 
+        if (this.company.isSupplier) {
+          fields.push(this.company.invoiceType)
+          this.company.dailyShiftHours = 0
+          this.company.monthlyWorkHours = 0
+          this.company.overtimeMultiplier = 0
+        } else {
+          this.company.invoiceType = 0
+          fields.push(this.company.dailyShiftHours)
+          fields.push(this.company.monthlyWorkHours)
+          fields.push(this.company.overtimeMultiplier)
+        }
+
         if (!CheckIsNull(fields)) {
           const target = this.formType === 'create' ? 'company/createCompany' : 'company/updateCompany'
-          this.$store.dispatch(target, this.company)
+          const payload = { ...this.company }
+
+          this.$store.dispatch(target, payload)
           this.reset()
           this.$emit('close-dialog')
         }
