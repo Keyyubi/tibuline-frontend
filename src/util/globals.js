@@ -23,6 +23,12 @@ const ACTIVITY_STATUSES = Object.freeze({
   APPROVED: 3,
   INVOICED: 4,
 })
+const CONTRACT_STATUSES = Object.freeze({
+  CREATED: 0,
+  ON_DEMAND: 1,
+  IN_USE: 2,
+  IN_USE_WITH_FILE: 3,
+})
 const ROLE_IDS = Object.freeze({
   ADMIN: 0,
   UNIT_MANAGER: 1,
@@ -80,4 +86,5 @@ module.exports = {
   ACTIVITY_STATUSES,
   BASE_URL,
   INVOICE_TYPES,
+  CONTRACT_STATUSES,
 }

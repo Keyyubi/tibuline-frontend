@@ -215,6 +215,7 @@
 </template>
 
 <script>
+  import { CONTRACT_STATUSES as Statuses } from '@/util/globals'
   import { get } from 'vuex-pathify'
   export default {
     name: 'ContractForm',
@@ -290,6 +291,7 @@
       },
       uploadContract () {
         if (this.contractDocument !== null) {
+          this.contract.contractStatus = Statuses.IN_USE_WITH_FILE
           const formData = new FormData()
           formData.append('Files', this.contractDocument, this.contractDocument.name)
           this.$store.dispatch('contract/uploadContract', { formData, contract: this.contract })

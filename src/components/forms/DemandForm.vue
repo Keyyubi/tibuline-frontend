@@ -310,12 +310,12 @@
           this.demand.projectId,
         ]
 
-        if (CheckIsNull(arr)) {
-          this.$store.dispatch('app/showAlert', { message: 'Lütfen tüm alanları doldurduğunuzdan emin olunuz.', type: 'warning' })
-        } else {
+        if (!CheckIsNull(arr)) {
           this.demand.demandStatus = Statuses.CREATED
           this.$store.dispatch('demand/createDemand', this.demand)
           this.$emit('close-dialog')
+        } else {
+          this.$store.dispatch('app/showAlert', { message: 'Lütfen tüm alanları doldurduğunuzdan emin olunuz.', type: 'warning' })
         }
       },
       selectTarget (target, id) {
