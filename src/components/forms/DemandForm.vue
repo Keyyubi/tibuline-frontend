@@ -169,7 +169,7 @@
             <v-autocomplete
               v-if="user.roleId === Roles.SUPPLIER"
               v-model="demand.contractId"
-              :items="contracts.filter(e => e.contractStatus === cStatuses.CREATED)"
+              :items="contracts"
               :item-text="e => getContractName(e)"
               item-value="id"
               label="Sözleşme"
