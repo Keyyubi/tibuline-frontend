@@ -35,6 +35,7 @@
                 :item-text="e => e.firstname + ' ' + e.lastname"
                 item-value="id"
                 label="Müşteri"
+                @change="selectManager"
               />
             </v-col>
             <v-col
@@ -308,6 +309,7 @@
         description: '',
         confirmationDialog: false,
         invoiceFile: null,
+        customerCompany: null,
 
         newInvoice: {
           unitManagerUserId: null,
@@ -338,7 +340,6 @@
     },
     mounted () {
       this.$store.dispatch('consultant/getConsultants')
-      this.$store.dispatch('company/getCompanies')
       this.$store.dispatch('user/getUnitManagers')
       this.newInvoice.supplierCompanyId = this.user.company.id
       this.newInvoice.createdById = this.user.id
@@ -349,6 +350,17 @@
       this.$store.dispatch('budget/resetStore')
     },
     methods: {
+      selectManager () {
+        const { companyId } = this.users.find(e => e.id === this.newInvoice.unitManagerUserId)
+        if (companyId) {
+          this.$store.dispatch('company/getCompanyById', companyId)
+          setTimeout(() => {
+            this.customerCompany = this.companies[0]
+          }, 250)
+        } else {
+          this.$store.dispatch('app/showAler', { message: 'Birim müdürünün şirket bilgisi bulunamıyor.', type: 'warning' })
+        }
+      },
       selectConsultant () {
         this.$store.dispatch('experienceSpan/resetStore')
         this.$store.dispatch('jobTitle/resetStore')
@@ -408,11 +420,12 @@
         this.newInvoice.period = this.selectedPeriod.name
         this.newInvoice.consultantId = this.selectedConsultant.id
         this.newInvoice.invoiceDate = new Date().toISOString()
-        this.newInvoice.customerCompanyId = this.users.find(e => e.id === this.newInvoice.unitManagerUserId).companyId
+        this.newInvoice.customerCompanyId = this.customerCompany.id
 
         const fields = [
           this.newInvoice.supplierCompanyId,
           this.newInvoice.customerCompanyId,
+          this.newInvoice.unitManagerUserId,
           this.newInvoice.createdById,
           this.newInvoice.description,
           this.newInvoice.period,

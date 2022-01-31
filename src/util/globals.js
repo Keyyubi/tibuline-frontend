@@ -25,9 +25,9 @@ const ACTIVITY_STATUSES = Object.freeze({
 })
 const CONTRACT_STATUSES = Object.freeze({
   CREATED: 0,
-  ON_DEMAND: 1,
-  IN_USE: 2,
-  IN_USE_WITH_FILE: 3,
+  IN_USE: 1,
+  IN_USE_WITH_FILE: 2,
+  TERMINATED: 3,
 })
 const ROLE_IDS = Object.freeze({
   ADMIN: 0,

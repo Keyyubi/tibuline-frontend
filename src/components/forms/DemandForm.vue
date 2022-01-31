@@ -169,7 +169,7 @@
             <v-autocomplete
               v-if="user.roleId === Roles.SUPPLIER"
               v-model="demand.contractId"
-              :items="contracts"
+              :items="contracts.filter(e => e.contractStatus === cStatuses.CREATED)"
               :item-text="e => getContractName(e)"
               item-value="id"
               label="Sözleşme"
@@ -246,7 +246,7 @@
 </template>
 
 <script>
-  import { DEMAND_STATUSES as Statuses, ROLE_IDS as Roles } from '@/util/globals'
+  import { DEMAND_STATUSES as Statuses, ROLE_IDS as Roles, CONTRACT_STATUSES as cStatuses } from '@/util/globals'
   import { CheckIsNull } from '@/util/helpers'
   import { get } from 'vuex-pathify'
   export default {
@@ -257,6 +257,7 @@
     },
     data: () => ({
       Statuses,
+      cStatuses,
       Roles,
     }),
     computed: {

@@ -68,7 +68,7 @@ const actions = {
 
     axios.get(CreateURL(`Company/GetCompanyById/${payload}`), GetPostHeaders(currUser.token))
       .then(({ data: res }) => {
-        store.set('company/companies', res.data)
+        store.set('company/companies', [res.data])
       })
       .catch(error => {
         console.log('Error', error)
