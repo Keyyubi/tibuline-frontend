@@ -246,7 +246,7 @@ Fatura oluşturma süreci, Bütçe ve Şirket bilgilerine bağlıdır. Faturanı
 - KDV = Tutar X 18 / 100
 - TOPLAM = Tutar + KDV
 
-## Saatlik Fatura Tipine göre hesaplama
+## Aylık Fatura Tipine göre hesaplama
 
 - *Müşteri Şirketin aylık toplam çalışma günü* = **ATMS** / **GMS**
 - *Danışmanın Toplam Çalışma Günü* = **DMS** / **GMS**
