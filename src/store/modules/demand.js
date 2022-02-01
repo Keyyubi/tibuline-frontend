@@ -34,12 +34,8 @@ const actions = {
     store.set('app/isLoading', true)
     const { olderContractId } = payload
     delete payload.olderContractId
-    const sending = {
-      demand: payload,
-      olderContractId,
-    }
 
-    axios.put(CreateURL('Demand/UpdateDemand/' + olderContractId), payload, GetPostHeaders(store.get('user/user').token))
+    axios.put(CreateURL(`Demand/UpdateDemand/${olderContractId}`), payload, GetPostHeaders(store.get('user/user').token))
       .then(() => {
         const arr = store.get('demand/demands')
         const index = arr.findIndex(e => e.id === payload.id)
@@ -83,12 +79,14 @@ const actions = {
           }
           return el
         })
-        store.set('demand/demands', demands)
+
+        return demands
       })
-      .then(() => {
+      .then(demands => {
+        store.set('demand/demands', demands)
         setTimeout(() => {
           store.set('demand/isLoading', false)
-        }, 2000)
+        }, 1500)
       })
       .catch(error => {
         console.log('Error', error)

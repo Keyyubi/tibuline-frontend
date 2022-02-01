@@ -148,7 +148,7 @@
         this.$store.dispatch('user/getUnitManagers')
         this.$store.dispatch('project/getProjects')
         this.$store.dispatch('consultant/getConsultants')
-        this.$store.dispatch('contract/getContracts')
+        this.$store.dispatch('contract/getContractsByCompanyId')
       }
 
       this.$store.dispatch('demand/getDemandsWithDetails', this.user.roleId)

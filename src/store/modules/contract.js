@@ -47,21 +47,6 @@ const actions = {
         store.set('app/isLoading', false)
       })
   },
-  getContracts: () => {
-    store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
-
-    axios.get(CreateURL('Contract/GetContracts'), GetPostHeaders(currUser.token))
-      .then(({ data: res }) => {
-        store.set('contract/contracts', res.data)
-      })
-      .catch(error => {
-        console.log('Error', error)
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
-  },
   getContractById: (context, payload) => {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
@@ -77,11 +62,11 @@ const actions = {
         store.set('app/isLoading', false)
       })
   },
-  getContractsByCompany: (context, payload) => {
+  getContractsByCompanyId: (context, payload) => {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
 
-    axios.get(CreateURL(`Contract/GetContractsByCompanyId/${payload}`), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`Contract/GetContractsBySupplierCompany/${currUser.companyId}`), GetPostHeaders(currUser.token))
       .then(({ data: res }) => {
         store.set('contract/contracts', res.data)
       })

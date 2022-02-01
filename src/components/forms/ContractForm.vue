@@ -20,7 +20,7 @@
       >
         <v-autocomplete
           v-model="contract.consultantId"
-          :items="consultants"
+          :items="filteredConsultants"
           :item-text="e => e.firstname + ' ' + e.lastname"
           item-value="id"
           label="Danışman"
@@ -216,6 +216,7 @@
 
 <script>
   import { CONTRACT_STATUSES as Statuses } from '@/util/globals'
+  import { CheckIsNull } from '@/util/helpers'
   import { get } from 'vuex-pathify'
   export default {
     name: 'ContractForm',
@@ -236,9 +237,23 @@
     computed: {
       ...get('user', ['user']),
       ...get('consultant', ['consultants']),
+      ...get('contract', ['contracts']),
+      filteredConsultants () {
+        const arr = this.consultants.filter(e => {
+          if (!this.contracts.find(el => el.consultantId === e.id)) {
+            return e
+          }
+        })
+
+        const first = this.consultants.find(e => e.id === this.contract.consultantId)
+        arr.unshift(first)
+
+        return arr
+      },
     },
     mounted () {
       this.$store.dispatch('consultant/getConsultants')
+      this.$store.dispatch('contract/getContractsByCompanyId')
 
       if (this.formType !== 'create') {
         this.starting = this.getLocaleDate(this.contract.startDate)
@@ -263,15 +278,13 @@
         return `${arr[2]}/${arr[1]}/${arr[0]}`
       },
       createOrUpdateContract () {
-        let isNull = false
-        const arr = [
+        const fields = [
           this.contract.startDate,
           this.contract.endDate,
           this.contract.consultantId,
         ]
-        arr.forEach(e => { if (!e) isNull = true })
 
-        if (!isNull) {
+        if (!CheckIsNull(fields)) {
           const payload = { ...this.contract }
 
           this.formType === 'create'

@@ -169,7 +169,7 @@
             <v-autocomplete
               v-if="user.roleId === Roles.SUPPLIER"
               v-model="demand.contractId"
-              :items="contracts"
+              :items="filteredContracts"
               :item-text="e => getContractName(e)"
               item-value="id"
               label="Sözleşme"
@@ -270,6 +270,15 @@
       ...get('experienceSpan', ['experienceSpans']),
       ...get('jobTitle', ['jobTitles']),
       ...get('project', ['projects']),
+      filteredContracts () {
+        console.log('contracts', this.contracts)
+        const arr = this.contracts.filter(e => e.contractStatus === cStatuses.CREATED)
+        console.log('arr', arr)
+        const first = this.contracts.find(e => e.id === this.demand.contractId)
+        arr.unshift(first)
+
+        return arr
+      },
     },
     mounted () {
       this.$store.dispatch('costCenter/getCostCenters')
@@ -291,6 +300,8 @@
         }
       },
       getContractName (item = null) {
+        // If item is a contractId then we are setting the item the contractObject
+        // This process is for SUPPLIER ROLE
         if (!item) {
           item = this.contracts.find(e => e.id === this.demand.contractId)
         }

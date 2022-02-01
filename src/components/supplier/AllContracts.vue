@@ -161,7 +161,7 @@
       ...get('consultant', ['consultants']),
     },
     mounted () {
-      this.$store.dispatch('contract/getContracts')
+      this.$store.dispatch('contract/getContractsByCompanyId')
       this.$store.dispatch('consultant/getConsultants')
     },
     methods: {

@@ -92,7 +92,6 @@ const actions = {
     })
     .finally(() => setTimeout(() => {
         store.set('app/isLoading', false)
-        store.set('app/alertMessage', '')
       }, 2000))
   },
   logout: () => {
