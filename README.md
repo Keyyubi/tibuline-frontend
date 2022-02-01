@@ -210,3 +210,49 @@ If you have questions or need help integrating the product please reach out in [
 - [Free Vuetify Themes](https://store.vuetifyjs.com/collections/free-products)
 - [Discord](https://discord.com/invite/s93b7Fv)
 - [Twitter](https://twitter.com/vuetifyjs)
+
+
+*****************
+
+## Fatura Oluşturma
+
+Fatura oluşturma süreci, Bütçe ve Şirket bilgilerine bağlıdır. Faturanın düzgün şekilde oluşturulabilmesi için bu bilgilerin eksiksiz girilmesi gerekmektedir.
+
+* Müşteri Şirket oluşturulurken [Günlük Mesai Saati], [Aylık Toplam Mesai Saati] ve [Fazla Mesai Çarpanı] alanlarının girilmesi gerekmektedir.
+* Tedarikçi şirket oluşturulurken [Faturalandırma Tipi] alanının seçilmesi gerekmektedir.
+
+* Bütçe girişi yapılırken, seçilen tedarikçi şirketin faturalandırma tipine göre Bütçe tutarı girişi alanı aktif olarak Bütçe girişi formu açılacaktır. (Saatlik, Günlük, Aylık)
+* Aktif olan alana bütçe girişi yapıldığında, Müşteri Şirket'in [Günlük çalışma saati] ve [Aylık Toplam Mesai Saati] alanlarına göre oluşturulacak bütçenin Saatlik, Günlük veya  Aylık bütçe alanları otomatik hesaplanıp kaydedilecektir.
+
+- GMS = Müşteri Şirketin Günlük Mesai Saati
+- ATMS = Müşteri Şirketin Aylık Toplam Mesai Saati
+- FMÇ = Müşteri Şirketin Fazla Mesai Çarpanı
+- DMS = Fatura kesilecek danışmanın ilgili dönemdeki toplam mesai saati
+- DFMS = Fatura kesilecek danışmanın ilgili dönemdeki toplam fazla mesai saati
+
+### Fazla Mesai Hesaplaması
+
+Fazla Mesai Tutarı = Saatlik Bütçe X DFMS X FMÇ
+
+### Saatlik Fatura Tipine göre hesaplama
+
+Tutar = (Saatlik Bütçe X DMS) + Fazla Mesai Tutarı
+KDV = Tutar X 18 / 100
+TOPLAM = Tutar + KDV
+
+### Günlük Fatura Tipine göre hesaplama
+
+Danışmanın Toplam Çalışma Günü = ATMS / DMS
+Tutar = (Danışmanın Toplam Çalışma Günü X Günlü Bütçe) + Fazla Mesai Tutarı
+KDV = Tutar X 18 / 100
+TOPLAM = Tutar + KDV
+
+### Saatlik Fatura Tipine göre hesaplama
+
+Müşteri Şirketin aylık toplam çalışma günü = ATMS / GMS
+Danışmanın Toplam Çalışma Günü = DMS / GMS
+Danışmanın Toplam Çalışması (Ay cinsinden) = Müşteri Şirketin aylık toplam çalışma günü / Danışmanın Toplam Çalışma Günü
+
+Tutar = (Danışmanın Toplam Çalışması (Ay cinsinden) X Aylık Bütçe) + Fazla Mesai Tutarı
+KDV = Tutar X 18 / 100
+TOPLAM = Tutar + KDV
