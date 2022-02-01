@@ -472,15 +472,19 @@
           this.newInvoice.totalAmount,
         ]
 
-        if (!CheckIsNull(fields) && this.invoiceFile) {
-          console.log('file', this.invoiceFile)
+        if (!this.invoiceFile) {
+          this.$store.dispatch('app/showAlert', { message: 'Lütfen fatura dosyasını yükleyiniz.', type: 'warning' })
+          return
+        }
+
+        if (!CheckIsNull(fields)) {
           const formData = new FormData()
           formData.append('files', this.invoiceFile, this.invoiceFile.name)
 
           const payload = { ...this.newInvoice }
           this.$store.dispatch('invoice/createInvoice', { invoice: payload, formData, activities: this.getMappedActivities() })
         } else {
-          this.$store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' })
+          this.$store.dispatch('app/showAlert', { message: 'Lütfen bütün alanları doldurunuz.', type: 'warning' })
         }
         this.confirmationDialog = false
       },

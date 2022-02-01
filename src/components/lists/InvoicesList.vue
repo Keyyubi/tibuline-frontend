@@ -1,0 +1,271 @@
+<template>
+  <v-card>
+    <v-card-title>
+      <v-text-field
+        v-model="searchWord"
+        append-icon="mdi-magnify"
+        label="Search"
+        single-line
+        hide-details
+      />
+    </v-card-title>
+    <v-data-table
+      :headers="headers"
+      :items="consultants"
+      :search="searchWord"
+    >
+      <!-- eslint-disable-next-line -->
+      <template v-slot:item.firstname="{ item }">
+        <v-chip
+          class="ma-2"
+          :color="item.invoiceFilePath ? 'primary' : 'grey'"
+          dark
+          @click="showInvoice(item)"
+        >
+          <b>{{ item.firstname + ' ' + item.lastname }}</b>
+          <v-icon right>
+            mdi-arrow-right-bold
+          </v-icon>
+        </v-chip>
+      </template>
+      <template v-slot:item.consultantId="{ item }">
+        {{ getConsultantName(item.consultantId) }}
+      </template>
+      <template v-slot:item.unitManagerUserId="{ item }">
+        {{ getConsultantName(item.unitManagerUserId) }}
+      </template>
+      <template v-slot:item.invoiceDate="{ item }">
+        {{ getLocaleDate(item.invoiceDate) }}
+      </template>
+      <template v-slot:item.description="{ item }">
+        {{ getDescription(item.description) }}
+      </template>
+      <template v-slot:item.amount="{ item }">
+        {{ moneyMask(item.amount) }}
+      </template>
+      <template v-slot:item.taxAmount="{ item }">
+        {{ moneyMask(item.taxAmount) }}
+      </template>
+      <template v-slot:item.totalAmount="{ item }">
+        {{ moneyMask(item.totalAmount) }}
+      </template>
+
+      <!-- eslint-disable-next-line -->
+      <template v-slot:item.isPaid="{ item }">
+        <v-chip
+          :color="item.isPaid ? 'green' : 'grey'"
+          dark
+        >
+          {{ item.isPaid ? 'Aktif' : 'Pasif' }}
+        </v-chip>
+      </template>
+    </v-data-table>
+
+    <v-dialog
+      v-model="dialog"
+      width="90%"
+      :retain-focus="false"
+      offset-x
+    >
+      <v-card v-if="selectedInvoice !== null">
+        <v-card-title class="text-h5 primary white--text">
+          Fatura Detayı
+        </v-card-title>
+
+        <v-card-text>
+          <v-container class="py-3">
+            <v-row class="mb-5">
+              <v-col
+                cols="12"
+                md="4"
+              >
+                <v-list-item two-line>
+                  <v-list-item-content>
+                    <v-list-item-title>{{ selectedInvoice.company.name }}</v-list-item-title>
+                    <v-list-item-subtitle>Şirket</v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-list-item two-line>
+                  <v-list-item-content>
+                    <v-list-item-title>{{ selectedInvoice.company.address }}</v-list-item-title>
+                    <v-list-item-subtitle>Adres</v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-list-item two-line>
+                  <v-list-item-content>
+                    <v-list-item-title>{{ selectedInvoice.company.vkn }}</v-list-item-title>
+                    <v-list-item-subtitle>Vergi Numarası</v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-list-item two-line>
+                  <v-list-item-content>
+                    <v-list-item-title>{{ selectedInvoice.company.vkn }}</v-list-item-title>
+                    <v-list-item-subtitle>Vergi Numarası</v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-col>
+              <v-col
+                cols="12"
+                md="2"
+              >
+                <v-list-item two-line>
+                  <v-list-item-content>
+                    <v-list-item-title>{{ moneyMask(selectedInvoice.amount) }}</v-list-item-title>
+                    <v-list-item-subtitle>Tutar</v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-list-item two-line>
+                  <v-list-item-content>
+                    <v-list-item-title>{{ moneyMask(selectedInvoice.taxAmount) }}</v-list-item-title>
+                    <v-list-item-subtitle>KDV</v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-list-item two-line>
+                  <v-list-item-content>
+                    <v-list-item-title>{{ moneyMask(selectedInvoice.totalAmount) }}</v-list-item-title>
+                    <v-list-item-subtitle>Toplam Tutar</v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-col>
+              <v-col
+                cols="12"
+                md="6"
+              >
+                <v-textarea
+                  v-model="selectedInvoice.description"
+                  rows="8"
+                  label="Fatura açıklaması"
+                  outlined
+                  disabled
+                />
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-btn
+            class="white--text mr-3"
+            :color="item.invoiceFilePath ? 'primary' : 'grey'"
+            depressed
+            outlined
+            small
+            @click="showInvoiceFile"
+          >
+            Faturayı görüntüle
+          </v-btn>
+          <v-spacer />
+          <v-btn
+            class="white--text mr-3"
+            color="green"
+            depressed
+            small
+            :disabled="selectedInvoice.isPaid"
+            @click="payInvoice"
+          >
+            {{ selectedInvoice.isPaid ? 'Ödeme yapıldı' : 'Faturayı Öde' }}
+          </v-btn>
+          <v-btn
+            color="error"
+            dark
+            depressed
+            small
+            @click="closeDialog()"
+          >
+            Vazgeç
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </v-card>
+</template>
+
+<script>
+  import { get } from 'vuex-pathify'
+  export default {
+    name: 'InvoicesList',
+    data () {
+      return {
+        searchWord: '',
+        dialog: false,
+        selectedInvoice: null,
+        headers: [
+          {
+            text: 'Fatura No.',
+            align: 'start',
+            value: 'invoiceNo',
+            width: '150',
+          },
+          { text: 'Fatura Tar.', value: 'invoiceDate', width: '150' },
+          { text: 'Danışman', value: 'consultantId', width: '250' },
+          { text: 'Yönetici', value: 'unitManagerUserId', width: '250' },
+          { text: 'Dönem', value: 'period', width: '120' },
+          { text: 'Açıklama', value: 'description', width: '250' },
+          { text: 'Tutar', value: 'amount', width: '150' },
+          { text: 'KDV tutarı', value: 'endDate', width: '150' },
+          { text: 'TOPLAM', value: 'email', width: '150' },
+        ],
+      }
+    },
+    computed: {
+      ...get('user', ['user', 'users']),
+      ...get('consultant', ['consultants']),
+      ...get('company', ['companies']),
+      ...get('jobTitle', ['jobTitles']),
+      ...get('experienceSpan', ['experienceSpans']),
+    },
+    mounted () {
+      this.$store.dispatch('consultant/getConsultants')
+      this.$store.dispatch('company/getCompanies')
+      this.$store.dispatch('user/getUnitManagers')
+      this.$store.dispatch('invoice/getInvoices')
+    },
+    methods: {
+      showInvoice (invoice) {
+        this.selectedInvoice = { ...invoice }
+        this.dialog = true
+      },
+      showInvoiceFile () {
+        if (this.selectedInvoice && this.selectedInvoice.invoiceFilePath) {
+          window.open(this.selectedInvoice.invoiceFilePath, '_blank').focus()
+        } else {
+          this.$store.dispatch('app/showAlert', { message: 'Fatura dosyası bulunmuyor.', type: 'warning' })
+        }
+      },
+      payInvoice () {
+        console.log('invoice', this.selectedInvoice)
+      },
+      closeDialog () {
+        this.selectedInvoice = null
+        this.dialog = false
+      },
+      moneyMask (amount) {
+        return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(amount)
+      },
+      getCompanyName (id) {
+        const company = this.companies.find(e => e.id === id)
+        console.log('comp', company)
+        return company ? company.name : 'Şirket bilgisi bulunamadı.'
+      },
+      getUnitManagerName (id) {
+        const user = this.users.find(e => e.id === id)
+        return user ? user.firstname + ' ' + user.lastname : 'İsim bulunamadı.'
+      },
+      getConsultantName (id) {
+        const consultant = this.consultants.find(e => e.id === id)
+        return consultant ? consultant.firstname + ' ' + consultant.lastname : 'İsim bulunamadı.'
+      },
+      getLocaleDate (date) {
+        if (date) {
+          const arr = date.split('T')[0].split('-')
+          return `${arr[2]}/${arr[1]}/${arr[0]}`
+        } else return ' - '
+      },
+      getDescription (desc) {
+        return desc.length > 30 ? desc.slice(0, 30) + '...' : desc
+      },
+    },
+  }
+</script>
+
+<style lang="scss" scoped></style>

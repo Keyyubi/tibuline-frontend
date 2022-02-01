@@ -62,9 +62,9 @@ const managerItems = [
     to: '/unit-manager/activities-costs/',
   },
   {
-    title: 'Fatura Onayı',
+    title: 'Faturalar',
     icon: 'mdi-check-decagram',
-    to: '/unit-manager/bills/',
+    to: '/unit-manager/invoices/',
   },
 ]
 
@@ -108,6 +108,11 @@ const adminItems = [
     title: 'Projeler',
     icon: 'mdi-folder-table-outline',
     to: '/admin/projects',
+  },
+  {
+    title: 'Faturalar',
+    icon: 'mdi-check-decagram',
+    to: '/admin/invoices/',
   },
 ]
 

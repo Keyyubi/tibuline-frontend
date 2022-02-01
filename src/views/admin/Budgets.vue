@@ -162,17 +162,17 @@
       getJobTitleName (id) {
         const result = this.jobTitles.find(jobTitle => jobTitle.id === id)
         if (result) return result.name
-        else return 'Bulunamadi'
+        else return 'Bulunamadı'
       },
       getExperienceSpanName (id) {
         const result = this.experienceSpans.find(experienceSpan => experienceSpan.id === id)
         if (result) return result.name
-        else return 'Bulunamadi'
+        else return 'Bulunamadı'
       },
       getCompanyName (id) {
         const result = this.companies.find(company => company.id === id)
         if (result) return result.name
-        else return 'Bulunamadi'
+        else return 'Bulunamadı'
       },
       moneyMask (amount) {
         return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(amount)
