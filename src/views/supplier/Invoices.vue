@@ -25,6 +25,7 @@
       <v-tab-item value="newInvoice">
         <v-container class="py-3">
           <v-row>
+            <!-- Unit Manager -->
             <v-col
               cols="12"
               md="3"
@@ -38,6 +39,8 @@
                 @change="selectManager"
               />
             </v-col>
+
+            <!-- Consultant -->
             <v-col
               cols="12"
               md="3"
@@ -52,6 +55,8 @@
                 @change="selectConsultant"
               />
             </v-col>
+
+            <!-- Period -->
             <v-col
               cols="12"
               md="3"
@@ -67,6 +72,8 @@
                 @change="selectPeriod"
               />
             </v-col>
+
+            <!-- File Upload -->
             <v-col
               cols="12"
               md="3"
@@ -79,6 +86,8 @@
                 :disabled="!selectedPeriod"
               />
             </v-col>
+
+            <!-- Description -->
             <v-col v-if="selectedConsultant && selectedPeriod">
               <v-textarea
                 v-model="description"
@@ -88,6 +97,7 @@
               />
             </v-col>
           </v-row>
+
           <v-row
             class="my-3"
             align="center"
@@ -384,20 +394,46 @@
         this.description = this.selectedConsultant.firstname.toUpperCase() + ' ' + this.selectedConsultant.lastname.toUpperCase() + '\n'
         this.description += this.jobTitles[0].name + ' - ' + this.experienceSpans[0].name + '\n\n'
         this.description += 'Dönem: ' + this.selectedPeriod.name.split('-')[1] + '/' + this.selectedPeriod.name.split('-')[0] + '\n'
-        this.description += this.selectedPeriod.totalShiftHours + ' saat mesai - ' + this.selectedPeriod.totalOverShiftHours + ' fazla mesai'
+        // this.description += this.selectedPeriod.totalShiftHours + ' saat mesai - ' + this.selectedPeriod.totalOverShiftHours + ' fazla mesai'
+
+        const shiftHours = this.selectedPeriod.totalShiftHours
+        const overShiftHours = this.selectedPeriod.totalOverShiftHours
+        let days = 0
+        let monthDays = 0
 
         if (this.invoiceBudget) {
           switch (this.user.company.invoiceType) {
             case this.InvoiceTypes.HOURLY:
-              this.newInvoice.amount = this.invoiceBudget.hourlyBudget * (this.selectedPeriod.totalShiftHours + this.selectedPeriod.totalOverShiftHours)
+              this.description += shiftHours + ' saat mesai - '
+
+              this.newInvoice.amount = this.invoiceBudget.hourlyBudget * shiftHours
               break
             case this.InvoiceTypes.DAILY:
-              this.newInvoice.amount = this.invoiceBudget.dailyBudget
+              days = Math.round(shiftHours / this.customerCompany.dailyShiftHours)
+              this.description += days + ' gün mesai - '
+
+              this.newInvoice.amount = this.invoiceBudget.dailyBudget * days
               break
             case this.InvoiceTypes.MONTHLY:
-              this.newInvoice.amount = this.invoiceBudget.monthlyBudget
+              monthDays = Math.round(this.customerCompany.monthlyWorkHours / this.customerCompany.dailyShiftHours)
+              if (shiftHours >= this.customerCompany.monthlyWorkHours) {
+                this.description += `1 ay (${monthDays} gün) mesai - `
+
+                this.newInvoice.amount = this.invoiceBudget.monthlyBudget
+              } else {
+                days = Math.round(shiftHours / this.customerCompany.dailyShiftHours)
+                this.description += `${Math.round(days / monthDays * 100) / 100}  ay (${days} gün) mesai - `
+
+                this.newInvoice.amount = (days / monthDays) * this.invoiceBudget.monthlyBudget
+              }
               break
           }
+
+          this.description += overShiftHours + 'saat fazla mesai'
+          console.log('amount', this.newInvoice.amount)
+
+          this.newInvoice.amount += (this.invoiceBudget.hourlyBudget * this.selectedPeriod.totalOverShiftHours * this.customerCompany.overtimeMultiplier)
+          this.newInvoice.amount = Math.round(this.newInvoice.amount * 100) / 100
           this.newInvoice.taxAmount = this.newInvoice.amount * 0.18
           this.newInvoice.totalAmount = this.newInvoice.amount + this.newInvoice.taxAmount
         } else {
