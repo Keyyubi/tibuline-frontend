@@ -96,7 +96,7 @@
           <budget-form
             form-type="update"
             :budget="selectedBudget"
-            @close-dialog="dialog = false"
+            @close-dialog="closeUpdatePopup()"
           />
         </v-dialog>
       </v-tab-item>
@@ -180,6 +180,10 @@
       showBudget (item) {
         this.selectedBudget = { ...item }
         this.dialog = true
+      },
+      closeUpdatePopup () {
+        this.selectedBudget = null
+        this.dialog = false
       },
     },
   }

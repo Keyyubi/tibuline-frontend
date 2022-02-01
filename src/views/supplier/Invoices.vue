@@ -13,7 +13,7 @@
     >
       <v-tabs-slider />
 
-      <v-tab href="#newInvoice">
+      <v-tab href="#invoice">
         Yeni Fatura
         <v-icon>mdi-account-plus</v-icon>
       </v-tab>
@@ -22,7 +22,7 @@
     <div class="py3" />
 
     <v-tabs-items v-model="currentTab">
-      <v-tab-item value="newInvoice">
+      <v-tab-item value="invoice">
         <v-container class="py-3">
           <v-row>
             <!-- Unit Manager -->
@@ -31,7 +31,7 @@
               md="3"
             >
               <v-autocomplete
-                v-model="newInvoice.unitManagerUserId"
+                v-model="invoice.unitManagerUserId"
                 :items="users"
                 :item-text="e => e.firstname + ' ' + e.lastname"
                 item-value="id"
@@ -47,7 +47,7 @@
             >
               <v-autocomplete
                 v-model="selectedConsultant"
-                :items="consultants.filter(e => e.isActive === true && e.unitManagerUserId === newInvoice.unitManagerUserId)"
+                :items="consultants.filter(e => e.isActive === true && e.unitManagerUserId === invoice.unitManagerUserId)"
                 :item-text="e => e.firstname + ' ' + e.lastname"
                 item-value="id"
                 label="Aktivitesi Onaylanan Danışmanlar"
@@ -63,7 +63,7 @@
             >
               <v-select
                 v-model="selectedPeriod"
-                :items="activityPeriods"
+                :items="activityPeriods.filter(e => e.isInvoiced === false)"
                 :item-text="e => e.name.split('-')[1] + '/' + e.name.split('-')[0]"
                 item-value="id"
                 :disabled="!selectedConsultant"
@@ -201,19 +201,19 @@
             >
               <v-list-item two-line>
                 <v-list-item-content>
-                  <v-list-item-title>{{ moneyMask(newInvoice.amount) }}</v-list-item-title>
+                  <v-list-item-title>{{ moneyMask(invoice.amount) }}</v-list-item-title>
                   <v-list-item-subtitle>Tutar</v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
               <v-list-item two-line>
                 <v-list-item-content>
-                  <v-list-item-title>{{ moneyMask(newInvoice.taxAmount) }}</v-list-item-title>
+                  <v-list-item-title>{{ moneyMask(invoice.taxAmount) }}</v-list-item-title>
                   <v-list-item-subtitle>KDV</v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
               <v-list-item two-line>
                 <v-list-item-content>
-                  <v-list-item-title>{{ moneyMask(newInvoice.totalAmount) }}</v-list-item-title>
+                  <v-list-item-title>{{ moneyMask(invoice.totalAmount) }}</v-list-item-title>
                   <v-list-item-subtitle>Toplam Tutar</v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
@@ -242,6 +242,7 @@
                 width="100%"
                 depressed
                 outlined
+                @click="resetForm()"
               >
                 Formu Temizle
               </v-btn>
@@ -321,7 +322,7 @@
         invoiceFile: null,
         customerCompany: null,
 
-        newInvoice: {
+        invoice: {
           unitManagerUserId: null,
           supplierCompanyId: null,
           customerCompanyId: null,
@@ -351,8 +352,8 @@
     mounted () {
       this.$store.dispatch('consultant/getConsultants')
       this.$store.dispatch('user/getUnitManagers')
-      this.newInvoice.supplierCompanyId = this.user.company.id
-      this.newInvoice.createdById = this.user.id
+      this.invoice.supplierCompanyId = this.user.company.id
+      this.invoice.createdById = this.user.id
     },
     beforeDestroy () {
       this.$store.dispatch('experienceSpan/resetStore')
@@ -361,7 +362,7 @@
     },
     methods: {
       selectManager () {
-        const { companyId } = this.users.find(e => e.id === this.newInvoice.unitManagerUserId)
+        const { companyId } = this.users.find(e => e.id === this.invoice.unitManagerUserId)
         if (companyId) {
           this.$store.dispatch('company/getCompanyById', companyId)
           setTimeout(() => {
@@ -394,10 +395,8 @@
         this.description = this.selectedConsultant.firstname.toUpperCase() + ' ' + this.selectedConsultant.lastname.toUpperCase() + '\n'
         this.description += this.jobTitles[0].name + ' - ' + this.experienceSpans[0].name + '\n\n'
         this.description += 'Dönem: ' + this.selectedPeriod.name.split('-')[1] + '/' + this.selectedPeriod.name.split('-')[0] + '\n'
-        // this.description += this.selectedPeriod.totalShiftHours + ' saat mesai - ' + this.selectedPeriod.totalOverShiftHours + ' fazla mesai'
 
         const shiftHours = this.selectedPeriod.totalShiftHours
-        const overShiftHours = this.selectedPeriod.totalOverShiftHours
         let days = 0
         let monthDays = 0
 
@@ -406,40 +405,41 @@
             case this.InvoiceTypes.HOURLY:
               this.description += shiftHours + ' saat mesai - '
 
-              this.newInvoice.amount = this.invoiceBudget.hourlyBudget * shiftHours
+              this.invoice.amount = this.invoiceBudget.hourlyBudget * shiftHours
               break
             case this.InvoiceTypes.DAILY:
               days = Math.round(shiftHours / this.customerCompany.dailyShiftHours)
-              this.description += days + ' gün mesai - '
+              this.invoice.amount = this.invoiceBudget.dailyBudget * days
 
-              this.newInvoice.amount = this.invoiceBudget.dailyBudget * days
+              this.description += `${days} gün mesai -`
               break
             case this.InvoiceTypes.MONTHLY:
               monthDays = Math.round(this.customerCompany.monthlyWorkHours / this.customerCompany.dailyShiftHours)
               if (shiftHours >= this.customerCompany.monthlyWorkHours) {
                 this.description += `1 ay (${monthDays} gün) mesai - `
 
-                this.newInvoice.amount = this.invoiceBudget.monthlyBudget
+                this.invoice.amount = this.invoiceBudget.monthlyBudget
               } else {
                 days = Math.round(shiftHours / this.customerCompany.dailyShiftHours)
                 this.description += `${Math.round(days / monthDays * 100) / 100}  ay (${days} gün) mesai - `
 
-                this.newInvoice.amount = (days / monthDays) * this.invoiceBudget.monthlyBudget
+                this.invoice.amount = (days / monthDays) * this.invoiceBudget.monthlyBudget
               }
               break
           }
 
-          this.description += overShiftHours + 'saat fazla mesai'
-          console.log('amount', this.newInvoice.amount)
+          const overshiftAmount = (this.invoiceBudget.hourlyBudget * this.selectedPeriod.totalOverShiftHours * this.customerCompany.overtimeMultiplier)
 
-          this.newInvoice.amount += (this.invoiceBudget.hourlyBudget * this.selectedPeriod.totalOverShiftHours * this.customerCompany.overtimeMultiplier)
-          this.newInvoice.amount = Math.round(this.newInvoice.amount * 100) / 100
-          this.newInvoice.taxAmount = this.newInvoice.amount * 0.18
-          this.newInvoice.totalAmount = this.newInvoice.amount + this.newInvoice.taxAmount
+          this.description += this.moneyMask(this.invoice.amount) + '\n' + this.selectedPeriod.totalOverShiftHours + 'saat fazla mesai - ' + this.moneyMask(overshiftAmount)
+
+          this.invoice.amount += overshiftAmount
+          this.invoice.amount = Math.round(this.invoice.amount * 100) / 100
+          this.invoice.taxAmount = this.invoice.amount * 0.18
+          this.invoice.totalAmount = this.invoice.amount + this.invoice.taxAmount
         } else {
-          this.newInvoice.amount = 0
-          this.newInvoice.taxAmount = 0
-          this.newInvoice.totalAmount = 0
+          this.invoice.amount = 0
+          this.invoice.taxAmount = 0
+          this.invoice.totalAmount = 0
         }
       },
       getMappedActivities () {
@@ -452,28 +452,29 @@
         return amount ? new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(amount) : 'Bütçe bilgisi bulunmuyor'
       },
       createInvoice () {
-        this.newInvoice.description = this.description
-        this.newInvoice.period = this.selectedPeriod.name
-        this.newInvoice.consultantId = this.selectedConsultant.id
-        this.newInvoice.invoiceDate = new Date().toISOString()
-        this.newInvoice.customerCompanyId = this.customerCompany.id
+        this.invoice.description = this.description
+        this.invoice.period = this.selectedPeriod.name
+        this.invoice.consultantId = this.selectedConsultant.id
+        this.invoice.invoiceDate = new Date().toISOString()
+        this.invoice.customerCompanyId = this.customerCompany.id
 
         const fields = [
-          this.newInvoice.supplierCompanyId,
-          this.newInvoice.customerCompanyId,
-          this.newInvoice.unitManagerUserId,
-          this.newInvoice.createdById,
-          this.newInvoice.description,
-          this.newInvoice.period,
-          this.newInvoice.consultantId,
-          this.newInvoice.invoiceDate,
-          this.newInvoice.amount,
-          this.newInvoice.taxAmount,
-          this.newInvoice.totalAmount,
+          this.invoice.supplierCompanyId,
+          this.invoice.customerCompanyId,
+          this.invoice.unitManagerUserId,
+          this.invoice.createdById,
+          this.invoice.description,
+          this.invoice.period,
+          this.invoice.consultantId,
+          this.invoice.invoiceDate,
+          this.invoice.amount,
+          this.invoice.taxAmount,
+          this.invoice.totalAmount,
         ]
 
         if (!this.invoiceFile) {
           this.$store.dispatch('app/showAlert', { message: 'Lütfen fatura dosyasını yükleyiniz.', type: 'warning' })
+          this.confirmationDialog = false
           return
         }
 
@@ -481,12 +482,30 @@
           const formData = new FormData()
           formData.append('files', this.invoiceFile, this.invoiceFile.name)
 
-          const payload = { ...this.newInvoice }
-          this.$store.dispatch('invoice/createInvoice', { invoice: payload, formData, activities: this.getMappedActivities() })
+          const payload = { ...this.invoice }
+          this.selectedPeriod.isInvoiced = true
+
+          this.$store.dispatch('invoice/createInvoice', { invoice: payload, formData, activities: this.getMappedActivities(), period: this.selectedPeriod })
         } else {
           this.$store.dispatch('app/showAlert', { message: 'Lütfen bütün alanları doldurunuz.', type: 'warning' })
         }
         this.confirmationDialog = false
+      },
+      resetForm () {
+        this.invoice = {
+          unitManagerUserId: null,
+          supplierCompanyId: null,
+          customerCompanyId: null,
+          createdById: null,
+          description: null,
+          period: null,
+          consultantId: null,
+          invoiceDate: null,
+          amount: 0,
+          taxAmount: 0,
+          totalAmount: 0,
+          isPaid: false,
+        }
       },
     },
   }

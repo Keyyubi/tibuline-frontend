@@ -26,15 +26,20 @@ const actions = {
       .then(({ data: res }) => {
         payload.invoice.invoiceFilePath = res.data
 
-        axios.post(CreateURL('Invoce/SaveInvoice'), payload.invoice, GetPostHeaders(currUser.token))
+        axios.post(CreateURL('Invoice/SaveInvoice'), payload.invoice, GetPostHeaders(currUser.token))
         .then(({ data: createdInvoice }) => {
           store.set('invoice/invoices', [...store.get('invoice/invoices'), createdInvoice.data])
-          store.dispatch('app/showAlert', { message: 'Fatura oluşturuldu.', type: 'success' }, { root: true })
+          setTimeout(() => {
+            store.dispatch('app/showAlert', { message: 'Fatura oluşturuldu.', type: 'success' }, { root: true })
+          }, 750)
+        })
+        .then(() => {
+          store.dispatch('activityPeriod/updateActivityPeriod', payload.period)
         })
         .then(() => {
           const { length } = payload.activities
           for (let i = 0; i < length; i++) {
-            store.dispatch('activity/updateActivity', payload.activities[i])
+            axios.put(CreateURL('Activity/UpdateActivity'), payload.activities[i], GetPostHeaders(currUser.token))
           }
         })
       })

@@ -148,7 +148,7 @@
               label="Günlük çalışma saati (İş günü)"
               append-icon="mdi-clock"
               type="number"
-              min="0"
+              min="1"
               max="24"
             />
           </v-col>
@@ -163,7 +163,7 @@
               label="Aylık çalışma saati (Max.)"
               append-icon="mdi-calendar-clock"
               type="number"
-              min="0"
+              min="1"
               max="300"
             />
           </v-col>
@@ -174,11 +174,11 @@
             md="4"
           >
             <v-text-field
-              v-model="company.overShiftMultiplier"
+              v-model="company.overtimeMultiplier"
               label="Fazla mesai çarpanı"
               append-icon="mdi-sort-clock-descending"
               type="number"
-              min="0"
+              min="1"
               max="10"
             />
           </v-col>

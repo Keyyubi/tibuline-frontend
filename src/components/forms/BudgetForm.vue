@@ -7,7 +7,7 @@
       Bütçe Planını Güncelle
     </v-card-title>
 
-    <v-card-text>
+    <v-card-text v-if="budget !== null">
       <v-container class="py-3">
         <v-row>
           <!-- Company -->
@@ -26,7 +26,7 @@
           <v-col cols="4">
             <v-autocomplete
               v-model="budget.jobTitleId"
-              :items="jobTitles.filter(e => e.id === budget.companyId)"
+              :items="jobTitles.filter(e => e.companyId === budget.companyId)"
               item-text="name"
               item-value="id"
               label="Ünvan"
@@ -37,7 +37,7 @@
           <v-col cols="4">
             <v-autocomplete
               v-model="budget.experienceSpanId"
-              :items="experienceSpans.filter(e => e.id === budget.companyId)"
+              :items="experienceSpans.filter(e => e.companyId === budget.companyId)"
               item-text="name"
               item-value="id"
               label="Tecrübe Aralığı"
@@ -137,7 +137,7 @@
             color="error"
             width="100%"
             depressed
-            @click="closeForm()"
+            @click="$emit('close-dialog')"
           >
             Vazgeç
           </v-btn>
@@ -176,6 +176,7 @@
       InvoiceTypes,
     }),
     computed: {
+      ...get('user', ['user']),
       ...get('budget', ['budgets']),
       ...get('company', ['companies']),
       ...get('jobTitle', ['jobTitles']),
@@ -193,20 +194,24 @@
         // setter
         set: function (newValue) {
           if (newValue && newValue.length > 0) {
-            const str = newValue.replaceAll('.', '').replaceAll(',', '.')
-            this.budget.hourlyBudget = Number(str)
+            const amount = this.unmaskMoney(newValue)
+            this.budget.hourlyBudget = Math.round(amount * 100) / 100
+            this.budget.dailyBudget = Math.round(amount * this.user.company.dailyShiftHours * 100) / 100
+            this.budget.monthlyBudget = Math.round(amount * this.user.company.monthlyWorkHours * 100) / 100
           }
         },
       },
       daily: {
         get: function () {
-          return new Intl.NumberFormat('tr-TR').format(this.budget.daily)
+          return new Intl.NumberFormat('tr-TR').format(this.budget.dailyBudget)
         },
         // setter
         set: function (newValue) {
           if (newValue && newValue.length > 0) {
-            const str = newValue.replaceAll('.', '').replaceAll(',', '.')
-            this.budget.daily = Number(str)
+            const amount = this.unmaskMoney(newValue)
+            this.budget.dailyBudget = Math.round(amount * 100) / 100
+            this.budget.hourlyBudget = Math.round(amount / this.user.company.dailyShiftHours * 100) / 100
+            this.budget.monthlyBudget = Math.round(amount * (this.user.company.monthlyWorkHours / this.user.company.dailyShiftHours) * 100) / 100
           }
         },
       },
@@ -217,8 +222,10 @@
         // setter
         set: function (newValue) {
           if (newValue && newValue.length > 0) {
-            const str = newValue.replaceAll('.', '').replaceAll(',', '.')
-            this.budget.monthlyBudget = Number(str)
+            const amount = this.unmaskMoney(newValue)
+            this.budget.monthlyBudget = Math.round(amount * 100) / 100
+            this.budget.hourlyBudget = Math.round(amount / this.user.company.monthlyWorkHours * 100) / 100
+            this.budget.dailyBudget = Math.round(amount / (this.user.company.monthlyWorkHours / this.user.company.dailyShiftHours) * 100) / 100
           }
         },
       },
@@ -227,31 +234,21 @@
       moneyMask (amount) {
         return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(amount)
       },
-      getInformattedMoney (value) {
-        return Number(value.replaceAll('.', '').replaceAll(',', '.'))
-      },
-      reset () {
-        this.budget.companyId = null
-        this.budget.jobTitleId = null
-        this.budget.experienceSpanId = null
-        this.hourly = null
-        this.daily = null
+      unmaskMoney (formattedAmount) {
+        return Number(formattedAmount.replaceAll('.', '').replaceAll(',', '.'))
       },
       updateBudget () {
         const fields = [
           this.budget.companyId,
           this.budget.jobTitleId,
           this.budget.experienceSpanId,
+          this.budget.hourlyBudget,
+          this.budget.dailyBudget,
+          this.budget.monthlyBudget,
         ]
         if (!CheckIsNull(fields)) {
-          this.budget.hourlyBudget = this.getInformattedMoney(this.budget.hourlyBudget)
-          this.budget.dailyBudget = this.getInformattedMoney(this.budget.dailyBudget)
-          this.budget.monthlyBudget = this.getInformattedMoney(this.budget.monthlyBudget)
-          this.budget.totalBudget = this.getInformattedMoney(this.budget.totalBudget)
-
           const target = this.formType === 'create' ? 'budget/createBudget' : 'budget/updateBudget'
           this.$store.dispatch(target, this.budget)
-          this.reset()
           this.$emit('close-dialog')
         }
       },
@@ -269,10 +266,6 @@
         } else if (this.monthly.length > 0 && this.monthly.includes(',') && this.monthly.split(',')[1].length === 2) {
           evt.preventDefault()
         } else return true
-      },
-      closeForm () {
-        this.reset()
-        this.$emit('close-dialog')
       },
     },
   }
