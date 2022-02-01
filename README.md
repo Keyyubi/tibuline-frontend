@@ -241,7 +241,7 @@ Fatura oluşturma süreci, Bütçe ve Şirket bilgilerine bağlıdır. Faturanı
 
 ## Günlük Fatura Tipine göre hesaplama
 
-- *Danışmanın Toplam Çalışma Günü* = **ATMS** / **DMS**
+- *Danışmanın Toplam Çalışma Günü* = **DMS** / **GMS**
 - Tutar = (*Danışmanın Toplam Çalışma Günü* X *Günlük Bütçe*) + **Fazla Mesai Tutarı**
 - KDV = Tutar X 18 / 100
 - TOPLAM = Tutar + KDV
