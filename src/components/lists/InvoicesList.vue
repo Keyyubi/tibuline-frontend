@@ -11,18 +11,18 @@
     </v-card-title>
     <v-data-table
       :headers="headers"
-      :items="consultants"
+      :items="invoices"
       :search="searchWord"
     >
       <!-- eslint-disable-next-line -->
-      <template v-slot:item.firstname="{ item }">
+      <template v-slot:item.invoiceNo="{ item }">
         <v-chip
           class="ma-2"
-          :color="item.invoiceFilePath ? 'primary' : 'grey'"
+          color="primary"
           dark
           @click="showInvoice(item)"
         >
-          <b>{{ item.firstname + ' ' + item.lastname }}</b>
+          <b>{{ item.invoiceNo || 'BOŞ' }}</b>
           <v-icon right>
             mdi-arrow-right-bold
           </v-icon>
@@ -32,7 +32,7 @@
         {{ getConsultantName(item.consultantId) }}
       </template>
       <template v-slot:item.unitManagerUserId="{ item }">
-        {{ getConsultantName(item.unitManagerUserId) }}
+        {{ getUnitManagerName(item.unitManagerUserId) }}
       </template>
       <template v-slot:item.invoiceDate="{ item }">
         {{ getLocaleDate(item.invoiceDate) }}
@@ -63,7 +63,7 @@
 
     <v-dialog
       v-model="dialog"
-      width="90%"
+      width="75%"
       :retain-focus="false"
       offset-x
     >
@@ -72,8 +72,8 @@
           Fatura Detayı
         </v-card-title>
 
-        <v-card-text>
-          <v-container class="py-3">
+        <v-card-text class="py-0">
+          <v-container class="mt-2">
             <v-row class="mb-5">
               <v-col
                 cols="12"
@@ -89,12 +89,6 @@
                   <v-list-item-content>
                     <v-list-item-title>{{ selectedInvoice.company.address }}</v-list-item-title>
                     <v-list-item-subtitle>Adres</v-list-item-subtitle>
-                  </v-list-item-content>
-                </v-list-item>
-                <v-list-item two-line>
-                  <v-list-item-content>
-                    <v-list-item-title>{{ selectedInvoice.company.vkn }}</v-list-item-title>
-                    <v-list-item-subtitle>Vergi Numarası</v-list-item-subtitle>
                   </v-list-item-content>
                 </v-list-item>
                 <v-list-item two-line>
@@ -143,13 +137,14 @@
           </v-container>
         </v-card-text>
 
+        <v-divider />
+
         <v-card-actions>
           <v-btn
             class="white--text mr-3"
-            :color="item.invoiceFilePath ? 'primary' : 'grey'"
+            :color="selectedInvoice.invoiceFilePath ? 'primary' : 'grey'"
             depressed
             outlined
-            small
             @click="showInvoiceFile"
           >
             Faturayı görüntüle
@@ -159,7 +154,6 @@
             class="white--text mr-3"
             color="green"
             depressed
-            small
             :disabled="selectedInvoice.isPaid"
             @click="payInvoice"
           >
@@ -169,7 +163,6 @@
             color="error"
             dark
             depressed
-            small
             @click="closeDialog()"
           >
             Vazgeç
@@ -202,8 +195,8 @@
           { text: 'Dönem', value: 'period', width: '120' },
           { text: 'Açıklama', value: 'description', width: '250' },
           { text: 'Tutar', value: 'amount', width: '150' },
-          { text: 'KDV tutarı', value: 'endDate', width: '150' },
-          { text: 'TOPLAM', value: 'email', width: '150' },
+          { text: 'KDV tutarı', value: 'taxAmount', width: '150' },
+          { text: 'TOPLAM', value: 'totalAmount', width: '150' },
         ],
       }
     },
@@ -211,18 +204,18 @@
       ...get('user', ['user', 'users']),
       ...get('consultant', ['consultants']),
       ...get('company', ['companies']),
-      ...get('jobTitle', ['jobTitles']),
-      ...get('experienceSpan', ['experienceSpans']),
+      ...get('invoice', ['invoices']),
     },
     mounted () {
-      this.$store.dispatch('consultant/getConsultants')
+      this.$store.dispatch('consultant/getAllConsultants')
       this.$store.dispatch('company/getCompanies')
       this.$store.dispatch('user/getUnitManagers')
       this.$store.dispatch('invoice/getInvoices')
     },
     methods: {
       showInvoice (invoice) {
-        this.selectedInvoice = { ...invoice }
+        const company = this.companies.find(e => e.id === invoice.supplierCompanyId)
+        this.selectedInvoice = { ...invoice, company }
         this.dialog = true
       },
       showInvoiceFile () {
@@ -262,7 +255,7 @@
         } else return ' - '
       },
       getDescription (desc) {
-        return desc.length > 30 ? desc.slice(0, 30) + '...' : desc
+        return desc && desc.length > 30 ? desc.slice(0, 30) + '...' : desc
       },
     },
   }
