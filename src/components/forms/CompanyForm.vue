@@ -279,7 +279,7 @@
         this.company.address = null
         this.company.invoiceType = null
         this.company.dailyShiftHours = null
-        this.company.isSupplier = null
+        this.company.isSupplier = false
       },
       updateCompany () {
         const fields = [
