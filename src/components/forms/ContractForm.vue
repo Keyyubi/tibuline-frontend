@@ -245,8 +245,10 @@
           }
         })
 
-        const first = this.consultants.find(e => e.id === this.contract.consultantId)
-        arr.unshift(first)
+        if (this.formType !== 'create') {
+          const first = this.consultants.find(e => e.id === this.contract.consultantId)
+          arr.unshift(first)
+        }
 
         return arr
       },
