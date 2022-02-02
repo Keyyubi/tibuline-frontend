@@ -50,7 +50,7 @@ const actions = {
   uploadFiles: (context, payload) => {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
-    payload.formData.append('CompanyId', currUser.companyId)
+    payload.formData.append('SupplierId', currUser.company.Id)
 
     axios.post(CreateURL('Consultant/UploadConsultantDocuments/upload'), payload.formData, {
       headers: {
@@ -81,7 +81,7 @@ const actions = {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
 
-    axios.get(CreateURL(`Consultant/GetConsultantsByCompanyId/${currUser.companyId}`), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`Consultant/GetConsultantsBySupplierId/${currUser.company.id}`), GetPostHeaders(currUser.token))
       .then(({ data: res }) => {
         store.set('consultant/consultants', res.data)
       })

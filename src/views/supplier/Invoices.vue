@@ -324,8 +324,7 @@
 
         invoice: {
           unitManagerUserId: null,
-          supplierCompanyId: null,
-          customerCompanyId: null,
+          supplierSupplierId: null,
           createdById: null,
           description: null,
           period: null,
@@ -340,19 +339,20 @@
       }
     },
     computed: {
-      ...get('user', ['user', 'users']),
+      ...get('user', ['user', 'users', 'customerCompany']),
       ...get('consultant', ['consultants']),
       ...get('budget', ['invoiceBudget']),
       ...get('jobTitle', ['jobTitles']),
       ...get('experienceSpan', ['experienceSpans']),
       ...get('activity', ['activities']),
-      ...get('company', ['companies']),
+      ...get('supplier', ['companies']),
       ...get('activityPeriod', ['activityPeriods']),
     },
     mounted () {
       this.$store.dispatch('consultant/getConsultants')
       this.$store.dispatch('user/getUnitManagers')
-      this.invoice.supplierCompanyId = this.user.company.id
+      this.$store.dispatch('user/getCompanyDetails')
+      this.invoice.supplierId = this.user.company.id
       this.invoice.createdById = this.user.id
     },
     beforeDestroy () {
@@ -361,23 +361,12 @@
       this.$store.dispatch('budget/resetStore')
     },
     methods: {
-      selectManager () {
-        const { companyId } = this.users.find(e => e.id === this.invoice.unitManagerUserId)
-        if (companyId) {
-          this.$store.dispatch('company/getCompanyById', companyId)
-          setTimeout(() => {
-            this.customerCompany = this.companies[0]
-          }, 250)
-        } else {
-          this.$store.dispatch('app/showAler', { message: 'Birim müdürünün şirket bilgisi bulunamıyor.', type: 'warning' })
-        }
-      },
       selectConsultant () {
         this.$store.dispatch('experienceSpan/resetStore')
         this.$store.dispatch('jobTitle/resetStore')
         this.$store.dispatch('budget/resetStore')
 
-        const { companyId, experienceSpanId, jobTitleId } = this.selectedConsultant
+        const { supplierId, experienceSpanId, jobTitleId } = this.selectedConsultant
         this.description = ''
         this.selectedPeriod = null
 
@@ -387,7 +376,7 @@
         setTimeout(() => {
           this.$store.dispatch('jobTitle/getJobTitleById', jobTitleId)
           this.$store.dispatch('experienceSpan/getExperienceSpanById', experienceSpanId)
-          this.$store.dispatch('budget/getBudgetsByParams', { companyId, experienceSpanId, jobTitleId })
+          this.$store.dispatch('budget/getBudgetsByParams', { supplierId, experienceSpanId, jobTitleId })
           this.$store.dispatch('app/setLoading', false)
         }, 500)
       },
@@ -459,8 +448,7 @@
         this.invoice.customerCompanyId = this.customerCompany.id
 
         const fields = [
-          this.invoice.supplierCompanyId,
-          this.invoice.customerCompanyId,
+          this.invoice.supplierId,
           this.invoice.unitManagerUserId,
           this.invoice.createdById,
           this.invoice.description,
@@ -495,7 +483,6 @@
         this.invoice = {
           unitManagerUserId: null,
           supplierCompanyId: null,
-          customerCompanyId: null,
           createdById: null,
           description: null,
           period: null,

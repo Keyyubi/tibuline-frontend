@@ -11,6 +11,7 @@ import router from '../../router'
 
 const state = {
   user: {},
+  customerCompany: {},
   users: [],
   dark: false,
   drawer: {
@@ -57,10 +58,10 @@ const actions = {
   login: (context, user) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('/Auth/CreateToken'), { email: user.email, password: user.password })
+    axios.post(CreateURL('Auth/CreateToken'), { email: user.email, password: user.password })
     .then(({ data: res }) => res.data.accessToken)
     .then(token => {
-      axios.get(CreateURL('/User/GetUser'), GetPostHeaders(token))
+      axios.get(CreateURL('User/GetUser'), GetPostHeaders(token))
       .then(({ data: res }) => {
         return {
           ...res.data,
@@ -69,7 +70,8 @@ const actions = {
         }
       })
       .then(loggedUser => {
-        axios.get(CreateURL(`/Company/GetCompanyById/${loggedUser.companyId}`), GetPostHeaders(loggedUser.token))
+        const target = loggedUser.roleId === ROLE_IDS.SUPPLIER ? `Supplier/GetSupplierById/${supplierId}` : 'Company/GetCompanyDetails'
+        axios.get(CreateURL(target), GetPostHeaders(loggedUser.token))
         .then(({ data: res }) => {
           loggedUser = {
             ...loggedUser,
@@ -98,7 +100,7 @@ const actions = {
     store.set('activity/activities', [])
     store.set('budget/budgets', [])
     store.set('budget/invoiceBudget', {})
-    store.set('company/companies', [])
+    store.set('supplier/suppliers', [])
     store.set('consultant/consultants', [])
     store.set('contract/contracts', [])
     store.set('demand/demands', [])
@@ -169,6 +171,21 @@ const actions = {
     axios.get(CreateURL(`User/GetUsersByRoleId/${ROLE_IDS.SUPPLIER}`), GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('user/users', res.data)
+      })
+      .catch(error => {
+        console.log('Error', error)
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+      })
+  },
+  getCompanyDetails: (context, payload) => {
+    store.set('app/isLoading', true)
+    const currUser = store.get('user/user')
+
+    axios.get(CreateURL('Company/GetCompany'), GetPostHeaders(currUser.token))
+      .then(({ data: res }) => {
+        store.set('user/customerCompany', res.data)
       })
       .catch(error => {
         console.log('Error', error)

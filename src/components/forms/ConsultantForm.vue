@@ -35,14 +35,14 @@
         />
       </v-col>
 
-      <!-- Company -->
+      <!-- Supplier -->
       <v-col
         cols="12"
         md="4"
       >
         <v-select
-          v-model="consultant.companyId"
-          :items="[user.company]"
+          v-model="consultant.supplierId"
+          :items="suppliers"
           item-text="name"
           item-value="id"
           label="Şirket"
@@ -429,7 +429,7 @@
             projectId: 0,
             unitManagerUserId: '',
             contractId: 0,
-            companyId: 0,
+            supplierId: 0,
             jobTitleId: 0,
             experienceSpanId: 0,
             personalFiles: '',
@@ -464,7 +464,7 @@
         const arr = this.consultant.birthday.split('T')[0].split('-')
         this.localeDate = `${arr[2]}/${arr[1]}/${arr[0]}`
       } else {
-        this.consultant.companyId = this.user.companyId
+        this.consultant.supplierId = this.user.company.id
       }
     },
     methods: {
@@ -500,7 +500,7 @@
           this.consultant.email,
           this.consultant.phone,
           this.consultant.tckn,
-          this.consultant.companyId,
+          this.consultant.supplierId,
           this.consultant.jobTitleId,
           this.consultant.experienceSpanId,
         ]

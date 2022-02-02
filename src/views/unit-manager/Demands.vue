@@ -51,7 +51,7 @@
         newDemand: {
           createdById: null,
           costCenterId: null,
-          supplierCompanyId: null,
+          supplierId: null,
           jobTitleId: null,
           experienceSpanId: null,
           monthlyBudget: null,

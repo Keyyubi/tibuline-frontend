@@ -10,11 +10,11 @@
     <v-card-text v-if="budget !== null">
       <v-container class="py-3">
         <v-row>
-          <!-- Company -->
+          <!-- supplier -->
           <v-col cols="4">
             <v-autocomplete
-              v-model="budget.companyId"
-              :items="companies.filter(e => e.isSupplier === true)"
+              v-model="budget.supplierId"
+              :items="suppliers"
               item-text="name"
               item-value="id"
               label="Şirket"
@@ -26,7 +26,7 @@
           <v-col cols="4">
             <v-autocomplete
               v-model="budget.jobTitleId"
-              :items="jobTitles.filter(e => e.companyId === budget.companyId)"
+              :items="jobTitles"
               item-text="name"
               item-value="id"
               label="Ünvan"
@@ -37,7 +37,7 @@
           <v-col cols="4">
             <v-autocomplete
               v-model="budget.experienceSpanId"
-              :items="experienceSpans.filter(e => e.companyId === budget.companyId)"
+              :items="experienceSpans"
               item-text="name"
               item-value="id"
               label="Tecrübe Aralığı"
@@ -178,13 +178,13 @@
     computed: {
       ...get('user', ['user']),
       ...get('budget', ['budgets']),
-      ...get('company', ['companies']),
+      ...get('supplier', ['suppliers']),
       ...get('jobTitle', ['jobTitles']),
       ...get('experienceSpan', ['experienceSpans']),
       invoiceType () {
-        if (this.budget.companyId) {
-          const company = this.companies.find(e => e.id === this.budget.companyId)
-          return company.invoiceType
+        if (this.budget.supplierId) {
+          const supplier = this.suppliers.find(e => e.id === this.budget.supplierId)
+          return supplier.invoiceType
         } else return null
       },
       hourly: {
@@ -196,8 +196,8 @@
           if (newValue && newValue.length > 0) {
             const amount = this.unmaskMoney(newValue)
             this.budget.hourlyBudget = Math.round(amount * 100) / 100
-            this.budget.dailyBudget = Math.round(amount * this.user.company.dailyShiftHours * 100) / 100
-            this.budget.monthlyBudget = Math.round(amount * this.user.company.monthlyWorkHours * 100) / 100
+            this.budget.dailyBudget = Math.round(amount * this.customerCompany.dailyShiftHours * 100) / 100
+            this.budget.monthlyBudget = Math.round(amount * this.customerCompany.monthlyWorkHours * 100) / 100
           }
         },
       },
@@ -210,8 +210,8 @@
           if (newValue && newValue.length > 0) {
             const amount = this.unmaskMoney(newValue)
             this.budget.dailyBudget = Math.round(amount * 100) / 100
-            this.budget.hourlyBudget = Math.round(amount / this.user.company.dailyShiftHours * 100) / 100
-            this.budget.monthlyBudget = Math.round(amount * (this.user.company.monthlyWorkHours / this.user.company.dailyShiftHours) * 100) / 100
+            this.budget.hourlyBudget = Math.round(amount / this.customerCompany.dailyShiftHours * 100) / 100
+            this.budget.monthlyBudget = Math.round(amount * (this.customerCompany.monthlyWorkHours / this.customerCompany.dailyShiftHours) * 100) / 100
           }
         },
       },
@@ -224,8 +224,8 @@
           if (newValue && newValue.length > 0) {
             const amount = this.unmaskMoney(newValue)
             this.budget.monthlyBudget = Math.round(amount * 100) / 100
-            this.budget.hourlyBudget = Math.round(amount / this.user.company.monthlyWorkHours * 100) / 100
-            this.budget.dailyBudget = Math.round(amount / (this.user.company.monthlyWorkHours / this.user.company.dailyShiftHours) * 100) / 100
+            this.budget.hourlyBudget = Math.round(amount / this.customerCompany.monthlyWorkHours * 100) / 100
+            this.budget.dailyBudget = Math.round(amount / (this.customerCompany.monthlyWorkHours / this.customerCompany.dailyShiftHours) * 100) / 100
           }
         },
       },
@@ -239,7 +239,7 @@
       },
       updateBudget () {
         const fields = [
-          this.budget.companyId,
+          this.budget.supplierId,
           this.budget.jobTitleId,
           this.budget.experienceSpanId,
           this.budget.hourlyBudget,
@@ -251,12 +251,6 @@
           this.$store.dispatch(target, this.budget)
           this.$emit('close-dialog')
         }
-      },
-      getCompanyInvoiceType () {
-        if (this.budget.companyId) {
-          const company = this.companies.find(e => e.id === this.budget.companyId)
-          return company.invoiceType
-        } else return null
       },
       isValidNum (evt) {
         evt = (evt) || window.event

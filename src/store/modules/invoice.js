@@ -15,7 +15,7 @@ const actions = {
   createInvoice: (context, payload) => {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
-    payload.formData.append('CompanyId', currUser.companyId)
+    payload.formData.append('SupplierId', currUser.company.id)
 
     axios.post(CreateURL('Invoice/UploadInvoiceDocuments/upload'), payload.formData, {
       headers: {

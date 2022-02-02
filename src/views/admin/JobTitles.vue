@@ -59,10 +59,6 @@
                 </v-icon>
               </v-chip>
             </template>
-            <!-- eslint-disable-next-line -->
-            <template v-slot:item.companyId="{ item }">
-              {{ companies.find(e => e.id === item.companyId) ? companies.find(e => e.id === item.companyId).name : 'Bulunamadı' }}
-            </template>
           </v-data-table>
         </v-card>
         <v-dialog
@@ -97,17 +93,6 @@
                         v-model="selectedJobTitle.name"
                         label="Ünvan"
                         :rules="[v => !!v || 'Bu alan boş geçilemez.']"
-                        required
-                      />
-                    </v-col>
-                    <v-col>
-                      <v-autocomplete
-                        v-model="selectedJobTitle.companyId"
-                        :items="companies"
-                        item-text="name"
-                        item-value="id"
-                        label="Şirket"
-                        :rules="[v => v > 0 || 'Bu alan boş geçilemez.']"
                         required
                       />
                     </v-col>
@@ -173,22 +158,6 @@
                   required
                 />
               </v-col>
-
-              <v-col
-                cols="12"
-                md="6"
-              >
-                <v-autocomplete
-                  v-model="newJobTitle.companyId"
-                  :items="companies"
-                  item-text="name"
-                  item-value="id"
-                  label="Şirket"
-                  :rules="[v => v > 0 || 'Bu alan boş geçilemez.']"
-                  required
-                />
-              </v-col>
-
               <v-col
                 cols="12"
                 md="6"
@@ -222,7 +191,7 @@
         searchWord: '',
         dialog: false,
         selectedJobTitle: {},
-        newJobTitle: { abbreviation: '', name: '', companyId: null },
+        newJobTitle: { abbreviation: '', name: '' },
         headers: [
           {
             text: 'Güncelle',
@@ -231,17 +200,14 @@
           },
           { text: 'Kısaltma', value: 'abbreviation' },
           { text: 'Ünvan', value: 'name' },
-          { text: 'Şirket', value: 'companyId' },
         ],
       }
     },
     computed: {
-      ...get('company', ['companies']),
       ...get('jobTitle', ['jobTitles']),
     },
     mounted () {
       this.$store.dispatch('jobTitle/getJobTitles')
-      this.$store.dispatch('company/getSupplierCompanies')
     },
     methods: {
       uppercase () {

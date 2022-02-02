@@ -28,8 +28,8 @@
           </v-icon>
         </v-chip>
       </template>
-      <template v-slot:item.companyId="{ item }">
-        {{ getCompanyName(item.companyId) }}
+      <template v-slot:item.supplierId="{ item }">
+        {{ getSupplierName(item.supplierId) }}
       </template>
     </v-data-table>
 
@@ -70,7 +70,7 @@
           { text: 'Kullanıcı Adı', value: 'username' },
           { text: 'Adı', value: 'firstname' },
           { text: 'Soyadı', value: 'lastname' },
-          { text: 'Şirket', value: 'companyId' },
+          { text: 'Şirket', value: 'supplierId' },
           { text: 'Telefon', value: 'phoneNumber' },
           { text: 'Email', value: 'email' },
         ],
@@ -78,20 +78,20 @@
       }
     },
     computed: {
-      ...get('company', ['companies']),
+      ...get('supplier', ['suppliers']),
       ...get('user', ['users']),
     },
     mounted () {
-      this.$store.dispatch('company/getCompanies')
+      this.$store.dispatch('supplier/getSuppliers')
     },
     methods: {
       showUser (user) {
         this.selectedUser = { ...user }
         this.dialog = true
       },
-      getCompanyName (id) {
-        const company = this.companies.find(e => e.id === id)
-        return company ? company.name : 'Şirket bilgisi bulunamadı.'
+      getSupplierName (id) {
+        const supplier = this.companies.find(e => e.id === id)
+        return supplier ? supplier.name : 'Şirket bilgisi bulunamadı.'
       },
     },
   }

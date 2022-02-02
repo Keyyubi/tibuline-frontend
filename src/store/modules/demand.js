@@ -58,7 +58,7 @@ const actions = {
     const currUser = store.get('user/user')
     const url = role === ROLE_IDS.UNIT_MANAGER
       ? CreateURL(`Demand/GetDemandsByCreatedBy/${currUser.id}`)
-      : CreateURL(`Demand/GetDemandsBySupplierCompany/${currUser.companyId}`)
+      : CreateURL(`Demand/GetDemandsBySupplierId/${currUser.company.id}`)
 
     axios.get(url, GetPostHeaders(currUser.token))
       .then(({ data: res }) => {

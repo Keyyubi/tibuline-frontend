@@ -230,7 +230,6 @@
       ...get('costCenter', ['costCenters']),
     },
     mounted () {
-      this.$store.dispatch('company/getCompanies')
       if (this.user.roleId === Roles.UNIT_MANAGER) {
         this.project.assignedToId = this.user.id
       } else {

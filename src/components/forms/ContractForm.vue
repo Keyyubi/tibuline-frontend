@@ -1,7 +1,7 @@
 <template>
   <v-container class="py-3">
     <v-row>
-      <!-- Supplier Company -->
+      <!-- Supplier -->
       <v-col
         cols="12"
         md="6"
@@ -255,13 +255,13 @@
     },
     mounted () {
       this.$store.dispatch('consultant/getConsultants')
-      this.$store.dispatch('contract/getContractsByCompanyId')
+      this.$store.dispatch('contract/getContractsBySupplierId')
 
       if (this.formType !== 'create') {
         this.starting = this.getLocaleDate(this.contract.startDate)
         this.ending = this.getLocaleDate(this.contract.endDate)
       } else {
-        this.contract.supplierCompanyId = this.user.company.id
+        this.contract.supplierId = this.user.company.id
       }
     },
     methods: {

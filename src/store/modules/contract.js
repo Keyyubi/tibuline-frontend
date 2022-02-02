@@ -62,11 +62,11 @@ const actions = {
         store.set('app/isLoading', false)
       })
   },
-  getContractsByCompanyId: (context, payload) => {
+  getContractsBySupplierId: (context, payload) => {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
 
-    axios.get(CreateURL(`Contract/GetContractsBySupplierCompany/${currUser.companyId}`), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`Contract/GetContractsBySupplierSupplier/${currUser.company.id}`), GetPostHeaders(currUser.token))
       .then(({ data: res }) => {
         store.set('contract/contracts', res.data)
       })
@@ -80,7 +80,7 @@ const actions = {
   uploadContract: (context, payload) => {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
-    payload.formData.append('CompanyId', currUser.companyId)
+    payload.formData.append('SupplierId', currUser.company.id)
 
     axios.post(CreateURL('Contract/UploadContractDocuments/upload'), payload.formData, {
       headers: {

@@ -112,7 +112,7 @@
       ...get('experienceSpan', ['experienceSpans']),
       ...get('jobTitle', ['jobTitles']),
       ...get('project', ['projects']),
-      ...get('company', ['companies']),
+      ...get('supplier', ['suppliers']),
       ...get('contract', ['contracts']),
       headers () {
         const arr = [
@@ -137,18 +137,16 @@
       },
     },
     mounted () {
+      this.$store.dispatch('jobTitle/getJobTitles')
+      this.$store.dispatch('experienceSpan/getExperienceSpans')
       if (this.user.roleId === Roles.UNIT_MANAGER) {
-        this.$store.dispatch('jobTitle/getJobTitles')
-        this.$store.dispatch('experienceSpan/getExperienceSpans')
         this.$store.dispatch('project/getProjectsByAssignedTo')
-        this.$store.dispatch('company/getSupplierCompanies')
+        this.$store.dispatch('supplier/getSuppliers')
       } else if (this.user.roleId === Roles.SUPPLIER) {
-        this.$store.dispatch('jobTitle/getJobTitlesByCompanyId', this.user.companyId)
-        this.$store.dispatch('experienceSpan/getExperienceSpansByCompanyId', this.user.companyId)
         this.$store.dispatch('user/getUnitManagers')
         this.$store.dispatch('project/getProjects')
         this.$store.dispatch('consultant/getConsultants')
-        this.$store.dispatch('contract/getContractsByCompanyId')
+        this.$store.dispatch('contract/getContractsBySupplierId')
       }
 
       this.$store.dispatch('demand/getDemandsWithDetails', this.user.roleId)
@@ -166,7 +164,7 @@
       getColumnLabel (item) {
         try {
           if (this.user.roleId === Roles.UNIT_MANAGER) {
-            const result = this.companies.find(supplier => supplier.id === item.supplierCompanyId)
+            const result = this.companies.find(supplier => supplier.id === item.supplierId)
             return result.name.slice(0, 30) + '...'
           } else if (this.user.roleId === Roles.SUPPLIER) {
             const result = this.users.find(manager => manager.id === item.createdById)

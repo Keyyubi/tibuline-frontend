@@ -1,6 +1,6 @@
 <template>
   <v-container
-    id="companies-view"
+    id="suppliers-view"
     fluid
     tag="section"
   >
@@ -13,11 +13,11 @@
     >
       <v-tabs-slider />
 
-      <v-tab href="#companies">
+      <v-tab href="#suppliers">
         Şirketler
         <v-icon>mdi-domain</v-icon>
       </v-tab>
-      <v-tab href="#newCompany">
+      <v-tab href="#newSupplier">
         Yeni Şirket Oluştur
         <v-icon>mdi-book-plus-multiple</v-icon>
       </v-tab>
@@ -26,7 +26,7 @@
     <div class="py3" />
 
     <v-tabs-items v-model="currentTab">
-      <v-tab-item value="companies">
+      <v-tab-item value="suppliers">
         <v-card>
           <v-card-title>
             <v-row>
@@ -42,7 +42,7 @@
 
           <v-data-table
             :headers="headers"
-            :items="companies"
+            :items="suppliers"
             :search="searchWord"
           >
             <!-- eslint-disable-next-line -->
@@ -51,7 +51,7 @@
                 class="ma-2"
                 color="primary"
                 dark
-                @click="showCompany(item)"
+                @click="showSupplier(item)"
               >
                 <b>Güncelle</b>
                 <v-icon right>
@@ -75,16 +75,16 @@
           width="960"
           :retain-focus="false"
         >
-          <company-form
+          <supplier-form
             form-type="update"
-            :company="selectedCompany"
+            :supplier="selectedSupplier"
             @close-dialog="dialog = false"
           />
         </v-dialog>
       </v-tab-item>
 
-      <v-tab-item value="newCompany">
-        <company-form />
+      <v-tab-item value="newSupplier">
+        <supplier-form />
       </v-tab-item>
     </v-tabs-items>
   </v-container>
@@ -93,13 +93,13 @@
 <script>
   import { get } from 'vuex-pathify'
   export default {
-    name: 'Companies',
+    name: 'Suppliers',
     data () {
       return {
-        currentTab: 'companies',
+        currentTab: 'suppliers',
         searchWord: '',
         dialog: false,
-        selectedCompany: {},
+        selectedSupplier: {},
         headers: [
           {
             text: 'Güncelle',
@@ -116,18 +116,18 @@
       }
     },
     computed: {
-      ...get('company', ['companies']),
+      ...get('supplier', ['suppliers']),
     },
     mounted () {
-      this.$store.dispatch('company/getCompanies')
+      this.$store.dispatch('supplier/getSuppliers')
     },
     methods: {
       closeDialog () {
         this.dialog = false
-        this.selectedCompany = {}
+        this.selectedSupplier = {}
       },
-      showCompany (item) {
-        this.selectedCompany = { ...item }
+      showSupplier (item) {
+        this.selectedSupplier = { ...item }
         this.dialog = true
       },
     },

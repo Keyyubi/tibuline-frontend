@@ -61,8 +61,8 @@
             </template>
 
             <!-- eslint-disable-next-line -->
-            <template v-slot:item.companyId="{ item }">
-              {{ getCompanyName(item.companyId) }}
+            <template v-slot:item.supplierId="{ item }">
+              {{ getSupplierName(item.supplierId) }}
             </template>
             <!-- eslint-disable-next-line -->
             <template v-slot:item.jobTitleId="{ item }">
@@ -122,7 +122,7 @@
         dialog: false,
         selectedBudget: {},
         newBudget: {
-          companyId: null,
+          supplierId: null,
           experienceSpanId: null,
           jobTitleId: null,
           hourlyBudget: 0,
@@ -136,7 +136,7 @@
             align: 'start',
             value: 'id',
           },
-          { text: 'Şirket Adı', value: 'companyId' },
+          { text: 'Şirket Adı', value: 'supplierId' },
           { text: 'Ünvan', value: 'jobTitleId' },
           { text: 'Tecrübe Aralığı', value: 'experienceSpanId' },
           { text: 'Saatlik Bütçe', value: 'hourlyBudget' },
@@ -148,12 +148,12 @@
     },
     computed: {
       ...get('budget', ['budgets']),
-      ...get('company', ['companies']),
+      ...get('supplier', ['suppliers']),
       ...get('jobTitle', ['jobTitles']),
       ...get('experienceSpan', ['experienceSpans']),
     },
     mounted () {
-      this.$store.dispatch('company/getCompanies')
+      this.$store.dispatch('supplier/getSuppliers')
       this.$store.dispatch('budget/getBudgets')
       this.$store.dispatch('jobTitle/getJobTitles')
       this.$store.dispatch('experienceSpan/getExperienceSpans')
@@ -169,8 +169,8 @@
         if (result) return result.name
         else return 'Bulunamadı'
       },
-      getCompanyName (id) {
-        const result = this.companies.find(company => company.id === id)
+      getSupplierName (id) {
+        const result = this.suppliers.find(supplier => supplier.id === id)
         if (result) return result.name
         else return 'Bulunamadı'
       },

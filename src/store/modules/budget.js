@@ -63,11 +63,11 @@ const actions = {
         store.set('app/isLoading', false)
       })
   },
-  getBudgetsByCompanyId: (context, payload) => {
+  getBudgetsBySupplierId: (context, payload) => {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
 
-    axios.get(CreateURL(`Budget/GetBudgetsByCompanyId/${payload}`), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`Budget/GetBudgetsBySupplierId/${payload}`), GetPostHeaders(currUser.token))
       .then(({ data: res }) => {
         store.set('budget/budgets', res.data)
       })
@@ -83,7 +83,7 @@ const actions = {
     const currUser = store.get('user/user')
 
     axios.get(
-      CreateURL(`Budget/GetBudgetsByCompanyIdAndExperienceSpanIdAndJobTitleId/${payload.companyId}/${payload.experienceSpanId}/${payload.jobTitleId}`),
+      CreateURL(`Budget/GetBudgetsBySupplierIdAndExperienceSpanIdAndJobTitleId/${payload.supplierId}/${payload.experienceSpanId}/${payload.jobTitleId}`),
       GetPostHeaders(currUser.token))
       .then(({ data: res }) => {
         store.set('budget/invoiceBudget', res.data[0])

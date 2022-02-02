@@ -69,7 +69,7 @@
           firstname: '',
           lastname: '',
           roleId: null,
-          companyId: null,
+          supplierId: null,
         },
       }
     },

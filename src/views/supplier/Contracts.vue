@@ -54,7 +54,7 @@
           filePath: null,
           startDate: null,
           endDate: null,
-          supplierCompanyId: null,
+          supplierId: null,
         },
       }
     },

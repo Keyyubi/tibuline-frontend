@@ -39,12 +39,12 @@
           >
             <v-select
               v-if="user.roleId !== Roles.SUPPLIER"
-              v-model="demand.supplierCompanyId"
+              v-model="demand.supplierId"
               :items="companies.filter(e => e.isSupplier === true)"
               item-text="name"
               item-value="id"
               label="Tedarikçi Firma"
-              @change="selectTarget('supplier', demand.supplierCompanyId)"
+              @change="selectTarget('supplier', demand.supplierId)"
             />
             <v-text-field
               v-else
@@ -76,7 +76,7 @@
           >
             <v-select
               v-model="demand.jobTitleId"
-              :items="jobTitles.filter(e => e.companyId === demand.supplierCompanyId)"
+              :items="jobTitles"
               item-text="name"
               item-value="id"
               label="Ünvan"
@@ -91,7 +91,7 @@
           >
             <v-select
               v-model="demand.experienceSpanId"
-              :items="experienceSpans.filter(e => e.companyId === demand.supplierCompanyId)"
+              :items="experienceSpans"
               item-text="name"
               item-value="id"
               label="Tecrübe Aralığı"
@@ -263,7 +263,7 @@
     computed: {
       ...get('user', ['user', 'users']),
       ...get('budget', ['budgets']),
-      ...get('company', ['companies']),
+      ...get('supplier', ['suppliers']),
       ...get('consultant', ['consultants']),
       ...get('contract', ['contracts']),
       ...get('costCenter', ['costCenters']),
@@ -282,6 +282,8 @@
     },
     mounted () {
       this.$store.dispatch('costCenter/getCostCenters')
+      this.$store.dispatch('jobTitle/getJobTitles')
+      this.$store.dispatch('experienceSpan/getExperienceSpans')
 
       if (this.formType === 'create') {
         this.demand.createdById = this.user.id
@@ -316,7 +318,7 @@
       createDemand () {
         const arr = [
           this.demand.costCenterId,
-          this.demand.supplierCompanyId,
+          this.demand.supplierId,
           this.demand.jobTitleId,
           this.demand.experienceSpanId,
           this.demand.projectId,
@@ -333,9 +335,7 @@
       selectTarget (target, id) {
         switch (target) {
           case 'supplier':
-            this.$store.dispatch('jobTitle/getJobTitlesByCompanyId', id)
-            this.$store.dispatch('experienceSpan/getExperienceSpansByCompanyId', id)
-            this.$store.dispatch('budget/getBudgetsByCompanyId', id)
+            this.$store.dispatch('budget/getBudgetsBySupplierId', id)
             this.calculateBudget()
             break
           case 'jobTitle':
@@ -349,7 +349,7 @@
         }
       },
       calculateBudget () {
-        if (this.demand.supplierCompanyId && this.demand.jobTitleId && this.demand.experienceSpanId) {
+        if (this.demand.supplierId && this.demand.jobTitleId && this.demand.experienceSpanId) {
           const budget = this.budgets.find(e => {
             return e.experienceSpanId === this.demand.experienceSpanId && e.jobTitleId === this.demand.jobTitleId
           })

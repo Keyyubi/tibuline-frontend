@@ -81,19 +81,19 @@
               >
                 <v-list-item two-line>
                   <v-list-item-content>
-                    <v-list-item-title>{{ selectedInvoice.company.name }}</v-list-item-title>
+                    <v-list-item-title>{{ selectedInvoice.supplier.name }}</v-list-item-title>
                     <v-list-item-subtitle>Şirket</v-list-item-subtitle>
                   </v-list-item-content>
                 </v-list-item>
                 <v-list-item two-line>
                   <v-list-item-content>
-                    <v-list-item-title>{{ selectedInvoice.company.address }}</v-list-item-title>
+                    <v-list-item-title>{{ selectedInvoice.supplier.address }}</v-list-item-title>
                     <v-list-item-subtitle>Adres</v-list-item-subtitle>
                   </v-list-item-content>
                 </v-list-item>
                 <v-list-item two-line>
                   <v-list-item-content>
-                    <v-list-item-title>{{ selectedInvoice.company.vkn }}</v-list-item-title>
+                    <v-list-item-title>{{ selectedInvoice.supplier.vkn }}</v-list-item-title>
                     <v-list-item-subtitle>Vergi Numarası</v-list-item-subtitle>
                   </v-list-item-content>
                 </v-list-item>
@@ -203,19 +203,19 @@
     computed: {
       ...get('user', ['user', 'users']),
       ...get('consultant', ['consultants']),
-      ...get('company', ['companies']),
+      ...get('supplier', ['suppliers']),
       ...get('invoice', ['invoices']),
     },
     mounted () {
       this.$store.dispatch('consultant/getAllConsultants')
-      this.$store.dispatch('company/getCompanies')
+      this.$store.dispatch('supplier/getSuppliers')
       this.$store.dispatch('user/getUnitManagers')
       this.$store.dispatch('invoice/getInvoices')
     },
     methods: {
       showInvoice (invoice) {
-        const company = this.companies.find(e => e.id === invoice.supplierCompanyId)
-        this.selectedInvoice = { ...invoice, company }
+        const supplier = this.suppliers.find(e => e.id === invoice.supplierId)
+        this.selectedInvoice = { ...invoice, supplier }
         this.dialog = true
       },
       showInvoiceFile () {
@@ -235,10 +235,10 @@
       moneyMask (amount) {
         return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(amount)
       },
-      getCompanyName (id) {
-        const company = this.companies.find(e => e.id === id)
-        console.log('comp', company)
-        return company ? company.name : 'Şirket bilgisi bulunamadı.'
+      getSupplierName (id) {
+        const supplier = this.suppliers.find(e => e.id === id)
+        console.log('comp', supplier)
+        return supplier ? supplier.name : 'Şirket bilgisi bulunamadı.'
       },
       getUnitManagerName (id) {
         const user = this.users.find(e => e.id === id)
