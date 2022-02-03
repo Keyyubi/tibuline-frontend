@@ -123,6 +123,21 @@
               label="Faturalandırma Türü"
             />
           </v-col>
+
+          <!-- OverShiftMultiplier -->
+          <v-col
+            cols="12"
+            md="4"
+          >
+            <v-text-field
+              v-model="supplier.overtimeMultiplier"
+              label="Fazla mesai çarpanı"
+              append-icon="mdi-sort-clock-descending"
+              type="number"
+              min="1"
+              max="10"
+            />
+          </v-col>
         </v-row>
       </v-container>
     </v-card-text>
@@ -198,7 +213,7 @@
             isSupplier: false,
             fileDirectory: null,
             overtimeMultiplier: null,
-            monthlyWorkHours: null,
+            monthlyShiftHours: null,
           }
         },
       },
@@ -230,19 +245,9 @@
           this.supplier.phone,
           this.supplier.address,
           this.supplier.fileDirectory,
+          this.supplier.invoiceType,
+          this.supplier.overtimeMultiplier,
         ]
-
-        if (this.supplier.isSupplier) {
-          fields.push(this.supplier.invoiceType)
-          this.supplier.dailyShiftHours = 0
-          this.supplier.monthlyWorkHours = 0
-          this.supplier.overtimeMultiplier = 0
-        } else {
-          this.supplier.invoiceType = 0
-          fields.push(this.supplier.dailyShiftHours)
-          fields.push(this.supplier.monthlyWorkHours)
-          fields.push(this.supplier.overtimeMultiplier)
-        }
 
         if (!CheckIsNull(fields)) {
           const target = this.formType === 'create' ? 'supplier/createSupplier' : 'supplier/updateSupplier'
@@ -251,6 +256,8 @@
           this.$store.dispatch(target, payload)
           this.reset()
           this.$emit('close-dialog')
+        } else {
+          this.$store.dispatch('app/showAlert', { message: 'Lütfen tüm alanları dolduruğunuzdan emin olun.', type: 'warning' })
         }
       },
     },

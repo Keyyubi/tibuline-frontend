@@ -67,6 +67,7 @@
               prepend-icon="mdi-currency-try"
               label="Bütçe (Adam/Gün)"
               :disabled="invoiceType !== InvoiceTypes.DAILY"
+              @keypress="isValidNum"
             />
           </v-col>
           <v-col
@@ -88,9 +89,9 @@
           >
             <v-text-field
               v-model="budget.totalBudget"
-              v-mask="currencyMask"
               prepend-icon="mdi-currency-try"
               label="Toplam Bütçe"
+              @keypress="isValidNum"
             />
           </v-col>
         </v-row>
@@ -151,15 +152,6 @@
   import { INVOICE_TYPES as InvoiceTypes } from '@/util/globals'
   import { CheckIsNull } from '@/util/helpers'
   import { get } from 'vuex-pathify'
-  import createNumberMask from 'text-mask-addons/dist/createNumberMask'
-  const currencyMask = createNumberMask({
-    prefix: '',
-    allowDecimal: true,
-    includeThousandsSeparator: true,
-    thousandsSeparatorSymbol: '.',
-    decimalSymbol: ',',
-    allowNegative: false,
-  })
   export default {
     name: 'BudgetForm',
     props: {
@@ -172,11 +164,10 @@
         { id: 1, name: 'Adam/Gün' },
         { id: 2, name: 'Adam/Ay' },
       ],
-      currencyMask,
       InvoiceTypes,
     }),
     computed: {
-      ...get('user', ['user']),
+      ...get('user', ['user', 'customerCompany']),
       ...get('budget', ['budgets']),
       ...get('supplier', ['suppliers']),
       ...get('jobTitle', ['jobTitles']),
@@ -197,7 +188,7 @@
             const amount = this.unmaskMoney(newValue)
             this.budget.hourlyBudget = Math.round(amount * 100) / 100
             this.budget.dailyBudget = Math.round(amount * this.customerCompany.dailyShiftHours * 100) / 100
-            this.budget.monthlyBudget = Math.round(amount * this.customerCompany.monthlyWorkHours * 100) / 100
+            this.budget.monthlyBudget = Math.round(amount * this.customerCompany.monthlyShiftHours * 100) / 100
           }
         },
       },
@@ -211,7 +202,7 @@
             const amount = this.unmaskMoney(newValue)
             this.budget.dailyBudget = Math.round(amount * 100) / 100
             this.budget.hourlyBudget = Math.round(amount / this.customerCompany.dailyShiftHours * 100) / 100
-            this.budget.monthlyBudget = Math.round(amount * (this.customerCompany.monthlyWorkHours / this.customerCompany.dailyShiftHours) * 100) / 100
+            this.budget.monthlyBudget = Math.round(amount * (this.customerCompany.monthlyShiftHours / this.customerCompany.dailyShiftHours) * 100) / 100
           }
         },
       },
@@ -224,8 +215,8 @@
           if (newValue && newValue.length > 0) {
             const amount = this.unmaskMoney(newValue)
             this.budget.monthlyBudget = Math.round(amount * 100) / 100
-            this.budget.hourlyBudget = Math.round(amount / this.customerCompany.monthlyWorkHours * 100) / 100
-            this.budget.dailyBudget = Math.round(amount / (this.customerCompany.monthlyWorkHours / this.customerCompany.dailyShiftHours) * 100) / 100
+            this.budget.hourlyBudget = Math.round(amount / this.customerCompany.monthlyShiftHours * 100) / 100
+            this.budget.dailyBudget = Math.round(amount / (this.customerCompany.monthlyShiftHours / this.customerCompany.dailyShiftHours) * 100) / 100
           }
         },
       },

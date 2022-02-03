@@ -403,8 +403,8 @@
               this.description += `${days} gün mesai -`
               break
             case this.InvoiceTypes.MONTHLY:
-              monthDays = Math.round(this.customerCompany.monthlyWorkHours / this.customerCompany.dailyShiftHours)
-              if (shiftHours >= this.customerCompany.monthlyWorkHours) {
+              monthDays = Math.round(this.customerCompany.monthlyShiftHours / this.customerCompany.dailyShiftHours)
+              if (shiftHours >= this.customerCompany.monthlyShiftHours) {
                 this.description += `1 ay (${monthDays} gün) mesai - `
 
                 this.invoice.amount = this.invoiceBudget.monthlyBudget

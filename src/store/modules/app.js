@@ -77,7 +77,7 @@ const adminItems = [
   {
     title: 'Şirketler',
     icon: 'mdi-domain',
-    to: '/admin/companies/',
+    to: '/admin/suppliers/',
   },
   {
     title: 'Kullanıcılar',

@@ -70,13 +70,20 @@ const actions = {
         }
       })
       .then(loggedUser => {
-        const target = loggedUser.roleId === ROLE_IDS.SUPPLIER ? `Supplier/GetSupplierById/${supplierId}` : 'Company/GetCompanyDetails'
-        axios.get(CreateURL(target), GetPostHeaders(loggedUser.token))
+        axios.get(CreateURL('Company/GetCompanies'), GetPostHeaders(loggedUser.token))
         .then(({ data: res }) => {
+          store.set('user/customerCompany', res.data[0])
           loggedUser = {
             ...loggedUser,
-            company: res.data,
+            company: res.data[0],
           }
+          if (loggedUser.roleId === ROLE_IDS.SUPPLIER) {
+            axios.get(CreateURL(`Supplier/GetSupplierById/${loggedUser.supplierId}`), GetPostHeaders(loggedUser.token))
+              .then(({ data: comp }) => {
+                loggedUser.company = comp.data
+              })
+          }
+
           store.set('user/user', loggedUser)
           context.dispatch('app/updateItems', loggedUser.roleId, { root: true })
           store.set('app/alertMessage', '')
@@ -94,6 +101,7 @@ const actions = {
     })
     .finally(() => setTimeout(() => {
         store.set('app/isLoading', false)
+        store.set('app/alertMessage', '')
       }, 2000))
   },
   logout: () => {
@@ -137,10 +145,44 @@ const actions = {
       .then(() => {
         const arr = store.get('user/users')
         const index = arr.findIndex(e => e.id === payload.id)
-        console.log('paylo', payload)
         arr[index] = payload
 
         store.set('user/users', arr)
+        store.dispatch('app/showAlert', { message: 'Başarıyla güncellendi.', type: 'success' }, { root: true })
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+      })
+  },
+  updateUserAccount: (context, payload) => {
+    store.set('app/isLoading', true)
+
+    axios.put(CreateURL('User/UpdateUser'), payload, GetPostHeaders(store.get('user/user').token))
+      .then(() => {
+        store.set('user/user', payload)
+        store.dispatch('app/showAlert', { message: 'Başarıyla güncellendi.', type: 'success' }, { root: true })
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+      })
+  },
+  updateCompany: (context, payload) => {
+    store.set('app/isLoading', true)
+
+    axios.put(CreateURL('Company/UpdateCompany'), payload, GetPostHeaders(store.get('user/user').token))
+      .then(() => {
+        const user = store.get('user/user')
+        user.company = payload
+        store.set('user/user', user)
+        store.set('user/customerCompany', payload)
         store.dispatch('app/showAlert', { message: 'Başarıyla güncellendi.', type: 'success' }, { root: true })
       })
       .catch(error => {

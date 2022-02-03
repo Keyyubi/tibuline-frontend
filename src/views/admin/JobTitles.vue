@@ -211,7 +211,7 @@
     },
     methods: {
       uppercase () {
-        this.newCostCenter.abbreviation = this.newCostCenter.abbreviation.toUpperCase()
+        this.newJobTitle.abbreviation = this.newJobTitle.abbreviation.toUpperCase()
       },
       editJobTitle (item) {
         this.selectedJobTitle = { ...item }

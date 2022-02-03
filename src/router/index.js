@@ -21,7 +21,10 @@ const router = new Router({
   },
   routes: [
     layout('Default', [
+      // Default Routes
       route('Dashboard'),
+      route('Account', null, 'account'),
+      route('Error', null, 'error'),
 
       // Unit Manager Routes
       route('unit-manager/Demands', null, 'unit-manager/demands'),
@@ -45,7 +48,6 @@ const router = new Router({
        route('admin/JobTitles', null, 'admin/job-titles'),
        route('admin/ExperienceSpans', null, 'admin/experience-spans'),
        route('admin/Budgets', null, 'admin/budgets'),
-       route('admin/Suppliers', null, 'admin/suppliers'),
        route('admin/Invoices', null, 'admin/invoices'),
     ]),
     layout('Login', [

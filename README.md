@@ -255,3 +255,7 @@ Fatura oluşturma süreci, Bütçe ve Şirket bilgilerine bağlıdır. Faturanı
 - Tutar = (*Danışmanın Toplam Çalışması (Ay cinsinden)* X *Aylık Bütçe*) + **Fazla Mesai Tutarı**
 - KDV = Tutar X 18 / 100
 - TOPLAM = Tutar + KDV
+
+# First instance login info
+User: admin@admin.com
+PWD: Admin+.46

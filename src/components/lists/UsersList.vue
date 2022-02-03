@@ -90,7 +90,7 @@
         this.dialog = true
       },
       getSupplierName (id) {
-        const supplier = this.companies.find(e => e.id === id)
+        const supplier = this.suppliers.find(e => e.id === id)
         return supplier ? supplier.name : 'Şirket bilgisi bulunamadı.'
       },
     },

@@ -64,7 +64,7 @@
           username: '',
           email: '',
           password: '',
-          TCKN: '',
+          tckn: '',
           phone: '',
           firstname: '',
           lastname: '',

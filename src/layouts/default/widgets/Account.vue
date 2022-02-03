@@ -24,7 +24,10 @@
       flat
       nav
     >
-      <app-bar-item disabled>
+      <app-bar-item
+        v-if="user.roleId === 0"
+        to="/account"
+      >
         <v-list-item-title>
           <i>{{ user.firstname + ' ' + user.lastname }}</i>
         </v-list-item-title>
@@ -65,8 +68,8 @@
     data: () => ({
       profile: [
         { divider: true },
-        { title: 'Profile' },
-        { title: 'Settings' },
+        { title: 'Hesap Bilgileri' },
+        { title: 'Ayarlar' },
       ],
     }),
     computed: {

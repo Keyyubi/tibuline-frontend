@@ -130,7 +130,7 @@
 
           <!-- Supplier -->
           <v-col
-            v-if="this.user.roleId === 2"
+            v-if="user.roleId === 2"
             cols="12"
             md="4"
           >
