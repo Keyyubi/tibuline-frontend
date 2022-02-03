@@ -40,7 +40,7 @@
             <v-select
               v-if="user.roleId !== Roles.SUPPLIER"
               v-model="demand.supplierId"
-              :items="companies.filter(e => e.isSupplier === true)"
+              :items="suppliers"
               item-text="name"
               item-value="id"
               label="Tedarikçi Firma"
@@ -271,11 +271,7 @@
       ...get('jobTitle', ['jobTitles']),
       ...get('project', ['projects']),
       filteredContracts () {
-        console.log('contracts', this.contracts)
-        const arr = this.contracts.filter(e => e.contractStatus === cStatuses.CREATED)
-        console.log('arr', arr)
-        const first = this.contracts.find(e => e.id === this.demand.contractId)
-        arr.unshift(first)
+        const arr = this.contracts.filter(e => e.contractStatus !== cStatuses.IN_USE)
 
         return arr
       },

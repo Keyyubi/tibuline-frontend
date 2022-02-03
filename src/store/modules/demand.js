@@ -35,7 +35,7 @@ const actions = {
     const { olderContractId } = payload
     delete payload.olderContractId
 
-    axios.put(CreateURL(`Demand/UpdateDemand/${olderContractId}`), payload, GetPostHeaders(store.get('user/user').token))
+    axios.put(CreateURL(`Demand/UpdateDemand/${olderContractId || null}`), payload, GetPostHeaders(store.get('user/user').token))
       .then(() => {
         const arr = store.get('demand/demands')
         const index = arr.findIndex(e => e.id === payload.id)

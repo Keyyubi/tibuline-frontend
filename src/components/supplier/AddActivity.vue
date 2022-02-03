@@ -192,6 +192,32 @@
                             />
                           </v-col>
                         </v-row>
+                        <v-row>
+                          <v-col cols="10">
+                            <v-subheader>Fazla Mesai saati</v-subheader>
+                            <v-slider
+                              v-model="selectedEvent.dayOffHours"
+                              :min="0"
+                              :step="1"
+                              :max="shiftHours"
+                              append-icon="mdi-plus"
+                              prepend-icon="mdi-minus"
+                              :disabled="selectedEvent.activityStatus === Statuses.INVOICED"
+                              @change="setEventTime(selectedEvent)"
+                            />
+                          </v-col>
+                          <v-col
+                            cols="2"
+                            class="mt-4"
+                          >
+                            <v-text-field
+                              v-model="selectedEvent.dayOffHours"
+                              type="number"
+                              :disabled="selectedEvent.activityStatus === Statuses.INVOICED"
+                              required
+                            />
+                          </v-col>
+                        </v-row>
                       </v-container>
                     </v-card-text>
                     <v-divider />

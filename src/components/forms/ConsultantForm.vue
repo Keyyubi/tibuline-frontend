@@ -41,10 +41,17 @@
         md="4"
       >
         <v-select
+          v-if="user.roleId !== Roles.SUPPLIER"
           v-model="consultant.supplierId"
           :items="suppliers"
           item-text="name"
           item-value="id"
+          label="Şirket"
+          disabled
+        />
+        <v-text-field
+           v-else
+          :value="user.company.name"
           label="Şirket"
           disabled
         />
@@ -450,13 +457,14 @@
     }),
     computed: {
       ...get('user', ['user', 'users']),
+      ...get('supplier', ['suppliers']),
       ...get('jobTitle', ['jobTitles']),
       ...get('experienceSpan', ['experienceSpans']),
       ...get('project', ['projects']),
     },
     mounted () {
-      this.$store.dispatch('jobTitle/getJobTitles')
       this.$store.dispatch('user/getUnitManagers')
+      this.$store.dispatch('jobTitle/getJobTitles')
       this.$store.dispatch('experienceSpan/getExperienceSpans')
       this.$store.dispatch('project/getProjects')
 
