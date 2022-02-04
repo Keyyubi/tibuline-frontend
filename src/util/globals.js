@@ -6,14 +6,12 @@ const BASE_URL = 'http://37.9.203.118:4647/api'
 const DEMAND_STATUSES = {
   CREATED: 0,
   REPLIED: 1,
-  REPLIED_WITH_CONTRACT: 2,
-  COMPLITED: 3,
+  COMPLITED: 2,
 }
 const DEMAND_STATUS_LABELS = [
   //! IT's important the arrays order. Will work with keys as indexes
   'Oluşturuldu',
   'Aday yüklendi',
-  'Aday ve sözleşme yüklendi',
   'Tamamlandı',
 ]
 const ACTIVITY_STATUSES = Object.freeze({

@@ -113,7 +113,7 @@
           },
           { text: 'Ünvan / Tecrübe', value: 'titleAndExp', width: '250' },
           { text: 'text', value: 'changable', width: '250' },
-          { text: 'Proje', value: 'projectId', width: '100' },
+          { text: 'Proje', value: 'projectId', width: '150' },
           { text: 'Söz. Baş. Tar.', value: 'startDate', width: '150' },
           { text: 'Söz. Bit. Tar.', value: 'endDate', width: '150' },
           { text: 'E-mail', value: 'email' },
@@ -122,7 +122,7 @@
           { text: 'Durum', value: 'isActive', width: '120' },
         ]
 
-        arr[2].text = this.user.roleId === Roles.UNIT_MANAGER ? 'Yönetici' : 'Tedarikçi'
+        arr[2].text = this.user.roleId === Roles.UNIT_MANAGER ? 'Tedarikçi' : 'Yönetici'
 
         return arr
       },
@@ -180,14 +180,14 @@
       getColumnLabel (item) {
         try {
           if (this.user.roleId === Roles.UNIT_MANAGER) {
-            const result = this.companies.find(supplier => supplier.id === item.supplierId)
+            const result = this.suppliers.find(supplier => supplier.id === item.supplierId)
             return result.name.length > 30 ? result.name.slice(0, 30) + '...' : result.name
-          } else if (this.user.roleId === Roles.SUPPLIER) {
-            const result = this.users.find(manager => manager.id === item.createdById)
+          } else {
+            const result = this.users.find(manager => manager.id === item.unitManagerUserId)
             return result.firstname + ' ' + result.lastname
           }
         } catch {
-          return 'Bulunamadı'
+          return 'Bulunmuyor'
         }
       },
     },

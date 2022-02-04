@@ -24,10 +24,7 @@
       flat
       nav
     >
-      <app-bar-item
-        v-if="user.roleId === 0"
-        to="/account"
-      >
+      <app-bar-item to="/account">
         <v-list-item-title>
           <i>{{ user.firstname + ' ' + user.lastname }}</i>
         </v-list-item-title>

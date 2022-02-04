@@ -170,7 +170,7 @@
               v-if="user.roleId === Roles.SUPPLIER"
               v-model="demand.contractId"
               :items="filteredContracts"
-              :item-text="e => getContractName(e)"
+              :item-text="e => getContractName()"
               item-value="id"
               label="Sözleşme"
             />
@@ -272,12 +272,9 @@
       ...get('project', ['projects']),
       filteredContracts () {
         const arr = this.contracts.filter(e => e.contractStatus !== cStatuses.IN_USE)
-        const first = this.contracts.find(e => e.id === this.demand.contractId)
-
-        if (first) {
-          arr.unshift(first)
+        if (this.demand.contractId) {
+          arr.unshift(this.contracts.find(e => e.id === this.demand.contractId))
         }
-
         return arr
       },
     },
@@ -304,20 +301,10 @@
           return 'Sözleşme bulunmuyor.'
         }
       },
-      getContractName (item = null) {
-        // If item is a contractId then we are setting the item the contractObject
-        // This process is for SUPPLIER ROLE
-        if (!item) {
-          item = this.demand.contract
-          const consultant = this.demand.consultant
-          const res = consultant ? 'Söz. No. ' + item.id + ' - ' + consultant.firstname + ' ' + consultant.lastname : 'Sözleşme bulunmuyor.'
-          return res
-        } else {
-          const contract = this.contracts.find(e => e.id === item)
-          const consultant = this.consultants.find(e => e.id === contract.consultantId)
-          const res = consultant ? 'Söz. No. ' + item + ' - ' + consultant.firstname + ' ' + consultant.lastname : 'Sözleşme bulunmuyor.'
-          return res
-        }
+      getContractName () {
+        return this.demand.contractId
+          ? 'Söz. No. ' + this.demand.contract.id + ' - ' + this.demand.consultant.firstname + ' ' + this.demand.consultant.lastname
+          : 'Sözleşme bulunmuyor.'
       },
       moneyMask (amount) {
         return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(amount)
@@ -380,8 +367,7 @@
         if (this.formType === 'approve') {
           payload.demandStatus = Statuses.COMPLITED
         } else if (this.user.roleId === Roles.SUPPLIER && payload.contractId) {
-          const contract = this.contracts.find(e => e.id === this.demand.contractId)
-          payload.demandStatus = contract.filePath ? Statuses.REPLIED_WITH_CONTRACT : Statuses.REPLIED
+          payload.demandStatus = Statuses.REPLIED
         }
 
         this.$store.dispatch('demand/updateDemand', payload)
