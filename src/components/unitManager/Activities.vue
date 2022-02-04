@@ -1,10 +1,11 @@
 <template>
-  <div class="pa-3">
+  <v-container fluid>
     <v-row class="fill-height">
       <v-col>
         <v-stepper
           v-model="e1"
           vertical
+          :class="e1 !== 1 ? 'pb-0' : ''"
         >
           <v-stepper-header>
             <v-stepper-step
@@ -76,6 +77,42 @@
                     {{ $refs.calendar.title }}
                   </v-toolbar-title>
                   <v-spacer />
+                  <!-- Info Bar -->
+                  <v-sheet v-if="selectedSupplier !== null">
+                    <v-chip
+                      class="ma-2"
+                      color="green"
+                      label
+                      outlined
+                    >
+                      Mesai: {{
+                        selectedSupplier.invoiceType = InvoiceTypes.MONTHLY
+                          ? '1 ay'
+                          : selectedSupplier.invoiceType = InvoiceTypes.DAILY
+                            ? Math.round(totalShiftHours / user.company.dailyShiftHours) + 'gün'
+                            : totalShiftHours + ' saat'
+                      }}
+                    </v-chip>
+
+                    <v-chip
+                      class="ma-2"
+                      color="orange"
+                      label
+                      outlined
+                    >
+                      İzinler: {{ totalDayOffHours }} saat
+                    </v-chip>
+
+                    <v-chip
+                      class="ma-2"
+                      color="red"
+                      label
+                      outlined
+                    >
+                      Fazla Mesai: {{ totalOverShiftHours }} saat
+                    </v-chip>
+                  </v-sheet>
+                  <v-spacer />
                   <v-tooltip left>
                     <template v-slot:activator="{ on, attrs }">
                       <v-chip
@@ -122,39 +159,10 @@
     <!-- Info and Actions Footer -->
     <v-row
       v-if="selectedConsultant != null"
-      class="d-flex justify-space-between"
     >
-      <v-col class="d-flex">
-        <v-chip
-          class="ma-2"
-          color="green"
-          label
-          outlined
-        >
-          Toplam Mesai: {{ totalShiftHours }} Saat
-        </v-chip>
-
-        <v-chip
-          class="ma-2"
-          color="orange"
-          label
-          outlined
-        >
-          Toplam İzinler: {{ totalDayOffHours }} gün
-        </v-chip>
-
-        <v-chip
-          class="ma-2"
-          color="red"
-          label
-          outlined
-        >
-          Toplam Fazla Mesai: {{ totalOverShiftHours }} saat
-        </v-chip>
-      </v-col>
       <v-spacer />
       <!-- Actions -->
-      <v-col class="d-flex justify-flex-end">
+      <v-col>
         <v-btn
           class="white--text mr-3"
           color="green"
@@ -228,12 +236,12 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-  </div>
+  </v-container>
 </template>
 
 <script>
   import { get } from 'vuex-pathify'
-  import { ACTIVITY_STATUSES as Statuses } from '@/util/globals'
+  import { ACTIVITY_STATUSES as Statuses, INVOICE_TYPES as InvoiceTypes } from '@/util/globals'
   export default {
     name: 'Activities',
     data: () => ({
@@ -244,19 +252,24 @@
       confirmationDialog: false,
       reasonOfDeny: '',
       selectedConsultant: null,
+      selectedSupplier: null,
       totalShiftHours: 0,
       totalOverShiftHours: 0,
       totalDayOffHours: 0,
       period: '',
       Statuses,
+      InvoiceTypes,
     }),
     computed: {
+      ...get('user', ['user']),
       ...get('consultant', ['consultants']),
+      ...get('supplier', ['suppliers']),
       ...get('activity', ['activities']),
       ...get('activityPeriod', ['activityPeriods']),
     },
     mounted () {
       this.$store.dispatch('consultant/getConsultantsByManagerId')
+      this.$store.dispatch('supplier/getSuppliers')
     },
     methods: {
       selectConsultant () {
@@ -271,6 +284,7 @@
         this.$store.dispatch('activityPeriod/getActivityPeriodsByConsultantId', this.selectedConsultant.id)
         setTimeout(() => {
           this.calculateTotalHours()
+          this.selectedSupplier = this.suppliers.find(e => e.id === this.selectedConsultant.supplierId)
         }, 500)
         this.e1 = 2
       },
