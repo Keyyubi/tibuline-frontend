@@ -225,9 +225,9 @@ const actions = {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
 
-    axios.get(CreateURL('Company/GetCompany'), GetPostHeaders(currUser.token))
+    axios.get(CreateURL('Company/GetCompanies'), GetPostHeaders(currUser.token))
       .then(({ data: res }) => {
-        store.set('user/customerCompany', res.data)
+        store.set('user/customerCompany', res.data[0])
       })
       .catch(error => {
         console.log('Error', error)

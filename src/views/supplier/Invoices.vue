@@ -36,7 +36,6 @@
                 :item-text="e => e.firstname + ' ' + e.lastname"
                 item-value="id"
                 label="Müşteri"
-                @change="selectManager"
               />
             </v-col>
 
@@ -124,7 +123,7 @@
             >
               <v-list-item two-line>
                 <v-list-item-content>
-                  <v-list-item-title>{{ invoiceBudget ? moneyMask(invoiceBudget.hourlyBudget) : 'Bütçe bilgisi bulunmuyor' }}</v-list-item-title>
+                  <v-list-item-title>{{ invoiceBudget ? moneyMask(invoiceBudget.hourlyBudget || 0) : 'Bütçe bilgisi bulunmuyor' }}</v-list-item-title>
                   <v-list-item-subtitle>Bütçe (Adam/Saat)</v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
@@ -136,7 +135,7 @@
             >
               <v-list-item two-line>
                 <v-list-item-content>
-                  <v-list-item-title>{{ invoiceBudget ? moneyMask(invoiceBudget.dailyBudget) : 'Bütçe bilgisi bulunmuyor' }}</v-list-item-title>
+                  <v-list-item-title>{{ invoiceBudget ? moneyMask(invoiceBudget.dailyBudget || 0) : 'Bütçe bilgisi bulunmuyor' }}</v-list-item-title>
                   <v-list-item-subtitle>Bütçe (Adam/Gün)</v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
@@ -148,7 +147,7 @@
             >
               <v-list-item two-line>
                 <v-list-item-content>
-                  <v-list-item-title>{{ invoiceBudget ? moneyMask(invoiceBudget.monthlyBudget) : 'Bütçe bilgisi bulunmuyor' }}</v-list-item-title>
+                  <v-list-item-title>{{ invoiceBudget ? moneyMask(invoiceBudget.monthlyBudget || 0) : 'Bütçe bilgisi bulunmuyor' }}</v-list-item-title>
                   <v-list-item-subtitle>Bütçe (Adam/Ay)</v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
@@ -160,7 +159,56 @@
             class="my-3"
             align="center"
           >
-            <v-divider class="mr-3" /><span class="grey--text">Fatura Özeti</span><v-divider class="ml-3" />
+            <span class="grey--text">Fatura Özeti</span>
+            <v-divider class="mx-3" />
+            <v-switch
+              v-model="letSystemCalculate"
+              :label="`${letSystemCalculate ? 'Sistem hesaplasın' : 'Kendim giriş yapacağım'}`"
+              color="primary"
+              class="my-0"
+              hide-details
+            />
+          </v-row>
+          <v-row
+            v-if="selectedPeriod && !letSystemCalculate"
+            class="mb-5"
+          >
+            <v-col
+              cols="12"
+              md="4"
+            >
+              <v-text-field
+                v-model="invoiceAmount"
+                prepend-icon="mdi-currency-try"
+                clearable
+                label="Tutar"
+                @keypress="isValidNum(invoiceAmount, ...arguments)"
+              />
+            </v-col>
+            <v-col
+              cols="12"
+              md="4"
+            >
+              <v-text-field
+                v-model="invoiceTaxAmount"
+                prepend-icon="mdi-currency-try"
+                clearable
+                label="Tutar"
+                @keypress="isValidNum(invoiceTaxAmount, ...arguments)"
+              />
+            </v-col>
+            <v-col
+              cols="12"
+              md="4"
+            >
+              <v-text-field
+                v-model="invoiceTotalAmount"
+                prepend-icon="mdi-currency-try"
+                clearable
+                label="Tutar"
+                @keypress="isValidNum(invoiceTotalAmount, ...arguments)"
+              />
+            </v-col>
           </v-row>
           <v-row
             v-if="selectedPeriod"
@@ -320,7 +368,7 @@
         description: '',
         confirmationDialog: false,
         invoiceFile: null,
-        customerCompany: null,
+        letSystemCalculate: true,
 
         invoice: {
           unitManagerUserId: null,
@@ -347,6 +395,42 @@
       ...get('activity', ['activities']),
       ...get('supplier', ['companies']),
       ...get('activityPeriod', ['activityPeriods']),
+      invoiceAmount: {
+        get: function () {
+          return new Intl.NumberFormat('tr-TR').format(this.invoice.amount)
+        },
+        // setter
+        set: function (newValue) {
+          if (newValue && newValue.length > 0) {
+            const amount = this.unmaskMoney(newValue)
+            this.invoice.amount = Math.round(amount * 100) / 100
+          }
+        },
+      },
+      invoiceTaxAmount: {
+        get: function () {
+          return new Intl.NumberFormat('tr-TR').format(this.invoice.taxAmount)
+        },
+        // setter
+        set: function (newValue) {
+          if (newValue && newValue.length > 0) {
+            const amount = this.unmaskMoney(newValue)
+            this.invoice.taxAmount = Math.round(amount * 100) / 100
+          }
+        },
+      },
+      invoiceTotalAmount: {
+        get: function () {
+          return new Intl.NumberFormat('tr-TR').format(this.invoice.totalAmount)
+        },
+        // setter
+        set: function (newValue) {
+          if (newValue && newValue.length > 0) {
+            const amount = this.unmaskMoney(newValue)
+            this.invoice.totalAmount = Math.round(amount * 100) / 100
+          }
+        },
+      },
     },
     mounted () {
       this.$store.dispatch('consultant/getConsultants')
@@ -355,12 +439,22 @@
       this.invoice.supplierId = this.user.company.id
       this.invoice.createdById = this.user.id
     },
-    beforeDestroy () {
-      this.$store.dispatch('experienceSpan/resetStore')
-      this.$store.dispatch('jobTitle/resetStore')
-      this.$store.dispatch('budget/resetStore')
-    },
     methods: {
+      moneyMask (amount) {
+        return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(amount)
+      },
+      unmaskMoney (formattedAmount) {
+        return Number(formattedAmount.replaceAll('.', '').replaceAll(',', '.'))
+      },
+      isValidNum (target, evt) {
+        evt = (evt) || window.event
+        const charCode = (evt.which) ? evt.which : evt.keyCode
+        if ((charCode > 31 && (charCode < 48 || charCode > 57)) && charCode !== 44) {
+          evt.preventDefault()
+        } else if (target.length > 0 && target.includes(',') && target.split(',')[1].length === 2) {
+          evt.preventDefault()
+        } else return true
+      },
       selectConsultant () {
         this.$store.dispatch('experienceSpan/resetStore')
         this.$store.dispatch('jobTitle/resetStore')
@@ -386,8 +480,9 @@
         this.description += 'Dönem: ' + this.selectedPeriod.name.split('-')[1] + '/' + this.selectedPeriod.name.split('-')[0] + '\n'
 
         const shiftHours = this.selectedPeriod.totalShiftHours
+        const dayOffHours = this.selectedPeriod.dayOffHours
+
         let days = 0
-        let monthDays = 0
 
         if (this.invoiceBudget) {
           switch (this.user.company.invoiceType) {
@@ -403,25 +498,26 @@
               this.description += `${days} gün mesai -`
               break
             case this.InvoiceTypes.MONTHLY:
-              monthDays = Math.round(this.customerCompany.monthlyShiftHours / this.customerCompany.dailyShiftHours)
-              if (shiftHours >= this.customerCompany.monthlyShiftHours) {
-                this.description += `1 ay (${monthDays} gün) mesai - `
-
-                this.invoice.amount = this.invoiceBudget.monthlyBudget
-              } else {
-                days = Math.round(shiftHours / this.customerCompany.dailyShiftHours)
-                this.description += `${Math.round(days / monthDays * 100) / 100}  ay (${days} gün) mesai - `
-
-                this.invoice.amount = (days / monthDays) * this.invoiceBudget.monthlyBudget
-              }
+              this.description += '1 ay mesai - '
+              this.invoice.amount = this.invoiceBudget.monthlyBudget
               break
           }
 
-          const overshiftAmount = (this.invoiceBudget.hourlyBudget * this.selectedPeriod.totalOverShiftHours * this.customerCompany.overtimeMultiplier)
+          const overshiftAmount = this.invoiceBudget.hourlyBudget * this.selectedPeriod.totalOverShiftHours * this.customerCompany.overtimeMultiplier
+          const dayOffAmount = this.invoiceBudget.hourlyBudget * this.selectedPeriod.dayOffHours
 
-          this.description += this.moneyMask(this.invoice.amount) + '\n' + this.selectedPeriod.totalOverShiftHours + 'saat fazla mesai - ' + this.moneyMask(overshiftAmount)
+          this.description += this.moneyMask(this.invoice.amount) + '\n'
+
+          if (overshiftAmount > 0) {
+            this.description += this.selectedPeriod.totalOverShiftHours + 'saat fazla mesai - ' + this.moneyMask(overshiftAmount) + '\n'
+          }
+
+          if (dayOffHours > 0) {
+            this.description += `${dayOffHours} saat izin (- ${this.moneyMask(dayOffHours * this.invoiceBudget.hourlyBudget)})`
+          }
 
           this.invoice.amount += overshiftAmount
+          this.invoice.amount -= dayOffAmount
           this.invoice.amount = Math.round(this.invoice.amount * 100) / 100
           this.invoice.taxAmount = this.invoice.amount * 0.18
           this.invoice.totalAmount = this.invoice.amount + this.invoice.taxAmount
@@ -436,9 +532,6 @@
           e.activityStatus = Statuses.INVOICED
           return e
         })
-      },
-      moneyMask (amount) {
-        return amount ? new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(amount) : 'Bütçe bilgisi bulunmuyor'
       },
       createInvoice () {
         this.invoice.description = this.description

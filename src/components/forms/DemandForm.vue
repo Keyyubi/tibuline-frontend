@@ -272,6 +272,11 @@
       ...get('project', ['projects']),
       filteredContracts () {
         const arr = this.contracts.filter(e => e.contractStatus !== cStatuses.IN_USE)
+        const first = this.contracts.find(e => e.id === this.demand.contractId)
+
+        if (first) {
+          arr.unshift(first)
+        }
 
         return arr
       },

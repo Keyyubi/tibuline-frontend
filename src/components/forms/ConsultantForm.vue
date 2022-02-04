@@ -50,7 +50,7 @@
           disabled
         />
         <v-text-field
-           v-else
+          v-else
           :value="user.company.name"
           label="Şirket"
           disabled
