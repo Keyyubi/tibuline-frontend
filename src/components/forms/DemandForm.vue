@@ -294,7 +294,9 @@
     },
     methods: {
       getContractDate (type) {
-        const contract = this.contracts.find(e => e.id === this.demand.contractId)
+        const contract = (this.user.roleId === Roles.UNIT_MANAGER && this.demand.contractId)
+          ? this.demand.contract : this.contracts.find(e => e.id === this.demand.contractId)
+
         if (contract) {
           const arr = type === 'starting' ? contract.startDate.split('T')[0].split('-') : contract.endDate.split('T')[0].split('-')
           return `${arr[2]}/${arr[1]}/${arr[0]}`
@@ -306,11 +308,16 @@
         // If item is a contractId then we are setting the item the contractObject
         // This process is for SUPPLIER ROLE
         if (!item) {
-          item = this.contracts.find(e => e.id === this.demand.contractId)
+          item = this.demand.contract
+          const consultant = this.demand.consultant
+          const res = consultant ? 'Söz. No. ' + item.id + ' - ' + consultant.firstname + ' ' + consultant.lastname : 'Sözleşme bulunmuyor.'
+          return res
+        } else {
+          const contract = this.contracts.find(e => e.id === item)
+          const consultant = this.consultants.find(e => e.id === contract.consultantId)
+          const res = consultant ? 'Söz. No. ' + item + ' - ' + consultant.firstname + ' ' + consultant.lastname : 'Sözleşme bulunmuyor.'
+          return res
         }
-        const consultant = this.consultants.find(e => e.id === item.consultantId)
-        const res = consultant ? 'Söz. No. ' + item.id + ' - ' + consultant.firstname + ' ' + consultant.lastname : 'Sözleşme bulunmuyor.'
-        return res
       },
       moneyMask (amount) {
         return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(amount)

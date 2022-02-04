@@ -120,14 +120,15 @@
             text: 'Talep No.',
             align: 'start',
             value: 'id',
+            width: '130',
           },
-          { text: 'text', value: 'changable' },
-          { text: 'Ünvan', value: 'jobTitleId' },
-          { text: 'Tecrübe', value: 'experienceSpanId' },
-          { text: 'Proje', value: 'projectId' },
-          { text: 'Sözleşme/Aday', value: 'contract' },
-          { text: 'Söz. Baş. Tar.', value: 'contract.startDate' },
-          { text: 'Söz. Bit. Tar.', value: 'contract.endDate' },
+          { text: 'text', value: 'changable', width: '250' },
+          { text: 'Ünvan', value: 'jobTitleId', width: '200' },
+          { text: 'Tecrübe', value: 'experienceSpanId', width: '120' },
+          { text: 'Proje', value: 'projectId', width: '150' },
+          { text: 'Sözleşme/Aday', value: 'contract', width: '200' },
+          { text: 'Söz. Baş. Tar.', value: 'contract.startDate', width: '150' },
+          { text: 'Söz. Bit. Tar.', value: 'contract.endDate', width: '150' },
           { text: 'Talep Durumu', value: 'demandStatus' },
         ]
 
@@ -164,7 +165,7 @@
       getColumnLabel (item) {
         try {
           if (this.user.roleId === Roles.UNIT_MANAGER) {
-            const result = this.companies.find(supplier => supplier.id === item.supplierId)
+            const result = this.suppliers.find(supplier => supplier.id === item.supplierId)
             return result.name.slice(0, 30) + '...'
           } else if (this.user.roleId === Roles.SUPPLIER) {
             const result = this.users.find(manager => manager.id === item.createdById)

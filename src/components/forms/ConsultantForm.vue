@@ -517,13 +517,12 @@
 
           if (this.formType === 'create') {
             this.$store.dispatch('consultant/createConsultant', payload)
-            this.reset()
           } else this.$store.dispatch('consultant/updateConsultant', payload)
           this.$emit('close-dialog')
         }
       },
       reset () {
-        this.consultant.email = this.consultant.phone = this.consultant.TCKN = ''
+        this.consultant.email = this.consultant.phone = this.consultant.tckn = ''
         this.consultant.firstname = this.consultant.lastname = ''
         this.consultant.birthday = this.localeDate = this.date = null
         this.consultant.projectId = this.consultant.unitManagerUserId = null
