@@ -169,6 +169,8 @@
               hide-details
             />
           </v-row>
+
+          <!-- Self Calculation -->
           <v-row
             v-if="selectedPeriod && !letSystemCalculate"
             class="mb-5"
@@ -193,7 +195,7 @@
                 v-model="invoiceTaxAmount"
                 prepend-icon="mdi-currency-try"
                 clearable
-                label="Tutar"
+                label="KDV Tutarı"
                 @keypress="isValidNum(invoiceTaxAmount, ...arguments)"
               />
             </v-col>
@@ -205,11 +207,13 @@
                 v-model="invoiceTotalAmount"
                 prepend-icon="mdi-currency-try"
                 clearable
-                label="Tutar"
+                label="Toplam Tutar"
                 @keypress="isValidNum(invoiceTotalAmount, ...arguments)"
               />
             </v-col>
           </v-row>
+
+          <!-- Invoice Summary -->
           <v-row
             v-if="selectedPeriod"
             class="mb-5"

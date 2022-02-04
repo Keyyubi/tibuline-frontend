@@ -8,11 +8,33 @@
       >
         <v-text-field
           :value="user.company.name"
-          label="Şirket"
+          label="Tedarikçi"
           disabled
         />
       </v-col>
-
+      <!-- Contract Name -->
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <v-text-field
+          :value="contract.name"
+          label="Şözleşme Adı"
+          disabled
+        />
+      </v-col>
+    </v-row>
+    <v-row>
+      <!-- Contract No -->
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <v-text-field
+          v-model="contract.contractNo"
+          label="Şözleşme No."
+        />
+      </v-col>
       <!-- Consultant -->
       <v-col
         cols="12"
@@ -24,6 +46,8 @@
           :item-text="e => e.firstname + ' ' + e.lastname"
           item-value="id"
           label="Danışman"
+          :disabled="formType !== 'create'"
+          @change="setContractName()"
         />
       </v-col>
 
@@ -275,6 +299,10 @@
           this.ending = this.getLocaleDate(this.contract.endDate)
         }
       },
+      setContractName () {
+        const c = this.consultants.find(e => e.id === this.contract.consultantId)
+        this.contract.name = this.contract.contractNo + ' - ' + c.firstname + ' ' + c.lastname
+      },
       getLocaleDate (date) {
         const arr = date.split('T')[0].split('-')
         return `${arr[2]}/${arr[1]}/${arr[0]}`
@@ -319,6 +347,9 @@
         }
       },
       clearForm () {
+        this.contract.consultantId = null
+        this.contract.contractNo = null
+        this.contract.name = null
         this.contract.startDate = null
         this.contract.endDate = null
       },

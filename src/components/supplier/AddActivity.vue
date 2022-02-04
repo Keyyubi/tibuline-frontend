@@ -152,7 +152,7 @@
                               append-icon="mdi-plus"
                               prepend-icon="mdi-minus"
                               :disabled="selectedEvent.activityStatus === Statuses.INVOICED"
-                              @change="setEventTime(selectedEvent)"
+                              @change="setEventTime(selectedEvent, 'shift')"
                             />
                           </v-col>
                           <v-col
@@ -195,7 +195,7 @@
                         </v-row>
                         <v-row>
                           <v-col cols="10">
-                            <v-subheader>Fazla Mesai saati</v-subheader>
+                            <v-subheader>İzin saati</v-subheader>
                             <v-slider
                               v-model="selectedEvent.dayOffHours"
                               :min="0"
@@ -204,7 +204,7 @@
                               append-icon="mdi-plus"
                               prepend-icon="mdi-minus"
                               :disabled="selectedEvent.activityStatus === Statuses.INVOICED"
-                              @change="setEventTime(selectedEvent)"
+                              @change="setEventTime(selectedEvent, 'dayOff')"
                             />
                           </v-col>
                           <v-col
@@ -416,9 +416,17 @@
       sleep (ms) {
         return new Promise(resolve => setTimeout(resolve, ms))
       },
-      setEventTime (event) {
-        event.name = `${event.shiftHours}s mesai ${event.overShiftHours ? ' - ' + event.overShiftHours + 's fazla mesai' : ''}`
-        this.calculateTotalHours()
+      setEventTime (event, type = null) {
+        if (type === 'dayOff') {
+          event.shiftHours = this.customerCompany.dailyShiftHours - event.dayOffHours
+        } else if (type === 'shift') {
+          event.dayOffHours = this.customerCompany.dailyShiftHours - event.shiftHours
+        }
+        let str = `${event.shiftHours}s mesai ${event.overShiftHours}`
+        str += event.overShiftHours ? ' - ' + event.overShiftHours + 's fazla mesai' : ''
+        str += event.dayOffHours ? ' - ' + event.dayOffHours + 's fazla mesai' : ''
+
+        event.name = str
       },
       calculateTotalHours () {
         this.totalShiftHours = 0

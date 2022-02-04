@@ -169,15 +169,15 @@
             <v-autocomplete
               v-if="user.roleId === Roles.SUPPLIER"
               v-model="demand.contractId"
-              :items="contracts"
-              item-text="id"
+              :items="filteredContracts"
+              item-text="name"
               item-value="id"
               label="Sözleşme"
             />
             <v-text-field
               v-else
               label="Sözleşme"
-              :value="getContractName()"
+              :value="demand.contract.name"
               readonly
             />
           </v-col>
@@ -270,6 +270,18 @@
       ...get('experienceSpan', ['experienceSpans']),
       ...get('jobTitle', ['jobTitles']),
       ...get('project', ['projects']),
+      filteredContracts () {
+        const arr = this.contracts.filter(e => e.contractStatus !== cStatuses.IN_USE)
+        if (this.demand.contractId) {
+          const first = this.contracts.find(e => e.id === this.demand.contractId)
+
+          if (first) {
+            arr.unshift(first)
+          }
+        }
+
+        return arr
+      },
     },
     mounted () {
       this.$store.dispatch('costCenter/getCostCenters')
@@ -293,16 +305,6 @@
         } else {
           return 'Sözleşme bulunmuyor.'
         }
-      },
-      getContractName (contract) {
-        // let res = 'Sözleşme bulunmuyor.'
-        // if (this.demand.contractId) {
-        //   res = 'Söz. No. ' + this.demand.contract.id + ' - ' + this.demand.consultant.firstname + ' ' + this.demand.consultant.lastname
-        // } else {
-        //   const consultant = this.consultants.find(e => e.id === contract.consultantId)
-        //   res = consultant ? 'Söz. Aday. - ' + consultant.firstname + ' ' + consultant.lastname : res
-        // }
-        return 'Sözleşme bulunmuyor.' // res
       },
       moneyMask (amount) {
         return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(amount)

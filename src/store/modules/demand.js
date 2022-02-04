@@ -18,8 +18,8 @@ const actions = {
     store.set('app/isLoading', true)
 
     axios.post(CreateURL('Demand/SaveDemand'), payload, GetPostHeaders(store.get('user/user').token))
-      .then(({ data: res }) => {
-        store.set('demand/demands', [...store.get('demand/demands'), res.data])
+      .then(() => {
+        store.set('demand/demands', [...store.get('demand/demands'), payload])
         store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
       })
       .catch(error => {

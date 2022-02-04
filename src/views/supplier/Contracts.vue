@@ -49,6 +49,8 @@
         contractUpload: null,
 
         newContract: {
+          name: null,
+          contractNo: null,
           consultantId: null,
           isActive: false,
           filePath: null,
