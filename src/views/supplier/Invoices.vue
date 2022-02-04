@@ -503,7 +503,7 @@
               break
           }
 
-          const overshiftAmount = this.invoiceBudget.hourlyBudget * this.selectedPeriod.totalOverShiftHours * this.customerCompany.overtimeMultiplier
+          const overshiftAmount = this.invoiceBudget.hourlyBudget * this.selectedPeriod.totalOverShiftHours * this.user.company.overtimeMultiplier
           const dayOffAmount = this.invoiceBudget.hourlyBudget * this.selectedPeriod.dayOffHours
 
           this.description += this.moneyMask(this.invoice.amount) + '\n'

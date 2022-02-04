@@ -126,6 +126,7 @@
                   :event-color="getEventColor"
                   @click:date="openDialog"
                 />
+                <!-- Event Dialog -->
                 <v-dialog
                   v-model="dialog"
                   width="460"
@@ -147,7 +148,7 @@
                               v-model="selectedEvent.shiftHours"
                               :min="0"
                               :step="1"
-                              :max="shiftHours"
+                              :max="customerCompany.dailyShiftHours"
                               append-icon="mdi-plus"
                               prepend-icon="mdi-minus"
                               :disabled="selectedEvent.activityStatus === Statuses.INVOICED"
@@ -173,7 +174,7 @@
                               v-model="selectedEvent.overShiftHours"
                               :min="0"
                               :step="1"
-                              :max="shiftHours"
+                              :max="customerCompany.dailyShiftHours"
                               append-icon="mdi-plus"
                               prepend-icon="mdi-minus"
                               :disabled="selectedEvent.activityStatus === Statuses.INVOICED"
@@ -199,7 +200,7 @@
                               v-model="selectedEvent.dayOffHours"
                               :min="0"
                               :step="1"
-                              :max="shiftHours"
+                              :max="customerCompany.dailyShiftHours"
                               append-icon="mdi-plus"
                               prepend-icon="mdi-minus"
                               :disabled="selectedEvent.activityStatus === Statuses.INVOICED"
@@ -259,7 +260,7 @@
           label
           outlined
         >
-          Toplam Mesai: {{ totalWorkHours }} Saat
+          Toplam Mesai: {{ totalShiftHours }} Saat
         </v-chip>
 
         <v-chip
@@ -268,7 +269,7 @@
           label
           outlined
         >
-          Toplam İzinler: {{ totalDaysOff }} gün
+          Toplam İzinler: {{ totalDayOffHours }} Saat
         </v-chip>
 
         <v-chip
@@ -277,7 +278,7 @@
           label
           outlined
         >
-          Toplam Fazla Mesai: {{ totalExtraHours }} saat
+          Toplam Fazla Mesai: {{ totalOverShiftHours }} saat
         </v-chip>
       </v-col>
       <v-spacer />
@@ -286,7 +287,6 @@
           class="white--text mr-3"
           color="green"
           depressed
-          :disabled="activities.length === 0"
           @click="showConfirmation('send')"
         >
           Onaya Gönder
@@ -295,7 +295,6 @@
           color="error"
           dark
           depressed
-          :disabled="activities.length === 0"
           @click="showConfirmation('delete')"
         >
           Tüm Aktiviteleri Sil
@@ -360,14 +359,13 @@
       reasonOfDeny: '',
       selectedEvent: {},
       selectedConsultant: null,
-      totalWorkHours: 0,
-      totalExtraHours: 0,
-      totalDaysOff: 0,
-      shiftStartAt: 9, // 0-23 as o'clock of the day
-      shiftHours: 8, // as working hours
+      totalShiftHours: 0,
+      totalOverShiftHours: 0,
+      totalDayOffHours: 0,
       Statuses,
     }),
     computed: {
+      ...get('user', ['customerCompany']),
       ...get('activity', ['activities']),
       ...get('consultant', ['consultants']),
     },
@@ -383,13 +381,15 @@
           yearMonth,
         }
         this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonth', { ...payload })
-        this.calculateTotalHours()
+        setTimeout(() => {
+          this.calculateTotalHours()
+        }, 500)
         this.e1 = 2
       },
       getEventColor (event) {
         return event.color
       },
-      newShiftEvent (date, name = `${this.shiftHours}s mesai`, shiftHours = this.shiftHours, overShiftHours = 0) {
+      newShiftEvent (date, name = `${this.customerCompany.dailyShiftHours}s mesai`, shiftHours = this.customerCompany.dailyShiftHours, overShiftHours = 0) {
         const yearMonth = `${date.split('-')[0]}-${date.split('-')[1]}`
         const consultantId = this.selectedConsultant.id
 
@@ -421,21 +421,19 @@
         this.calculateTotalHours()
       },
       calculateTotalHours () {
-        this.totalWorkHours = 0
-        this.totalExtraHours = 0
-        this.totalDaysOff = 0
+        this.totalShiftHours = 0
+        this.totalOverShiftHours = 0
+        this.totalDayOffHours = 0
 
         const end = this.$refs.calendar.lastEnd
 
         for (let i = 0; i < end.day; i++) {
-          const date = `${end.year}-${end.month}-${i < 9 ? '0' + (i + 1) : i + 1}`
+          const date = `${end.year}-${end.month < 9 ? '0' + end.month : end.month}-${i < 9 ? '0' + (i + 1) : i + 1}`
           const event = this.activities.find(e => e.date === date)
           if (event && event.date) {
-            this.totalWorkHours += event.shiftHours
-            this.totalExtraHours += event.overShiftHours
-            if (new Date(date).getDay() !== 0 && new Date(date).getDay() !== 6 && event.shiftHours === 0 && event.overShiftHours === 0) {
-              this.totalDaysOff++
-            }
+            this.totalShiftHours += event.shiftHours
+            this.totalOverShiftHours += event.overShiftHours
+            this.totalDayOffHours += event.dayOffHours
           }
         }
       },
@@ -453,7 +451,7 @@
               this.confirmationDialog = true
               break
             case 'fill-monthly':
-              this.confirmationMsg = `Varolan aktiviteler ${this.shiftHours} saat olarak güncellenecektir. Onaylıyor musunuz?`
+              this.confirmationMsg = `Varolan aktiviteler ${this.customerCompany.dailyShiftHours} saat olarak güncellenecektir. Onaylıyor musunuz?`
               this.confirmationDialog = true
               break
           }
@@ -478,7 +476,7 @@
           const startDate = new Date(end.year, end.month - 1, i + 1)
 
           if (startDate.getDay() !== 0 && startDate.getDay() !== 6) {
-            this.$store.dispatch('activity/createActivity', this.newShiftEvent(date, `${this.shiftHours}s mesai`))
+            this.$store.dispatch('activity/createActivity', this.newShiftEvent(date, `${this.customerCompany.dailyShiftHours}s mesai`))
           }
         }
 

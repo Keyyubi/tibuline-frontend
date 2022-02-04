@@ -79,8 +79,6 @@ const actions = {
       })
   },
   updateActivity: (context, payload) => {
-    store.set('app/isLoading', true)
-
     axios.put(CreateURL('Activity/UpdateActivity'), payload, GetPostHeaders(store.get('user/user').token))
       .then(() => {
         const arr = store.get('activity/activities')
@@ -92,9 +90,6 @@ const actions = {
       .catch(error => {
         console.log('Error', error)
         store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
       })
   },
   getActivity: () => {

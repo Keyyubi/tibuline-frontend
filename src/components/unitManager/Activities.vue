@@ -131,7 +131,7 @@
           label
           outlined
         >
-          Toplam Mesai: {{ totalWorkHours }} Saat
+          Toplam Mesai: {{ totalShiftHours }} Saat
         </v-chip>
 
         <v-chip
@@ -140,7 +140,7 @@
           label
           outlined
         >
-          Toplam İzinler: {{ totalDaysOff }} gün
+          Toplam İzinler: {{ totalDayOffHours }} gün
         </v-chip>
 
         <v-chip
@@ -149,7 +149,7 @@
           label
           outlined
         >
-          Toplam Fazla Mesai: {{ totalExtraHours }} saat
+          Toplam Fazla Mesai: {{ totalOverShiftHours }} saat
         </v-chip>
       </v-col>
       <v-spacer />
@@ -244,17 +244,16 @@
       confirmationDialog: false,
       reasonOfDeny: '',
       selectedConsultant: null,
-      totalWorkHours: 0,
-      totalExtraHours: 0,
-      totalDaysOff: 0,
-      shiftStartAt: 9, // 0-23 as o'clock of the day
-      shiftHours: 8, // as working hours
+      totalShiftHours: 0,
+      totalOverShiftHours: 0,
+      totalDayOffHours: 0,
       period: '',
       Statuses,
     }),
     computed: {
       ...get('consultant', ['consultants']),
       ...get('activity', ['activities']),
+      ...get('activityPeriod', ['activityPeriods']),
     },
     mounted () {
       this.$store.dispatch('consultant/getConsultantsByManagerId')
@@ -269,7 +268,10 @@
           activityStatus: Statuses.PENDING,
         }
         this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonthAndStatus', payload)
-        this.calculateTotalHours()
+        this.$store.dispatch('activityPeriod/getActivityPeriodsByConsultantId', this.selectedConsultant.id)
+        setTimeout(() => {
+          this.calculateTotalHours()
+        }, 500)
         this.e1 = 2
       },
       getEventColor (event) {
@@ -279,16 +281,14 @@
         return new Promise(resolve => setTimeout(resolve, ms))
       },
       calculateTotalHours () {
-        this.totalWorkHours = 0
-        this.totalExtraHours = 0
-        this.totalDaysOff = 0
+        this.totalShiftHours = 0
+        this.totalOverShiftHours = 0
+        this.totalDayOffHours = 0
 
         this.activities.forEach(el => {
-          this.totalWorkHours += el.shiftHours
-          this.totalExtraHours += el.overShiftHours
-          if (new Date(el.date).getDay() !== 0 && new Date(el.date).getDay() !== 6 && el.shiftHours === 0 && el.overShiftHours === 0) {
-            this.totalDaysOff++
-          }
+          this.totalShiftHours += el.shiftHours
+          this.totalOverShiftHours += el.overShiftHours
+          this.totalDayOffHours += el.dayOffHours
         })
       },
       showConfirmation (type) {
@@ -308,18 +308,31 @@
 
         await this.sleep(1000)
 
-        const activityPeriodObj = {
-          name: this.period,
-          consultantId: this.selectedConsultant.id,
-          totalShiftHours: this.totalWorkHours,
-          totalOverShiftHours: this.totalExtraHours,
-          isInvoiced: false,
+        if (status === Statuses.APPROVED) {
+          const isExist = this.activityPeriods.find(e => e.name === this.period && e.consultantId === this.selectedConsultant.id)
+
+          const payload = {
+            name: this.period,
+            consultantId: this.selectedConsultant.id,
+            totalShiftHours: this.totalShiftHours,
+            totalOverShiftHours: this.totalOverShiftHours,
+            dayOffHours: this.totalDayOffHours,
+            isInvoiced: false,
+          }
+
+          if (isExist && isExist.name === this.period) {
+            payload.id = isExist.id
+            this.$store.dispatch('activityPeriod/updateActivityPeriod', payload)
+          } else {
+            this.$store.dispatch('activityPeriod/createActivityPeriod', payload)
+          }
+
+          await this.sleep(500)
+        } else {
+          console.log('denied')
         }
 
-        this.$store.dispatch('activityPeriod/createActivityPeriod', activityPeriodObj)
-
-        await this.sleep(500)
-
+        this.confirmationType = ''
         this.selectConsultant()
       },
       async changeDate (type) {
@@ -328,16 +341,7 @@
 
         await this.sleep(250)
 
-        const { date } = this.$refs.calendar.lastEnd
-        this.period = date.split('-')[0] + '-' + date.split('-')[1]
-        const consultantId = this.selectedConsultant.id
-        const activityStatus = Statuses.PENDING
-
-        this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonthAndStatus', { consultantId, yearMonth: this.period, activityStatus })
-
-        setTimeout(() => {
-          this.$store.dispatch('app/setLoading', false)
-        }, 750)
+        this.selectConsultant()
       },
     },
   }
