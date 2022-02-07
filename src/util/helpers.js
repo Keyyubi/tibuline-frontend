@@ -1,4 +1,3 @@
-import { BASE_URL } from './globals'
 export function leadingSlash (str) {
   return str.startsWith('/') ? str : '/' + str
 }
@@ -17,7 +16,7 @@ export const CheckIsNull = (arr) => {
 
   return isNull
 }
-export const CreateURL = (endpoint = '') => BASE_URL + (endpoint.startsWith('/') ? endpoint : '/' + endpoint)
+export const CreateURL = (endpoint = '') => process.env.VUE_APP_ROOT_API + (endpoint.startsWith('/') ? endpoint : '/' + endpoint)
 export const GetPostHeaders = (token) => {
   return {
     headers: {

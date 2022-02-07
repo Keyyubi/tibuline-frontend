@@ -2,8 +2,6 @@ const EN_LOCALE_ONLY = process.env.EN_LOCALE_ONLY === 'true'
 const IN_BROWSER = typeof window !== 'undefined'
 const IS_DEBUG = process.env.DEBUG === 'true'
 const IS_PROD = process.env.NODE_ENV === 'production'
-const BASE_URL = 'http://37.9.203.118:4649/api'// TEST API POINT
-// const BASE_URL = 'http://37.9.203.118:4647/api'// LIVE API POINT
 const DEMAND_STATUSES = {
   CREATED: 0,
   REPLIED: 1,
@@ -83,7 +81,6 @@ module.exports = {
   ROLE_IDS,
   RULES,
   ACTIVITY_STATUSES,
-  BASE_URL,
   INVOICE_TYPES,
   CONTRACT_STATUSES,
 }
