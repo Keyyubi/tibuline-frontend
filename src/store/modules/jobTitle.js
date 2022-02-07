@@ -77,21 +77,6 @@ const actions = {
         store.set('app/isLoading', false)
       })
   },
-  getJobTitlesByCompanyId: (context, payload) => {
-    store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
-
-    axios.get(CreateURL(`JobTitle/GetJobTitlesByCompanyId/${payload}`), GetPostHeaders(currUser.token))
-      .then(({ data: res }) => {
-        store.set('jobTitle/jobTitles', res.data)
-      })
-      .catch(error => {
-        console.log('Error', error)
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
-  },
   resetStore: () => {
     store.set('jobTitle/jobTitles', [])
   },

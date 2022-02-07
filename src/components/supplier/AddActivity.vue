@@ -38,6 +38,7 @@
                 :item-text="e => e.firstname + ' ' + e.lastname"
                 item-value="id"
                 label="Danışman"
+                return-object
                 @change="selectConsultant"
               />
             </v-stepper-content>
@@ -87,19 +88,16 @@
                     Aylık Aktiviteleri Doldur
                   </v-btn>
                   <v-spacer />
-                  <v-tooltip
-                    v-if="selectedConsultant != null"
-                    left
-                  >
+                  <v-tooltip left>
                     <template v-slot:activator="{ on, attrs }">
                       <v-chip
                         class="ma-2"
                         color="primary"
                         v-bind="attrs"
                         v-on="on"
-                        @click="e1=1"
+                        @click="e1=1; selectedConsultant = null"
                       >
-                        {{ consultants.find(e => e.id === selectedConsultant).firstname + ' ' + consultants.find(e => e.id === selectedConsultant).lastname }}
+                        {{ selectedConsultant ? selectedConsultant.firstname + ' ' + selectedConsultant.lastname : '' }}
                         <v-icon
                           class="ml-4"
                           size="18"
@@ -128,6 +126,7 @@
                   :event-color="getEventColor"
                   @click:date="openDialog"
                 />
+                <!-- Event Dialog -->
                 <v-dialog
                   v-model="dialog"
                   width="460"
@@ -149,11 +148,11 @@
                               v-model="selectedEvent.shiftHours"
                               :min="0"
                               :step="1"
-                              :max="shiftHours"
+                              :max="customerCompany.dailyShiftHours"
                               append-icon="mdi-plus"
                               prepend-icon="mdi-minus"
                               :disabled="selectedEvent.activityStatus === Statuses.INVOICED"
-                              @change="setEventTime(selectedEvent)"
+                              @change="setEventTime(selectedEvent, 'shift')"
                             />
                           </v-col>
                           <v-col
@@ -175,7 +174,7 @@
                               v-model="selectedEvent.overShiftHours"
                               :min="0"
                               :step="1"
-                              :max="shiftHours"
+                              :max="customerCompany.dailyShiftHours"
                               append-icon="mdi-plus"
                               prepend-icon="mdi-minus"
                               :disabled="selectedEvent.activityStatus === Statuses.INVOICED"
@@ -188,6 +187,32 @@
                           >
                             <v-text-field
                               v-model="selectedEvent.overShiftHours"
+                              type="number"
+                              :disabled="selectedEvent.activityStatus === Statuses.INVOICED"
+                              required
+                            />
+                          </v-col>
+                        </v-row>
+                        <v-row>
+                          <v-col cols="10">
+                            <v-subheader>İzin saati</v-subheader>
+                            <v-slider
+                              v-model="selectedEvent.dayOffHours"
+                              :min="0"
+                              :step="1"
+                              :max="customerCompany.dailyShiftHours"
+                              append-icon="mdi-plus"
+                              prepend-icon="mdi-minus"
+                              :disabled="selectedEvent.activityStatus === Statuses.INVOICED"
+                              @change="setEventTime(selectedEvent, 'dayOff')"
+                            />
+                          </v-col>
+                          <v-col
+                            cols="2"
+                            class="mt-4"
+                          >
+                            <v-text-field
+                              v-model="selectedEvent.dayOffHours"
                               type="number"
                               :disabled="selectedEvent.activityStatus === Statuses.INVOICED"
                               required
@@ -235,7 +260,7 @@
           label
           outlined
         >
-          Toplam Mesai: {{ totalWorkHours }} Saat
+          Toplam Mesai: {{ totalShiftHours }} Saat
         </v-chip>
 
         <v-chip
@@ -244,7 +269,7 @@
           label
           outlined
         >
-          Toplam İzinler: {{ totalDaysOff }} gün
+          Toplam İzinler: {{ totalDayOffHours }} Saat
         </v-chip>
 
         <v-chip
@@ -253,7 +278,7 @@
           label
           outlined
         >
-          Toplam Fazla Mesai: {{ totalExtraHours }} saat
+          Toplam Fazla Mesai: {{ totalOverShiftHours }} saat
         </v-chip>
       </v-col>
       <v-spacer />
@@ -324,9 +349,6 @@
   import { ACTIVITY_STATUSES as Statuses } from '@/util/globals'
   export default {
     name: 'AddActivity',
-    props: {
-      activityType: { type: String, default: 'create' },
-    },
     data: () => ({
       focus: '',
       e1: 1,
@@ -337,14 +359,13 @@
       reasonOfDeny: '',
       selectedEvent: {},
       selectedConsultant: null,
-      totalWorkHours: 0,
-      totalExtraHours: 0,
-      totalDaysOff: 0,
-      shiftStartAt: 9, // 0-23 as o'clock of the day
-      shiftHours: 8, // as working hours
+      totalShiftHours: 0,
+      totalOverShiftHours: 0,
+      totalDayOffHours: 0,
       Statuses,
     }),
     computed: {
+      ...get('user', ['customerCompany']),
       ...get('activity', ['activities']),
       ...get('consultant', ['consultants']),
     },
@@ -355,22 +376,22 @@
       selectConsultant () {
         const { date } = this.$refs.calendar.lastEnd
         const yearMonth = date.split('-')[0] + '-' + date.split('-')[1]
-        const activityStatus = this.activityType === 'revised' ? Statuses.REVISED : Statuses.CREATED
         const payload = {
-          consultantId: this.selectedConsultant,
+          consultantId: this.selectedConsultant.id,
           yearMonth,
-          activityStatus,
         }
-        this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonthAndStatus', { ...payload, activityStatus })
-        this.calculateTotalHours()
+        this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonth', { ...payload })
+        setTimeout(() => {
+          this.calculateTotalHours()
+        }, 500)
         this.e1 = 2
       },
       getEventColor (event) {
         return event.color
       },
-      newShiftEvent (date, name = `${this.shiftHours}s mesai`, shiftHours = this.shiftHours, overShiftHours = 0) {
+      newShiftEvent (date, name = `${this.customerCompany.dailyShiftHours}s mesai`, shiftHours = this.customerCompany.dailyShiftHours, overShiftHours = 0) {
         const yearMonth = `${date.split('-')[0]}-${date.split('-')[1]}`
-        const consultantId = this.selectedConsultant
+        const consultantId = this.selectedConsultant.id
 
         return {
           date,
@@ -395,26 +416,32 @@
       sleep (ms) {
         return new Promise(resolve => setTimeout(resolve, ms))
       },
-      setEventTime (event) {
-        event.name = `${event.shiftHours}s mesai ${event.overShiftHours ? ' - ' + event.overShiftHours + 's fazla mesai' : ''}`
-        this.calculateTotalHours()
+      setEventTime (event, type = null) {
+        if (type === 'dayOff') {
+          event.shiftHours = this.customerCompany.dailyShiftHours - event.dayOffHours
+        } else if (type === 'shift') {
+          event.dayOffHours = this.customerCompany.dailyShiftHours - event.shiftHours
+        }
+        let str = `${event.shiftHours}s mesai ${event.overShiftHours}`
+        str += event.overShiftHours ? ' - ' + event.overShiftHours + 's fazla mesai' : ''
+        str += event.dayOffHours ? ' - ' + event.dayOffHours + 's fazla mesai' : ''
+
+        event.name = str
       },
       calculateTotalHours () {
-        this.totalWorkHours = 0
-        this.totalExtraHours = 0
-        this.totalDaysOff = 0
+        this.totalShiftHours = 0
+        this.totalOverShiftHours = 0
+        this.totalDayOffHours = 0
 
         const end = this.$refs.calendar.lastEnd
 
         for (let i = 0; i < end.day; i++) {
-          const date = `${end.year}-${end.month}-${i < 9 ? '0' + (i + 1) : i + 1}`
+          const date = `${end.year}-${end.month < 9 ? '0' + end.month : end.month}-${i < 9 ? '0' + (i + 1) : i + 1}`
           const event = this.activities.find(e => e.date === date)
           if (event && event.date) {
-            this.totalWorkHours += event.shiftHours
-            this.totalExtraHours += event.overShiftHours
-            if (new Date(date).getDay() !== 0 && new Date(date).getDay() !== 6 && event.shiftHours === 0 && event.overShiftHours === 0) {
-              this.totalDaysOff++
-            }
+            this.totalShiftHours += event.shiftHours
+            this.totalOverShiftHours += event.overShiftHours
+            this.totalDayOffHours += event.dayOffHours
           }
         }
       },
@@ -432,7 +459,7 @@
               this.confirmationDialog = true
               break
             case 'fill-monthly':
-              this.confirmationMsg = `Varolan aktiviteler ${this.shiftHours} saat olarak güncellenecektir. Onaylıyor musunuz?`
+              this.confirmationMsg = `Varolan aktiviteler ${this.customerCompany.dailyShiftHours} saat olarak güncellenecektir. Onaylıyor musunuz?`
               this.confirmationDialog = true
               break
           }
@@ -440,7 +467,7 @@
           switch (type) {
             case 'delete':
             case 'send':
-              this.$store.dispatch('app/updateAlertMsg', { message: 'Bu dönem için aktivite bulunmuyor.', type: 'warning' })
+              this.$store.dispatch('app/showAlert', { message: 'Bu dönem için aktivite bulunmuyor.', type: 'warning' })
               break
             case 'fill-monthly':
               this.createMonthly()
@@ -457,7 +484,7 @@
           const startDate = new Date(end.year, end.month - 1, i + 1)
 
           if (startDate.getDay() !== 0 && startDate.getDay() !== 6) {
-            this.$store.dispatch('activity/createActivity', this.newShiftEvent(date, `${this.shiftHours}s mesai`))
+            this.$store.dispatch('activity/createActivity', this.newShiftEvent(date, `${this.customerCompany.dailyShiftHours}s mesai`))
           }
         }
 
@@ -475,6 +502,7 @@
         }
 
         await this.sleep(1000)
+        this.selectConsultant()
         this.$store.dispatch('app/setLoading', false)
       },
       async creteOrUpdateEvent () {
@@ -527,7 +555,7 @@
 
         const { date } = this.$refs.calendar.lastEnd
         const yearMonth = date.split('-')[0] + '-' + date.split('-')[1]
-        const consultantId = this.selectedConsultant
+        const consultantId = this.selectedConsultant.id
 
         this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonth', { consultantId, yearMonth })
 

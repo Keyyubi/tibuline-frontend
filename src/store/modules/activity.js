@@ -4,8 +4,47 @@ import { CreateURL, GetPostHeaders } from '@/util/helpers'
 import store from '../index'
 
 const getMappedActivities = (items = []) => {
+  // const arr = []
+
+  // items.forEach(e => {
+  //   arr.push({
+  //     ...e,
+  //     name: `${e.shiftHours}s mesai`,
+  //     start: new Date(e.date),
+  //     end: new Date(e.date),
+  //     color: 'green',
+  //     timed: false,
+  //   })
+
+  //   if (e.overShiftHours && e.overShiftHours > 0) {
+  //     arr.push({
+  //       ...e,
+  //       name: `${e.overShiftHours}s mesai`,
+  //       start: new Date(e.date),
+  //       end: new Date(e.date),
+  //       color: 'red',
+  //       timed: false,
+  //     })
+  //   }
+
+  //   if (e.dayOffHours && e.dayOffHours > 0) {
+  //     arr.push({
+  //       ...e,
+  //       name: `${e.dayOffHours}s izin`,
+  //       start: new Date(e.date),
+  //       end: new Date(e.date),
+  //       color: 'orange',
+  //       timed: false,
+  //     })
+  //   }
+  // })
+
+  // return arr
+
+  //* OLD SYSTEM
   const arr = items.length > 0 ? items.map(e => {
-    const name = `${e.shiftHours}s mesai ${e.overShiftHours ? ' - ' + e.overShiftHours + 's fazla mesai' : ''}`
+  const name = `${e.shiftHours}s mesai ${e.overShiftHours ? ' - ' + e.overShiftHours + 's fazla mesai' : ''}`
+
     return {
       ...e,
       name,
@@ -15,6 +54,7 @@ const getMappedActivities = (items = []) => {
       timed: false,
     }
   }) : []
+
   return arr
 }
 
@@ -39,22 +79,17 @@ const actions = {
       })
   },
   updateActivity: (context, payload) => {
-    store.set('app/isLoading', true)
-
     axios.put(CreateURL('Activity/UpdateActivity'), payload, GetPostHeaders(store.get('user/user').token))
       .then(() => {
         const arr = store.get('activity/activities')
         const index = arr.findIndex(e => e.id === payload.id)
         arr[index] = payload
         store.set('activity/activities', [...arr])
-        store.dispatch('app/showAlert', { message: 'Başarıyla güncellendi.', type: 'success' }, { root: true })
+        store.dispatch('app/showAlert', { message: 'Aktivite başarıyla güncellendi.', type: 'success' }, { root: true })
       })
       .catch(error => {
         console.log('Error', error)
         store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
       })
   },
   getActivity: () => {

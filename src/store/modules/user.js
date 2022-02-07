@@ -11,6 +11,7 @@ import router from '../../router'
 
 const state = {
   user: {},
+  customerCompany: {},
   users: [],
   dark: false,
   drawer: {
@@ -57,10 +58,10 @@ const actions = {
   login: (context, user) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('/Auth/CreateToken'), { email: user.email, password: user.password })
+    axios.post(CreateURL('Auth/CreateToken'), { email: user.email, password: user.password })
     .then(({ data: res }) => res.data.accessToken)
     .then(token => {
-      axios.get(CreateURL('/User/GetUser'), GetPostHeaders(token))
+      axios.get(CreateURL('User/GetUser'), GetPostHeaders(token))
       .then(({ data: res }) => {
         return {
           ...res.data,
@@ -69,12 +70,20 @@ const actions = {
         }
       })
       .then(loggedUser => {
-        axios.get(CreateURL(`/Company/GetCompanyById/${loggedUser.companyId}`), GetPostHeaders(loggedUser.token))
+        axios.get(CreateURL('Company/GetCompanies'), GetPostHeaders(loggedUser.token))
         .then(({ data: res }) => {
+          store.set('user/customerCompany', res.data[0])
           loggedUser = {
             ...loggedUser,
-            company: res.data,
+            company: res.data[0],
           }
+          if (loggedUser.roleId === ROLE_IDS.SUPPLIER) {
+            axios.get(CreateURL(`Supplier/GetSupplierById/${loggedUser.supplierId}`), GetPostHeaders(loggedUser.token))
+              .then(({ data: comp }) => {
+                loggedUser.company = comp.data
+              })
+          }
+
           store.set('user/user', loggedUser)
           context.dispatch('app/updateItems', loggedUser.roleId, { root: true })
           store.set('app/alertMessage', '')
@@ -99,7 +108,7 @@ const actions = {
     store.set('activity/activities', [])
     store.set('budget/budgets', [])
     store.set('budget/invoiceBudget', {})
-    store.set('company/companies', [])
+    store.set('supplier/suppliers', [])
     store.set('consultant/consultants', [])
     store.set('contract/contracts', [])
     store.set('demand/demands', [])
@@ -137,7 +146,43 @@ const actions = {
         const arr = store.get('user/users')
         const index = arr.findIndex(e => e.id === payload.id)
         arr[index] = payload
-        store.set('user/users', [...arr])
+
+        store.set('user/users', arr)
+        store.dispatch('app/showAlert', { message: 'Başarıyla güncellendi.', type: 'success' }, { root: true })
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+      })
+  },
+  updateUserAccount: (context, payload) => {
+    store.set('app/isLoading', true)
+
+    axios.put(CreateURL('User/UpdateUser'), payload, GetPostHeaders(store.get('user/user').token))
+      .then(() => {
+        store.set('user/user', payload)
+        store.dispatch('app/showAlert', { message: 'Başarıyla güncellendi.', type: 'success' }, { root: true })
+      })
+      .catch(error => {
+        console.log('Error', error)
+        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+      })
+  },
+  updateCompany: (context, payload) => {
+    store.set('app/isLoading', true)
+
+    axios.put(CreateURL('Company/UpdateCompany'), payload, GetPostHeaders(store.get('user/user').token))
+      .then(() => {
+        const user = store.get('user/user')
+        user.company = payload
+        store.set('user/user', user)
+        store.set('user/customerCompany', payload)
         store.dispatch('app/showAlert', { message: 'Başarıyla güncellendi.', type: 'success' }, { root: true })
       })
       .catch(error => {
@@ -168,6 +213,21 @@ const actions = {
     axios.get(CreateURL(`User/GetUsersByRoleId/${ROLE_IDS.SUPPLIER}`), GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('user/users', res.data)
+      })
+      .catch(error => {
+        console.log('Error', error)
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+      })
+  },
+  getCompanyDetails: (context, payload) => {
+    store.set('app/isLoading', true)
+    const currUser = store.get('user/user')
+
+    axios.get(CreateURL('Company/GetCompanies'), GetPostHeaders(currUser.token))
+      .then(({ data: res }) => {
+        store.set('user/customerCompany', res.data[0])
       })
       .catch(error => {
         console.log('Error', error)

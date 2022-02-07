@@ -13,26 +13,26 @@
     >
       <v-tabs-slider />
 
-      <v-tab href="#newContract">
-        Yeni Sözleşme
-        <v-icon>mdi-text-box-plus-outline</v-icon>
-      </v-tab>
-
       <v-tab href="#allContracts">
         Oluşturulan Sözleşmeler
         <v-icon>mdi-text-box-multiple-outline</v-icon>
+      </v-tab>
+
+      <v-tab href="#newContract">
+        Yeni Sözleşme
+        <v-icon>mdi-text-box-plus-outline</v-icon>
       </v-tab>
     </v-tabs>
 
     <div class="py3" />
 
     <v-tabs-items v-model="currentTab">
-      <v-tab-item value="newContract">
-        <contract-form :contract="newContract" />
-      </v-tab-item>
-
       <v-tab-item value="allContracts">
         <all-contracts />
+      </v-tab-item>
+
+      <v-tab-item value="newContract">
+        <contract-form :contract="newContract" />
       </v-tab-item>
     </v-tabs-items>
   </v-container>
@@ -43,18 +43,20 @@
     name: 'ContractsView',
     data () {
       return {
-        currentTab: '',
+        currentTab: 'allContracts',
         menu1: false, // Staring Date Picker
         menu2: false, // Ending Date Picker
         contractUpload: null,
 
         newContract: {
+          name: null,
+          contractNo: null,
           consultantId: null,
           isActive: false,
           filePath: null,
           startDate: null,
           endDate: null,
-          supplierCompanyId: null,
+          supplierId: null,
         },
       }
     },

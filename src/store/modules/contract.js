@@ -47,21 +47,6 @@ const actions = {
         store.set('app/isLoading', false)
       })
   },
-  getContracts: () => {
-    store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
-
-    axios.get(CreateURL('Contract/GetContracts'), GetPostHeaders(currUser.token))
-      .then(({ data: res }) => {
-        store.set('contract/contracts', res.data)
-      })
-      .catch(error => {
-        console.log('Error', error)
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
-  },
   getContractById: (context, payload) => {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
@@ -77,11 +62,11 @@ const actions = {
         store.set('app/isLoading', false)
       })
   },
-  getContractsByCompany: (context, payload) => {
+  getContractsBySupplierId: (context, payload) => {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
 
-    axios.get(CreateURL(`Contract/GetContractsByCompanyId/${payload}`), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`Contract/GetContractsBySupplierId/${currUser.company.id}`), GetPostHeaders(currUser.token))
       .then(({ data: res }) => {
         store.set('contract/contracts', res.data)
       })
@@ -94,31 +79,45 @@ const actions = {
   },
   uploadContract: (context, payload) => {
     store.set('app/isLoading', true)
-    const token = store.get('user/user').token
+    const currUser = store.get('user/user')
+    payload.formData.append('SupplierId', currUser.company.id)
 
-    axios.post(CreateURL('Consultant/UploadConsultantDocuments'), payload.formData, {
+    axios.post(CreateURL('Contract/UploadContractDocuments/upload'), payload.formData, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${currUser.token}`,
         'Content-Type': 'multipart/form-data',
       },
     })
       .then(({ data: res }) => {
-        payload.sending.contractFilePath = res.data
-        axios.put(CreateURL('Consultant/UpdateConsultant'), payload.contractId, GetPostHeaders(token))
-        .then(({ data: res }) => {
-          const arr = store.get('contract/contracts')
-          arr.findIndex(e => e.id === payload.contractId).filePath = res.data
-          store.set('contract/contracts', arr)
-         store.dispatch('app/showAlert', { message: 'Başarıyla yüklendi.', type: 'success' }, { root: true })
-        })
-      })
-      .catch(error => {
-        console.log('Error', error)
-        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
+        payload.contract.filePath = res.data
+
+        axios.put(CreateURL('Contract/UpdateContract'), payload.contract, GetPostHeaders(currUser.token))
+          .then(() => {
+            const arr = store.get('contract/contracts')
+            const index = arr.findIndex(e => e.id === payload.id)
+            arr[index] = payload.contract
+            store.set('contract/contracts', arr)
+          })
+          .then(() => {
+            axios.get(`Consultant/GetConsultantById/${payload.contract.consultantId}`, GetPostHeaders(currUser.token))
+              .then(({ data: res }) => {
+                const consultant = res.data
+                consultant.contractFilePath = payload.contract.filePath
+
+                axios.put(CreateURL('Consultant/UpdateConsultant'), consultant, GetPostHeaders(currUser.token))
+                  .then(() => {
+                    store.dispatch('app/showAlert', { message: 'Başarıyla yüklendi.', type: 'success' }, { root: true })
+                  })
+              })
+            })
+          })
+          .catch(error => {
+            console.log('Error', error)
+            store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
+          })
+          .finally(() => {
+            store.set('app/isLoading', false)
+          })
   },
 }
 

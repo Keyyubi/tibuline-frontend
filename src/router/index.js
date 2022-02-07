@@ -21,14 +21,17 @@ const router = new Router({
   },
   routes: [
     layout('Default', [
+      // Default Routes
       route('Dashboard'),
+      route('Account', null, 'account'),
+      route('Error', null, 'error'),
 
       // Unit Manager Routes
       route('unit-manager/Demands', null, 'unit-manager/demands'),
-      route('unit-manager/Projects', { default: 'admin/Project' }, 'unit-manager/projects'),
+      route('unit-manager/Projects', { default: 'admin/Projects' }, 'unit-manager/projects'),
       route('unit-manager/Consultants', null, 'unit-manager/consultants'),
       route('unit-manager/ActivitiesCosts', null, 'unit-manager/activities-costs'),
-      route('unit-manager/Bills', null, 'unit-manager/bills'),
+      route('unit-manager/Invoices', null, 'unit-manager/invoices'),
 
       // Supplier Routes
       route('supplier/Demands', null, 'supplier/demands'),
@@ -45,8 +48,7 @@ const router = new Router({
        route('admin/JobTitles', null, 'admin/job-titles'),
        route('admin/ExperienceSpans', null, 'admin/experience-spans'),
        route('admin/Budgets', null, 'admin/budgets'),
-       route('admin/Companies', null, 'admin/companies'),
-
+       route('admin/Invoices', null, 'admin/invoices'),
     ]),
     layout('Login', [
       route('Login', null, 'login'),

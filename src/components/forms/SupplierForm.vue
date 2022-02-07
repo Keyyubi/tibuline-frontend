@@ -16,7 +16,7 @@
             md="6"
           >
             <v-text-field
-              v-model="company.name"
+              v-model="supplier.name"
               label="Şirket Adı"
               :rules="[v => !!v || 'Şirket adı boş geçilemez',]"
               required
@@ -29,7 +29,7 @@
             md="6"
           >
             <v-text-field
-              v-model="company.email"
+              v-model="supplier.email"
               label="E-mail"
               :rules="RULES.EMAIL"
               required
@@ -42,7 +42,7 @@
             md="6"
           >
             <v-text-field
-              v-model="company.vkn"
+              v-model="supplier.vkn"
               v-mask="'##########'"
               label="VKN"
               :rules="RULES.VKN"
@@ -56,42 +56,57 @@
             md="6"
           >
             <v-text-field
-              v-model="company.phone"
+              v-model="supplier.phone"
               v-mask="'(###) ### ####'"
               label="Cep Telefonu"
               append-icon="mdi-close"
               prepend-icon="mdi-phone"
               :rules="RULES.PHONE"
               required
-              @click:append="company.phone = ''"
+              @click:append="supplier.phone = ''"
             />
           </v-col>
 
-          <!-- IsSupplier -->
-          <v-col
-            cols="12"
-            md="4"
-          >
-            <v-checkbox
-              v-model="company.isSupplier"
-              :label="`Tedarikçi Firma: ${company.isSupplier ? 'Evet' : 'Hayır'}`"
-              @change="company.dailyShiftHours = 0"
+          <!-- Address -->
+          <v-col cols="12">
+            <v-textarea
+              v-model="supplier.address"
+              label="Adres"
+              rows="1"
+              required
             />
           </v-col>
+        </v-row>
 
-          <!-- DailyShiftHours -->
+        <!-- Invoice and Documents info -->
+        <v-row
+          class="my-3"
+          align="center"
+        >
+          <v-divider class="mr-3" />Fatura ve Dosyalama Bilgileri<v-divider class="ml-3" />
+        </v-row>
+        <v-row>
+          <!-- File Directory Name -->
           <v-col
             cols="12"
             md="4"
+            class="d-flex justify-center align-center"
           >
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  mdi-information-outline
+                </v-icon>
+              </template>
+              <span>Yüklenecek evrakların kaydedilmesi için oluşturulacak klasörün adı.</span>
+            </v-tooltip>
             <v-text-field
-              v-model="company.dailyShiftHours"
-              label="Günlük çalışma saati (İş günü)"
-              append-icon="mdi-clock"
-              type="number"
-              min="0"
-              max="24"
-              :disabled="company.isSupplier"
+              v-model="supplier.fileDirectory"
+              label="Şirket Klasör Adı"
+              required
             />
           </v-col>
 
@@ -101,7 +116,7 @@
             md="4"
           >
             <v-select
-              v-model="company.invoiceType"
+              v-model="supplier.invoiceType"
               :items="billTypes"
               item-text="name"
               item-value="id"
@@ -109,13 +124,18 @@
             />
           </v-col>
 
-          <!-- Address -->
-          <v-col cols="12">
-            <v-textarea
-              v-model="company.address"
-              label="Adres"
-              rows="2"
-              required
+          <!-- OverShiftMultiplier -->
+          <v-col
+            cols="12"
+            md="4"
+          >
+            <v-text-field
+              v-model="supplier.overtimeMultiplier"
+              label="Fazla mesai çarpanı"
+              append-icon="mdi-sort-clock-descending"
+              type="number"
+              min="1"
+              max="10"
             />
           </v-col>
         </v-row>
@@ -124,7 +144,7 @@
     <v-divider />
 
     <!-- Card Actions -->
-    <v-card-actions>
+    <v-card-actions class="pa-4">
       <v-row>
         <v-col
           v-if="formType === 'create'"
@@ -148,7 +168,7 @@
             color="primary"
             width="100%"
             depressed
-            @click="updateCompany"
+            @click="updateSupplier"
           >
             {{ formType === 'create' ? 'Oluştur' : 'Güncelle' }}
           </v-btn>
@@ -176,10 +196,27 @@
   import { RULES } from '@/util/globals'
   import { CheckIsNull } from '@/util/helpers'
   export default {
-    name: 'CompanyForm',
+    name: 'SupplierForm',
     props: {
       formType: { type: String, default: 'create' },
-      company: { type: Object, default: null },
+      supplier: {
+        type: Object,
+        default: () => {
+          return {
+            name: null,
+            email: null,
+            vkn: null,
+            phone: null,
+            address: null,
+            invoiceType: null,
+            dailyShiftHours: null,
+            isSupplier: false,
+            fileDirectory: null,
+            overtimeMultiplier: null,
+            monthlyShiftHours: null,
+          }
+        },
+      },
     },
     data: () => ({
       billTypes: [
@@ -191,30 +228,36 @@
     }),
     methods: {
       reset () {
-        this.company.name = null
-        this.company.email = null
-        this.company.vkn = null
-        this.company.phone = null
-        this.company.address = null
-        this.company.invoiceType = null
-        this.company.dailyShiftHours = null
-        this.company.isSupplier = null
+        this.supplier.name = null
+        this.supplier.email = null
+        this.supplier.vkn = null
+        this.supplier.phone = null
+        this.supplier.address = null
+        this.supplier.invoiceType = null
+        this.supplier.dailyShiftHours = null
+        this.supplier.isSupplier = false
       },
-      updateCompany () {
+      updateSupplier () {
         const fields = [
-          this.company.name,
-          this.company.email,
-          this.company.vkn,
-          this.company.phone,
-          this.company.address,
-          this.company.invoiceType,
+          this.supplier.name,
+          this.supplier.email,
+          this.supplier.vkn,
+          this.supplier.phone,
+          this.supplier.address,
+          this.supplier.fileDirectory,
+          this.supplier.invoiceType,
+          this.supplier.overtimeMultiplier,
         ]
 
         if (!CheckIsNull(fields)) {
-          const target = this.formType === 'create' ? 'company/createCompany' : 'company/updateCompany'
-          this.$store.dispatch(target, this.company)
+          const target = this.formType === 'create' ? 'supplier/createSupplier' : 'supplier/updateSupplier'
+          const payload = { ...this.supplier }
+
+          this.$store.dispatch(target, payload)
           this.reset()
           this.$emit('close-dialog')
+        } else {
+          this.$store.dispatch('app/showAlert', { message: 'Lütfen tüm alanları dolduruğunuzdan emin olun.', type: 'warning' })
         }
       },
     },

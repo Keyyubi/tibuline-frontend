@@ -24,6 +24,12 @@
       flat
       nav
     >
+      <app-bar-item to="/account">
+        <v-list-item-title>
+          <i>{{ user.firstname + ' ' + user.lastname }}</i>
+        </v-list-item-title>
+      </app-bar-item>
+
       <template v-for="(p, i) in profile">
         <v-divider
           v-if="p.divider"
@@ -52,15 +58,20 @@
 </template>
 
 <script>
+  import { get } from 'vuex-pathify'
   export default {
     name: 'DefaultAccount',
 
     data: () => ({
       profile: [
-        { title: 'Profile' },
-        { title: 'Settings' },
+        { divider: true },
+        { title: 'Hesap Bilgileri' },
+        { title: 'Ayarlar' },
       ],
     }),
+    computed: {
+      ...get('user', ['user']),
+    },
     methods: {
       logout () {
         this.$store.dispatch('user/logout')

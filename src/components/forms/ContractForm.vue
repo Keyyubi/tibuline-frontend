@@ -1,18 +1,40 @@
 <template>
   <v-container class="py-3">
     <v-row>
-      <!-- Supplier Company -->
+      <!-- Supplier -->
       <v-col
         cols="12"
         md="6"
       >
         <v-text-field
           :value="user.company.name"
-          label="Şirket"
+          label="Tedarikçi"
           disabled
         />
       </v-col>
-
+      <!-- Contract Name -->
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <v-text-field
+          :value="contract.name"
+          label="Şözleşme Adı"
+          disabled
+        />
+      </v-col>
+    </v-row>
+    <v-row>
+      <!-- Contract No -->
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <v-text-field
+          v-model="contract.contractNo"
+          label="Şözleşme No."
+        />
+      </v-col>
       <!-- Consultant -->
       <v-col
         cols="12"
@@ -20,10 +42,12 @@
       >
         <v-autocomplete
           v-model="contract.consultantId"
-          :items="consultants"
+          :items="filteredConsultants"
           :item-text="e => e.firstname + ' ' + e.lastname"
           item-value="id"
           label="Danışman"
+          :disabled="formType !== 'create'"
+          @change="setContractName()"
         />
       </v-col>
 
@@ -175,9 +199,10 @@
     <v-dialog
       v-model="contractDialog"
       persistent
+      width="460"
     >
       <v-card>
-        <v-card-title>
+        <v-card-title class="text-h5 primary white--text">
           Sözleşme Yükle
         </v-card-title>
         <v-card-text>
@@ -185,6 +210,7 @@
             v-model="contractDocument"
             chips
             label="Sözleşme"
+            accept="image/*, .pdf"
           />
         </v-card-text>
         <v-card-actions>
@@ -202,7 +228,7 @@
             width="50%"
             depressed
             small
-            @click="contractDialog = false"
+            @click="closeContractDialog()"
           >
             Vazgeç
           </v-btn>
@@ -213,6 +239,8 @@
 </template>
 
 <script>
+  import { CONTRACT_STATUSES as Statuses } from '@/util/globals'
+  import { CheckIsNull } from '@/util/helpers'
   import { get } from 'vuex-pathify'
   export default {
     name: 'ContractForm',
@@ -233,15 +261,31 @@
     computed: {
       ...get('user', ['user']),
       ...get('consultant', ['consultants']),
+      ...get('contract', ['contracts']),
+      filteredConsultants () {
+        const arr = this.consultants.filter(e => {
+          if (!this.contracts.find(el => el.consultantId === e.id)) {
+            return e
+          }
+        })
+
+        if (this.formType !== 'create') {
+          const first = this.consultants.find(e => e.id === this.contract.consultantId)
+          arr.unshift(first)
+        }
+
+        return arr
+      },
     },
     mounted () {
       this.$store.dispatch('consultant/getConsultants')
-
-      this.contract.supplierCompanyId = this.user.company.id
+      this.$store.dispatch('contract/getContractsBySupplierId')
 
       if (this.formType !== 'create') {
         this.starting = this.getLocaleDate(this.contract.startDate)
         this.ending = this.getLocaleDate(this.contract.endDate)
+      } else {
+        this.contract.supplierId = this.user.company.id
       }
     },
     methods: {
@@ -255,20 +299,22 @@
           this.ending = this.getLocaleDate(this.contract.endDate)
         }
       },
+      setContractName () {
+        const c = this.consultants.find(e => e.id === this.contract.consultantId)
+        this.contract.name = this.contract.contractNo + ' - ' + c.firstname + ' ' + c.lastname
+      },
       getLocaleDate (date) {
         const arr = date.split('T')[0].split('-')
         return `${arr[2]}/${arr[1]}/${arr[0]}`
       },
       createOrUpdateContract () {
-        let isNull = false
-        const arr = [
+        const fields = [
           this.contract.startDate,
           this.contract.endDate,
           this.contract.consultantId,
         ]
-        arr.forEach(e => { if (!e) isNull = true })
 
-        if (!isNull) {
+        if (!CheckIsNull(fields)) {
           const payload = { ...this.contract }
 
           this.formType === 'create'
@@ -288,16 +334,28 @@
       },
       uploadContract () {
         if (this.contractDocument !== null) {
+          this.contract.contractStatus = Statuses.IN_USE_WITH_FILE
           const formData = new FormData()
-          formData.append('files', this.contractDocument)
-          this.$store.dispatch('contract/uploadContract', { formData, id: this.contract.id })
-          this.contractDialog = false
+          formData.append('Files', this.contractDocument, this.contractDocument.name)
+          this.$store.dispatch('contract/uploadContract', { formData, contract: this.contract })
+          this.$store.dispatch('app/setLoading', true)
+          setTimeout(() => {
+            this.closeContractDialog()
+            this.$store.dispatch('app/setLoading', false)
+          }, 500)
+          this.$emit('close-dialog')
         }
       },
       clearForm () {
-        this.contract.filePath = null
+        this.contract.consultantId = null
+        this.contract.contractNo = null
+        this.contract.name = null
         this.contract.startDate = null
         this.contract.endDate = null
+      },
+      closeContractDialog () {
+        this.contractDocument = null
+        this.contractDialog = false
       },
     },
   }

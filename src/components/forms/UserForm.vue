@@ -128,14 +128,15 @@
             />
           </v-col>
 
-          <!-- Company -->
+          <!-- Supplier -->
           <v-col
+            v-if="user.roleId === 2"
             cols="12"
             md="4"
           >
             <v-select
-              v-model="user.companyId"
-              :items="companies.filter(e => e.isSupplier === (user.roleId === 2))"
+              v-model="user.supplierId"
+              :items="suppliers"
               item-text="name"
               item-value="id"
               label="Şirket"
@@ -209,6 +210,7 @@
       user: { type: Object, default: null },
     },
     data: () => ({
+      showPwd: false,
       roles: [
         { label: 'Tam yetkili', value: 99 },
         { label: 'Sistem yöneticisi', value: 0 },
@@ -218,10 +220,10 @@
       Rules,
     }),
     computed: {
-      ...get('company', ['companies']),
+      ...get('supplier', ['suppliers']),
     },
     mounted () {
-      this.$store.dispatch('company/getCompanies')
+      this.$store.dispatch('supplier/getSuppliers')
     },
     methods: {
       reset () {
@@ -233,20 +235,20 @@
         this.user.firstname = null
         this.user.lastname = null
         this.user.roleId = null
-        this.user.companyId = null
+        this.user.supplierId = null
       },
       updateUser () {
         const fields = [
           this.user.username,
           this.user.email,
-          this.user.password,
           this.user.tckn,
           this.user.phone,
           this.user.firstname,
           this.user.lastname,
           this.user.roleId,
-          this.user.companyId,
         ]
+
+        if (this.formType === 'create') fields.push(this.user.password)
 
         if (!CheckIsNull(fields)) {
           const target = this.formType === 'create' ? 'user/createUser' : 'user/updateUser'

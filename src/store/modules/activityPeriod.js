@@ -31,7 +31,7 @@ const actions = {
         const index = arr.findIndex(e => e.id === payload.id)
         arr[index] = payload
         store.set('activityPeriod/activityPeriods', [...arr])
-        store.dispatch('app/showAlert', { message: 'Başarıyla güncellendi.', type: 'success' }, { root: true })
+        store.dispatch('app/showAlert', { message: 'Aktivite dönemi başarıyla güncellendi.', type: 'success' }, { root: true })
       })
       .catch(error => {
         console.log('Error', error)

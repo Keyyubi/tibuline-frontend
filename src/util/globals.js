@@ -2,18 +2,17 @@ const EN_LOCALE_ONLY = process.env.EN_LOCALE_ONLY === 'true'
 const IN_BROWSER = typeof window !== 'undefined'
 const IS_DEBUG = process.env.DEBUG === 'true'
 const IS_PROD = process.env.NODE_ENV === 'production'
-const BASE_URL = 'http://37.9.203.118:4647/api'
+const BASE_URL = 'http://37.9.203.118:4649/api'// TEST API POINT
+// const BASE_URL = 'http://37.9.203.118:4647/api'// LIVE API POINT
 const DEMAND_STATUSES = {
   CREATED: 0,
   REPLIED: 1,
-  REPLIED_WITH_CONTRACT: 2,
-  COMPLITED: 3,
+  COMPLITED: 2,
 }
 const DEMAND_STATUS_LABELS = [
   //! IT's important the arrays order. Will work with keys as indexes
   'Oluşturuldu',
-  'Aday yüklendi, sözleşme bekliyor',
-  'Aday ve sözleşme yüklendi',
+  'Aday yüklendi',
   'Tamamlandı',
 ]
 const ACTIVITY_STATUSES = Object.freeze({
@@ -22,6 +21,12 @@ const ACTIVITY_STATUSES = Object.freeze({
   REVISED: 2,
   APPROVED: 3,
   INVOICED: 4,
+})
+const CONTRACT_STATUSES = Object.freeze({
+  CREATED: 0,
+  IN_USE: 1,
+  IN_USE_WITH_FILE: 2,
+  TERMINATED: 3,
 })
 const ROLE_IDS = Object.freeze({
   ADMIN: 0,
@@ -80,4 +85,5 @@ module.exports = {
   ACTIVITY_STATUSES,
   BASE_URL,
   INVOICE_TYPES,
+  CONTRACT_STATUSES,
 }

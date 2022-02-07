@@ -77,21 +77,6 @@ const actions = {
         store.set('app/isLoading', false)
       })
   },
-  getExperienceSpansByCompanyId: (context, payload) => {
-    store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
-
-    axios.get(CreateURL(`ExperienceSpan/GetExperienceSpansByCompanyId/${payload}`), GetPostHeaders(currUser.token))
-      .then(({ data: res }) => {
-        store.set('experienceSpan/experienceSpans', res.data)
-      })
-      .catch(error => {
-        console.log('Error', error)
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
-  },
   resetStore: () => {
     store.set('experienceSpan/experienceSpans', [])
   },

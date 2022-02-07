@@ -1,6 +1,6 @@
 <template>
   <v-container
-    id="demands-view"
+    id="invoices-view"
     fluid
     tag="section"
   >
@@ -13,17 +13,17 @@
     >
       <v-tabs-slider />
 
-      <v-tab href="#newDemands">
-        Yeni Talepler
-        <v-icon>mdi-account-plus</v-icon>
+      <v-tab href="#allInvoices">
+        Faturalar
+        <v-icon>mdi-account-group</v-icon>
       </v-tab>
     </v-tabs>
 
     <div class="py3" />
 
     <v-tabs-items v-model="currentTab">
-      <v-tab-item value="newDemands">
-        <demands-list />
+      <v-tab-item value="allInvoices">
+        <invoices-list />
       </v-tab-item>
     </v-tabs-items>
   </v-container>
@@ -31,17 +31,11 @@
 
 <script>
   export default {
-    name: 'Demands',
+    name: 'InvoicesUnitManager',
     data () {
-      return { currentTab: 'newDemands' }
+      return {
+        currentTab: 'allInvoices',
+      }
     },
   }
 </script>
-
-<style lang="scss" scoped>
-.btn-group-row {
-  display: flex;
-  justify-content: center !important;
-  align-items: center;
-}
-</style>

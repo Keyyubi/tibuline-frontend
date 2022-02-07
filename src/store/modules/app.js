@@ -62,9 +62,9 @@ const managerItems = [
     to: '/unit-manager/activities-costs/',
   },
   {
-    title: 'Fatura Onayı',
+    title: 'Faturalar',
     icon: 'mdi-check-decagram',
-    to: '/unit-manager/bills/',
+    to: '/unit-manager/invoices/',
   },
 ]
 
@@ -77,7 +77,7 @@ const adminItems = [
   {
     title: 'Şirketler',
     icon: 'mdi-domain',
-    to: '/admin/companies/',
+    to: '/admin/suppliers/',
   },
   {
     title: 'Kullanıcılar',
@@ -108,6 +108,11 @@ const adminItems = [
     title: 'Projeler',
     icon: 'mdi-folder-table-outline',
     to: '/admin/projects',
+  },
+  {
+    title: 'Faturalar',
+    icon: 'mdi-check-decagram',
+    to: '/admin/invoices/',
   },
 ]
 
@@ -149,6 +154,11 @@ const actions = {
     // Alert Types =>  'success', 'info', 'warning', 'error'
     context.commit('alertMessage', payload.message)
     context.commit('alertType', payload.type)
+  },
+  hideAlert: () => {
+    setTimeout(() => {
+      this.$store.dispatch('app/showAlert', { message: '', type: '' })
+    }, 3000)
   },
   setLoading: (context, payload) => {
     context.commit('isLoading', payload)

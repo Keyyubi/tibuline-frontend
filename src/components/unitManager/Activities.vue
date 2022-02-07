@@ -1,10 +1,11 @@
 <template>
-  <div class="pa-3">
+  <v-container fluid>
     <v-row class="fill-height">
       <v-col>
         <v-stepper
           v-model="e1"
           vertical
+          :class="e1 !== 1 ? 'pb-0' : ''"
         >
           <v-stepper-header>
             <v-stepper-step
@@ -38,6 +39,7 @@
                 :item-text="e => e.firstname + ' ' + e.lastname"
                 item-value="id"
                 label="Danışman"
+                return-object
                 @change="selectConsultant"
               />
             </v-stepper-content>
@@ -75,24 +77,62 @@
                     {{ $refs.calendar.title }}
                   </v-toolbar-title>
                   <v-spacer />
-                  <v-btn
-                    outlined
-                    small
-                    color="primary darken-1"
-                    @click="showConfirmation('fill-monthly')"
-                  >
-                    <v-icon small>
-                      mdi-calendar-month
-                    </v-icon>
-                    Aylık Aktiviteleri Doldur
-                  </v-btn>
+                  <!-- Info Bar -->
+                  <v-sheet v-if="selectedSupplier !== null">
+                    <v-chip
+                      class="ma-2"
+                      color="green"
+                      label
+                      outlined
+                    >
+                      Mesai: {{
+                        selectedSupplier.invoiceType = InvoiceTypes.MONTHLY
+                          ? '1 ay'
+                          : selectedSupplier.invoiceType = InvoiceTypes.DAILY
+                            ? Math.round(totalShiftHours / user.company.dailyShiftHours) + 'gün'
+                            : totalShiftHours + ' saat'
+                      }}
+                    </v-chip>
+
+                    <v-chip
+                      class="ma-2"
+                      color="orange"
+                      label
+                      outlined
+                    >
+                      İzinler: {{ totalDayOffHours }} saat
+                    </v-chip>
+
+                    <v-chip
+                      class="ma-2"
+                      color="red"
+                      label
+                      outlined
+                    >
+                      Fazla Mesai: {{ totalOverShiftHours }} saat
+                    </v-chip>
+                  </v-sheet>
                   <v-spacer />
-                  <v-chip
-                    v-if="selectedConsultant != null"
-                    class="ma-2"
-                  >
-                    Çalışan: {{ consultants.find(e => e.id === selectedConsultant).firstname + ' ' + consultants.find(e => e.id === selectedConsultant).lastname }}
-                  </v-chip>
+                  <v-tooltip left>
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-chip
+                        class="ma-2"
+                        color="primary"
+                        v-bind="attrs"
+                        v-on="on"
+                        @click="e1=1; selectedConsultant = null"
+                      >
+                        {{ selectedConsultant ? selectedConsultant.firstname + ' ' + selectedConsultant.lastname : '' }}
+                        <v-icon
+                          class="ml-4"
+                          size="18"
+                        >
+                          mdi-restore
+                        </v-icon>
+                      </v-chip>
+                    </template>
+                    <span>Danışmanı değiştir</span>
+                  </v-tooltip>
                 </v-toolbar>
               </v-sheet>
               <v-sheet
@@ -119,39 +159,10 @@
     <!-- Info and Actions Footer -->
     <v-row
       v-if="selectedConsultant != null"
-      class="d-flex justify-space-between"
     >
-      <v-col class="d-flex">
-        <v-chip
-          class="ma-2"
-          color="green"
-          label
-          outlined
-        >
-          Toplam Mesai: {{ totalWorkHours }} Saat
-        </v-chip>
-
-        <v-chip
-          class="ma-2"
-          color="orange"
-          label
-          outlined
-        >
-          Toplam İzinler: {{ totalDaysOff }} gün
-        </v-chip>
-
-        <v-chip
-          class="ma-2"
-          color="red"
-          label
-          outlined
-        >
-          Toplam Fazla Mesai: {{ totalExtraHours }} saat
-        </v-chip>
-      </v-col>
       <v-spacer />
       <!-- Actions -->
-      <v-col class="d-flex justify-flex-end">
+      <v-col>
         <v-btn
           class="white--text mr-3"
           color="green"
@@ -225,12 +236,12 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-  </div>
+  </v-container>
 </template>
 
 <script>
   import { get } from 'vuex-pathify'
-  import { ACTIVITY_STATUSES as Statuses } from '@/util/globals'
+  import { ACTIVITY_STATUSES as Statuses, INVOICE_TYPES as InvoiceTypes } from '@/util/globals'
   export default {
     name: 'Activities',
     data: () => ({
@@ -241,32 +252,40 @@
       confirmationDialog: false,
       reasonOfDeny: '',
       selectedConsultant: null,
-      totalWorkHours: 0,
-      totalExtraHours: 0,
-      totalDaysOff: 0,
-      shiftStartAt: 9, // 0-23 as o'clock of the day
-      shiftHours: 8, // as working hours
+      selectedSupplier: null,
+      totalShiftHours: 0,
+      totalOverShiftHours: 0,
+      totalDayOffHours: 0,
       period: '',
       Statuses,
+      InvoiceTypes,
     }),
     computed: {
+      ...get('user', ['user']),
       ...get('consultant', ['consultants']),
+      ...get('supplier', ['suppliers']),
       ...get('activity', ['activities']),
+      ...get('activityPeriod', ['activityPeriods']),
     },
     mounted () {
       this.$store.dispatch('consultant/getConsultantsByManagerId')
+      this.$store.dispatch('supplier/getSuppliers')
     },
     methods: {
       selectConsultant () {
         const { date } = this.$refs.calendar.lastEnd
         this.period = date.split('-')[0] + '-' + date.split('-')[1]
         const payload = {
-          consultantId: this.selectedConsultant,
+          consultantId: this.selectedConsultant.id,
           yearMonth: this.period,
           activityStatus: Statuses.PENDING,
         }
         this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonthAndStatus', payload)
-        this.calculateTotalHours()
+        this.$store.dispatch('activityPeriod/getActivityPeriodsByConsultantId', this.selectedConsultant.id)
+        setTimeout(() => {
+          this.calculateTotalHours()
+          this.selectedSupplier = this.suppliers.find(e => e.id === this.selectedConsultant.supplierId)
+        }, 500)
         this.e1 = 2
       },
       getEventColor (event) {
@@ -276,23 +295,15 @@
         return new Promise(resolve => setTimeout(resolve, ms))
       },
       calculateTotalHours () {
-        this.totalWorkHours = 0
-        this.totalExtraHours = 0
-        this.totalDaysOff = 0
+        this.totalShiftHours = 0
+        this.totalOverShiftHours = 0
+        this.totalDayOffHours = 0
 
-        const end = this.$refs.calendar.lastEnd
-
-        for (let i = 0; i < end.day; i++) {
-          const date = `${end.year}-${end.month}-${i < 9 ? '0' + (i + 1) : i + 1}`
-          const event = this.activities.find(e => e.date === date)
-          if (event && event.date) {
-            this.totalWorkHours += event.shiftHours
-            this.totalExtraHours += event.overShiftHours
-            if (new Date(date).getDay() !== 0 && new Date(date).getDay() !== 6 && event.shiftHours === 0 && event.overShiftHours === 0) {
-              this.totalDaysOff++
-            }
-          }
-        }
+        this.activities.forEach(el => {
+          this.totalShiftHours += el.shiftHours
+          this.totalOverShiftHours += el.overShiftHours
+          this.totalDayOffHours += el.dayOffHours
+        })
       },
       showConfirmation (type) {
         this.confirmationType = type
@@ -300,6 +311,7 @@
       },
       async confirm () {
         this.$store.dispatch('app/setLoading', true)
+        this.calculateTotalHours()
         this.confirmationDialog = false
 
         const status = this.confirmationType === 'approve' ? Statuses.APPROVED : Statuses.REVISED
@@ -310,17 +322,31 @@
 
         await this.sleep(1000)
 
-        const activityPeriodObj = {
-          name: this.period,
-          consultantId: this.selectConsultant,
-          totalShiftHours: this.totalWorkHours,
-          totalOverShiftHours: this.totalExtraHours,
-          isInvoiced: false,
+        if (status === Statuses.APPROVED) {
+          const isExist = this.activityPeriods.find(e => e.name === this.period && e.consultantId === this.selectedConsultant.id)
+
+          const payload = {
+            name: this.period,
+            consultantId: this.selectedConsultant.id,
+            totalShiftHours: this.totalShiftHours,
+            totalOverShiftHours: this.totalOverShiftHours,
+            dayOffHours: this.totalDayOffHours,
+            isInvoiced: false,
+          }
+
+          if (isExist && isExist.name === this.period) {
+            payload.id = isExist.id
+            this.$store.dispatch('activityPeriod/updateActivityPeriod', payload)
+          } else {
+            this.$store.dispatch('activityPeriod/createActivityPeriod', payload)
+          }
+
+          await this.sleep(500)
+        } else {
+          console.log('denied')
         }
-        this.$store.dispatch('activityPeriod/createActivityPeriod', activityPeriodObj)
 
-        await this.sleep(500)
-
+        this.confirmationType = ''
         this.selectConsultant()
       },
       async changeDate (type) {
@@ -329,16 +355,7 @@
 
         await this.sleep(250)
 
-        const { date } = this.$refs.calendar.lastEnd
-        this.period = date.split('-')[0] + '-' + date.split('-')[1]
-        const consultantId = this.selectedConsultant
-        const activityStatus = Statuses.PENDING
-
-        this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonthAndStatus', { consultantId, yearMonth: this.period, activityStatus })
-
-        setTimeout(() => {
-          this.$store.dispatch('app/setLoading', false)
-        }, 750)
+        this.selectConsultant()
       },
     },
   }

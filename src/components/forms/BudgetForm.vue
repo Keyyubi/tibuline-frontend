@@ -7,20 +7,22 @@
       Bütçe Planını Güncelle
     </v-card-title>
 
-    <v-card-text>
+    <v-card-text v-if="budget !== null">
       <v-container class="py-3">
         <v-row>
+          <!-- supplier -->
           <v-col cols="4">
             <v-autocomplete
-              v-model="selectedCompany"
-              :items="companies.filter(e => e.isSupplier === true)"
+              v-model="budget.supplierId"
+              :items="suppliers"
               item-text="name"
               item-value="id"
               label="Şirket"
-              return-object
-              @change="getCompanyItems"
+              :disabled="formType !== 'create'"
             />
           </v-col>
+
+          <!-- JobTitle -->
           <v-col cols="4">
             <v-autocomplete
               v-model="budget.jobTitleId"
@@ -30,6 +32,8 @@
               label="Ünvan"
             />
           </v-col>
+
+          <!-- ExperienceSpan -->
           <v-col cols="4">
             <v-autocomplete
               v-model="budget.experienceSpanId"
@@ -40,17 +44,18 @@
             />
           </v-col>
         </v-row>
+
+        <!-- Budget -->
         <v-row>
           <v-col
             cols="12"
             md="3"
           >
             <v-text-field
-              v-model="budget.hourlyBudget"
-              v-mask="currencyMask"
+              v-model="hourly"
               prepend-icon="mdi-currency-try"
               label="Bütçe (Adam/Saat)"
-              :disabled="!selectedCompany || selectedCompany.invoiceType != InvoiceTypes.HOURLY"
+              :disabled="invoiceType !== InvoiceTypes.HOURLY"
             />
           </v-col>
           <v-col
@@ -58,11 +63,11 @@
             md="3"
           >
             <v-text-field
-              v-model="budget.dailyBudget"
-              v-mask="currencyMask"
+              v-model="daily"
               prepend-icon="mdi-currency-try"
               label="Bütçe (Adam/Gün)"
-              :disabled="!selectedCompany || selectedCompany.invoiceType != InvoiceTypes.DAILY"
+              :disabled="invoiceType !== InvoiceTypes.DAILY"
+              @keypress="isValidNum"
             />
           </v-col>
           <v-col
@@ -70,11 +75,12 @@
             md="3"
           >
             <v-text-field
-              v-model="budget.monthlyBudget"
-              v-mask="currencyMask"
+              v-model="monthly"
+              clearable
               prepend-icon="mdi-currency-try"
               label="Bütçe (Adam/Ay)"
-              :disabled="!selectedCompany || selectedCompany.invoiceType != InvoiceTypes.MONTHLY"
+              :disabled="invoiceType !== InvoiceTypes.MONTHLY"
+              @keypress="isValidNum"
             />
           </v-col>
           <v-col
@@ -83,9 +89,9 @@
           >
             <v-text-field
               v-model="budget.totalBudget"
-              v-mask="currencyMask"
               prepend-icon="mdi-currency-try"
               label="Toplam Bütçe"
+              @keypress="isValidNum"
             />
           </v-col>
         </v-row>
@@ -146,15 +152,6 @@
   import { INVOICE_TYPES as InvoiceTypes } from '@/util/globals'
   import { CheckIsNull } from '@/util/helpers'
   import { get } from 'vuex-pathify'
-  import createNumberMask from 'text-mask-addons/dist/createNumberMask'
-  const currencyMask = createNumberMask({
-    prefix: '',
-    allowDecimal: true,
-    includeThousandsSeparator: true,
-    thousandsSeparatorSymbol: '.',
-    decimalSymbol: ',',
-    allowNegative: false,
-  })
   export default {
     name: 'BudgetForm',
     props: {
@@ -167,60 +164,93 @@
         { id: 1, name: 'Adam/Gün' },
         { id: 2, name: 'Adam/Ay' },
       ],
-      selectedCompany: null,
-      currencyMask,
       InvoiceTypes,
     }),
     computed: {
+      ...get('user', ['user', 'customerCompany']),
       ...get('budget', ['budgets']),
-      ...get('company', ['companies']),
+      ...get('supplier', ['suppliers']),
       ...get('jobTitle', ['jobTitles']),
       ...get('experienceSpan', ['experienceSpans']),
-    },
-    mounted () {
-      if (this.formType !== 'create') this.selectedCompany = this.companies.find(e => e.id === this.budget.companyId)
+      invoiceType () {
+        if (this.budget.supplierId) {
+          const supplier = this.suppliers.find(e => e.id === this.budget.supplierId)
+          return supplier.invoiceType
+        } else return null
+      },
+      hourly: {
+        get: function () {
+          return new Intl.NumberFormat('tr-TR').format(this.budget.hourlyBudget)
+        },
+        // setter
+        set: function (newValue) {
+          if (newValue && newValue.length > 0) {
+            const amount = this.unmaskMoney(newValue)
+            this.budget.hourlyBudget = Math.round(amount * 100) / 100
+            this.budget.dailyBudget = Math.round(amount * this.customerCompany.dailyShiftHours * 100) / 100
+            this.budget.monthlyBudget = Math.round(amount * this.customerCompany.monthlyShiftHours * 100) / 100
+          }
+        },
+      },
+      daily: {
+        get: function () {
+          return new Intl.NumberFormat('tr-TR').format(this.budget.dailyBudget)
+        },
+        // setter
+        set: function (newValue) {
+          if (newValue && newValue.length > 0) {
+            const amount = this.unmaskMoney(newValue)
+            this.budget.dailyBudget = Math.round(amount * 100) / 100
+            this.budget.hourlyBudget = Math.round(amount / this.customerCompany.dailyShiftHours * 100) / 100
+            this.budget.monthlyBudget = Math.round(amount * (this.customerCompany.monthlyShiftHours / this.customerCompany.dailyShiftHours) * 100) / 100
+          }
+        },
+      },
+      monthly: {
+        get: function () {
+          return new Intl.NumberFormat('tr-TR').format(this.budget.monthlyBudget)
+        },
+        // setter
+        set: function (newValue) {
+          if (newValue && newValue.length > 0) {
+            const amount = this.unmaskMoney(newValue)
+            this.budget.monthlyBudget = Math.round(amount * 100) / 100
+            this.budget.hourlyBudget = Math.round(amount / this.customerCompany.monthlyShiftHours * 100) / 100
+            this.budget.dailyBudget = Math.round(amount / (this.customerCompany.monthlyShiftHours / this.customerCompany.dailyShiftHours) * 100) / 100
+          }
+        },
+      },
     },
     methods: {
       moneyMask (amount) {
         return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(amount)
       },
-      getCompanyItems () {
-        const { id } = this.selectedCompany
-        this.budget.companyId = id
-        this.$store.dispatch('jobTitle/getJobTitlesByCompanyId', id)
-        this.$store.dispatch('experienceSpan/getExperienceSpansByCompanyId', id)
-      },
-      getInformattedMoney (value) {
-        return Number(value.replaceAll('.', '').replaceAll(',', '.'))
-      },
-      reset () {
-        this.selectedCompany = null
-        this.budget.companyId = null
-        this.budget.jobTitleId = null
-        this.budget.experienceSpanId = null
-        this.budget.hourlyBudget = 0
-        this.budget.dailyBudget = 0
-        this.budget.monthlyBudget = 0
-        this.budget.totalBudget = 0
+      unmaskMoney (formattedAmount) {
+        return Number(formattedAmount.replaceAll('.', '').replaceAll(',', '.'))
       },
       updateBudget () {
         const fields = [
-          this.budget.companyId,
+          this.budget.supplierId,
           this.budget.jobTitleId,
           this.budget.experienceSpanId,
+          this.budget.hourlyBudget,
+          this.budget.dailyBudget,
+          this.budget.monthlyBudget,
         ]
         if (!CheckIsNull(fields)) {
-          console.log('this.budget1', this.budget)
-          this.budget.hourlyBudget = this.getInformattedMoney(this.budget.hourlyBudget)
-          this.budget.dailyBudget = this.getInformattedMoney(this.budget.dailyBudget)
-          this.budget.monthlyBudget = this.getInformattedMoney(this.budget.monthlyBudget)
-          this.budget.totalBudget = this.getInformattedMoney(this.budget.totalBudget)
-          console.log('this.budget2', this.budget)
           const target = this.formType === 'create' ? 'budget/createBudget' : 'budget/updateBudget'
           this.$store.dispatch(target, this.budget)
-          this.reset()
           this.$emit('close-dialog')
         }
+      },
+      isValidNum (evt) {
+        evt = (evt) || window.event
+        const charCode = (evt.which) ? evt.which : evt.keyCode
+        if ((charCode > 31 && (charCode < 48 || charCode > 57)) && charCode !== 44) {
+          evt.preventDefault()
+        } else if (this.monthly.length > 0 && this.monthly.includes(',') && this.monthly.split(',')[1].length === 2) {
+          evt.preventDefault()
+        } else return true
       },
     },
   }

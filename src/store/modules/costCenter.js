@@ -62,21 +62,6 @@ const actions = {
         store.set('app/isLoading', false)
       })
   },
-  getCostCentersByCompany: (context, payload) => {
-    store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
-
-    axios.get(CreateURL(`CostCenter/GetCostCentersByCompanyId/${payload}`), GetPostHeaders(currUser.token))
-      .then(({ data: res }) => {
-        store.set('costCenter/costCenters', res.data)
-      })
-      .catch(error => {
-        console.log('Error', error)
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
-  },
 }
 
 const getters = {}

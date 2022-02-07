@@ -16,6 +16,7 @@
             md="4"
           >
             <v-select
+              v-if="user.roleId === Roles.SUPPLIER"
               v-model="demand.createdById"
               :items="users"
               :item-text="e => e.firstname + ' ' + e.lastname"
@@ -23,22 +24,33 @@
               label="Yönetici"
               disabled
             />
+            <v-text-field
+              v-else
+              :value="user.firstname + ' ' + user.lastname"
+              label="Yönetici"
+              disabled
+            />
           </v-col>
 
           <!-- Supplier -->
           <v-col
-            v-if="user.roleId !== Roles.SUPPLIER"
             cols="12"
             md="4"
           >
             <v-select
-              v-model="demand.supplierCompanyId"
-              :items="companies"
+              v-if="user.roleId !== Roles.SUPPLIER"
+              v-model="demand.supplierId"
+              :items="suppliers"
               item-text="name"
               item-value="id"
               label="Tedarikçi Firma"
-              :readonly="demand.demandStatus !== Statuses.CREATED"
-              @change="selectTarget('supplier', demand.supplierCompanyId)"
+              @change="selectTarget('supplier', demand.supplierId)"
+            />
+            <v-text-field
+              v-else
+              :value="user.company.name"
+              label="Tedarikçi Firma"
+              disabled
             />
           </v-col>
 
@@ -53,7 +65,6 @@
               item-text="name"
               item-value="id"
               label="Masraf Merkezi"
-              :readonly="demand.demandStatus !== Statuses.CREATED"
               @change="selectTarget('costCenter', demand.costCenterId)"
             />
           </v-col>
@@ -69,7 +80,6 @@
               item-text="name"
               item-value="id"
               label="Ünvan"
-              :readonly="demand.demandStatus !== Statuses.CREATED"
               @change="selectTarget('jobTitle', demand.jobTitleId)"
             />
           </v-col>
@@ -85,7 +95,6 @@
               item-text="name"
               item-value="id"
               label="Tecrübe Aralığı"
-              :readonly="demand.demandStatus !== Statuses.CREATED"
               @change="selectTarget('experienceSpan', demand.experienceSpanId)"
             />
           </v-col>
@@ -102,7 +111,6 @@
               item-text="name"
               item-value="id"
               label="Proje"
-              :readonly="demand.demandStatus !== Statuses.CREATED"
               @change="selectTarget('projectId', demand.projectId)"
             />
           </v-col>
@@ -141,6 +149,7 @@
           </v-col>
         </v-row>
 
+        <!-- Consultant and Contract Info -->
         <v-row
           v-if="formType !== 'create'"
           class="my-3"
@@ -160,16 +169,15 @@
             <v-autocomplete
               v-if="user.roleId === Roles.SUPPLIER"
               v-model="demand.contractId"
-              :items="contracts"
-              :item-text="e => getContractName(e)"
+              :items="filteredContracts"
+              item-text="name"
               item-value="id"
               label="Sözleşme"
-              @change="selectedContract = contracts.find(e => e.id === demand.contractId)"
             />
             <v-text-field
               v-else
               label="Sözleşme"
-              :value="selectedContract ? getContractName(selectedContract) : 'Sözleşme bulunmuyor..'"
+              :value="demand.contract.name"
               readonly
             />
           </v-col>
@@ -180,7 +188,7 @@
             md="4"
           >
             <v-text-field
-              :value="selectedContract ? getLocaleDate(selectedContract.startDate) : 'Sözleşme seçilmedi..'"
+              :value="getContractDate('starting')"
               label="Sözleşme Başl. Tar."
               prepend-icon="mdi-calendar"
               disabled
@@ -193,7 +201,7 @@
             md="4"
           >
             <v-text-field
-              :value="selectedContract ? getLocaleDate(selectedContract.endDate) : 'Sözleşme seçilmedi..'"
+              :value="getContractDate()"
               label="Sözleşme Bit. Tar."
               prepend-icon="mdi-calendar"
               disabled
@@ -238,7 +246,7 @@
 </template>
 
 <script>
-  import { DEMAND_STATUSES as Statuses, ROLE_IDS as Roles } from '@/util/globals'
+  import { DEMAND_STATUSES as Statuses, ROLE_IDS as Roles, CONTRACT_STATUSES as cStatuses } from '@/util/globals'
   import { CheckIsNull } from '@/util/helpers'
   import { get } from 'vuex-pathify'
   export default {
@@ -248,41 +256,55 @@
       demand: { type: Object, default: null },
     },
     data: () => ({
-      selectedContract: null,
       Statuses,
+      cStatuses,
       Roles,
     }),
     computed: {
       ...get('user', ['user', 'users']),
       ...get('budget', ['budgets']),
-      ...get('company', ['companies']),
+      ...get('supplier', ['suppliers']),
       ...get('consultant', ['consultants']),
       ...get('contract', ['contracts']),
       ...get('costCenter', ['costCenters']),
-      ...get('demand', ['demands']),
       ...get('experienceSpan', ['experienceSpans']),
       ...get('jobTitle', ['jobTitles']),
       ...get('project', ['projects']),
+      filteredContracts () {
+        const arr = this.contracts.filter(e => e.contractStatus !== cStatuses.IN_USE)
+        if (this.demand.contractId) {
+          const first = this.contracts.find(e => e.id === this.demand.contractId)
+
+          if (first) {
+            arr.unshift(first)
+          }
+        }
+
+        return arr
+      },
     },
     mounted () {
-      this.$store.dispatch('user/getUnitManagers')
+      this.$store.dispatch('costCenter/getCostCenters')
+      this.$store.dispatch('jobTitle/getJobTitles')
+      this.$store.dispatch('experienceSpan/getExperienceSpans')
 
       if (this.formType === 'create') {
         this.demand.createdById = this.user.id
-      } else if (this.formType !== 'create' && this.demand.contractId) {
-        this.selectedContract = this.contracts.find(e => e.id === this.demand.contractId)
-        this.$store.dispatch('consultant/getConsultantById', this.selectedContract.consultantId)
+      } else if (this.user.roleId === Roles.SUPPLIER) {
+        this.$store.dispatch('user/getUnitManagers')
       }
     },
     methods: {
-      getLocaleDate (date) {
-        const arr = date.split('T')[0].split('-')
-        return `${arr[2]}/${arr[1]}/${arr[0]}`
-      },
-      getContractName (item) {
-        const consultant = this.consultants.find(e => e.id === item.consultantId)
-        const res = 'Söz. No. ' + item.id + ' - ' + consultant.firstname + ' ' + consultant.lastname
-        return res
+      getContractDate (type) {
+        const contract = (this.user.roleId === Roles.UNIT_MANAGER && this.demand.contractId)
+          ? this.demand.contract : this.contracts.find(e => e.id === this.demand.contractId)
+
+        if (contract) {
+          const arr = type === 'starting' ? contract.startDate.split('T')[0].split('-') : contract.endDate.split('T')[0].split('-')
+          return `${arr[2]}/${arr[1]}/${arr[0]}`
+        } else {
+          return 'Sözleşme bulunmuyor.'
+        }
       },
       moneyMask (amount) {
         return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(amount)
@@ -291,26 +313,24 @@
       createDemand () {
         const arr = [
           this.demand.costCenterId,
-          this.demand.supplierCompanyId,
+          this.demand.supplierId,
           this.demand.jobTitleId,
           this.demand.experienceSpanId,
           this.demand.projectId,
         ]
 
-        if (CheckIsNull(arr)) {
-          this.$store.dispatch('app/showAlert', { message: 'Lütfen tüm alanları doldurduğunuzdan emin olunuz.', type: 'warning' })
-        } else {
+        if (!CheckIsNull(arr)) {
           this.demand.demandStatus = Statuses.CREATED
           this.$store.dispatch('demand/createDemand', this.demand)
           this.$emit('close-dialog')
+        } else {
+          this.$store.dispatch('app/showAlert', { message: 'Lütfen tüm alanları doldurduğunuzdan emin olunuz.', type: 'warning' })
         }
       },
       selectTarget (target, id) {
         switch (target) {
           case 'supplier':
-            this.$store.dispatch('jobTitle/getJobTitlesByCompanyId', id)
-            this.$store.dispatch('experienceSpan/getExperienceSpansByCompanyId', id)
-            this.$store.dispatch('budget/getBudgetsByCompanyId', id)
+            this.$store.dispatch('budget/getBudgetsBySupplierId', id)
             this.calculateBudget()
             break
           case 'jobTitle':
@@ -324,7 +344,7 @@
         }
       },
       calculateBudget () {
-        if (this.demand.supplierCompanyId && this.demand.jobTitleId && this.demand.experienceSpanId) {
+        if (this.demand.supplierId && this.demand.jobTitleId && this.demand.experienceSpanId) {
           const budget = this.budgets.find(e => {
             return e.experienceSpanId === this.demand.experienceSpanId && e.jobTitleId === this.demand.jobTitleId
           })
@@ -346,13 +366,11 @@
 
         if (this.formType === 'approve') {
           payload.demandStatus = Statuses.COMPLITED
-        } else {
-          if (payload.contractId) {
-            payload.demandStatus = this.selectedContract.filePath ? Statuses.REPLIED_WITH_CONTRACT : Statuses.REPLIED
-          }
+        } else if (this.user.roleId === Roles.SUPPLIER && payload.contractId) {
+          payload.demandStatus = Statuses.REPLIED
         }
-        this.$store.dispatch('demand/updateDemand', payload)
 
+        this.$store.dispatch('demand/updateDemand', payload)
         this.$emit('close-dialog')
       },
     },

@@ -57,11 +57,6 @@
                 </v-icon>
               </v-chip>
             </template>
-
-            <!-- eslint-disable-next-line -->
-            <template v-slot:item.companyId="{ item }">
-              {{ companies.find(e => e.id === item.companyId) ? companies.find(e => e.id === item.companyId).name : 'Bulunamadı' }}
-            </template>
           </v-data-table>
         </v-card>
         <v-dialog
@@ -87,17 +82,6 @@
                         v-model="selectedExperienceSpan.name"
                         label="Tecrübe Aralığı"
                         :rules="[v => !!v || 'Bu alan boş geçilemez.']"
-                        required
-                      />
-                    </v-col>
-                    <v-col>
-                      <v-autocomplete
-                        v-model="selectedExperienceSpan.companyId"
-                        :items="companies"
-                        item-text="name"
-                        item-value="id"
-                        label="Şirket"
-                        :rules="[v => v > 0 || 'Bu alan boş geçilemez.']"
                         required
                       />
                     </v-col>
@@ -149,22 +133,6 @@
                   required
                 />
               </v-col>
-
-              <v-col
-                cols="12"
-                md="4"
-              >
-                <v-autocomplete
-                  v-model="newExperienceSpan.companyId"
-                  :items="companies"
-                  item-text="name"
-                  item-value="id"
-                  label="Şirket"
-                  :rules="[v => v > 0 || 'Bu alan boş geçilemez.']"
-                  required
-                />
-              </v-col>
-
               <v-col
                 cols="12"
                 md="4"
@@ -198,7 +166,7 @@
         searchWord: '',
         dialog: false,
         selectedExperienceSpan: {},
-        newExperienceSpan: { name: '', companyId: null },
+        newExperienceSpan: { name: '' },
         headers: [
           {
             text: 'İşlem',
@@ -206,17 +174,14 @@
             value: 'id',
           },
           { text: 'Tecrübe Aralığı', value: 'name' },
-          { text: 'Şirket', value: 'companyId' },
         ],
       }
     },
     computed: {
-      ...get('company', ['companies']),
       ...get('experienceSpan', ['experienceSpans']),
     },
     mounted () {
       this.$store.dispatch('experienceSpan/getExperienceSpans')
-      this.$store.dispatch('company/getSupplierCompanies')
     },
     methods: {
       editExperienceSpan (item) {

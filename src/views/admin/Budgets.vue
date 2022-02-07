@@ -10,7 +10,6 @@
       centered
       dark
       icons-and-text
-      @change="changeTab"
     >
       <v-tabs-slider />
 
@@ -54,7 +53,7 @@
                 dark
                 @click="showBudget(item)"
               >
-                Güncelle
+                <b>Güncelle</b>
                 <v-icon right>
                   mdi-arrow-right-bold
                 </v-icon>
@@ -62,8 +61,8 @@
             </template>
 
             <!-- eslint-disable-next-line -->
-            <template v-slot:item.companyId="{ item }">
-              {{ getCompanyName(item.companyId) }}
+            <template v-slot:item.supplierId="{ item }">
+              {{ getSupplierName(item.supplierId) }}
             </template>
             <!-- eslint-disable-next-line -->
             <template v-slot:item.jobTitleId="{ item }">
@@ -97,7 +96,7 @@
           <budget-form
             form-type="update"
             :budget="selectedBudget"
-            @close-dialog="dialog = false"
+            @close-dialog="closeUpdatePopup()"
           />
         </v-dialog>
       </v-tab-item>
@@ -123,13 +122,13 @@
         dialog: false,
         selectedBudget: {},
         newBudget: {
-          companyId: null,
+          supplierId: null,
           experienceSpanId: null,
           jobTitleId: null,
-          hourlyBudget: null,
-          dailyBudget: null,
-          monthlyBudget: null,
-          totalBudget: null,
+          hourlyBudget: 0,
+          dailyBudget: 0,
+          monthlyBudget: 0,
+          totalBudget: 0,
         },
         headers: [
           {
@@ -137,7 +136,7 @@
             align: 'start',
             value: 'id',
           },
-          { text: 'Şirket Adı', value: 'companyId' },
+          { text: 'Şirket Adı', value: 'supplierId' },
           { text: 'Ünvan', value: 'jobTitleId' },
           { text: 'Tecrübe Aralığı', value: 'experienceSpanId' },
           { text: 'Saatlik Bütçe', value: 'hourlyBudget' },
@@ -149,12 +148,12 @@
     },
     computed: {
       ...get('budget', ['budgets']),
-      ...get('company', ['companies']),
+      ...get('supplier', ['suppliers']),
       ...get('jobTitle', ['jobTitles']),
       ...get('experienceSpan', ['experienceSpans']),
     },
     mounted () {
-      this.$store.dispatch('company/getCompanies')
+      this.$store.dispatch('supplier/getSuppliers')
       this.$store.dispatch('budget/getBudgets')
       this.$store.dispatch('jobTitle/getJobTitles')
       this.$store.dispatch('experienceSpan/getExperienceSpans')
@@ -163,17 +162,17 @@
       getJobTitleName (id) {
         const result = this.jobTitles.find(jobTitle => jobTitle.id === id)
         if (result) return result.name
-        else return 'Bulunamadi'
+        else return 'Bulunamadı'
       },
       getExperienceSpanName (id) {
         const result = this.experienceSpans.find(experienceSpan => experienceSpan.id === id)
         if (result) return result.name
-        else return 'Bulunamadi'
+        else return 'Bulunamadı'
       },
-      getCompanyName (id) {
-        const result = this.companies.find(company => company.id === id)
+      getSupplierName (id) {
+        const result = this.suppliers.find(supplier => supplier.id === id)
         if (result) return result.name
-        else return 'Bulunamadi'
+        else return 'Bulunamadı'
       },
       moneyMask (amount) {
         return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(amount)
@@ -182,9 +181,9 @@
         this.selectedBudget = { ...item }
         this.dialog = true
       },
-      changeTab () {
-        this.$store.dispatch('jobTitle/getJobTitles')
-        this.$store.dispatch('experienceSpan/getExperienceSpans')
+      closeUpdatePopup () {
+        this.selectedBudget = null
+        this.dialog = false
       },
     },
   }
