@@ -119,7 +119,7 @@
   height: 100%;
   margin: 0;
   padding: 0;
-  background-image: url('~@/assets/lock.jpg');
+  background-image: url('~@/assets/image1.jpg');
   background-size: cover;
   overflow: hidden;
 }

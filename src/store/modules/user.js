@@ -9,6 +9,8 @@ import store from '@/store/index'
 // Router
 import router from '../../router'
 
+const image = require.context('../../assets', false, /\.jpg$/)
+
 const state = {
   user: {},
   customerCompany: {},
@@ -25,11 +27,11 @@ const state = {
     'rgba(244, 67, 54, .8), rgba(244, 67, 54, .8)',
   ],
   images: [
-    '../../assets/lock.jpg',
-    'https://demos.creative-tim.com/material-dashboard-pro/assets/img/sidebar-1.jpg',
-    'https://demos.creative-tim.com/material-dashboard-pro/assets/img/sidebar-2.jpg',
-    'https://demos.creative-tim.com/material-dashboard-pro/assets/img/sidebar-3.jpg',
-    'https://demos.creative-tim.com/material-dashboard-pro/assets/img/sidebar-4.jpg',
+    image('./image1.jpg'),
+    image('./image2.jpg'),
+    image('./image3.jpg'),
+    image('./image4.jpg'),
+    image('./image5.jpg'),
   ],
   notifications: [],
   rtl: false,

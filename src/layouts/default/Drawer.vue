@@ -4,7 +4,7 @@
     v-model="drawer"
     :dark="dark"
     :right="$vuetify.rtl"
-    src="~@/assets/lock.jpg"
+    :src="image"
     :mini-variant.sync="mini"
     mini-variant-width="80"
     app
