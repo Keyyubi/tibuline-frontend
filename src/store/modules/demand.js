@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { make } from 'vuex-pathify'
 import { CreateURL, GetPostHeaders } from '@/util/helpers'
-import { ROLE_IDS } from '@/util/globals'
+import { ROLES } from '@/util/globals'
 import store from '../index'
 
 // Data
@@ -56,7 +56,7 @@ const actions = {
     store.set('demand/isLoading', true)
 
     const currUser = store.get('user/user')
-    const url = role === ROLE_IDS.UNIT_MANAGER
+    const url = role === ROLES.UNIT_MANAGER
       ? CreateURL(`Demand/GetDemandsByCreatedBy/${currUser.id}`)
       : CreateURL(`Demand/GetDemandsBySupplierId/${currUser.company.id}`)
 

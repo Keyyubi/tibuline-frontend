@@ -52,7 +52,7 @@ export function redirect (
   }
 }
 
-export function route (name, component, path = '') {
+export function route (name, component, path = '', meta) {
   component = Object(component) === component
     ? component
     : { default: name.replace(' ', '') }
@@ -70,5 +70,6 @@ export function route (name, component, path = '') {
     name,
     components,
     path,
+    meta,
   }
 }

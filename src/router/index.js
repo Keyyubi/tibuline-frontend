@@ -27,28 +27,28 @@ const router = new Router({
       route('Error', null, 'error'),
 
       // Unit Manager Routes
-      route('unit-manager/Demands', null, 'unit-manager/demands'),
-      route('unit-manager/Projects', { default: 'admin/Projects' }, 'unit-manager/projects'),
-      route('unit-manager/Consultants', null, 'unit-manager/consultants'),
-      route('unit-manager/ActivitiesCosts', null, 'unit-manager/activities-costs'),
-      route('unit-manager/Invoices', null, 'unit-manager/invoices'),
+      route('unit-manager/Demands', null, 'unit-manager/demands', { manager: true }),
+      route('unit-manager/Projects', { default: 'admin/Projects' }, 'unit-manager/projects', { manager: true }),
+      route('unit-manager/Consultants', null, 'unit-manager/consultants', { manager: true }),
+      route('unit-manager/ActivitiesCosts', null, 'unit-manager/activities-costs', { manager: true }),
+      route('unit-manager/Invoices', null, 'unit-manager/invoices', { manager: true }),
 
       // Supplier Routes
-      route('supplier/Demands', null, 'supplier/demands'),
-      route('supplier/AddActivity', null, 'supplier/add-activity'),
-      route('supplier/Consultants', null, 'supplier/consultants'),
-      route('supplier/Contracts', null, 'supplier/contracts'),
-      route('supplier/Invoices', null, 'supplier/invoices'),
+      route('supplier/Demands', null, 'supplier/demands', { supplier: true }),
+      route('supplier/AddActivity', null, 'supplier/add-activity', { supplier: true }),
+      route('supplier/Consultants', null, 'supplier/consultants', { supplier: true }),
+      route('supplier/Contracts', null, 'supplier/contracts', { supplier: true }),
+      route('supplier/Invoices', null, 'supplier/invoices', { supplier: true }),
 
        // Admin Routes
-       route('admin/Users', null, 'admin/users'),
-       route('admin/Projects', null, 'admin/projects'),
-       route('admin/Suppliers', null, 'admin/suppliers'),
-       route('admin/CostCenters', null, 'admin/cost-centers'),
-       route('admin/JobTitles', null, 'admin/job-titles'),
-       route('admin/ExperienceSpans', null, 'admin/experience-spans'),
-       route('admin/Budgets', null, 'admin/budgets'),
-       route('admin/Invoices', null, 'admin/invoices'),
+       route('admin/Users', null, 'admin/users', { admin: true }),
+       route('admin/Projects', null, 'admin/projects', { admin: true }),
+       route('admin/Suppliers', null, 'admin/suppliers', { admin: true }),
+       route('admin/CostCenters', null, 'admin/cost-centers', { admin: true }),
+       route('admin/JobTitles', null, 'admin/job-titles', { admin: true }),
+       route('admin/ExperienceSpans', null, 'admin/experience-spans', { admin: true }),
+       route('admin/Budgets', null, 'admin/budgets', { admin: true }),
+       route('admin/Invoices', null, 'admin/invoices', { admin: true }),
     ]),
     layout('Login', [
       route('Login', null, 'login'),
@@ -57,11 +57,27 @@ const router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
-  const user = store.getters['user/user']
-
-  if (to.path !== '/login/' && !user.isLogged) {
-    return next({ path: '/login/' })
+  if (localStorage.getItem('jwt') === null) {
+    if (to.path !== '/login/') {
+      return next({ path: '/login/' })
+    } else {
+      next()
+    }
   } else {
+    const user = (localStorage.getItem('user'))
+    if (store.get('app/items').length === 0) {
+      store.dispatch('app/updateItems', user.roleId, { root: true })
+    }
+
+    if (to.matched.some(record => record.meta.manager)) {
+      console.log('going supplier')
+      return to.path.endsWith('/') ? next() : next(trailingSlash(to.path))
+    } else if (to.matched.some(record => record.meta.supplier)) {
+      console.log('going supplier')
+      return to.path.endsWith('/') ? next() : next(trailingSlash(to.path))
+    } else if (to.matched.some(record => record.meta.admin)) {
+
+    }
     return to.path.endsWith('/') ? next() : next(trailingSlash(to.path))
   }
 })

@@ -276,7 +276,7 @@
 </template>
 
 <script>
-  import { RULES as Rules, ROLE_IDS as Roles } from '@/util/globals'
+  import { RULES as Rules, ROLES as Roles } from '@/util/globals'
   import { get } from 'vuex-pathify'
   export default {
     name: 'Account',

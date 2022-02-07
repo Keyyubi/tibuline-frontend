@@ -2,7 +2,7 @@
 import { make } from 'vuex-pathify'
 import axios from 'axios'
 // Globals
-import { IN_BROWSER, ROLE_IDS } from '@/util/globals'
+import { IN_BROWSER, ROLES } from '@/util/globals'
 import { CreateURL, GetPostHeaders } from '@/util/helpers'
 import store from '@/store/index'
 
@@ -57,49 +57,62 @@ const actions = {
 
     localStorage.setItem('vuetify@user', JSON.stringify(state))
   },
-  login: (context, user) => {
+  createToken: ({ dispatch }, user) => {
     store.set('app/isLoading', true)
-
     axios.post(CreateURL('Auth/CreateToken'), { email: user.email, password: user.password })
-    .then(({ data: res }) => res.data.accessToken)
-    .then(token => {
-      axios.get(CreateURL('User/GetUser'), GetPostHeaders(token))
-      .then(({ data: res }) => {
-        return {
-          ...res.data,
-          isLogged: true,
-          token,
-        }
-      })
-      .then(loggedUser => {
-        axios.get(CreateURL('Company/GetCompanies'), GetPostHeaders(loggedUser.token))
-        .then(({ data: res }) => {
-          store.set('user/customerCompany', res.data[0])
-          loggedUser = {
-            ...loggedUser,
-            company: res.data[0],
-          }
-          if (loggedUser.roleId === ROLE_IDS.SUPPLIER) {
-            axios.get(CreateURL(`Supplier/GetSupplierById/${loggedUser.supplierId}`), GetPostHeaders(loggedUser.token))
-              .then(({ data: comp }) => {
-                loggedUser.company = comp.data
-              })
-          }
+    .then(({ data: res }) => {
+      localStorage.setItem('jwt', res.data.accessToken)
 
-          store.set('user/user', loggedUser)
-          context.dispatch('app/updateItems', loggedUser.roleId, { root: true })
-          store.set('app/alertMessage', '')
-          router.push('/')
-        })
-      })
+      dispatch('login')
     })
     .catch(({ response }) => {
+      localStorage.removeItem('jwt')
       store.set('user/user', {})
 
       //  ? ERROR HANDLING EXAMPLE
       //  * response has the all info about error. Like Status or Data
       const res = response.data
       store.set('app/alertMessage', res.error.errors[0])
+
+      setTimeout(() => {
+        store.set('app/isLoading', false)
+        store.set('app/alertMessage', '')
+      }, 2000)
+    })
+  },
+  login: () => {
+    store.set('app/isLoading', true)
+    const token = localStorage.getItem('jwt')
+
+    axios.get(CreateURL('User/GetUser'), GetPostHeaders(token))
+    .then(({ data: response }) => {
+      const user = {
+        ...response.data,
+        isLogged: true,
+        token,
+      }
+
+      axios.get(CreateURL('Company/GetCompanies'), GetPostHeaders(token))
+        .then(({ data: res }) => {
+          store.set('user/customerCompany', res.data[0])
+          user.company = user.roleId === ROLES.SUPPLIER
+            ? res.data[0]
+            : axios.get(CreateURL(`Supplier/GetSupplierById/${user.supplierId}`), GetPostHeaders(token))
+                .then(({ data: comp }) => { user.company = comp.data })
+
+          store.set('user/user', user)
+          localStorage.setItem('user', JSON.stringify(user))
+
+          router.push('/')
+        })
+    })
+    .catch(({ response }) => {
+      store.set('user/user', {})
+
+      //  ? ERROR HANDLING EXAMPLE
+      //  * response has the all info about error. Like Status or Data
+      const { error } = response.data
+      store.set('app/alertMessage', error.errors[0])
     })
     .finally(() => setTimeout(() => {
         store.set('app/isLoading', false)
@@ -119,9 +132,11 @@ const actions = {
     store.set('project/projects', [])
     store.set('user/users', [])
     store.set('user/user', {})
-    store.set('app/items', [])
     store.set('app/alertMessage', '')
     store.set('app/alertType', '')
+
+    localStorage.removeItem('jwt')
+    localStorage.removeItem('user')
 
     router.push('/login/')
   },
@@ -198,7 +213,7 @@ const actions = {
   getUnitManagers: () => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL(`User/GetUsersByRoleId/${ROLE_IDS.UNIT_MANAGER}`), GetPostHeaders(store.get('user/user').token))
+    axios.get(CreateURL(`User/GetUsersByRoleId/${ROLES.UNIT_MANAGER}`), GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('user/users', res.data)
       })
@@ -212,7 +227,7 @@ const actions = {
   getSuppliers: () => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL(`User/GetUsersByRoleId/${ROLE_IDS.SUPPLIER}`), GetPostHeaders(store.get('user/user').token))
+    axios.get(CreateURL(`User/GetUsersByRoleId/${ROLES.SUPPLIER}`), GetPostHeaders(store.get('user/user').token))
       .then(({ data: res }) => {
         store.set('user/users', res.data)
       })

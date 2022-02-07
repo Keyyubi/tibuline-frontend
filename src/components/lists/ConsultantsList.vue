@@ -85,7 +85,7 @@
 </template>
 
 <script>
-  import { ROLE_IDS as Roles } from '@/util/globals'
+  import { ROLES as Roles } from '@/util/globals'
   import { get } from 'vuex-pathify'
   export default {
     name: 'ConsultantsList',

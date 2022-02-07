@@ -246,7 +246,7 @@
 </template>
 
 <script>
-  import { DEMAND_STATUSES as Statuses, ROLE_IDS as Roles, CONTRACT_STATUSES as cStatuses } from '@/util/globals'
+  import { DEMAND_STATUSES as Statuses, ROLES as Roles, CONTRACT_STATUSES as cStatuses } from '@/util/globals'
   import { CheckIsNull } from '@/util/helpers'
   import { get } from 'vuex-pathify'
   export default {

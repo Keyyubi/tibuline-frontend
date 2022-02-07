@@ -415,7 +415,7 @@
 </template>
 
 <script>
-  import { RULES, ROLE_IDS as Roles } from '@/util/globals'
+  import { RULES, ROLES as Roles } from '@/util/globals'
   import { CheckIsNull } from '@/util/helpers'
   import { get } from 'vuex-pathify'
   export default {

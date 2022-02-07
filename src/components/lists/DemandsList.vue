@@ -93,7 +93,7 @@
 </template>
 
 <script>
-  import { DEMAND_STATUS_LABELS as Labels, ROLE_IDS as Roles } from '@/util/globals'
+  import { DEMAND_STATUS_LABELS as Labels, ROLES as Roles } from '@/util/globals'
   import { get } from 'vuex-pathify'
   export default {
     name: 'DemandsList',

@@ -16,7 +16,7 @@ export const CheckIsNull = (arr) => {
 
   return isNull
 }
-export const CreateURL = (endpoint = '') => process.env.VUE_APP_ROOT_API + (endpoint.startsWith('/') ? endpoint : '/' + endpoint)
+export const CreateURL = (endpoint = '') => process.env.VUE_APP_ROOT_API + '/api' + (endpoint.startsWith('/') ? endpoint : '/' + endpoint)
 export const GetPostHeaders = (token) => {
   return {
     headers: {

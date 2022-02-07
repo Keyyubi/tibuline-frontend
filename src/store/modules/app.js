@@ -1,6 +1,6 @@
 // Pathify
 import { make } from 'vuex-pathify'
-import { ROLE_IDS } from '@/util/globals'
+import { ROLES } from '@/util/globals'
 
 const supplierItems = [
   {
@@ -116,13 +116,19 @@ const adminItems = [
   },
 ]
 
+const items = [
+  ...supplierItems.map(e => { return { ...e, role: ROLES.SUPPLIER } }),
+  ...managerItems.map(e => { return { ...e, role: ROLES.UNIT_MANAGER } }),
+  ...adminItems.map(e => { return { ...e, role: ROLES.ADMIN } }),
+]
+
 // Data
 const state = {
   drawer: null,
   drawerImage: true,
   mini: false,
   isLoading: false,
-  items: [],
+  items,
   alertMessage: '',
   alertType: '',
 }
@@ -133,22 +139,6 @@ const actions = {
   ...make.actions(state),
   init: async ({ dispatch }) => {
     //
-  },
-  updateItems: (context, roleId) => {
-    switch (roleId) {
-      case ROLE_IDS.SUPPLIER:
-        context.commit('items', supplierItems)
-        break
-      case ROLE_IDS.UNIT_MANAGER:
-        context.commit('items', managerItems)
-        break
-      case ROLE_IDS.ADMIN:
-        context.commit('items', adminItems)
-        break
-      default:
-        context.commit('items', supplierItems)
-        break
-    }
   },
   showAlert: (context, payload) => {
     // Alert Types =>  'success', 'info', 'warning', 'error'

@@ -25,7 +25,7 @@
 
       <v-divider class="mx-3 mb-2" />
 
-      <default-list :items="items" />
+      <default-list :items="items.filter(e => e.role === role)" />
     </div>
 
     <!-- <template #append>
@@ -74,6 +74,12 @@
         /* webpackChunkName: "default-list" */
         './List'
       ),
+    },
+
+    data () {
+      return {
+        role: JSON.parse(localStorage.getItem('user')).roleId,
+      }
     },
 
     computed: {
