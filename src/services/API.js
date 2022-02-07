@@ -1,6 +1,5 @@
 import axios from 'axios'
-
-// const baseUrl = process.env.VUE_APP_ROOT_API
+import { leadingSlash, trailingSlash } from '@/util/helpers'
 
 export class API {
   baseUrl = process.env.VUE_APP_ROOT_API
@@ -26,8 +25,7 @@ export class API {
   }
 
   getUrl (endpoint) {
-    const base = `${this.baseUrl.endsWith('/') ? this.baseUrl : this.baseUrl + '/'}`
-    return `${base}api/${this.singular}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`
+    return `${trailingSlash(this.baseUrl)}api/${this.singular}${leadingSlash(endpoint)}`
   }
 
   handleErrors (err) {

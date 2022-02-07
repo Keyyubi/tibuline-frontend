@@ -14,6 +14,7 @@ export const $api = {
   jobTitle: new API('jobTitle'),
   project: new API('project'),
   supplier: new API('supplier'),
+  user: new API('user'),
 }
 
 export const UserService = new API('user')

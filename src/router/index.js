@@ -57,7 +57,7 @@ const router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
-  if (localStorage.getItem('jwt') === null) {
+  if (localStorage.getItem('jwt') === null || localStorage.getItem('user') === null) {
     if (to.path !== '/login/') {
       return next({ path: '/login/' })
     } else {
