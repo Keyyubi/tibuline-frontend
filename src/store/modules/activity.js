@@ -68,13 +68,13 @@ const mutations = make.mutations(state)
 const actions = {
   // Create Methods
   createActivity: (context, payload) => {
-    axios.post(CreateURL('Activity/SaveActivity'), payload)
+    this.$api.activity.create(payload)
       .then(({ data: res }) => {
         store.set('activity/activities', [...store.get('activity/activities'), ...getMappedActivities(res.data)])
         store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
       })
       .catch(error => {
-        console.log('Error', error)
+        console.log('Error act', error)
         store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
       })
   },

@@ -62,6 +62,7 @@ const actions = {
     axios.post(CreateURL('Auth/CreateToken'), { email: user.email, password: user.password })
     .then(({ data: res }) => {
       localStorage.setItem('jwt', res.data.accessToken)
+      localStorage.setItem('rfrjwt', res.data.refreshToken)
 
       dispatch('getUser')
     })

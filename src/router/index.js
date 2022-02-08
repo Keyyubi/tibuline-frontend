@@ -1,6 +1,7 @@
 // Imports
 import Vue from 'vue'
 import Router from 'vue-router'
+import axios from 'axios'
 import { trailingSlash } from '@/util/helpers'
 import {
   layout,
@@ -66,6 +67,7 @@ router.beforeEach((to, from, next) => {
   } else {
     if (!store.get('user/user').id) {
       store.set('user/user', JSON.parse(localStorage.getItem('user')))
+      axios.defaults.headers.common.Authorization = `Bearer ${localStorage.getItem('jwt')}`
     }
 
     if (to.matched.some(record => record.meta.manager)) {

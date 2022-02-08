@@ -15,13 +15,13 @@ const actions = {
   createExperience: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('Experience/SaveExperience'), payload)
+    this.$api.experience.create(payload)
       .then(({ data: res }) => {
         store.set('experience/experiences', [...store.get('experience/experiences'), res.data])
         store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
       })
       .catch(error => {
-        console.log('Error', error)
+        console.log('Error11', error)
         store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
       })
       .finally(() => {
@@ -49,6 +49,7 @@ const actions = {
   },
   getExperiences: () => {
     store.set('app/isLoading', true)
+    // console.log('api', this.$api)
 
     axios.get(CreateURL('Experience/GetExperiences'))
       .then(({ data: res }) => {

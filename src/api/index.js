@@ -16,7 +16,3 @@ export const $api = {
   supplier: new API('supplier'),
   user: new API('user'),
 }
-
-console.log('arpi', $api)
-
-export const UserService = new API('user')

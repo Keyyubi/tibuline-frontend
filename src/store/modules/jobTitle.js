@@ -47,19 +47,23 @@ const actions = {
         store.set('app/isLoading', false)
       })
   },
-  getJobTitles: () => {
-    store.set('app/isLoading', true)
+  async getJobTitles () {
+    // console.log('api', this.$api)
+    // store.set('app/isLoading', true)
 
-    axios.get(CreateURL('JobTitle/GetJobTitles'))
-      .then(({ data: res }) => {
-        store.set('jobTitle/jobTitles', res.data)
-      })
-      .catch(error => {
-        console.log('Error', error)
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
+    const data = await this.$api.jobTitle.get()
+    store.set('jobTitle/jobTitles', data.data)
+
+    // axios.get(CreateURL('JobTitle/GetJobTitles'))
+    //   .then(({ data: res }) => {
+    //     store.set('jobTitle/jobTitles', res.data)
+    //   })
+    //   .catch(error => {
+    //     console.log('Error', error)
+    //   })
+    //   .finally(() => {
+    //     store.set('app/isLoading', false)
+    //   })
   },
   getJobTitleById: (context, payload) => {
     store.set('app/isLoading', true)

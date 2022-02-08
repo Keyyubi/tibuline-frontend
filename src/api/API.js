@@ -1,6 +1,19 @@
 import axios from 'axios'
 import { leadingSlash, trailingSlash } from '@/util/helpers'
 
+const refresh = () => {
+  localStorage.removeItem('jwt')
+
+  axios.post(`${process.env.VUE_APP_ROOT_API}/api/Auth/CreateTokenByRefreshToken`, { token: localStorage.getItem('rfrjwt') })
+    .then(({ data: res }) => {
+      localStorage.setItem('jwt', res.data.accessToken)
+      localStorage.setItem('rfrjwt', res.data.refreshToken)
+    })
+    .catch(err => {
+      console.log('err', err)
+    })
+}
+
 export class API {
   baseUrl = process.env.VUE_APP_ROOT_API
   singular
@@ -16,15 +29,6 @@ export class API {
       : this.singular + 's'
   }
 
-  getHeader () {
-    return {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('jwt')}`,
-        'Content-type': 'application/json',
-      },
-    }
-  }
-
   getUrl (endpoint) {
     return `${trailingSlash(this.baseUrl)}api/${this.singular}${leadingSlash(endpoint)}`
   }
@@ -32,14 +36,15 @@ export class API {
   handleErrors (err) {
     // Note: here you may want to add your errors handling
     if (err.response.status === 401) {
-      console.log('Token expired')
+      refresh()
+      console.log({ message: 'Please refresh the page' })
     }
-    console.log({ message: 'Errors is handled here', err })
+    // console.log({ message: 'Errors is handled here', err })
   }
 
   async get () {
     try {
-      const response = await axios.get(this.getUrl(`Get${this.plural}`), this.getHeader())
+      const response = await axios.get(this.getUrl(`Get${this.plural}`))
 
       return response.data
     } catch (err) {
@@ -51,7 +56,7 @@ export class API {
     try {
       if (!id) throw Error('Id is not provided')
 
-      const response = await axios.get(this.getUrl(`Get${this.singular}ById/${id}`), this.getHeader())
+      const response = await axios.get(this.getUrl(`Get${this.singular}ById/${id}`))
 
       return response.data
     } catch (err) {
@@ -74,7 +79,7 @@ export class API {
         url += `/${e}`
       })
 
-      const response = await axios.get(url, this.getHeader())
+      const response = await axios.get(url)
       console.log('Response for ', this.plural, ' => ', response)
 
       return response.data
@@ -85,7 +90,7 @@ export class API {
 
   async create (data = {}) {
     try {
-      await axios.post(this.getUrl(`Save${this.singular}`), data, this.getHeader())
+      await axios.post(this.getUrl(`Save${this.singular}`), data)
       return true
     } catch (err) {
       this.handleErrors(err)
@@ -94,7 +99,7 @@ export class API {
 
   async update (data = {}) {
     try {
-      await axios.put(this.getUrl(`Update${this.singular}`), data, this.getHeader())
+      await axios.put(this.getUrl(`Update${this.singular}`), data)
       return true
     } catch (err) {
       this.handleErrors(err)
@@ -105,7 +110,7 @@ export class API {
     if (!id) throw Error('Id is not provided')
 
     try {
-      await axios.delete(this.getUrl(`Delete${this.singular}/${id}`), this.getHeader())
+      await axios.delete(this.getUrl(`Delete${this.singular}/${id}`))
       return true
     } catch (err) {
       this.handleErrors(err)
