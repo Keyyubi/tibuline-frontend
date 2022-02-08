@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { make } from 'vuex-pathify'
-import { CreateURL, GetPostHeaders } from '@/util/helpers'
+import { CreateURL } from '@/util/helpers'
 import store from '../index'
 
 // Data
@@ -15,7 +15,7 @@ const actions = {
   createProject: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('Project/SaveProject'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.post(CreateURL('Project/SaveProject'), payload)
       .then(({ data: res }) => {
         store.set('project/projects', [...store.get('project/projects'), res.data])
         store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
@@ -31,7 +31,7 @@ const actions = {
   updateProject: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.put(CreateURL('Project/UpdateProject'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.put(CreateURL('Project/UpdateProject'), payload)
       .then(() => {
         const arr = store.get('project/projects')
         const index = arr.findIndex(e => e.id === payload.id)
@@ -49,9 +49,8 @@ const actions = {
   },
   getProjects: () => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
 
-    axios.get(CreateURL('Project/GetProjects'), GetPostHeaders(currUser.token))
+    axios.get(CreateURL('Project/GetProjects'))
       .then(({ data: res }) => {
         store.set('project/projects', res.data)
       })
@@ -66,7 +65,7 @@ const actions = {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
 
-    axios.get(CreateURL(`Project/GetProjectsByAssignedTo/${currUser.id}`), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`Project/GetProjectsByAssignedTo/${currUser.id}`))
       .then(({ data: res }) => {
         store.set('project/projects', res.data)
       })

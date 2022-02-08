@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { make } from 'vuex-pathify'
-import { CreateURL, GetPostHeaders } from '@/util/helpers'
+import { CreateURL } from '@/util/helpers'
 import store from '../index'
 
 // Data
@@ -19,14 +19,14 @@ const actions = {
 
     axios.post(CreateURL('Invoice/UploadInvoiceDocuments/upload'), payload.formData, {
       headers: {
-        Authorization: `Bearer ${currUser.token}`,
+        Authorization: `Bearer ${localStorage.getItem('jwt')}`,
         'Content-Type': 'multipart/form-data',
       },
     })
       .then(({ data: res }) => {
         payload.invoice.invoiceFilePath = res.data
 
-        axios.post(CreateURL('Invoice/SaveInvoice'), payload.invoice, GetPostHeaders(currUser.token))
+        axios.post(CreateURL('Invoice/SaveInvoice'), payload.invoice)
         .then(({ data: createdInvoice }) => {
           store.set('invoice/invoices', [...store.get('invoice/invoices'), createdInvoice.data])
           setTimeout(() => {
@@ -39,7 +39,7 @@ const actions = {
         .then(() => {
           const { length } = payload.activities
           for (let i = 0; i < length; i++) {
-            axios.put(CreateURL('Activity/UpdateActivity'), payload.activities[i], GetPostHeaders(currUser.token))
+            axios.put(CreateURL('Activity/UpdateActivity'), payload.activities[i])
           }
         })
       })
@@ -54,7 +54,7 @@ const actions = {
   updateInvoice: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.put(CreateURL('Invoice/UpdateInvoice'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.put(CreateURL('Invoice/UpdateInvoice'), payload)
       .then(() => {
         const arr = store.get('invoice/invoices')
         const index = arr.findIndex(e => e.id === payload.id)
@@ -72,9 +72,8 @@ const actions = {
   },
   getInvoices: () => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
 
-    axios.get(CreateURL('Invoice/GetInvoices'), GetPostHeaders(currUser.token))
+    axios.get(CreateURL('Invoice/GetInvoices'))
       .then(({ data: res }) => {
         store.set('invoice/invoices', res.data)
       })
@@ -89,7 +88,7 @@ const actions = {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
 
-    axios.get(CreateURL(`Invoice/GetInvoicesByAssignedTo/${currUser.id}`), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`Invoice/GetInvoicesByAssignedTo/${currUser.id}`))
       .then(({ data: res }) => {
         store.set('invoice/invoices', res.data)
       })

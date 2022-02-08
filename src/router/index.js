@@ -64,8 +64,7 @@ router.beforeEach((to, from, next) => {
       next()
     }
   } else {
-    const user = store.get('user/user')
-    if (!user.id) {
+    if (!store.get('user/user').id) {
       store.set('user/user', JSON.parse(localStorage.getItem('user')))
     }
 

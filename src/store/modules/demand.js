@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { make } from 'vuex-pathify'
-import { CreateURL, GetPostHeaders } from '@/util/helpers'
+import { CreateURL } from '@/util/helpers'
 import { ROLES } from '@/util/globals'
 import store from '../index'
 
@@ -17,7 +17,7 @@ const actions = {
   createDemand: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('Demand/SaveDemand'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.post(CreateURL('Demand/SaveDemand'), payload)
       .then(() => {
         store.set('demand/demands', [...store.get('demand/demands'), payload])
         store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
@@ -35,7 +35,7 @@ const actions = {
     const { olderContractId } = payload
     delete payload.olderContractId
 
-    axios.put(CreateURL(`Demand/UpdateDemand/${olderContractId || -1}`), payload, GetPostHeaders(store.get('user/user').token))
+    axios.put(CreateURL(`Demand/UpdateDemand/${olderContractId || -1}`), payload)
       .then(() => {
         const arr = store.get('demand/demands')
         const index = arr.findIndex(e => e.id === payload.id)
@@ -60,15 +60,15 @@ const actions = {
       ? CreateURL(`Demand/GetDemandsByCreatedBy/${currUser.id}`)
       : CreateURL(`Demand/GetDemandsBySupplierId/${currUser.company.id}`)
 
-    axios.get(url, GetPostHeaders(currUser.token))
+    axios.get(url)
       .then(({ data: res }) => {
         const demands = [...res.data].map(el => {
           if (el.contractId) {
             el.olderContractId = el.contractId
-            axios.get(CreateURL(`Contract/GetContractById/${el.contractId}`), GetPostHeaders(currUser.token))
+            axios.get(CreateURL(`Contract/GetContractById/${el.contractId}`))
               .then(({ data: contract }) => {
                 el.contract = contract.data
-                axios.get(CreateURL(`Consultant/GetConsultantById/${contract.data.consultantId}`), GetPostHeaders(currUser.token))
+                axios.get(CreateURL(`Consultant/GetConsultantById/${contract.data.consultantId}`))
                   .then(({ data: consultant }) => {
                     el.consultant = consultant.data
                   })

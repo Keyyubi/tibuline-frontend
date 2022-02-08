@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { make } from 'vuex-pathify'
-import { CreateURL, GetPostHeaders } from '@/util/helpers'
+import { CreateURL } from '@/util/helpers'
 import store from '../index'
 
 const state = {
@@ -12,7 +12,7 @@ const mutations = make.mutations(state)
 const actions = {
   // Create Methods
   createActivityPeriod: (context, payload) => {
-    axios.post(CreateURL('ActivityPeriod/SaveActivityPeriod'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.post(CreateURL('ActivityPeriod/SaveActivityPeriod'), payload)
       .then(({ data: res }) => {
         store.set('activityPeriod/activityPeriods', [...store.get('activityPeriod/activityPeriods'), res.data])
         store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
@@ -25,7 +25,7 @@ const actions = {
   updateActivityPeriod: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.put(CreateURL('ActivityPeriod/UpdateActivityPeriod'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.put(CreateURL('ActivityPeriod/UpdateActivityPeriod'), payload)
       .then(() => {
         const arr = store.get('activityPeriod/activityPeriods')
         const index = arr.findIndex(e => e.id === payload.id)
@@ -43,9 +43,8 @@ const actions = {
   },
   getActivityPeriods: () => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
 
-    axios.get(CreateURL('ActivityPeriod/GetActivityPeriods'), GetPostHeaders(currUser.token))
+    axios.get(CreateURL('ActivityPeriod/GetActivityPeriods'))
       .then(({ data: res }) => {
         store.set('activityPeriod/activityPeriods', res.data)
       })
@@ -58,9 +57,8 @@ const actions = {
   },
   getActivityPeriodById: (context, payload) => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
 
-    axios.get(CreateURL(`ActivityPeriod/GetActivityPeriodById/${payload}`), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`ActivityPeriod/GetActivityPeriodById/${payload}`))
       .then(({ data: res }) => {
         store.set('activityPeriod/activityPeriods', res.data)
       })
@@ -74,7 +72,7 @@ const actions = {
   getActivityPeriodsByConsultantId: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL(`ActivityPeriod/GetActivityPeriodsByConsultantId/${payload}`), GetPostHeaders(store.get('user/user').token))
+    axios.get(CreateURL(`ActivityPeriod/GetActivityPeriodsByConsultantId/${payload}`))
       .then(({ data: res }) => {
         store.set('activityPeriod/activityPeriods', res.data)
       })

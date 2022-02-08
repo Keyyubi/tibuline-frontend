@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { make } from 'vuex-pathify'
-import { CreateURL, GetPostHeaders } from '@/util/helpers'
+import { CreateURL } from '@/util/helpers'
 import store from '../index'
 
 // Data
@@ -15,7 +15,7 @@ const actions = {
   createJobTitle: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('JobTitle/SaveJobTitle'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.post(CreateURL('JobTitle/SaveJobTitle'), payload)
       .then(({ data: res }) => {
         store.set('jobTitle/jobTitles', [...store.get('jobTitle/jobTitles'), res.data])
         store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
@@ -31,7 +31,7 @@ const actions = {
   updateJobTitle: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.put(CreateURL('JobTitle/UpdateJobTitle'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.put(CreateURL('JobTitle/UpdateJobTitle'), payload)
       .then(() => {
         const arr = store.get('jobTitle/jobTitles')
         const index = arr.findIndex(e => e.id === payload.id)
@@ -49,9 +49,8 @@ const actions = {
   },
   getJobTitles: () => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
 
-    axios.get(CreateURL('JobTitle/GetJobTitles'), GetPostHeaders(currUser.token))
+    axios.get(CreateURL('JobTitle/GetJobTitles'))
       .then(({ data: res }) => {
         store.set('jobTitle/jobTitles', res.data)
       })
@@ -64,9 +63,8 @@ const actions = {
   },
   getJobTitleById: (context, payload) => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
 
-    axios.get(CreateURL(`JobTitle/GetJobTitleById/${payload}`), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`JobTitle/GetJobTitleById/${payload}`))
       .then(({ data: res }) => {
         store.set('jobTitle/jobTitles', [res.data])
       })

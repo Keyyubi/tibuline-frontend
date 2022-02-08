@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { make } from 'vuex-pathify'
-import { CreateURL, GetPostHeaders } from '@/util/helpers'
+import { CreateURL } from '@/util/helpers'
 import store from '../index'
 
 const getMappedActivities = (items = []) => {
@@ -68,7 +68,7 @@ const mutations = make.mutations(state)
 const actions = {
   // Create Methods
   createActivity: (context, payload) => {
-    axios.post(CreateURL('Activity/SaveActivity'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.post(CreateURL('Activity/SaveActivity'), payload)
       .then(({ data: res }) => {
         store.set('activity/activities', [...store.get('activity/activities'), ...getMappedActivities(res.data)])
         store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
@@ -79,7 +79,7 @@ const actions = {
       })
   },
   updateActivity: (context, payload) => {
-    axios.put(CreateURL('Activity/UpdateActivity'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.put(CreateURL('Activity/UpdateActivity'), payload)
       .then(() => {
         const arr = store.get('activity/activities')
         const index = arr.findIndex(e => e.id === payload.id)
@@ -94,9 +94,8 @@ const actions = {
   },
   getActivity: () => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
 
-    axios.get(CreateURL('Activity/GetActivities'), GetPostHeaders(currUser.token))
+    axios.get(CreateURL('Activity/GetActivities'))
       .then(({ data: res }) => {
         store.set('activity/activities', getMappedActivities(res.data))
       })
@@ -109,9 +108,8 @@ const actions = {
   },
   getActivityById: (context, payload) => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
 
-    axios.get(CreateURL(`Activity/GetActivityById/${payload}`), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`Activity/GetActivityById/${payload}`))
       .then(({ data: res }) => {
         store.set('activity/activities', getMappedActivities(res.data))
       })
@@ -125,7 +123,7 @@ const actions = {
   getActivitiesByConsultantIdAndYearMonth: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL(`Activity/GetActivitiesByConsultantIdAndYearMonth/${payload.consultantId}/${payload.yearMonth}`), GetPostHeaders(store.get('user/user').token))
+    axios.get(CreateURL(`Activity/GetActivitiesByConsultantIdAndYearMonth/${payload.consultantId}/${payload.yearMonth}`))
       .then(({ data: res }) => {
         store.set('activity/activities', getMappedActivities(res.data))
       })
@@ -142,7 +140,7 @@ const actions = {
   getActivitiesByConsultantIdAndYearMonthAndStatus: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL(`Activity/GetActivitiesByConsultantIdAndYearMonthAndStatus/${payload.consultantId}/${payload.yearMonth}/${payload.activityStatus}`), GetPostHeaders(store.get('user/user').token))
+    axios.get(CreateURL(`Activity/GetActivitiesByConsultantIdAndYearMonthAndStatus/${payload.consultantId}/${payload.yearMonth}/${payload.activityStatus}`))
       .then(({ data: res }) => {
         store.set('activity/activities', getMappedActivities(res.data))
       })
@@ -155,7 +153,7 @@ const actions = {
       })
   },
   deleteActivity: (context, id) => {
-    axios.delete(CreateURL(`Activity/DeleteActivity/${id}`), GetPostHeaders(store.get('user/user').token))
+    axios.delete(CreateURL(`Activity/DeleteActivity/${id}`))
       .then(() => {
         store.dispatch('app/showAlert', { message: 'Aktivite silindi.', type: 'error' }, { root: true })
       })

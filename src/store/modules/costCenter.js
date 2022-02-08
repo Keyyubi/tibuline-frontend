@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { make } from 'vuex-pathify'
-import { CreateURL, GetPostHeaders } from '@/util/helpers'
+import { CreateURL } from '@/util/helpers'
 import store from '../index'
 
 // Data
@@ -15,7 +15,7 @@ const actions = {
   createCostCenter: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('CostCenter/SaveCostCenter'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.post(CreateURL('CostCenter/SaveCostCenter'), payload)
       .then(({ data: res }) => {
         store.set('costCenter/costCenters', [...store.get('costCenter/costCenters'), res.data])
         store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
@@ -31,7 +31,7 @@ const actions = {
   updateCostCenter: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.put(CreateURL('CostCenter/UpdateCostCenter'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.put(CreateURL('CostCenter/UpdateCostCenter'), payload)
       .then(() => {
         const arr = store.get('costCenter/costCenters')
         const index = arr.findIndex(e => e.id === payload.id)
@@ -49,9 +49,8 @@ const actions = {
   },
   getCostCenters: () => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
 
-    axios.get(CreateURL('CostCenter/GetCostCenters'), GetPostHeaders(currUser.token))
+    axios.get(CreateURL('CostCenter/GetCostCenters'))
       .then(({ data: res }) => {
         store.set('costCenter/costCenters', res.data)
       })

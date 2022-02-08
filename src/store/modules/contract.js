@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { make } from 'vuex-pathify'
-import { CreateURL, GetPostHeaders } from '@/util/helpers'
+import { CreateURL } from '@/util/helpers'
 import store from '../index'
 
 // Data
@@ -15,7 +15,7 @@ const actions = {
   createContract: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('Contract/SaveContract'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.post(CreateURL('Contract/SaveContract'), payload)
       .then(({ data: res }) => {
         store.set('contract/contracts', [...store.get('contract/contracts'), res.data])
         store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
@@ -31,7 +31,7 @@ const actions = {
   updateContract: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.put(CreateURL('Contract/UpdateContract'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.put(CreateURL('Contract/UpdateContract'), payload)
       .then(() => {
         const arr = store.get('contract/contracts')
         const index = arr.findIndex(e => e.id === payload.id)
@@ -49,9 +49,8 @@ const actions = {
   },
   getContractById: (context, payload) => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
 
-    axios.get(CreateURL(`Contract/GetContractById/${payload}`), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`Contract/GetContractById/${payload}`))
       .then(({ data: res }) => {
         store.set('contract/contracts', [res.data])
       })
@@ -66,7 +65,7 @@ const actions = {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
 
-    axios.get(CreateURL(`Contract/GetContractsBySupplierId/${currUser.company.id}`), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`Contract/GetContractsBySupplierId/${currUser.company.id}`))
       .then(({ data: res }) => {
         store.set('contract/contracts', res.data)
       })
@@ -84,14 +83,14 @@ const actions = {
 
     axios.post(CreateURL('Contract/UploadContractDocuments/upload'), payload.formData, {
       headers: {
-        Authorization: `Bearer ${currUser.token}`,
+        Authorization: `Bearer ${localStorage.getItem('jwt')}`,
         'Content-Type': 'multipart/form-data',
       },
     })
       .then(({ data: res }) => {
         payload.contract.filePath = res.data
 
-        axios.put(CreateURL('Contract/UpdateContract'), payload.contract, GetPostHeaders(currUser.token))
+        axios.put(CreateURL('Contract/UpdateContract'), payload.contract)
           .then(() => {
             const arr = store.get('contract/contracts')
             const index = arr.findIndex(e => e.id === payload.id)
@@ -99,12 +98,12 @@ const actions = {
             store.set('contract/contracts', arr)
           })
           .then(() => {
-            axios.get(`Consultant/GetConsultantById/${payload.contract.consultantId}`, GetPostHeaders(currUser.token))
+            axios.get(`Consultant/GetConsultantById/${payload.contract.consultantId}`)
               .then(({ data: res }) => {
                 const consultant = res.data
                 consultant.contractFilePath = payload.contract.filePath
 
-                axios.put(CreateURL('Consultant/UpdateConsultant'), consultant, GetPostHeaders(currUser.token))
+                axios.put(CreateURL('Consultant/UpdateConsultant'), consultant)
                   .then(() => {
                     store.dispatch('app/showAlert', { message: 'Başarıyla yüklendi.', type: 'success' }, { root: true })
                   })

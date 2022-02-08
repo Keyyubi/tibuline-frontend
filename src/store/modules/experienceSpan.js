@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { make } from 'vuex-pathify'
-import { CreateURL, GetPostHeaders } from '@/util/helpers'
+import { CreateURL } from '@/util/helpers'
 import store from '../index'
 
 // Data
@@ -15,7 +15,7 @@ const actions = {
   createExperienceSpan: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('ExperienceSpan/SaveExperienceSpan'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.post(CreateURL('ExperienceSpan/SaveExperienceSpan'), payload)
       .then(({ data: res }) => {
         store.set('experienceSpan/experienceSpans', [...store.get('experienceSpan/experienceSpans'), res.data])
         store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
@@ -31,7 +31,7 @@ const actions = {
   updateExperienceSpan: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.put(CreateURL('ExperienceSpan/UpdateExperienceSpan'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.put(CreateURL('ExperienceSpan/UpdateExperienceSpan'), payload)
       .then(() => {
         const arr = store.get('experienceSpan/experienceSpans')
         const index = arr.findIndex(e => e.id === payload.id)
@@ -49,9 +49,8 @@ const actions = {
   },
   getExperienceSpans: () => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
 
-    axios.get(CreateURL('ExperienceSpan/GetExperienceSpans'), GetPostHeaders(currUser.token))
+    axios.get(CreateURL('ExperienceSpan/GetExperienceSpans'))
       .then(({ data: res }) => {
         store.set('experienceSpan/experienceSpans', res.data)
       })
@@ -64,9 +63,8 @@ const actions = {
   },
   getExperienceSpanById: (context, payload) => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
 
-    axios.get(CreateURL(`ExperienceSpan/GetExperienceSpanById/${payload}`), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`ExperienceSpan/GetExperienceSpanById/${payload}`))
       .then(({ data: res }) => {
         store.set('experienceSpan/experienceSpans', [res.data])
       })

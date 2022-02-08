@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { make } from 'vuex-pathify'
-import { CreateURL, GetPostHeaders } from '@/util/helpers'
+import { CreateURL } from '@/util/helpers'
 import store from '../index'
 
 // Data
@@ -15,7 +15,7 @@ const actions = {
   createSupplier: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('Supplier/SaveSupplier'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.post(CreateURL('Supplier/SaveSupplier'), payload)
       .then(({ data: res }) => {
         store.set('supplier/suppliers', [...store.get('supplier/suppliers'), res.data])
         store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
@@ -31,7 +31,7 @@ const actions = {
   updateSupplier: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.put(CreateURL('Supplier/UpdateSupplier'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.put(CreateURL('Supplier/UpdateSupplier'), payload)
       .then(() => {
         const arr = store.get('supplier/suppliers')
         const index = arr.findIndex(e => e.id === payload.id)
@@ -49,9 +49,8 @@ const actions = {
   },
   getSuppliers: () => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
 
-    axios.get(CreateURL('Supplier/GetSuppliers'), GetPostHeaders(currUser.token))
+    axios.get(CreateURL('Supplier/GetSuppliers'))
       .then(({ data: res }) => {
         store.set('supplier/suppliers', res.data)
       })
@@ -64,9 +63,8 @@ const actions = {
   },
   getSupplierById: (context, payload) => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
 
-    axios.get(CreateURL(`Supplier/GetSupplierById/${payload}`), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`Supplier/GetSupplierById/${payload}`))
       .then(({ data: res }) => {
         store.set('supplier/suppliers', [res.data])
       })

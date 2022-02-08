@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { make } from 'vuex-pathify'
-import { CreateURL, GetPostHeaders } from '@/util/helpers'
+import { CreateURL } from '@/util/helpers'
 import store from '../index'
 
 // Data
@@ -16,7 +16,7 @@ const actions = {
   createBudget: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('Budget/SaveBudget'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.post(CreateURL('Budget/SaveBudget'), payload)
       .then(({ data: res }) => {
         store.set('budget/budgets', [...store.get('budget/budgets'), res.data])
         store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
@@ -32,7 +32,7 @@ const actions = {
   updateBudget: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.put(CreateURL('Budget/UpdateBudget'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.put(CreateURL('Budget/UpdateBudget'), payload)
       .then(() => {
         const arr = store.get('budget/budgets')
         const index = arr.findIndex(e => e.id === payload.id)
@@ -50,9 +50,8 @@ const actions = {
   },
   getBudgets: () => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
 
-    axios.get(CreateURL('Budget/GetBudgets'), GetPostHeaders(currUser.token))
+    axios.get(CreateURL('Budget/GetBudgets'))
       .then(({ data: res }) => {
         store.set('budget/budgets', res.data)
       })
@@ -65,9 +64,8 @@ const actions = {
   },
   getBudgetsBySupplierId: (context, payload) => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
 
-    axios.get(CreateURL(`Budget/GetBudgetsBySupplierId/${payload}`), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`Budget/GetBudgetsBySupplierId/${payload}`))
       .then(({ data: res }) => {
         store.set('budget/budgets', res.data)
       })
@@ -80,11 +78,10 @@ const actions = {
   },
   getBudgetsByParams: (context, payload) => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
 
     axios.get(
       CreateURL(`Budget/GetBudgetsBySupplierIdAndExperienceSpanIdAndJobTitleId/${payload.supplierId}/${payload.experienceSpanId}/${payload.jobTitleId}`),
-      GetPostHeaders(currUser.token))
+  )
       .then(({ data: res }) => {
         store.set('budget/invoiceBudget', res.data[0])
       })

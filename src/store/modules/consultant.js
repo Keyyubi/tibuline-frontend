@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { make } from 'vuex-pathify'
-import { CreateURL, GetPostHeaders } from '@/util/helpers'
+import { CreateURL } from '@/util/helpers'
 import store from '../index'
 
 // Data
@@ -15,7 +15,7 @@ const actions = {
   createConsultant: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('Consultant/SaveConsultant'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.post(CreateURL('Consultant/SaveConsultant'), payload)
       .then(({ data: res }) => {
         store.set('consultant/consultants', [...store.get('consultant/consultants'), res.data])
         store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
@@ -31,7 +31,7 @@ const actions = {
   updateConsultant: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.put(CreateURL('Consultant/UpdateConsultant'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.put(CreateURL('Consultant/UpdateConsultant'), payload)
       .then(() => {
         const arr = store.get('consultant/consultants')
         const index = arr.findIndex(e => e.id === payload.id)
@@ -54,13 +54,13 @@ const actions = {
 
     axios.post(CreateURL('Consultant/UploadConsultantDocuments/upload'), payload.formData, {
       headers: {
-        Authorization: `Bearer ${currUser.token}`,
+        Authorization: `Bearer ${localStorage.getItem('jwt')}`,
         'Content-Type': 'multipart/form-data',
       },
     })
       .then(({ data: res }) => {
         payload.sending.filePath = res.data
-        axios.put(CreateURL('Consultant/UpdateConsultant'), payload.sending, GetPostHeaders(currUser.token))
+        axios.put(CreateURL('Consultant/UpdateConsultant'), payload.sending)
         .then(() => {
           const arr = store.get('consultant/consultants')
           const index = arr.findIndex(e => e.id === payload.sending.id)
@@ -81,7 +81,7 @@ const actions = {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
 
-    axios.get(CreateURL(`Consultant/GetConsultantsBySupplierId/${currUser.company.id}`), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`Consultant/GetConsultantsBySupplierId/${currUser.company.id}`))
       .then(({ data: res }) => {
         store.set('consultant/consultants', res.data)
       })
@@ -94,9 +94,8 @@ const actions = {
   },
   getConsultantById: (context, payload) => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
 
-    axios.get(CreateURL(`Consultant/GetConsultantById/${payload}`), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`Consultant/GetConsultantById/${payload}`))
       .then(({ data: res }) => {
         store.set('consultant/consultants', [res.data])
       })
@@ -111,7 +110,7 @@ const actions = {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
 
-    axios.get(CreateURL(`Consultant/GetConsultantsByManagerId/${currUser.id}`), GetPostHeaders(currUser.token))
+    axios.get(CreateURL(`Consultant/GetConsultantsByManagerId/${currUser.id}`))
       .then(({ data: res }) => {
         store.set('consultant/consultants', res.data)
       })
@@ -124,9 +123,8 @@ const actions = {
   },
   getAllConsultants: () => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
 
-    axios.get(CreateURL('Consultant/GetConsultants'), GetPostHeaders(currUser.token))
+    axios.get(CreateURL('Consultant/GetConsultants'))
       .then(({ data: res }) => {
         store.set('consultant/consultants', res.data)
       })

@@ -3,7 +3,6 @@ import { leadingSlash, trailingSlash } from '@/util/helpers'
 
 export class API {
   baseUrl = process.env.VUE_APP_ROOT_API
-  header
   singular
   plural
 
@@ -15,8 +14,10 @@ export class API {
     this.plural = this.singular.endsWith('y')
       ? this.singular.substring(0, this.singular.length - 1) + 'ies'
       : this.singular + 's'
+  }
 
-    this.header = {
+  getHeader () {
+    return {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('jwt')}`,
         'Content-type': 'application/json',
@@ -38,7 +39,7 @@ export class API {
 
   async get () {
     try {
-      const response = await axios.get(this.getUrl(`Get${this.plural}`), this.header)
+      const response = await axios.get(this.getUrl(`Get${this.plural}`), this.getHeader())
 
       return response.data
     } catch (err) {
@@ -50,7 +51,7 @@ export class API {
     try {
       if (!id) throw Error('Id is not provided')
 
-      const response = await axios.get(this.getUrl(`Get${this.singular}ById/${id}`), this.header)
+      const response = await axios.get(this.getUrl(`Get${this.singular}ById/${id}`), this.getHeader())
 
       return response.data
     } catch (err) {
@@ -73,7 +74,7 @@ export class API {
         url += `/${e}`
       })
 
-      const response = await axios.get(url, this.header)
+      const response = await axios.get(url, this.getHeader())
       console.log('Response for ', this.plural, ' => ', response)
 
       return response.data
@@ -84,7 +85,7 @@ export class API {
 
   async create (data = {}) {
     try {
-      await axios.post(this.getUrl(`Save${this.singular}`), data, this.header)
+      await axios.post(this.getUrl(`Save${this.singular}`), data, this.getHeader())
       return true
     } catch (err) {
       this.handleErrors(err)
@@ -93,7 +94,7 @@ export class API {
 
   async update (data = {}) {
     try {
-      await axios.put(this.getUrl(`Update${this.singular}`), data, this.header)
+      await axios.put(this.getUrl(`Update${this.singular}`), data, this.getHeader())
       return true
     } catch (err) {
       this.handleErrors(err)
@@ -104,7 +105,7 @@ export class API {
     if (!id) throw Error('Id is not provided')
 
     try {
-      await axios.delete(this.getUrl(`Delete${this.singular}/${id}`), this.header)
+      await axios.delete(this.getUrl(`Delete${this.singular}/${id}`), this.getHeader())
       return true
     } catch (err) {
       this.handleErrors(err)
