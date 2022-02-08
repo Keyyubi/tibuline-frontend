@@ -111,7 +111,7 @@
               <v-list-item three-line>
                 <v-list-item-content>
                   <v-list-item-title>{{ selectedConsultant ? selectedConsultant.firstname + ' ' + selectedConsultant.lastname : 'Danışman' }}</v-list-item-title>
-                  <v-list-item-subtitle>{{ (experienceSpans && experienceSpans.length > 0) ? experienceSpans[0].name : 'Tecrübe Aralığı' }}</v-list-item-subtitle>
+                  <v-list-item-subtitle>{{ (experiences && experiences.length > 0) ? experiences[0].name : 'Tecrübe Aralığı' }}</v-list-item-subtitle>
                   <v-list-item-subtitle>{{ (jobTitles && jobTitles.length > 0) ? jobTitles[0].name : 'Ünvan' }}</v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
@@ -395,7 +395,7 @@
       ...get('consultant', ['consultants']),
       ...get('budget', ['invoiceBudget']),
       ...get('jobTitle', ['jobTitles']),
-      ...get('experienceSpan', ['experienceSpans']),
+      ...get('experience', ['experiences']),
       ...get('activity', ['activities']),
       ...get('supplier', ['companies']),
       ...get('activityPeriod', ['activityPeriods']),
@@ -460,11 +460,11 @@
         } else return true
       },
       selectConsultant () {
-        this.$store.dispatch('experienceSpan/resetStore')
+        this.$store.dispatch('experience/resetStore')
         this.$store.dispatch('jobTitle/resetStore')
         this.$store.dispatch('budget/resetStore')
 
-        const { supplierId, experienceSpanId, jobTitleId } = this.selectedConsultant
+        const { supplierId, experienceId, jobTitleId } = this.selectedConsultant
         this.description = ''
         this.selectedPeriod = null
 
@@ -473,14 +473,14 @@
         this.$store.dispatch('app/setLoading', true)
         setTimeout(() => {
           this.$store.dispatch('jobTitle/getJobTitleById', jobTitleId)
-          this.$store.dispatch('experienceSpan/getExperienceSpanById', experienceSpanId)
-          this.$store.dispatch('budget/getBudgetsByParams', { supplierId, experienceSpanId, jobTitleId })
+          this.$store.dispatch('experience/getExperienceById', experienceId)
+          this.$store.dispatch('budget/getBudgetsByParams', { supplierId, experienceId, jobTitleId })
           this.$store.dispatch('app/setLoading', false)
         }, 500)
       },
       selectPeriod () {
         this.description = this.selectedConsultant.firstname.toUpperCase() + ' ' + this.selectedConsultant.lastname.toUpperCase() + '\n'
-        this.description += this.jobTitles[0].name + ' - ' + this.experienceSpans[0].name + '\n\n'
+        this.description += this.jobTitles[0].name + ' - ' + this.experiences[0].name + '\n\n'
         this.description += 'Dönem: ' + this.selectedPeriod.name.split('-')[1] + '/' + this.selectedPeriod.name.split('-')[0] + '\n'
 
         const shiftHours = this.selectedPeriod.totalShiftHours

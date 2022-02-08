@@ -51,8 +51,8 @@
       <template v-slot:item.jobTitleId="{ item }">
         {{ getJobTitleName(item.jobTitleId) }}
       </template>
-      <template v-slot:item.experienceSpanId="{ item }">
-        {{ getExperienceSpanName(item.experienceSpanId) }}
+      <template v-slot:item.experienceId="{ item }">
+        {{ getExperienceName(item.experienceId) }}
       </template>
       <template v-slot:item.projectId="{ item }">
         {{ getProjectName(item.projectId) }}
@@ -109,7 +109,7 @@
     computed: {
       ...get('user', ['user', 'users']),
       ...get('demand', ['demands', 'isLoading']),
-      ...get('experienceSpan', ['experienceSpans']),
+      ...get('experience', ['experiences']),
       ...get('jobTitle', ['jobTitles']),
       ...get('project', ['projects']),
       ...get('supplier', ['suppliers']),
@@ -124,7 +124,7 @@
           },
           { text: 'text', value: 'changable', width: '250' },
           { text: 'Ünvan', value: 'jobTitleId', width: '200' },
-          { text: 'Tecrübe', value: 'experienceSpanId', width: '120' },
+          { text: 'Tecrübe', value: 'experienceId', width: '120' },
           { text: 'Proje', value: 'projectId', width: '150' },
           { text: 'Sözleşme/Aday', value: 'contract', width: '200' },
           { text: 'Söz. Baş. Tar.', value: 'contract.startDate', width: '150' },
@@ -139,7 +139,7 @@
     },
     mounted () {
       this.$store.dispatch('jobTitle/getJobTitles')
-      this.$store.dispatch('experienceSpan/getExperienceSpans')
+      this.$store.dispatch('experience/getExperiences')
       if (this.user.roleId === Roles.UNIT_MANAGER) {
         this.$store.dispatch('project/getProjectsByAssignedTo')
         this.$store.dispatch('supplier/getSuppliers')
@@ -187,9 +187,9 @@
           return result ? result.name : 'Bulunamadı'
         } else return 'Bulunamadı'
       },
-      getExperienceSpanName (id) {
-        if (id && this.experienceSpans && this.experienceSpans.length > 0) {
-          const result = this.experienceSpans.find(experienceSpan => experienceSpan.id === id)
+      getExperienceName (id) {
+        if (id && this.experiences && this.experiences.length > 0) {
+          const result = this.experiences.find(experience => experience.id === id)
           return result ? result.name : 'Bulunamadı'
         } else return 'Bulunamadı'
       },

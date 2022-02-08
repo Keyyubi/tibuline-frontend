@@ -192,14 +192,14 @@
         />
       </v-col>
 
-      <!-- ExperienceSpan -->
+      <!-- Experience -->
       <v-col
         cols="12"
         md="4"
       >
         <v-select
-          v-model="consultant.experienceSpanId"
-          :items="experienceSpans"
+          v-model="consultant.experienceId"
+          :items="experiences"
           item-text="name"
           item-value="id"
           label="Tecrübe Aralığı"
@@ -438,7 +438,7 @@
             contractId: 0,
             supplierId: 0,
             jobTitleId: 0,
-            experienceSpanId: 0,
+            experienceId: 0,
             personalFiles: '',
           }
         },
@@ -459,13 +459,13 @@
       ...get('user', ['user', 'users']),
       ...get('supplier', ['suppliers']),
       ...get('jobTitle', ['jobTitles']),
-      ...get('experienceSpan', ['experienceSpans']),
+      ...get('experience', ['experiences']),
       ...get('project', ['projects']),
     },
     mounted () {
       this.$store.dispatch('user/getUnitManagers')
       this.$store.dispatch('jobTitle/getJobTitles')
-      this.$store.dispatch('experienceSpan/getExperienceSpans')
+      this.$store.dispatch('experience/getExperiences')
       this.$store.dispatch('project/getProjects')
 
       if (this.formType !== 'create') {
@@ -510,7 +510,7 @@
           this.consultant.tckn,
           this.consultant.supplierId,
           this.consultant.jobTitleId,
-          this.consultant.experienceSpanId,
+          this.consultant.experienceId,
         ]
         if (!CheckIsNull(fields)) {
           const payload = { ...this.consultant }
@@ -526,7 +526,7 @@
         this.consultant.firstname = this.consultant.lastname = ''
         this.consultant.birthday = this.localeDate = this.date = null
         this.consultant.projectId = this.consultant.unitManagerUserId = null
-        this.consultant.jobTitleId = this.consultant.experienceSpanId = null
+        this.consultant.jobTitleId = this.consultant.experienceId = null
       },
     },
   }

@@ -5,19 +5,19 @@ import store from '../index'
 
 // Data
 const state = {
-  experienceSpans: [],
+  experiences: [],
 }
 
 const mutations = make.mutations(state)
 
 const actions = {
   // Create Methods
-  createExperienceSpan: (context, payload) => {
+  createExperience: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('ExperienceSpan/SaveExperienceSpan'), payload)
+    axios.post(CreateURL('Experience/SaveExperience'), payload)
       .then(({ data: res }) => {
-        store.set('experienceSpan/experienceSpans', [...store.get('experienceSpan/experienceSpans'), res.data])
+        store.set('experience/experiences', [...store.get('experience/experiences'), res.data])
         store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
       })
       .catch(error => {
@@ -28,15 +28,15 @@ const actions = {
         store.set('app/isLoading', false)
       })
   },
-  updateExperienceSpan: (context, payload) => {
+  updateExperience: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.put(CreateURL('ExperienceSpan/UpdateExperienceSpan'), payload)
+    axios.put(CreateURL('Experience/UpdateExperience'), payload)
       .then(() => {
-        const arr = store.get('experienceSpan/experienceSpans')
+        const arr = store.get('experience/experiences')
         const index = arr.findIndex(e => e.id === payload.id)
         arr[index] = payload
-        store.set('experienceSpan/experienceSpans', [...arr])
+        store.set('experience/experiences', [...arr])
         store.dispatch('app/showAlert', { message: 'Başarıyla güncellendi.', type: 'success' }, { root: true })
       })
       .catch(error => {
@@ -47,12 +47,12 @@ const actions = {
         store.set('app/isLoading', false)
       })
   },
-  getExperienceSpans: () => {
+  getExperiences: () => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL('ExperienceSpan/GetExperienceSpans'))
+    axios.get(CreateURL('Experience/GetExperiences'))
       .then(({ data: res }) => {
-        store.set('experienceSpan/experienceSpans', res.data)
+        store.set('experience/experiences', res.data)
       })
       .catch(error => {
         console.log('Error', error)
@@ -61,12 +61,12 @@ const actions = {
         store.set('app/isLoading', false)
       })
   },
-  getExperienceSpanById: (context, payload) => {
+  getExperienceById: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL(`ExperienceSpan/GetExperienceSpanById/${payload}`))
+    axios.get(CreateURL(`Experience/GetExperienceById/${payload}`))
       .then(({ data: res }) => {
-        store.set('experienceSpan/experienceSpans', [res.data])
+        store.set('experience/experiences', [res.data])
       })
       .catch(error => {
         console.log('Error', error)
@@ -76,7 +76,7 @@ const actions = {
       })
   },
   resetStore: () => {
-    store.set('experienceSpan/experienceSpans', [])
+    store.set('experience/experiences', [])
   },
 }
 

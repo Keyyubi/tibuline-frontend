@@ -69,8 +69,8 @@
               {{ getJobTitleName(item.jobTitleId) }}
             </template>
             <!-- eslint-disable-next-line -->
-            <template v-slot:item.experienceSpanId="{ item }">
-              {{ getExperienceSpanName(item.experienceSpanId) }}
+            <template v-slot:item.experienceId="{ item }">
+              {{ getExperienceName(item.experienceId) }}
             </template>
 
             <!-- eslint-disable-next-line -->
@@ -123,7 +123,7 @@
         selectedBudget: {},
         newBudget: {
           supplierId: null,
-          experienceSpanId: null,
+          experienceId: null,
           jobTitleId: null,
           hourlyBudget: 0,
           dailyBudget: 0,
@@ -138,7 +138,7 @@
           },
           { text: 'Şirket Adı', value: 'supplierId' },
           { text: 'Ünvan', value: 'jobTitleId' },
-          { text: 'Tecrübe Aralığı', value: 'experienceSpanId' },
+          { text: 'Tecrübe Aralığı', value: 'experienceId' },
           { text: 'Saatlik Bütçe', value: 'hourlyBudget' },
           { text: 'Günlük Bütçe', value: 'dailyBudget' },
           { text: 'Aylık Bütçe', value: 'monthlyBudget' },
@@ -150,13 +150,13 @@
       ...get('budget', ['budgets']),
       ...get('supplier', ['suppliers']),
       ...get('jobTitle', ['jobTitles']),
-      ...get('experienceSpan', ['experienceSpans']),
+      ...get('experience', ['experiences']),
     },
     mounted () {
       this.$store.dispatch('supplier/getSuppliers')
       this.$store.dispatch('budget/getBudgets')
       this.$store.dispatch('jobTitle/getJobTitles')
-      this.$store.dispatch('experienceSpan/getExperienceSpans')
+      this.$store.dispatch('experience/getExperiences')
     },
     methods: {
       getJobTitleName (id) {
@@ -164,8 +164,8 @@
         if (result) return result.name
         else return 'Bulunamadı'
       },
-      getExperienceSpanName (id) {
-        const result = this.experienceSpans.find(experienceSpan => experienceSpan.id === id)
+      getExperienceName (id) {
+        const result = this.experiences.find(experience => experience.id === id)
         if (result) return result.name
         else return 'Bulunamadı'
       },

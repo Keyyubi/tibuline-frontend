@@ -90,12 +90,12 @@
             md="4"
           >
             <v-select
-              v-model="demand.experienceSpanId"
-              :items="experienceSpans"
+              v-model="demand.experienceId"
+              :items="experiences"
               item-text="name"
               item-value="id"
               label="Tecrübe Aralığı"
-              @change="selectTarget('experienceSpan', demand.experienceSpanId)"
+              @change="selectTarget('experience', demand.experienceId)"
             />
           </v-col>
 
@@ -267,7 +267,7 @@
       ...get('consultant', ['consultants']),
       ...get('contract', ['contracts']),
       ...get('costCenter', ['costCenters']),
-      ...get('experienceSpan', ['experienceSpans']),
+      ...get('experience', ['experiences']),
       ...get('jobTitle', ['jobTitles']),
       ...get('project', ['projects']),
       filteredContracts () {
@@ -286,7 +286,7 @@
     mounted () {
       this.$store.dispatch('costCenter/getCostCenters')
       this.$store.dispatch('jobTitle/getJobTitles')
-      this.$store.dispatch('experienceSpan/getExperienceSpans')
+      this.$store.dispatch('experience/getExperiences')
 
       if (this.formType === 'create') {
         this.demand.createdById = this.user.id
@@ -315,7 +315,7 @@
           this.demand.costCenterId,
           this.demand.supplierId,
           this.demand.jobTitleId,
-          this.demand.experienceSpanId,
+          this.demand.experienceId,
           this.demand.projectId,
         ]
 
@@ -336,7 +336,7 @@
           case 'jobTitle':
             this.calculateBudget()
             break
-          case 'experienceSpan':
+          case 'experience':
             this.calculateBudget()
             break
           default:
@@ -344,9 +344,9 @@
         }
       },
       calculateBudget () {
-        if (this.demand.supplierId && this.demand.jobTitleId && this.demand.experienceSpanId) {
+        if (this.demand.supplierId && this.demand.jobTitleId && this.demand.experienceId) {
           const budget = this.budgets.find(e => {
-            return e.experienceSpanId === this.demand.experienceSpanId && e.jobTitleId === this.demand.jobTitleId
+            return e.experienceId === this.demand.experienceId && e.jobTitleId === this.demand.jobTitleId
           })
           if (budget) {
             this.demand.monthlyBudget = budget.monthlyBudget

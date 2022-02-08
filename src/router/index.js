@@ -46,7 +46,7 @@ const router = new Router({
        route('admin/Suppliers', null, 'admin/suppliers', { admin: true }),
        route('admin/CostCenters', null, 'admin/cost-centers', { admin: true }),
        route('admin/JobTitles', null, 'admin/job-titles', { admin: true }),
-       route('admin/ExperienceSpans', null, 'admin/experience-spans', { admin: true }),
+       route('admin/Experiences', null, 'admin/experience-spans', { admin: true }),
        route('admin/Budgets', null, 'admin/budgets', { admin: true }),
        route('admin/Invoices', null, 'admin/invoices', { admin: true }),
     ]),

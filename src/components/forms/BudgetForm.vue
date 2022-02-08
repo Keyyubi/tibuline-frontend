@@ -33,11 +33,11 @@
             />
           </v-col>
 
-          <!-- ExperienceSpan -->
+          <!-- Experience -->
           <v-col cols="4">
             <v-autocomplete
-              v-model="budget.experienceSpanId"
-              :items="experienceSpans"
+              v-model="budget.experienceId"
+              :items="experiences"
               item-text="name"
               item-value="id"
               label="Tecrübe Aralığı"
@@ -171,7 +171,7 @@
       ...get('budget', ['budgets']),
       ...get('supplier', ['suppliers']),
       ...get('jobTitle', ['jobTitles']),
-      ...get('experienceSpan', ['experienceSpans']),
+      ...get('experience', ['experiences']),
       invoiceType () {
         if (this.budget.supplierId) {
           const supplier = this.suppliers.find(e => e.id === this.budget.supplierId)
@@ -232,7 +232,7 @@
         const fields = [
           this.budget.supplierId,
           this.budget.jobTitleId,
-          this.budget.experienceSpanId,
+          this.budget.experienceId,
           this.budget.hourlyBudget,
           this.budget.dailyBudget,
           this.budget.monthlyBudget,

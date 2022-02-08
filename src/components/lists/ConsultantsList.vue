@@ -102,7 +102,7 @@
       ...get('consultant', ['consultants']),
       ...get('supplier', ['suppliers']),
       ...get('jobTitle', ['jobTitles']),
-      ...get('experienceSpan', ['experienceSpans']),
+      ...get('experience', ['experiences']),
       ...get('project', ['projects']),
       headers () {
         const arr = [
@@ -129,7 +129,7 @@
     },
     mounted () {
       this.$store.dispatch('jobTitle/getJobTitles')
-      this.$store.dispatch('experienceSpan/getExperienceSpans')
+      this.$store.dispatch('experience/getExperiences')
       if (this.user.roleId === Roles.UNIT_MANAGER) {
         this.$store.dispatch('consultant/getConsultantsByManagerId')
         this.$store.dispatch('project/getProjectsByAssignedTo')
@@ -170,7 +170,7 @@
       },
       getTitleAndExp (consultant) {
         try {
-          const exp = this.experienceSpans.find(e => e.id === consultant.experienceSpanId)
+          const exp = this.experiences.find(e => e.id === consultant.experienceId)
           const title = this.jobTitles.find(e => e.id === consultant.jobTitleId)
           return title.name + ' / ' + exp.name
         } catch {

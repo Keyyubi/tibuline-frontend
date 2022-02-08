@@ -53,7 +53,7 @@
           costCenterId: null,
           supplierId: null,
           jobTitleId: null,
-          experienceSpanId: null,
+          experienceId: null,
           monthlyBudget: null,
           totalBudget: null,
           projectId: null,

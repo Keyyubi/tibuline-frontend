@@ -125,7 +125,7 @@ const actions = {
     store.set('consultant/consultants', [])
     store.set('contract/contracts', [])
     store.set('demand/demands', [])
-    store.set('experienceSpan/experienceSpans', [])
+    store.set('experience/experiences', [])
     store.set('jobTitle/jobTitles', [])
     store.set('project/projects', [])
     store.set('user/users', [])

@@ -13,7 +13,7 @@
     >
       <v-tabs-slider />
 
-      <v-tab href="#experienceSpans">
+      <v-tab href="#experiences">
         Tecrübe Aralıkları
         <v-icon>mdi-poll</v-icon>
       </v-tab>
@@ -26,7 +26,7 @@
     <div class="py3" />
 
     <v-tabs-items v-model="currentTab">
-      <v-tab-item value="experienceSpans">
+      <v-tab-item value="experiences">
         <v-card>
           <v-card-title>
             <v-text-field
@@ -40,7 +40,7 @@
 
           <v-data-table
             :headers="headers"
-            :items="experienceSpans"
+            :items="experiences"
             :search="searchWord"
           >
             <!-- eslint-disable-next-line -->
@@ -49,7 +49,7 @@
                 class="ma-2"
                 color="primary"
                 dark
-                @click="editExperienceSpan(item)"
+                @click="editExperience(item)"
               >
                 <b>Güncelle</b>
                 <v-icon right>
@@ -79,7 +79,7 @@
                   <v-row>
                     <v-col>
                       <v-text-field
-                        v-model="selectedExperienceSpan.name"
+                        v-model="selectedExperience.name"
                         label="Tecrübe Aralığı"
                         :rules="[v => !!v || 'Bu alan boş geçilemez.']"
                         required
@@ -98,7 +98,7 @@
               <v-btn
                 color="primary"
                 depressed
-                @click="updateExperienceSpan"
+                @click="updateExperience"
               >
                 Güncelle
               </v-btn>
@@ -127,7 +127,7 @@
                 md="4"
               >
                 <v-text-field
-                  v-model="newExperienceSpan.name"
+                  v-model="newExperience.name"
                   label="Tercübe Aralığı"
                   :rules="[v => !!v || 'Bu alan boş geçilemez.']"
                   required
@@ -141,7 +141,7 @@
                   class="my-2"
                   width="100%"
                   color="primary"
-                  @click="createExperienceSpan()"
+                  @click="createExperience()"
                 >
                   Oluştur
                 </v-btn>
@@ -157,16 +157,16 @@
 <script>
   import { get } from 'vuex-pathify'
   export default {
-    name: 'ExperienceSpans',
+    name: 'Experiences',
     data () {
       return {
         valid: true,
         editValid: true,
-        currentTab: 'experienceSpans',
+        currentTab: 'experiences',
         searchWord: '',
         dialog: false,
-        selectedExperienceSpan: {},
-        newExperienceSpan: { name: '' },
+        selectedExperience: {},
+        newExperience: { name: '' },
         headers: [
           {
             text: 'İşlem',
@@ -178,26 +178,26 @@
       }
     },
     computed: {
-      ...get('experienceSpan', ['experienceSpans']),
+      ...get('experience', ['experiences']),
     },
     mounted () {
-      this.$store.dispatch('experienceSpan/getExperienceSpans')
+      this.$store.dispatch('experience/getExperiences')
     },
     methods: {
-      editExperienceSpan (item) {
-        this.selectedExperienceSpan = { ...item }
+      editExperience (item) {
+        this.selectedExperience = { ...item }
         this.dialog = true
       },
-      updateExperienceSpan () {
+      updateExperience () {
         if (this.$refs.editForm.validate()) {
           this.dialog = false
-          this.$store.dispatch('experienceSpan/updateExperienceSpan', this.selectedExperienceSpan)
+          this.$store.dispatch('experience/updateExperience', this.selectedExperience)
         }
       },
-      createExperienceSpan () {
+      createExperience () {
         if (this.$refs.form.validate()) {
           this.dialog = false
-          this.$store.dispatch('experienceSpan/createExperienceSpan', this.newExperienceSpan)
+          this.$store.dispatch('experience/createExperience', this.newExperience)
           this.$refs.form.reset()
         }
       },

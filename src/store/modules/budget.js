@@ -80,7 +80,7 @@ const actions = {
     store.set('app/isLoading', true)
 
     axios.get(
-      CreateURL(`Budget/GetBudgetsBySupplierIdAndExperienceSpanIdAndJobTitleId/${payload.supplierId}/${payload.experienceSpanId}/${payload.jobTitleId}`),
+      CreateURL(`Budget/GetBudgetsBySupplierIdAndExperienceIdAndJobTitleId/${payload.supplierId}/${payload.experienceId}/${payload.jobTitleId}`),
   )
       .then(({ data: res }) => {
         store.set('budget/invoiceBudget', res.data[0])
