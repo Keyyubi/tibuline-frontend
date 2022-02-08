@@ -15,7 +15,8 @@ const actions = {
   createExperience: (context, payload) => {
     store.set('app/isLoading', true)
 
-    this.$api.experience.create(payload)
+    // this.$api.experience.create(payload)
+    axios.post(CreateURL('Experience/SaveExperience'), payload)
       .then(({ data: res }) => {
         store.set('experience/experiences', [...store.get('experience/experiences'), res.data])
         store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
