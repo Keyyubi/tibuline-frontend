@@ -10,10 +10,10 @@ export class API {
   constructor (endpoint) {
     this.singular = endpoint[0] === endpoint[0].toUpperCase()
       ? endpoint
-      : endpoint[0].toUpperCase() + endpoint.split(endpoint[0])[1]
+      : endpoint[0].toUpperCase() + endpoint.substring(1, endpoint.length)
 
     this.plural = this.singular.endsWith('y')
-      ? this.singular.split(this.singular[this.singular.length - 1])[0] + 'ies'
+      ? this.singular.substring(0, this.singular.length - 1) + 'ies'
       : this.singular + 's'
 
     this.header = {
@@ -30,6 +30,9 @@ export class API {
 
   handleErrors (err) {
     // Note: here you may want to add your errors handling
+    if (err.response.status === 401) {
+      console.log('Token expired')
+    }
     console.log({ message: 'Errors is handled here', err })
   }
 

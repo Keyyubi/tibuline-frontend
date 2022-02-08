@@ -64,9 +64,9 @@ router.beforeEach((to, from, next) => {
       next()
     }
   } else {
-    const user = (localStorage.getItem('user'))
-    if (store.get('app/items').length === 0) {
-      store.dispatch('app/updateItems', user.roleId, { root: true })
+    const user = store.get('user/user')
+    if (!user.id) {
+      store.set('user/user', JSON.parse(localStorage.getItem('user')))
     }
 
     if (to.matched.some(record => record.meta.manager)) {

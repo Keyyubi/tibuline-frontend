@@ -9,7 +9,7 @@ export const $api = {
   contract: new API('contract'),
   CostCenter: new API('CostCenter'),
   demand: new API('demand'),
-  experience: new API('experience'),
+  experience: new API('experienceSpan'),
   invoice: new API('activity'),
   jobTitle: new API('jobTitle'),
   project: new API('project'),

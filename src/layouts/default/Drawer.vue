@@ -25,7 +25,7 @@
 
       <v-divider class="mx-3 mb-2" />
 
-      <default-list :items="items.filter(e => e.role === role)" />
+      <default-list :items="items.filter(e => e.role === user.roleId)" />
     </div>
 
     <!-- <template #append>
@@ -76,17 +76,12 @@
       ),
     },
 
-    data () {
-      return {
-        role: JSON.parse(localStorage.getItem('user')).roleId,
-      }
-    },
-
     computed: {
       ...get('user', [
         'dark',
         'gradient',
         'image',
+        'user',
       ]),
       ...get('app', [
         'items',

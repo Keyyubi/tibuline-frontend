@@ -95,7 +95,7 @@ const actions = {
       axios.get(CreateURL('Company/GetCompanies'), GetPostHeaders(token))
         .then(({ data: res }) => {
           store.set('user/customerCompany', res.data[0])
-          user.company = user.roleId === ROLES.SUPPLIER
+          user.company = user.roleId !== ROLES.SUPPLIER
             ? res.data[0]
             : axios.get(CreateURL(`Supplier/GetSupplierById/${user.supplierId}`), GetPostHeaders(token))
                 .then(({ data: comp }) => { user.company = comp.data })
