@@ -17,7 +17,7 @@ const actions = {
     const path = await this.$api.invoice.upload(payload.formData)
 
     if (path) {
-      payload.invoice.invoiceFilePath = path
+      payload.invoice.invoiceFilePath = path.data
       const res = await this.$api.invoice.create(payload.invoice)
 
       if (res) {
@@ -43,6 +43,8 @@ const actions = {
     } else {
       store.dispatch('app/showAlert', { message: 'Fatura dosyası yüklenemedi.', type: 'error' }, { root: true })
     }
+
+    store.set('app/isLoading', false)
   },
   async updateInvoice (context, payload) {
     store.set('app/isLoading', true)

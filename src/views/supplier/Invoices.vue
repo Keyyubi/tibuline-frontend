@@ -103,7 +103,7 @@
           >
             <v-divider class="mr-3" /><span class="grey--text">Bütçe</span><v-divider class="ml-3" />
           </v-row>
-          <v-row>
+          <v-row v-if="user.company">
             <v-col
               cols="12"
               md="6"
@@ -307,7 +307,7 @@
                 color="primary"
                 width="100%"
                 depressed
-                @click="confirmationDialog = true"
+                @click="confirm()"
               >
                 Oluştur
               </v-btn>
@@ -397,7 +397,7 @@
       ...get('jobTitle', ['jobTitles']),
       ...get('experience', ['experiences']),
       ...get('activity', ['activities']),
-      ...get('supplier', ['companies']),
+      ...get('supplier', ['suppliers']),
       ...get('activityPeriod', ['activityPeriods']),
       invoiceAmount: {
         get: function () {
@@ -436,7 +436,10 @@
         },
       },
     },
-    mounted () {
+    async mounted () {
+      this.$store.dispatch('demand/setLoading', true)
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
       this.$store.dispatch('consultant/getConsultants')
       this.$store.dispatch('user/getUnitManagers')
       this.$store.dispatch('user/getCompanyDetails')
@@ -449,6 +452,15 @@
       },
       unmaskMoney (formattedAmount) {
         return Number(formattedAmount.replaceAll('.', '').replaceAll(',', '.'))
+      },
+      confirm () {
+        if (!this.selectedPeriod || !this.selectedConsultant) {
+          this.$store.dispatch('app/showAlert', { message: 'Lütfen danışman ve dönem seçiniz.', type: 'warning' })
+        } else if (!this.invoiceFile) {
+          this.$store.dispatch('app/showAlert', { message: 'Lütfen fatura dosyasını yükleyiniz.', type: 'warning' })
+        } else {
+          this.confirmationDialog = true
+        }
       },
       isValidNum (target, evt) {
         evt = (evt) || window.event
@@ -550,12 +562,6 @@
           this.invoice.taxAmount,
           this.invoice.totalAmount,
         ]
-
-        if (!this.invoiceFile) {
-          this.$store.dispatch('app/showAlert', { message: 'Lütfen fatura dosyasını yükleyiniz.', type: 'warning' })
-          this.confirmationDialog = false
-          return
-        }
 
         if (!CheckIsNull(fields)) {
           const formData = new FormData()
