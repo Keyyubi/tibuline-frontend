@@ -359,7 +359,7 @@
 </template>
 
 <script>
-  import { ACTIVITY_STATUSES as Statuses, INVOICE_TYPES as InvoiceTypes } from '@/util/globals'
+  import { INVOICE_TYPES as InvoiceTypes } from '@/util/globals'
   import { CheckIsNull } from '@/util/helpers'
   import { get } from 'vuex-pathify'
   export default {
@@ -508,7 +508,6 @@
           }
 
           const overshiftAmount = this.invoiceBudget.hourlyBudget * this.selectedPeriod.totalOverShiftHours * this.user.company.overtimeMultiplier
-          const dayOffAmount = this.invoiceBudget.hourlyBudget * this.selectedPeriod.dayOffHours
 
           this.description += this.moneyMask(this.invoice.amount) + '\n'
 
@@ -516,12 +515,13 @@
             this.description += this.selectedPeriod.totalOverShiftHours + 'saat fazla mesai - ' + this.moneyMask(overshiftAmount) + '\n'
           }
 
-          if (dayOffHours > 0) {
+          if (dayOffHours > 0 && this.user.company.invoiceType === this.InvoiceTypes.MONTHLY) {
+            const dayOffAmount = this.invoiceBudget.hourlyBudget * this.selectedPeriod.dayOffHours
             this.description += `${dayOffHours} saat izin (- ${this.moneyMask(dayOffHours * this.invoiceBudget.hourlyBudget)})`
+            this.invoice.amount -= dayOffAmount
           }
 
           this.invoice.amount += overshiftAmount
-          this.invoice.amount -= dayOffAmount
           this.invoice.amount = Math.round(this.invoice.amount * 100) / 100
           this.invoice.taxAmount = this.invoice.amount * 0.18
           this.invoice.totalAmount = this.invoice.amount + this.invoice.taxAmount
@@ -530,12 +530,6 @@
           this.invoice.taxAmount = 0
           this.invoice.totalAmount = 0
         }
-      },
-      getMappedActivities () {
-        return this.activities.map(e => {
-          e.activityStatus = Statuses.INVOICED
-          return e
-        })
       },
       createInvoice () {
         this.invoice.description = this.description
@@ -570,7 +564,8 @@
           const payload = { ...this.invoice }
           this.selectedPeriod.isInvoiced = true
 
-          this.$store.dispatch('invoice/createInvoice', { invoice: payload, formData, activities: this.getMappedActivities(), period: this.selectedPeriod })
+          this.$store.dispatch('invoice/createInvoice', { invoice: payload, formData, period: this.selectedPeriod })
+          this.resetForm()
         } else {
           this.$store.dispatch('app/showAlert', { message: 'Lütfen bütün alanları doldurunuz.', type: 'warning' })
         }
@@ -590,6 +585,7 @@
           totalAmount: 0,
           isPaid: false,
         }
+        this.invoiceFile = null
       },
     },
   }

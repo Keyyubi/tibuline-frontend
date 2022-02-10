@@ -11,16 +11,38 @@ const mutations = make.mutations(state)
 const actions = {
   async createInvoice (context, payload) {
     store.set('app/isLoading', true)
+    const currUser = store.get('user/user')
+    payload.formData.append('SupplierId', currUser.company.id)
 
-    const res = await this.$api.invoice.create(payload)
-    if (res) {
-      store.set('invoice/invoices', [...store.get('invoice/invoices'), res.data])
-      store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
+    const path = await this.$api.invoice.upload(payload.formData)
+
+    if (path) {
+      payload.invoice.invoiceFilePath = path
+      const res = await this.$api.invoice.create(payload.invoice)
+
+      if (res) {
+        store.set('invoice/invoices', [...store.get('invoice/invoices'), payload.invoice])
+        const periodRes = await this.$api.activityPeriod.update(payload.period)
+
+        if (periodRes) {
+          try {
+            const arr = store.get('activityPeriod/activityPeriods')
+            const index = arr.findIndex(e => e.id === payload.period.id)
+            arr[index] = payload.period
+            store.set('activityPeriod/activityPeriods', [...arr])
+          } catch (err) {
+            console.log('Error on updating ActivityPeriod: ', err)
+          }
+          store.dispatch('app/showAlert', { message: 'Fatura başarıyla oluşturuldu ve ilgili aktivite dönemi güncellendi.', type: 'success' }, { root: true })
+        } else {
+          store.dispatch('app/showAlert', { message: 'Fatura başarıyla oluşturuldu fakat ilgili aktivite dönemi güncellenemedi.', type: 'error' }, { root: true })
+        }
+      } else {
+        store.dispatch('app/showAlert', { message: 'Fatura dosyası başarıyla yüklendi fakat fatura oluşturulamadı.', type: 'error' }, { root: true })
+      }
     } else {
-      store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
+      store.dispatch('app/showAlert', { message: 'Fatura dosyası yüklenemedi.', type: 'error' }, { root: true })
     }
-
-    store.set('app/isLoading', false)
   },
   async updateInvoice (context, payload) {
     store.set('app/isLoading', true)
@@ -56,6 +78,32 @@ const actions = {
       store.set('budget/invoiceBudget', res.data[0])
     } else {
       store.dispatch('app/showAlert', { message: 'Projeler getirilirken bir hata oluştu.', type: 'error' }, { root: true })
+    }
+
+    store.set('app/isLoading', false)
+  },
+  async uploadInvoice (context, payload) {
+    store.set('app/isLoading', true)
+    const currUser = store.get('user/user')
+    payload.formData.append('SupplierId', currUser.company.id)
+
+    const path = await this.$api.invoice.upload(payload.formData)
+
+    if (path) {
+      payload.invoice.filePath = path
+      const res = await this.$api.invoice.update(payload.invoice)
+
+      if (res) {
+        const arr = store.get('invoice/invoices')
+        const index = arr.findIndex(e => e.id === payload.invoice.id)
+        arr[index] = payload.invoice
+        store.set('invoice/invoices', arr)
+        store.dispatch('app/showAlert', { message: 'Başarıyla yüklendi.', type: 'success' }, { root: true })
+      } else {
+        store.dispatch('app/showAlert', { message: 'Dosya başarıyla yüklendi fakat sözleşme güncellenemedi.', type: 'error' }, { root: true })
+      }
+    } else {
+      store.dispatch('app/showAlert', { message: 'Dosya yüklenemedi.', type: 'success' }, { root: true })
     }
 
     store.set('app/isLoading', false)

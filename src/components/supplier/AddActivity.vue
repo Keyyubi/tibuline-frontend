@@ -584,7 +584,7 @@
           period.totalShiftHours = this.totalShiftHours
           period.totalOverShiftHours = this.totalOverShiftHours
           period.dayOffHours = this.totalDayOffHours
-          period.activityPeriodStatus = Statuses.PENDING
+          period.status = Statuses.PENDING
           console.log('per', period)
 
           this.$store.dispatch('activityPeriod/updateActivityPeriod', period)
@@ -597,7 +597,7 @@
             isInvoiced: false,
             supplierId: this.user.company.id,
             dayOffHours: this.totalDayOffHours,
-            activityPeriodStatus: Statuses.PENDING,
+            status: Statuses.PENDING,
           }
 
           this.$store.dispatch('activityPeriod/createActivityPeriod', newPeriod)

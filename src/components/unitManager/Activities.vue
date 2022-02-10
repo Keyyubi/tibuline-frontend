@@ -313,7 +313,7 @@
       isAbleToApprove () {
         if (this.activityPeriods && this.activityPeriods.length > 0) {
           const currPeriod = this.activityPeriods.find(e => e.name === this.period && e.consultantId === this.selectedConsultant.id)
-          this.isDisable = !(currPeriod.activityPeriodStatus === Statuses.PENDING)
+          this.isDisable = !(currPeriod.status === Statuses.PENDING)
         } else {
           this.isDisable = true
         }
@@ -323,37 +323,12 @@
         this.calculateTotalHours()
         this.confirmationDialog = false
 
-        const status = this.confirmationType === 'approve' ? Statuses.APPROVED : Statuses.REVISED
-        this.activities.forEach(obj => {
-          obj.activityStatus = status
-          this.$store.dispatch('activity/updateActivity', obj)
-        })
+        const period = this.activityPeriods.find(e => e.name === this.period && e.consultantId === this.selectedConsultant.id)
+        period.status = this.confirmationType === 'approve' ? Statuses.APPROVED : Statuses.REVISED
+        period.reasonOfDeny = this.reasonOfDeny
+        this.$store.dispatch('activityPeriod/updateActivityPeriod', period)
 
-        await this.sleep(1000)
-
-        if (status === Statuses.APPROVED) {
-          const isExist = this.activityPeriods.find(e => e.name === this.period && e.consultantId === this.selectedConsultant.id)
-
-          const payload = {
-            name: this.period,
-            consultantId: this.selectedConsultant.id,
-            totalShiftHours: this.totalShiftHours,
-            totalOverShiftHours: this.totalOverShiftHours,
-            dayOffHours: this.totalDayOffHours,
-            isInvoiced: false,
-          }
-
-          if (isExist && isExist.name === this.period) {
-            payload.id = isExist.id
-            this.$store.dispatch('activityPeriod/updateActivityPeriod', payload)
-          } else {
-            this.$store.dispatch('activityPeriod/createActivityPeriod', payload)
-          }
-
-          await this.sleep(500)
-        } else {
-          console.log('denied')
-        }
+        await this.sleep(500)
 
         this.confirmationType = ''
         this.selectConsultant()
