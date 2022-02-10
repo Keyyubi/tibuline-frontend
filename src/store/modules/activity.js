@@ -1,6 +1,5 @@
 import axios from 'axios'
 import { make } from 'vuex-pathify'
-import { CreateURL } from '@/util/helpers'
 import store from '../index'
 
 const getMappedActivities = (items = []) => {
@@ -61,106 +60,95 @@ const getMappedActivities = (items = []) => {
 // Data
 const state = {
   activities: [],
+  isLoading: false,
 }
 
 const mutations = make.mutations(state)
 
 const actions = {
-  // Create Methods
-  createActivity: (context, payload) => {
-    this.$api.activity.create(payload)
-      .then(({ data: res }) => {
-        store.set('activity/activities', [...store.get('activity/activities'), ...getMappedActivities(res.data)])
-        store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
-      })
-      .catch(error => {
-        console.log('Error act', error)
-        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
-      })
-  },
-  updateActivity: (context, payload) => {
-    axios.put(CreateURL('Activity/UpdateActivity'), payload)
-      .then(() => {
-        const arr = store.get('activity/activities')
-        const index = arr.findIndex(e => e.id === payload.id)
-        arr[index] = payload
-        store.set('activity/activities', [...arr])
-        store.dispatch('app/showAlert', { message: 'Aktivite başarıyla güncellendi.', type: 'success' }, { root: true })
-      })
-      .catch(error => {
-        console.log('Error', error)
-        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
-      })
-  },
-  getActivity: () => {
+  async createActivity (context, payload) {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL('Activity/GetActivities'))
-      .then(({ data: res }) => {
-        store.set('activity/activities', getMappedActivities(res.data))
-      })
-      .catch(error => {
-        console.log('Error', error)
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
+    const res = await this.$api.activity.create(payload)
+
+    if (res) {
+      store.set('activity/activities', [...store.get('activity/activities'), ...getMappedActivities(payload)])
+      store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
+    } else {
+      store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
+    }
+    store.set('app/isLoading', false)
   },
-  getActivityById: (context, payload) => {
+  async createActivities (context, payload) {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL(`Activity/GetActivityById/${payload}`))
-      .then(({ data: res }) => {
-        store.set('activity/activities', getMappedActivities(res.data))
-      })
-      .catch(error => {
-        console.log('Error', error)
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
+    const res = await axios.post(`${process.env.VUE_APP_ROOT_API}/api/Activity/SaveActivities`, payload)
+
+    res.then(e => {
+      store.set('activity/activities', [...store.get('activity/activities'), ...getMappedActivities(payload)])
+      store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
+    }).catch(err => {
+      store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
+      console.log('err', err)
+    }).finally(() => { store.set('app/isLoading', false) })
   },
-  getActivitiesByConsultantIdAndYearMonth: (context, payload) => {
+  async updateActivity (context, payload) {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL(`Activity/GetActivitiesByConsultantIdAndYearMonth/${payload.consultantId}/${payload.yearMonth}`))
-      .then(({ data: res }) => {
-        store.set('activity/activities', getMappedActivities(res.data))
-      })
-      .catch(error => {
-        console.log('Error', error)
-        store.dispatch('app/showAlert', { message: 'Danışman aktiviteleri alınırken bir hata oluştu.', type: 'error' }, { root: true })
-      })
-      .finally(() => {
-        setTimeout(() => {
-          store.set('app/isLoading', false)
-        }, 1000)
-      })
+    const res = await this.$api.activity.update(payload)
+
+    if (res) {
+      const arr = store.get('activity/activities')
+      const index = arr.findIndex(e => e.id === payload.id)
+      arr[index] = payload
+      store.set('activity/activities', [...arr])
+      store.dispatch('app/showAlert', { message: 'Aktivite başarıyla güncellendi.', type: 'success' }, { root: true })
+    } else {
+      store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
+    }
+
+    store.set('app/isLoading', false)
   },
-  getActivitiesByConsultantIdAndYearMonthAndStatus: (context, payload) => {
+  async getActivitiesByConsultantIdAndYearMonth (context, payload) {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL(`Activity/GetActivitiesByConsultantIdAndYearMonthAndStatus/${payload.consultantId}/${payload.yearMonth}/${payload.activityStatus}`))
-      .then(({ data: res }) => {
-        store.set('activity/activities', getMappedActivities(res.data))
-      })
-      .catch(error => {
-        console.log('Error', error)
-        store.dispatch('app/showAlert', { message: 'Danışman aktiviteleri alınırken bir hata oluştu.', type: 'error' }, { root: true })
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
+    const res = await this.$api.activity.getByParams({ url: 'ConsultantIdAndYearMonth', params: [payload.consultantId, payload.yearMonth] })
+
+    if (res) {
+      store.set('activity/activities', getMappedActivities(res.data))
+    } else {
+      store.dispatch('app/showAlert', { message: 'Danışman aktiviteleri alınırken bir hata oluştu.', type: 'error' }, { root: true })
+    }
+
+    store.set('app/isLoading', false)
   },
-  deleteActivity: (context, id) => {
-    axios.delete(CreateURL(`Activity/DeleteActivity/${id}`))
-      .then(() => {
-        store.dispatch('app/showAlert', { message: 'Aktivite silindi.', type: 'error' }, { root: true })
-      })
-      .catch(error => {
-        console.log('Error', error)
-        store.dispatch('app/showAlert', { message: 'Aktivite silinirken hata oluştu.', type: 'error' }, { root: true })
-      })
+  async deleteActivity (context, id) {
+    store.set('app/isLoading', true)
+
+    const res = await this.$api.activity.delete(id)
+
+    if (res) {
+      store.dispatch('app/showAlert', { message: 'Aktivite silindi.', type: 'error' }, { root: true })
+    } else {
+      store.dispatch('app/showAlert', { message: 'Aktivite silinirken hata oluştu.', type: 'error' }, { root: true })
+    }
+
+    store.set('app/isLoading', true)
+  },
+  async deleteActivities (context, ids) {
+    store.set('app/isLoading', true)
+
+    const res = await axios.delete(`${process.env.VUE_APP_ROOT_API}/api/Activity/DeleteActivities`, ids)
+
+    res.then(e => {
+      store.dispatch('app/showAlert', { message: 'Aktiviteler silindi.', type: 'error' }, { root: true })
+    }).catch(err => {
+      store.dispatch('app/showAlert', { message: 'Aktiviteler silinirken hata oluştu.', type: 'error' }, { root: true })
+      console.log('err', err)
+    }).finally(() => { store.set('app/isLoading', false) })
+  },
+  setLoading (c, payload) {
+    store.set('activity/isLoading', payload)
   },
 }
 

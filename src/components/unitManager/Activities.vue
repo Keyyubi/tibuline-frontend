@@ -167,7 +167,7 @@
           class="white--text mr-3"
           color="green"
           depressed
-          :disabled="!(activities.length > 0)"
+          :disabled="isDisable"
           @click="showConfirmation('approve')"
         >
           Onayla
@@ -259,6 +259,7 @@
       period: '',
       Statuses,
       InvoiceTypes,
+      isDisable: true,
     }),
     computed: {
       ...get('user', ['user']),
@@ -278,13 +279,13 @@
         const payload = {
           consultantId: this.selectedConsultant.id,
           yearMonth: this.period,
-          activityStatus: Statuses.PENDING,
         }
-        this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonthAndStatus', payload)
+        this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonth', payload)
         this.$store.dispatch('activityPeriod/getActivityPeriodsByConsultantId', this.selectedConsultant.id)
         setTimeout(() => {
           this.calculateTotalHours()
           this.selectedSupplier = this.suppliers.find(e => e.id === this.selectedConsultant.supplierId)
+          this.isAbleToApprove()
         }, 500)
         this.e1 = 2
       },
@@ -308,6 +309,14 @@
       showConfirmation (type) {
         this.confirmationType = type
         this.confirmationDialog = true
+      },
+      isAbleToApprove () {
+        if (this.activityPeriods && this.activityPeriods.length > 0) {
+          const currPeriod = this.activityPeriods.find(e => e.name === this.period && e.consultantId === this.selectedConsultant.id)
+          this.isDisable = !(currPeriod.activityPeriodStatus === Statuses.PENDING)
+        } else {
+          this.isDisable = true
+        }
       },
       async confirm () {
         this.$store.dispatch('app/setLoading', true)
@@ -354,6 +363,8 @@
         this.$store.dispatch('app/setLoading', true)
 
         await this.sleep(250)
+        const { date } = this.$refs.calendar.lastEnd
+        this.period = date.split('-')[0] + '-' + date.split('-')[1]
 
         this.selectConsultant()
       },

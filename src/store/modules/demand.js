@@ -13,54 +13,47 @@ const state = {
 const mutations = make.mutations(state)
 
 const actions = {
-  // Create Methods
-  createDemand: (context, payload) => {
+  async createDemand (context, payload) {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('Demand/SaveDemand'), payload)
-      .then(() => {
-        store.set('demand/demands', [...store.get('demand/demands'), payload])
-        store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
-      })
-      .catch(error => {
-        console.log('Error', error)
-        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
-  },
-  updateDemand: (context, payload) => {
-    store.set('app/isLoading', true)
-    const { olderContractId } = payload
-    delete payload.olderContractId
+    const res = await this.$api.demand.create(payload)
 
-    axios.put(CreateURL(`Demand/UpdateDemand/${olderContractId || -1}`), payload)
-      .then(() => {
-        const arr = store.get('demand/demands')
-        const index = arr.findIndex(e => e.id === payload.id)
-        arr[index] = payload
-        store.set('demand/demands', [...arr])
-        store.dispatch('app/showAlert', { message: 'Başarıyla güncellendi.', type: 'success' }, { root: true })
-      })
-      .catch(error => {
-        console.log('Error', error)
-        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
+    if (res) {
+      store.set('demand/demands', [...store.get('demand/demands'), payload])
+      store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
+    } else {
+      store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
+    }
+
+    store.set('app/isLoading', false)
   },
-  getDemandsWithDetails: (c, role) => {
+  async updateDemand (context, payload) {
+    store.set('app/isLoading', true)
+
+    const res = await this.$api.demand.create(payload)
+
+    if (res) {
+      const arr = store.get('demand/demands')
+      const index = arr.findIndex(e => e.id === payload.id)
+      arr[index] = payload
+      store.set('demand/demands', [...arr])
+      store.dispatch('app/showAlert', { message: 'Başarıyla güncellendi.', type: 'success' }, { root: true })
+    } else {
+      store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
+    }
+
+    store.set('app/isLoading', false)
+  },
+  async getDemandsWithDetails (c, role) {
     store.set('app/isLoading', true)
     store.set('demand/isLoading', true)
 
     const currUser = store.get('user/user')
     const url = role === ROLES.UNIT_MANAGER
-      ? CreateURL(`Demand/GetDemandsByCreatedBy/${currUser.id}`)
-      : CreateURL(`Demand/GetDemandsBySupplierId/${currUser.company.id}`)
+      ? `${process.env.VUE_APP_ROOT_API}/api/Demand/GetDemandsByCreatedBy/${currUser.id}`
+      : `${process.env.VUE_APP_ROOT_API}/api/Demand/GetDemandsBySupplierId/${currUser.company.id}`
 
-    axios.get(url)
+    await axios.get(url)
       .then(({ data: res }) => {
         const demands = [...res.data].map(el => {
           if (el.contractId) {
@@ -90,10 +83,14 @@ const actions = {
       })
       .catch(error => {
         console.log('Error', error)
+        store.set('demand/isLoading', false)
       })
       .finally(() => {
         store.set('app/isLoading', false)
       })
+  },
+  setLoading (c, payload) {
+    store.set('demand/isLoading', payload)
   },
 }
 

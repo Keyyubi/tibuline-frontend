@@ -137,9 +137,14 @@
         return arr
       },
     },
-    mounted () {
+    async mounted () {
+      // To be sure current user update at store
+      this.$store.dispatch('demand/setLoading', true)
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
       this.$store.dispatch('jobTitle/getJobTitles')
       this.$store.dispatch('experience/getExperiences')
+
       if (this.user.roleId === Roles.UNIT_MANAGER) {
         this.$store.dispatch('project/getProjectsByAssignedTo')
         this.$store.dispatch('supplier/getSuppliers')

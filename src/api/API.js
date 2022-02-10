@@ -37,18 +37,20 @@ export class API {
     // Note: here you may want to add your errors handling
     if (err.response.status === 401) {
       refresh()
-      console.log({ message: 'Please refresh the page' })
+      console.log({ message: 'Please refresh the page', err })
+    } else {
+      console.log({ message: 'Unexpected error: ', err })
     }
-    // console.log({ message: 'Errors is handled here', err })
+    return false
   }
 
-  async get () {
+  async get (plural = true) {
     try {
-      const response = await axios.get(this.getUrl(`Get${this.plural}`))
+      const response = await axios.get(this.getUrl(`Get${plural ? this.plural : this.singular}`))
 
       return response.data
     } catch (err) {
-      this.handleErrors(err)
+      return this.handleErrors(err)
     }
   }
 
@@ -60,13 +62,13 @@ export class API {
 
       return response.data
     } catch (err) {
-      this.handleErrors(err)
+      return this.handleErrors(err)
     }
   }
 
   /**
    *
-   * @param {Object} obj
+   * @param {Object: { url: 'string', params: [ARRAY]}} obj
    * @description obj parameters should be like { url: 'THE_STRING_THAT_WILL_BE_PLACED_AFTER_BY_KEYWORD", params: [Parameters array with order]}
    * @returns
    */
@@ -80,11 +82,10 @@ export class API {
       })
 
       const response = await axios.get(url)
-      console.log('Response for ', this.plural, ' => ', response)
 
       return response.data
     } catch (err) {
-      this.handleErrors(err)
+      return this.handleErrors(err)
     }
   }
 
@@ -93,7 +94,7 @@ export class API {
       await axios.post(this.getUrl(`Save${this.singular}`), data)
       return true
     } catch (err) {
-      this.handleErrors(err)
+      return this.handleErrors(err)
     }
   }
 
@@ -102,7 +103,7 @@ export class API {
       await axios.put(this.getUrl(`Update${this.singular}`), data)
       return true
     } catch (err) {
-      this.handleErrors(err)
+      return this.handleErrors(err)
     }
   }
 
@@ -113,21 +114,23 @@ export class API {
       await axios.delete(this.getUrl(`Delete${this.singular}/${id}`))
       return true
     } catch (err) {
-      this.handleErrors(err)
+      return this.handleErrors(err)
     }
   }
 
   async upload (formData = {}) {
     const head = {
-      Authorization: `Bearer ${localStorage.getItem('jwt')}`,
-      'Content-Type': 'multipart/form-data',
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('jwt')}`,
+        'Content-Type': 'multipart/form-data',
+      },
     }
 
     try {
       const response = await axios.post(this.getUrl(`Upload${this.singular}Documents/upload`), formData, head)
       return response.data
     } catch (err) {
-      this.handleErrors(err)
+      return this.handleErrors(err)
     }
   }
 }

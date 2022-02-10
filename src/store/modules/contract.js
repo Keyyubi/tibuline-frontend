@@ -1,6 +1,4 @@
-import axios from 'axios'
 import { make } from 'vuex-pathify'
-import { CreateURL } from '@/util/helpers'
 import store from '../index'
 
 // Data
@@ -11,112 +9,79 @@ const state = {
 const mutations = make.mutations(state)
 
 const actions = {
-  // Create Methods
-  createContract: (context, payload) => {
+  async createContract (context, payload) {
     store.set('app/isLoading', true)
 
-    axios.post(CreateURL('Contract/SaveContract'), payload)
-      .then(({ data: res }) => {
-        store.set('contract/contracts', [...store.get('contract/contracts'), res.data])
-        store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
-      })
-      .catch(error => {
-        console.log('Error', error)
-        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
+    const res = await this.$api.contract.create(payload)
+
+    if (res) {
+      store.set('contract/contracts', [...store.get('contract/contracts'), payload])
+      store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
+    } else {
+      store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
+    }
+
+    store.set('app/isLoading', false)
   },
-  updateContract: (context, payload) => {
+  async updateContract (context, payload) {
     store.set('app/isLoading', true)
 
-    axios.put(CreateURL('Contract/UpdateContract'), payload)
-      .then(() => {
-        const arr = store.get('contract/contracts')
-        const index = arr.findIndex(e => e.id === payload.id)
-        arr[index] = payload
-        store.set('contract/contracts', [...arr])
-        store.dispatch('app/showAlert', { message: 'Başarıyla güncellendi.', type: 'success' }, { root: true })
-      })
-      .catch(error => {
-        console.log('Error', error)
-        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
+    const res = await this.$api.contract.create(payload)
+
+    if (res) {
+      const arr = store.get('contract/contracts')
+      const index = arr.findIndex(e => e.id === payload.id)
+      arr[index] = payload
+      store.set('contract/contracts', [...arr])
+      store.dispatch('app/showAlert', { message: 'Başarıyla güncellendi.', type: 'success' }, { root: true })
+    } else {
+      store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
+    }
+
+    store.set('app/isLoading', false)
   },
-  getContractById: (context, payload) => {
+  async getContractById (context, payload) {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL(`Contract/GetContractById/${payload}`))
-      .then(({ data: res }) => {
-        store.set('contract/contracts', [res.data])
-      })
-      .catch(error => {
-        console.log('Error', error)
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
-  },
-  getContractsBySupplierId: (context, payload) => {
-    store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
+    const res = await this.$api.contract.getById(payload)
 
-    axios.get(CreateURL(`Contract/GetContractsBySupplierId/${currUser.company.id}`))
-      .then(({ data: res }) => {
-        store.set('contract/contracts', res.data)
-      })
-      .catch(error => {
-        console.log('Error', error)
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
+    store.set('contract/contracts', [res.data])
+    store.set('app/isLoading', false)
   },
-  uploadContract: (context, payload) => {
+  async getContractsBySupplierId () {
+    store.set('app/isLoading', true)
+    const { company } = store.get('user/user')
+
+    const res = await this.$api.contract.getByParams({ url: 'SupplierId', params: [company.id] })
+    store.set('contract/contracts', res.data)
+
+    store.set('app/isLoading', false)
+  },
+  async uploadContract (context, payload) {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
     payload.formData.append('SupplierId', currUser.company.id)
 
-    axios.post(CreateURL('Contract/UploadContractDocuments/upload'), payload.formData, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('jwt')}`,
-        'Content-Type': 'multipart/form-data',
-      },
-    })
-      .then(({ data: res }) => {
-        payload.contract.filePath = res.data
+    const path = await this.$api.contract.upload(payload.formData)
 
-        axios.put(CreateURL('Contract/UpdateContract'), payload.contract)
-          .then(() => {
-            const arr = store.get('contract/contracts')
-            const index = arr.findIndex(e => e.id === payload.id)
-            arr[index] = payload.contract
-            store.set('contract/contracts', arr)
-          })
-          .then(() => {
-            axios.get(`Consultant/GetConsultantById/${payload.contract.consultantId}`)
-              .then(({ data: res }) => {
-                const consultant = res.data
-                consultant.contractFilePath = payload.contract.filePath
+    if (path) {
+      payload.contract.filePath = path
+      const res = await this.$api.contract.update(payload.contract)
 
-                axios.put(CreateURL('Consultant/UpdateConsultant'), consultant)
-                  .then(() => {
-                    store.dispatch('app/showAlert', { message: 'Başarıyla yüklendi.', type: 'success' }, { root: true })
-                  })
-              })
-            })
-          })
-          .catch(error => {
-            console.log('Error', error)
-            store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
-          })
-          .finally(() => {
-            store.set('app/isLoading', false)
-          })
+      if (res) {
+        const arr = store.get('contract/contracts')
+        const index = arr.findIndex(e => e.id === payload.contract.id)
+        arr[index] = payload.contract
+        store.set('contract/contracts', arr)
+        store.dispatch('app/showAlert', { message: 'Başarıyla yüklendi.', type: 'success' }, { root: true })
+      } else {
+        store.dispatch('app/showAlert', { message: 'Dosya başarıyla yüklendi fakat sözleşme güncellenemedi.', type: 'error' }, { root: true })
+      }
+    } else {
+      store.dispatch('app/showAlert', { message: 'Dosya yüklenemedi.', type: 'success' }, { root: true })
+    }
+
+    store.set('app/isLoading', false)
   },
 }
 

@@ -65,6 +65,7 @@ const actions = {
       localStorage.setItem('rfrjwt', res.data.refreshToken)
 
       dispatch('getUser')
+      router.push('/')
     })
     .catch(({ response }) => {
       localStorage.removeItem('jwt')
@@ -81,42 +82,35 @@ const actions = {
       }, 2000)
     })
   },
-  getUser: () => {
+  async getUser () {
     store.set('app/isLoading', true)
     axios.defaults.headers.common.Authorization = `Bearer ${localStorage.getItem('jwt')}`
 
-    axios.get(CreateURL('User/GetUser'))
-    .then(({ data: response }) => {
-      const user = {
-        ...response.data,
+    const res = await this.$api.user.get(false)
+
+    if (res) {
+      const user = { ...res.data }
+      localStorage.setItem('tibuline@role', user.roleId)
+
+      const customerCompany = await this.$api.company.get()
+      if (customerCompany) {
+        store.set('user/customerCompany', customerCompany.data[0])
+
+        if (user.roleId !== ROLES.SUPPLIER) {
+          user.company = customerCompany[0]
+        } else {
+          const supplier = await this.$api.supplier.getById(user.supplierId)
+          user.company = { ...supplier.data }
+        }
+
+        store.set('user/user', user)
+
+        await new Promise(resolve => setTimeout(resolve, 500))
+      } else {
+        store.set('app/alertMessage', res)
       }
-
-      axios.get(CreateURL('Company/GetCompanies'))
-        .then(({ data: res }) => {
-          store.set('user/customerCompany', res.data[0])
-          user.company = user.roleId !== ROLES.SUPPLIER
-            ? res.data[0]
-            : axios.get(CreateURL(`Supplier/GetSupplierById/${user.supplierId}`))
-                .then(({ data: comp }) => { user.company = comp.data })
-
-          store.set('user/user', user)
-          localStorage.setItem('user', JSON.stringify(user))
-
-          router.push('/')
-        })
-    })
-    .catch(({ response }) => {
-      store.set('user/user', {})
-
-      //  ? ERROR HANDLING EXAMPLE
-      //  * response has the all info about error. Like Status or Data
-      const { error } = response.data
-      store.set('app/alertMessage', error.errors[0])
-    })
-    .finally(() => setTimeout(() => {
-        store.set('app/isLoading', false)
-        store.set('app/alertMessage', '')
-      }, 2000))
+    }
+    store.set('app/isLoading', false)
   },
   logout: () => {
     store.set('activity/activities', [])
@@ -135,7 +129,7 @@ const actions = {
     store.set('app/alertType', '')
 
     localStorage.removeItem('jwt')
-    localStorage.removeItem('user')
+    localStorage.removeItem('tibuline@role')
 
     router.push('/login/')
   },
@@ -209,33 +203,21 @@ const actions = {
         store.set('app/isLoading', false)
       })
   },
-  getUnitManagers: () => {
+  async getUnitManagers () {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL(`User/GetUsersByRoleId/${ROLES.UNIT_MANAGER}`))
-      .then(({ data: res }) => {
-        store.set('user/users', res.data)
-      })
-      .catch(error => {
-        console.log('Error', error)
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
+    const res = await this.$api.user.getByParams({ url: 'RoleId', params: [ROLES.UNIT_MANAGER] })
+    store.set('user/users', res.data)
+
+    store.set('app/isLoading', false)
   },
-  getSuppliers: () => {
+  async getSuppliers () {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL(`User/GetUsersByRoleId/${ROLES.SUPPLIER}`))
-      .then(({ data: res }) => {
-        store.set('user/users', res.data)
-      })
-      .catch(error => {
-        console.log('Error', error)
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
+    const res = await this.$api.user.getByParams({ url: 'RoleId', params: [ROLES.SUPPLIER] })
+    store.set('user/users', res.data)
+
+    store.set('app/isLoading', false)
   },
   getCompanyDetails: (context, payload) => {
     store.set('app/isLoading', true)

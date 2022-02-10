@@ -1,6 +1,4 @@
-import axios from 'axios'
 import { make } from 'vuex-pathify'
-import { CreateURL } from '@/util/helpers'
 import store from '../index'
 
 // Data
@@ -11,71 +9,51 @@ const state = {
 const mutations = make.mutations(state)
 
 const actions = {
-  // Create Methods
-  createExperience: (context, payload) => {
+  async createExperience (context, payload) {
     store.set('app/isLoading', true)
 
-    // this.$api.experience.create(payload)
-    axios.post(CreateURL('Experience/SaveExperience'), payload)
-      .then(({ data: res }) => {
-        store.set('experience/experiences', [...store.get('experience/experiences'), res.data])
-        store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
-      })
-      .catch(error => {
-        console.log('Error11', error)
-        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
+    const res = this.$api.experience.create(payload)
+    if (res) {
+      store.set('experience/experiences', [...store.get('experience/experiences'), res.data])
+      store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
+    } else {
+      store.dispatch('app/showAlert', { message: 'Bir hata oluştu ama ne olduğu henüz bilinmiyor!', type: 'error' }, { root: true })
+    }
+
+    store.set('app/isLoading', false)
   },
-  updateExperience: (context, payload) => {
+  async updateExperience (context, payload) {
     store.set('app/isLoading', true)
 
-    axios.put(CreateURL('Experience/UpdateExperience'), payload)
-      .then(() => {
-        const arr = store.get('experience/experiences')
-        const index = arr.findIndex(e => e.id === payload.id)
-        arr[index] = payload
-        store.set('experience/experiences', [...arr])
-        store.dispatch('app/showAlert', { message: 'Başarıyla güncellendi.', type: 'success' }, { root: true })
-      })
-      .catch(error => {
-        console.log('Error', error)
-        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
+    const res = await this.$api.experience.update(payload)
+
+    if (res) {
+      const arr = store.get('experience/experiences')
+      const index = arr.findIndex(e => e.id === payload.id)
+      arr[index] = payload
+      store.set('experience/experiences', [...arr])
+      store.dispatch('app/showAlert', { message: 'Başarıyla güncellendi.', type: 'success' }, { root: true })
+    } else {
+      store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
+    }
+
+    store.set('app/isLoading', false)
   },
-  getExperiences: () => {
+  async getExperiences () {
     store.set('app/isLoading', true)
-    // console.log('api', this.$api)
 
-    axios.get(CreateURL('Experience/GetExperiences'))
-      .then(({ data: res }) => {
-        store.set('experience/experiences', res.data)
-      })
-      .catch(error => {
-        console.log('Error', error)
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
+    const res = await this.$api.experience.get()
+
+    store.set('experience/experiences', res.data)
+    store.set('app/isLoading', false)
   },
-  getExperienceById: (context, payload) => {
+  async getExperienceById (context, payload) {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL(`Experience/GetExperienceById/${payload}`))
-      .then(({ data: res }) => {
-        store.set('experience/experiences', [res.data])
-      })
-      .catch(error => {
-        console.log('Error', error)
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
+    const res = await this.$api.experience.getById(payload)
+
+    store.set('experience/experiences', [res.data])
+    store.set('app/isLoading', false)
   },
   resetStore: () => {
     store.set('experience/experiences', [])

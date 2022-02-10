@@ -1,6 +1,23 @@
 <template>
   <div class="pa-3">
-    <v-row class="fill-height">
+    <v-sheet
+      v-if="isLoading"
+      width="100%"
+      height="400"
+      class="d-flex justify-center align-center"
+    >
+      <v-progress-circular
+        size="100"
+        width="10"
+        indeterminate
+        color="primary"
+      />
+    </v-sheet>
+
+    <v-row
+      v-else
+      class="fill-height"
+    >
       <v-col>
         <v-stepper
           v-model="e1"
@@ -25,7 +42,7 @@
           </v-stepper-header>
 
           <v-stepper-items>
-            <!-- Consultant Selection -->
+            <!-- Consultant Selection Step -->
             <v-stepper-content
               step="1"
               class="mx-0"
@@ -43,6 +60,7 @@
               />
             </v-stepper-content>
 
+            <!-- Calendar Step -->
             <v-stepper-content
               step="2"
               class="pa-0 mx-0"
@@ -110,6 +128,7 @@
                   </v-tooltip>
                 </v-toolbar>
               </v-sheet>
+
               <!-- Calendar -->
               <v-sheet
                 height="600"
@@ -365,12 +384,17 @@
       Statuses,
     }),
     computed: {
-      ...get('user', ['customerCompany']),
-      ...get('activity', ['activities']),
+      ...get('user', ['user', 'customerCompany']),
+      ...get('activity', ['activities', 'isLoading']),
+      ...get('activityPeriod', ['activityPeriods']),
       ...get('consultant', ['consultants']),
     },
-    mounted () {
+    async mounted () {
+      // To be sure current user update at store
+      this.$store.dispatch('activity/setLoading', true)
+      await new Promise(resolve => setTimeout(resolve, 1000))
       this.$store.dispatch('consultant/getConsultants')
+      this.$store.dispatch('activity/setLoading', false)
     },
     methods: {
       selectConsultant () {
@@ -381,6 +405,7 @@
           yearMonth,
         }
         this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonth', { ...payload })
+        this.$store.dispatch('activityPeriod/getActivityPeriodsByConsultantId', payload.consultantId)
         setTimeout(() => {
           this.calculateTotalHours()
         }, 500)
@@ -476,34 +501,32 @@
         }
       },
       async createMonthly () {
-        this.$store.dispatch('app/setLoading', true)
-
+        const arr = []
         const end = this.$refs.calendar.lastEnd
         for (let i = 0; i < end.day; i++) {
           const date = `${end.year}-${end.month < 10 ? '0' + end.month : end.month}-${i < 9 ? '0' + (i + 1) : i + 1}`
           const startDate = new Date(end.year, end.month - 1, i + 1)
 
           if (startDate.getDay() !== 0 && startDate.getDay() !== 6) {
-            this.$store.dispatch('activity/createActivity', this.newShiftEvent(date, `${this.customerCompany.dailyShiftHours}s mesai`))
+            arr.push(this.newShiftEvent(date, `${this.customerCompany.dailyShiftHours}s mesai`))
           }
         }
+
+        this.$store.dispatch('activity/createActivities', arr)
 
         await this.sleep(1000)
 
         this.selectConsultant()
         this.calculateTotalHours()
-        this.$store.dispatch('app/setLoading', false)
       },
       async deleteActivitiesMonthly () {
-        this.$store.dispatch('app/setLoading', true)
         const arr = this.activities.map(e => e.id)
-        for (let i = 0; i < arr.length; i++) {
-          this.$store.dispatch('activity/deleteActivity', arr[i])
-        }
+
+        this.$store.dispatch('activity/deleteActivities', arr)
 
         await this.sleep(1000)
+
         this.selectConsultant()
-        this.$store.dispatch('app/setLoading', false)
       },
       async creteOrUpdateEvent () {
         if (this.selectedEvent.date) {
@@ -530,16 +553,9 @@
             this.deleteActivitiesMonthly()
             break
           case 'send':
-            this.$store.dispatch('app/setLoading', true)
-            this.confirmationDialog = false
-
-            this.activities.forEach(obj => {
-              obj.activityStatus = Statuses.PENDING
-              this.$store.dispatch('activity/updateActivity', obj)
-            })
-
+            this.createOrUpdateActivityPeriod()
             await this.sleep(1000)
-            this.selectConsultant()
+            // this.selectConsultant()
             break
           case 'fill-monthly':
             if (this.activities.length > 0) this.deleteActivitiesMonthly()
@@ -558,10 +574,34 @@
         const consultantId = this.selectedConsultant.id
 
         this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonth', { consultantId, yearMonth })
+      },
+      async createOrUpdateActivityPeriod () {
+        const { date } = this.$refs.calendar.lastEnd
+        const yearMonth = date.split('-')[0] + '-' + date.split('-')[1]
+        const period = this.activityPeriods.find(e => e.name === yearMonth)
 
-        setTimeout(() => {
-          this.$store.dispatch('app/setLoading', false)
-        }, 750)
+        if (period) {
+          period.totalShiftHours = this.totalShiftHours
+          period.totalOverShiftHours = this.totalOverShiftHours
+          period.dayOffHours = this.totalDayOffHours
+          period.activityPeriodStatus = Statuses.PENDING
+          console.log('per', period)
+
+          this.$store.dispatch('activityPeriod/updateActivityPeriod', period)
+        } else {
+          const newPeriod = {
+            name: yearMonth,
+            consultantId: this.selectedConsultant.id,
+            totalShiftHours: this.totalShiftHours,
+            totalOverShiftHours: this.totalOverShiftHours,
+            isInvoiced: false,
+            supplierId: this.user.company.id,
+            dayOffHours: this.totalDayOffHours,
+            activityPeriodStatus: Statuses.PENDING,
+          }
+
+          this.$store.dispatch('activityPeriod/createActivityPeriod', newPeriod)
+        }
       },
     },
   }

@@ -8,6 +8,7 @@ import {
   route,
 } from '@/util/routes'
 import store from '@/store'
+import { ROLES } from '../util/globals'
 
 Vue.use(Router)
 
@@ -58,26 +59,38 @@ const router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
-  if (localStorage.getItem('jwt') === null || localStorage.getItem('user') === null) {
+  store.set('app/alertMessage', '')
+  if (localStorage.getItem('jwt') === null) {
     if (to.path !== '/login/') {
       return next({ path: '/login/' })
     } else {
       next()
     }
   } else {
+    const role = Number(localStorage.getItem('tibuline@role'))
     if (!store.get('user/user').id) {
-      store.set('user/user', JSON.parse(localStorage.getItem('user')))
+      store.dispatch('user/getUser', { root: true })
       axios.defaults.headers.common.Authorization = `Bearer ${localStorage.getItem('jwt')}`
     }
 
     if (to.matched.some(record => record.meta.manager)) {
-      console.log('going supplier')
-      return to.path.endsWith('/') ? next() : next(trailingSlash(to.path))
+      if (role === ROLES.UNIT_MANAGER) {
+        return to.path.endsWith('/') ? next() : next(trailingSlash(to.path))
+      } else {
+        return next({ path: '/error/' })
+      }
     } else if (to.matched.some(record => record.meta.supplier)) {
-      console.log('going supplier')
-      return to.path.endsWith('/') ? next() : next(trailingSlash(to.path))
+      if (role === ROLES.SUPPLIER) {
+        return to.path.endsWith('/') ? next() : next(trailingSlash(to.path))
+      } else {
+        return next({ path: '/error/' })
+      }
     } else if (to.matched.some(record => record.meta.admin)) {
-
+      if (role === ROLES.ADMIN) {
+        return to.path.endsWith('/') ? next() : next(trailingSlash(to.path))
+      } else {
+        return next({ path: '/error/' })
+      }
     }
     return to.path.endsWith('/') ? next() : next(trailingSlash(to.path))
   }
