@@ -159,6 +159,10 @@ const actions = {
     // Alert Types =>  'success', 'info', 'warning', 'error'
     context.commit('alertMessage', payload.message)
     context.commit('alertType', payload.type)
+
+    setTimeout(() => {
+      this.$store.dispatch('app/showAlert', { message: '', type: '' })
+    }, 2000)
   },
   hideAlert: () => {
     setTimeout(() => {

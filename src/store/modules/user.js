@@ -104,8 +104,6 @@ const actions = {
         }
 
         store.set('user/user', user)
-
-        await new Promise(resolve => setTimeout(resolve, 500))
       } else {
         store.set('app/alertMessage', res)
       }
