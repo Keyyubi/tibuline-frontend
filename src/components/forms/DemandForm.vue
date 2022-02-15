@@ -363,6 +363,7 @@
       // FormType === 'update'
       updateDemand () {
         const payload = { ...this.demand }
+        payload.olderContractId = payload.olderContractId || -1
 
         if (this.formType === 'approve') {
           payload.demandStatus = Statuses.COMPLITED

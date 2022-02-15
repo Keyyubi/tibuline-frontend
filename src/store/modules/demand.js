@@ -30,19 +30,22 @@ const actions = {
   async updateDemand (context, payload) {
     store.set('app/isLoading', true)
 
-    const res = await this.$api.demand.create(payload)
-
-    if (res) {
-      const arr = store.get('demand/demands')
-      const index = arr.findIndex(e => e.id === payload.id)
-      arr[index] = payload
-      store.set('demand/demands', [...arr])
-      store.dispatch('app/showAlert', { message: 'Başarıyla güncellendi.', type: 'success' }, { root: true })
-    } else {
-      store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
-    }
-
-    store.set('app/isLoading', false)
+    const url = `${process.env.VUE_APP_ROOT_API}/api/Demand/UpdateDemand/${payload.olderContractId}`
+    await axios.put(url)
+      .then(() => {
+        const arr = store.get('demand/demands')
+        const index = arr.findIndex(e => e.id === payload.id)
+        arr[index] = payload
+        store.set('demand/demands', [...arr])
+        store.dispatch('app/showAlert', { message: 'Başarıyla güncellendi.', type: 'success' }, { root: true })
+      })
+      .catch(err => {
+        console.log('Error: ', err)
+        store.dispatch('app/showAlert', { message: 'Talep güncellenirken bir hata oluştu.', type: 'error' }, { root: true })
+      })
+      .finally(() => {
+        store.set('app/isLoading', false)
+      })
   },
   async getDemandsWithDetails (c, role) {
     store.set('app/isLoading', true)
