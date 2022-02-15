@@ -29,8 +29,10 @@ const actions = {
   },
   async updateDemand (context, payload) {
     store.set('app/isLoading', true)
+    const { olderContractId } = payload
+    delete payload.olderContractId
 
-    const url = `${process.env.VUE_APP_ROOT_API}/api/Demand/UpdateDemand/${payload.olderContractId}`
+    const url = `${process.env.VUE_APP_ROOT_API}/api/Demand/UpdateDemand/${olderContractId || -1}`
     await axios.put(url)
       .then(() => {
         const arr = store.get('demand/demands')
