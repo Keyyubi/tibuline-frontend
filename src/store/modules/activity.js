@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { make } from 'vuex-pathify'
+import { trailingSlash } from '../../util/helpers'
 import store from '../index'
 
 const getMappedActivities = (items = []) => {
@@ -82,7 +83,7 @@ const actions = {
   async createActivities (context, payload) {
     store.set('app/isLoading', true)
 
-    const res = await axios.post(`${process.env.VUE_APP_ROOT_API}/api/Activity/SaveActivities`, payload)
+    const res = await axios.post(`${trailingSlash(process.env.VUE_APP_ROOT_API)}api/Activity/SaveActivities`, payload)
 
     res.then(e => {
       store.set('activity/activities', [...store.get('activity/activities'), ...getMappedActivities(payload)])
@@ -138,7 +139,7 @@ const actions = {
   async deleteActivities (context, ids) {
     store.set('app/isLoading', true)
 
-    const res = await axios.delete(`${process.env.VUE_APP_ROOT_API}/api/Activity/DeleteActivities`, ids)
+    const res = await axios.delete(`${trailingSlash(process.env.VUE_APP_ROOT_API)}/api/Activity/DeleteActivities`, ids)
 
     res.then(e => {
       store.dispatch('app/showAlert', { message: 'Aktiviteler silindi.', type: 'error' }, { root: true })

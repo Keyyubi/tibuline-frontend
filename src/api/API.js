@@ -4,7 +4,7 @@ import { leadingSlash, trailingSlash } from '@/util/helpers'
 const refresh = () => {
   localStorage.removeItem('jwt')
 
-  axios.post(`${process.env.VUE_APP_ROOT_API}/api/Auth/CreateTokenByRefreshToken`, { token: localStorage.getItem('rfrjwt') })
+  axios.post(`${trailingSlash(process.env.VUE_APP_ROOT_API)}api/Auth/CreateTokenByRefreshToken`, { token: localStorage.getItem('rfrjwt') })
     .then(({ data: res }) => {
       localStorage.setItem('jwt', res.data.accessToken)
       localStorage.setItem('rfrjwt', res.data.refreshToken)
@@ -15,7 +15,7 @@ const refresh = () => {
 }
 
 export class API {
-  baseUrl = process.env.VUE_APP_ROOT_API
+  baseUrl = trailingSlash(process.env.VUE_APP_ROOT_API)
   singular
   plural
 
@@ -30,7 +30,7 @@ export class API {
   }
 
   getUrl (endpoint) {
-    return `${trailingSlash(this.baseUrl)}api/${this.singular}${leadingSlash(endpoint)}`
+    return `${this.baseUrl}api/${this.singular}${leadingSlash(endpoint)}`
   }
 
   handleErrors (err) {

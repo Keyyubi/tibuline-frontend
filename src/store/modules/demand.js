@@ -3,6 +3,7 @@ import { make } from 'vuex-pathify'
 import { CreateURL } from '@/util/helpers'
 import { ROLES } from '@/util/globals'
 import store from '../index'
+import { trailingSlash } from '../../util/helpers'
 
 // Data
 const state = {
@@ -32,7 +33,7 @@ const actions = {
     const { olderContractId } = payload
     delete payload.olderContractId
 
-    const url = `${process.env.VUE_APP_ROOT_API}/api/Demand/UpdateDemand/${olderContractId || -1}`
+    const url = `${trailingSlash(process.env.VUE_APP_ROOT_API)}/api/Demand/UpdateDemand/${olderContractId || -1}`
     await axios.put(url)
       .then(() => {
         const arr = store.get('demand/demands')
@@ -55,8 +56,8 @@ const actions = {
 
     const currUser = store.get('user/user')
     const url = role === ROLES.UNIT_MANAGER
-      ? `${process.env.VUE_APP_ROOT_API}/api/Demand/GetDemandsByCreatedBy/${currUser.id}`
-      : `${process.env.VUE_APP_ROOT_API}/api/Demand/GetDemandsBySupplierId/${currUser.company.id}`
+      ? `${trailingSlash(process.env.VUE_APP_ROOT_API)}/api/Demand/GetDemandsByCreatedBy/${currUser.id}`
+      : `${trailingSlash(process.env.VUE_APP_ROOT_API)}/api/Demand/GetDemandsBySupplierId/${currUser.company.id}`
 
     await axios.get(url)
       .then(({ data: res }) => {
