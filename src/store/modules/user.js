@@ -87,6 +87,7 @@ const actions = {
     axios.defaults.headers.common.Authorization = `Bearer ${localStorage.getItem('jwt')}`
 
     const res = await this.$api.user.get(false)
+    console.log('Reached')
 
     if (res) {
       const user = { ...res.data }

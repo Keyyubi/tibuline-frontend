@@ -8,6 +8,7 @@ const refresh = () => {
     .then(({ data: res }) => {
       localStorage.setItem('jwt', res.data.accessToken)
       localStorage.setItem('rfrjwt', res.data.refreshToken)
+      this.$router.push({ path: '/' })
     })
     .catch(err => {
       console.log('err', err)
@@ -91,8 +92,8 @@ export class API {
 
   async create (data = {}) {
     try {
-      await axios.post(this.getUrl(`Save${this.singular}`), data)
-      return true
+      const result = await axios.post(this.getUrl(`Save${this.singular}`), data)
+      return result.data.data.id
     } catch (err) {
       return this.handleErrors(err)
     }

@@ -14,7 +14,8 @@ const actions = {
 
     const res = await this.$api.jobTitle.create(payload)
     if (res) {
-      store.set('jobTitle/jobTitles', [...store.get('jobTitle/jobTitles'), res.data])
+      payload.id = res
+      store.set('jobTitle/jobTitles', [...store.get('jobTitle/jobTitles'), payload])
       store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
     } else {
       store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })

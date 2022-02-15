@@ -14,7 +14,8 @@ const actions = {
 
     const res = await this.$api.project.create(payload)
     if (res) {
-      store.set('project/projects', [...store.get('project/projects'), res.data])
+      payload.id = res
+      store.set('project/projects', [...store.get('project/projects'), payload])
       store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
     } else {
       store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
@@ -50,10 +51,10 @@ const actions = {
     store.set('app/isLoading', true)
     const { id } = store.get('user/user')
 
-    const res = await this.$api.budget.getByParams({ url: 'AssignedTo', params: [id] })
+    const res = await this.$api.project.getByParams({ url: 'AssignedTo', params: [id] })
 
     if (res) {
-      store.set('budget/invoiceBudget', res.data[0])
+      store.set('project/projects', res.data)
     } else {
       store.dispatch('app/showAlert', { message: 'Projeler getirilirken bir hata oluştu.', type: 'error' }, { root: true })
     }

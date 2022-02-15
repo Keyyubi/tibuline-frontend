@@ -9,7 +9,23 @@
         hide-details
       />
     </v-card-title>
+
+    <v-sheet
+      v-if="isLoading"
+      width="100%"
+      height="400"
+      class="d-flex justify-center align-center"
+    >
+      <v-progress-circular
+        size="100"
+        width="10"
+        indeterminate
+        color="primary"
+      />
+    </v-sheet>
+
     <v-data-table
+      v-else
       :headers="headers"
       :items="consultants"
       :search="searchWord"
@@ -99,7 +115,7 @@
     },
     computed: {
       ...get('user', ['user', 'users']),
-      ...get('consultant', ['consultants']),
+      ...get('consultant', ['consultants', 'isLoading']),
       ...get('supplier', ['suppliers']),
       ...get('jobTitle', ['jobTitles']),
       ...get('experience', ['experiences']),
@@ -127,7 +143,11 @@
         return arr
       },
     },
-    mounted () {
+    async mounted () {
+      // To be sure current user update at store
+      this.$store.dispatch('consultant/setLoading', true)
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
       this.$store.dispatch('jobTitle/getJobTitles')
       this.$store.dispatch('experience/getExperiences')
       if (this.user.roleId === Roles.UNIT_MANAGER) {

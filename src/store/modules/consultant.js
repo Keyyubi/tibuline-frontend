@@ -4,6 +4,7 @@ import store from '../index'
 // Data
 const state = {
   consultants: [],
+  isLoading: false,
 }
 
 const mutations = make.mutations(state)
@@ -15,10 +16,11 @@ const actions = {
     const res = await this.$api.consultant.create(payload)
 
     if (res) {
+      payload.id = res
       store.set('consultant/consultants', [...store.get('consultant/consultants'), payload])
       store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
     } else {
-      store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
+      store.dispatch('app/showAlert', { message: ' Danışman oluşturulurken bir hata oluştu.', type: 'error' }, { root: true })
     }
 
     store.set('app/isLoading', false)
@@ -26,7 +28,7 @@ const actions = {
   async updateConsultant (context, payload) {
     store.set('app/isLoading', true)
 
-    const res = await this.$api.consultant.create(payload)
+    const res = await this.$api.consultant.update(payload)
 
     if (res) {
       const arr = store.get('consultant/consultants')
@@ -48,6 +50,7 @@ const actions = {
     store.set('consultant/consultants', res.data)
 
     store.set('app/isLoading', false)
+    store.set('consultant/isLoading', false)
   },
   async getConsultantById (context, payload) {
     store.set('app/isLoading', true)
@@ -56,6 +59,7 @@ const actions = {
 
     store.set('consultant/consultants', [res.data])
     store.set('app/isLoading', false)
+    store.set('consultant/isLoading', false)
   },
   async getConsultantsByManagerId () {
     store.set('app/isLoading', true)
@@ -65,6 +69,7 @@ const actions = {
     store.set('consultant/consultants', res.data)
 
     store.set('app/isLoading', false)
+    store.set('consultant/isLoading', false)
   },
   async getAllConsultants () {
     store.set('app/isLoading', true)
@@ -100,6 +105,9 @@ const actions = {
     }
 
     store.set('app/isLoading', false)
+  },
+  setLoading (c, payload) {
+    store.set('consultant/isLoading', payload)
   },
 }
 

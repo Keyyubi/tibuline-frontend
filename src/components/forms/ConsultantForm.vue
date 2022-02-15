@@ -512,13 +512,15 @@
           this.consultant.jobTitleId,
           this.consultant.experienceId,
         ]
-        if (!CheckIsNull(fields)) {
+        if (!CheckIsNull(fields) && this.consultant.jobTitleId !== 0 && this.consultant.experienceId !== 0) {
           const payload = { ...this.consultant }
 
           if (this.formType === 'create') {
             this.$store.dispatch('consultant/createConsultant', payload)
           } else this.$store.dispatch('consultant/updateConsultant', payload)
           this.$emit('close-dialog')
+        } else {
+          this.$store.dispatch('app/showAlert', { message: 'Lütfen tüm zorunlu alanları doldurduğunuzdan emin olunuz.', type: 'warning' })
         }
       },
       reset () {

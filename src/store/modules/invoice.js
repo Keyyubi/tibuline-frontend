@@ -21,6 +21,7 @@ const actions = {
       const res = await this.$api.invoice.create(payload.invoice)
 
       if (res) {
+        payload.invoice.id = res
         store.set('invoice/invoices', [...store.get('invoice/invoices'), payload.invoice])
         const periodRes = await this.$api.activityPeriod.update(payload.period)
 

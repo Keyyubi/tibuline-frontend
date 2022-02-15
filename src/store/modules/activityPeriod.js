@@ -14,6 +14,7 @@ const actions = {
     const res = await this.$api.activityPeriod.create(payload)
 
     if (res) {
+      payload.id = res
       store.set('activityPeriod/activityPeriods', [...store.get('activityPeriod/activityPeriods'), payload])
       store.dispatch('app/showAlert', { message: 'Aktivite dönemi başarıyla oluşturuldu.', type: 'success' }, { root: true })
     } else {

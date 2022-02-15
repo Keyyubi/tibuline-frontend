@@ -16,20 +16,28 @@ const mutations = make.mutations(state)
 const actions = {
   async createDemand (context, payload) {
     store.set('app/isLoading', true)
+    store.set('demand/isLoading', true)
 
     const res = await this.$api.demand.create(payload)
 
     if (res) {
+      payload.id = res
+      payload.contract = null
+      payload.consultant = null
       store.set('demand/demands', [...store.get('demand/demands'), payload])
       store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
     } else {
       store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
     }
 
-    store.set('app/isLoading', false)
+    setTimeout(() => {
+      store.set('app/isLoading', false)
+      store.set('demand/isLoading', false)
+    }, 1000)
   },
   async updateDemand (context, payload) {
     store.set('app/isLoading', true)
+    store.set('demand/isLoading', true)
     const { olderContractId } = payload
     delete payload.olderContractId
 
@@ -39,7 +47,8 @@ const actions = {
         const arr = store.get('demand/demands')
         const index = arr.findIndex(e => e.id === payload.id)
         arr[index] = payload
-        store.set('demand/demands', [...arr])
+
+        store.set('demand/demands', arr)
         store.dispatch('app/showAlert', { message: 'Başarıyla güncellendi.', type: 'success' }, { root: true })
       })
       .catch(err => {
@@ -47,6 +56,7 @@ const actions = {
         store.dispatch('app/showAlert', { message: 'Talep güncellenirken bir hata oluştu.', type: 'error' }, { root: true })
       })
       .finally(() => {
+        store.set('demand/isLoading', false)
         store.set('app/isLoading', false)
       })
   },

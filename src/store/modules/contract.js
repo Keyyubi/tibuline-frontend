@@ -4,6 +4,7 @@ import store from '../index'
 // Data
 const state = {
   contracts: [],
+  isLoading: false,
 }
 
 const mutations = make.mutations(state)
@@ -15,6 +16,7 @@ const actions = {
     const res = await this.$api.contract.create(payload)
 
     if (res) {
+      payload.id = res
       store.set('contract/contracts', [...store.get('contract/contracts'), payload])
       store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
     } else {
@@ -26,7 +28,7 @@ const actions = {
   async updateContract (context, payload) {
     store.set('app/isLoading', true)
 
-    const res = await this.$api.contract.create(payload)
+    const res = await this.$api.contract.update(payload)
 
     if (res) {
       const arr = store.get('contract/contracts')
@@ -55,6 +57,7 @@ const actions = {
     const res = await this.$api.contract.getByParams({ url: 'SupplierId', params: [company.id] })
     store.set('contract/contracts', res.data)
 
+    store.set('contract/isLoading', false)
     store.set('app/isLoading', false)
   },
   async uploadContract (context, payload) {
@@ -82,6 +85,9 @@ const actions = {
     }
 
     store.set('app/isLoading', false)
+  },
+  setLoading (c, payload) {
+    store.set('contract/isLoading', payload)
   },
 }
 

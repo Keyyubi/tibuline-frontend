@@ -14,7 +14,8 @@ const actions = {
 
     const res = await this.$api.supplier.create(payload)
     if (res) {
-      store.set('supplier/suppliers', [...store.get('supplier/suppliers'), res.data])
+      payload.id = res
+      store.set('supplier/suppliers', [...store.get('supplier/suppliers'), payload])
       store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
     } else {
       store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })

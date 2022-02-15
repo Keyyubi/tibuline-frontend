@@ -58,7 +58,7 @@
         {{ getProjectName(item.projectId) }}
       </template>
       <template v-slot:item.contract="{ item }">
-        {{ getContractName(item) }}
+        {{ item.contract ? item.contract.name : ' - ' }}
       </template>
       <template v-slot:item.contract.startDate="{ item }">
         {{ getContractDate(item, 'start') }}
@@ -126,7 +126,7 @@
           { text: 'Ünvan', value: 'jobTitleId', width: '200' },
           { text: 'Tecrübe', value: 'experienceId', width: '120' },
           { text: 'Proje', value: 'projectId', width: '150' },
-          { text: 'Sözleşme/Aday', value: 'contract', width: '200' },
+          { text: 'Sözleşme/Aday', value: 'contract', width: '250' },
           { text: 'Söz. Baş. Tar.', value: 'contract.startDate', width: '150' },
           { text: 'Söz. Bit. Tar.', value: 'contract.endDate', width: '150' },
           { text: 'Talep Durumu', value: 'demandStatus' },
@@ -171,7 +171,7 @@
         try {
           if (this.user.roleId === Roles.UNIT_MANAGER) {
             const result = this.suppliers.find(supplier => supplier.id === item.supplierId)
-            return result.name.slice(0, 30) + '...'
+            return result.name.length > 30 ? result.name.slice(0, 30) + '...' : result.name
           } else if (this.user.roleId === Roles.SUPPLIER) {
             const result = this.users.find(manager => manager.id === item.createdById)
             return result.firstname + ' ' + result.lastname
@@ -203,13 +203,6 @@
         if (contract) {
           const arr = type === 'starting' ? contract.startDate.split('T')[0].split('-') : contract.endDate.split('T')[0].split('-')
           return `${arr[2]}/${arr[1]}/${arr[0]}`
-        } else {
-          return ' - '
-        }
-      },
-      getContractName (demand) {
-        if (demand.contract !== null && demand.consultant !== null) {
-          return demand.contract.id + ' - ' + demand.consultant.firstname + ' ' + demand.consultant.lastname
         } else {
           return ' - '
         }

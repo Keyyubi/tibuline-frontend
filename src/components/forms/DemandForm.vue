@@ -322,7 +322,9 @@
         if (!CheckIsNull(arr)) {
           this.demand.demandStatus = Statuses.CREATED
           this.$store.dispatch('demand/createDemand', this.demand)
-          this.$emit('close-dialog')
+          if (this.formType !== 'create') {
+            this.$emit('close-dialog')
+          }
         } else {
           this.$store.dispatch('app/showAlert', { message: 'Lütfen tüm alanları doldurduğunuzdan emin olunuz.', type: 'warning' })
         }
@@ -368,6 +370,7 @@
           payload.demandStatus = Statuses.COMPLITED
         } else if (this.user.roleId === Roles.SUPPLIER && payload.contractId) {
           payload.demandStatus = Statuses.REPLIED
+          payload.contract = this.contracts.find(e => e.id === payload.contractId)
         }
 
         this.$store.dispatch('demand/updateDemand', payload)

@@ -33,6 +33,7 @@
         <v-text-field
           v-model="contract.contractNo"
           label="Şözleşme No."
+          @change="setContractName()"
         />
       </v-col>
       <!-- Consultant -->
@@ -300,6 +301,7 @@
         }
       },
       setContractName () {
+        if (!this.contract.consultantId || !this.contract.contractNo) return ''
         const c = this.consultants.find(e => e.id === this.contract.consultantId)
         this.contract.name = this.contract.contractNo + ' - ' + c.firstname + ' ' + c.lastname
       },
@@ -352,6 +354,8 @@
         this.contract.name = null
         this.contract.startDate = null
         this.contract.endDate = null
+        this.starting = null
+        this.ending = null
       },
       closeContractDialog () {
         this.contractDocument = null

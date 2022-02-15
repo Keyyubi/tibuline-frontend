@@ -83,15 +83,13 @@ const actions = {
   async createActivities (context, payload) {
     store.set('app/isLoading', true)
 
-    const res = await axios.post(`${trailingSlash(process.env.VUE_APP_ROOT_API)}api/Activity/SaveActivities`, payload)
+    const result = await axios.post(`${trailingSlash(process.env.VUE_APP_ROOT_API)}api/Activity/SaveActivities`, payload)
 
-    res.then(e => {
-      store.set('activity/activities', [...store.get('activity/activities'), ...getMappedActivities(payload)])
-      store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
-    }).catch(err => {
-      store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
-      console.log('err', err)
-    }).finally(() => { store.set('app/isLoading', false) })
+    if (result.status && result.status === 200) {
+      store.dispatch('app/showAlert', { message: 'Aylık aktiviteler başarıyla oluşturuldu.', type: 'success' }, { root: true })
+    } else {
+      store.dispatch('app/showAlert', { message: 'Aylık aktiviteler oluşturulurken bir hata oluştu.', type: 'error' }, { root: true })
+    }
   },
   async updateActivity (context, payload) {
     store.set('app/isLoading', true)
@@ -139,14 +137,13 @@ const actions = {
   async deleteActivities (context, ids) {
     store.set('app/isLoading', true)
 
-    const res = await axios.delete(`${trailingSlash(process.env.VUE_APP_ROOT_API)}api/Activity/DeleteActivities`, ids)
+    const result = await axios.delete(`${trailingSlash(process.env.VUE_APP_ROOT_API)}api/Activity/DeleteActivities`, { data: ids })
 
-    res.then(e => {
-      store.dispatch('app/showAlert', { message: 'Aktiviteler silindi.', type: 'error' }, { root: true })
-    }).catch(err => {
+    if (result.status && result.status === 200) {
+      store.dispatch('app/showAlert', { message: 'Aylık aktiviteler silindi.', type: 'success' }, { root: true })
+    } else {
       store.dispatch('app/showAlert', { message: 'Aktiviteler silinirken hata oluştu.', type: 'error' }, { root: true })
-      console.log('err', err)
-    }).finally(() => { store.set('app/isLoading', false) })
+    }
   },
   setLoading (c, payload) {
     store.set('activity/isLoading', payload)

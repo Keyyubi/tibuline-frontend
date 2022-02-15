@@ -16,6 +16,7 @@ const actions = {
     const res = await this.$api.budget.create(payload)
 
     if (res) {
+      payload.id = res
       store.set('budget/budgets', [...store.get('budget/budgets'), payload])
       store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
     } else {

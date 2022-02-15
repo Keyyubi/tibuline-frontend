@@ -13,8 +13,10 @@ const actions = {
     store.set('app/isLoading', true)
 
     const res = await this.$api.costCenter.create(payload)
+    console.log('res', res)
 
     if (res) {
+      payload.id = res
       store.set('costCenter/costCenters', [...store.get('costCenter/costCenters'), payload])
       store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
     } else {

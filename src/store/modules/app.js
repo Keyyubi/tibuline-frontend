@@ -160,9 +160,9 @@ const actions = {
     context.commit('alertMessage', payload.message)
     context.commit('alertType', payload.type)
 
-    setTimeout(() => {
-      context.dispatch('showAlert', { message: '', type: '' })
-    }, 2000)
+    // setTimeout(() => {
+    //   context.dispatch('showAlert', { message: '', type: '' })
+    // }, 2000)
   },
   hideAlert: ({ dispatch }) => {
     setTimeout(() => {
