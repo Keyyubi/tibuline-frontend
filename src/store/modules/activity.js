@@ -139,7 +139,7 @@ const actions = {
   async deleteActivities (context, ids) {
     store.set('app/isLoading', true)
 
-    const res = await axios.delete(`${trailingSlash(process.env.VUE_APP_ROOT_API)}/api/Activity/DeleteActivities`, ids)
+    const res = await axios.delete(`${trailingSlash(process.env.VUE_APP_ROOT_API)}api/Activity/DeleteActivities`, ids)
 
     res.then(e => {
       store.dispatch('app/showAlert', { message: 'Aktiviteler silindi.', type: 'error' }, { root: true })

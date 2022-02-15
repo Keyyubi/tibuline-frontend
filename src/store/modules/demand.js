@@ -33,8 +33,8 @@ const actions = {
     const { olderContractId } = payload
     delete payload.olderContractId
 
-    const url = `${trailingSlash(process.env.VUE_APP_ROOT_API)}/api/Demand/UpdateDemand/${olderContractId || -1}`
-    await axios.put(url)
+    const url = `${trailingSlash(process.env.VUE_APP_ROOT_API)}api/Demand/UpdateDemand/${olderContractId || -1}`
+    await axios.put(url, payload)
       .then(() => {
         const arr = store.get('demand/demands')
         const index = arr.findIndex(e => e.id === payload.id)
@@ -56,8 +56,8 @@ const actions = {
 
     const currUser = store.get('user/user')
     const url = role === ROLES.UNIT_MANAGER
-      ? `${trailingSlash(process.env.VUE_APP_ROOT_API)}/api/Demand/GetDemandsByCreatedBy/${currUser.id}`
-      : `${trailingSlash(process.env.VUE_APP_ROOT_API)}/api/Demand/GetDemandsBySupplierId/${currUser.company.id}`
+      ? `${trailingSlash(process.env.VUE_APP_ROOT_API)}api/Demand/GetDemandsByCreatedBy/${currUser.id}`
+      : `${trailingSlash(process.env.VUE_APP_ROOT_API)}api/Demand/GetDemandsBySupplierId/${currUser.company.id}`
 
     await axios.get(url)
       .then(({ data: res }) => {
