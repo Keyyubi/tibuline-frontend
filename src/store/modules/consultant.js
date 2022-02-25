@@ -88,7 +88,7 @@ const actions = {
     const path = await this.$api.consultant.upload(payload.formData)
 
     if (path) {
-      payload.sending.filePath = path
+      payload.sending.filePath = path.data
       const res = await this.$api.consultant.update(payload.sending)
 
       if (res) {
@@ -101,7 +101,7 @@ const actions = {
         store.dispatch('app/showAlert', { message: 'Dosya başarıyla yüklendi fakat danışman güncellenemedi.', type: 'error' }, { root: true })
       }
     } else {
-      store.dispatch('app/showAlert', { message: 'Dosya yüklenemedi.', type: 'success' }, { root: true })
+      store.dispatch('app/showAlert', { message: 'Dosya yüklenemedi.', type: 'error' }, { root: true })
     }
 
     store.set('app/isLoading', false)

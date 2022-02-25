@@ -159,15 +159,10 @@ const actions = {
     // Alert Types =>  'success', 'info', 'warning', 'error'
     context.commit('alertMessage', payload.message)
     context.commit('alertType', payload.type)
-
-    // setTimeout(() => {
-    //   context.dispatch('showAlert', { message: '', type: '' })
-    // }, 2000)
   },
-  hideAlert: ({ dispatch }) => {
-    setTimeout(() => {
-      dispatch('showAlert', { message: '', type: '' })
-    }, 3000)
+  hideAlert: ({ commit }) => {
+    commit('alertMessage', '')
+    commit('alertType', '')
   },
   setLoading: (context, payload) => {
     context.commit('isLoading', payload)

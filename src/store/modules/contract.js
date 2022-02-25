@@ -68,7 +68,7 @@ const actions = {
     const path = await this.$api.contract.upload(payload.formData)
 
     if (path) {
-      payload.contract.filePath = path
+      payload.contract.filePath = path.data
       const res = await this.$api.contract.update(payload.contract)
 
       if (res) {

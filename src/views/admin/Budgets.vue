@@ -30,20 +30,42 @@
         <v-card>
           <v-card-title>
             <v-row>
-              <v-text-field
-                v-model="searchWord"
-                append-icon="mdi-magnify"
-                label="Search"
-                single-line
-                hide-details
-              />
+              <v-col md="4">
+                <v-autocomplete
+                  v-model="supplierFilter"
+                  :items="suppliers"
+                  item-text="name"
+                  item-value="id"
+                  label="Tedarikçi Ara"
+                  @change="filterData('supplier')"
+                />
+              </v-col>
+              <v-col md="4">
+                <v-autocomplete
+                  v-model="titleFilter"
+                  :items="jobTitles"
+                  item-text="name"
+                  item-value="id"
+                  label="Ünvan Ara"
+                  @change="filterData('title')"
+                />
+              </v-col>
+              <v-col md="4">
+                <v-autocomplete
+                  v-model="experienceFilter"
+                  :items="experiences"
+                  item-text="name"
+                  item-value="id"
+                  label="Tecrübe Aralığı Ara"
+                  @change="filterData('experience')"
+                />
+              </v-col>
             </v-row>
           </v-card-title>
 
           <v-data-table
             :headers="headers"
-            :items="budgets"
-            :search="searchWord"
+            :items="items"
           >
             <!-- eslint-disable-next-line -->
             <template v-slot:item.id="{ item }">
@@ -72,7 +94,6 @@
             <template v-slot:item.experienceId="{ item }">
               {{ getExperienceName(item.experienceId) }}
             </template>
-
             <!-- eslint-disable-next-line -->
             <template v-slot:item.hourlyBudget="{ item }">
               {{ moneyMask(item.hourlyBudget) }}
@@ -119,6 +140,10 @@
       return {
         currentTab: 'budgets',
         searchWord: '',
+        supplierFilter: '',
+        titleFilter: '',
+        experienceFilter: '',
+        items: [],
         dialog: false,
         selectedBudget: {},
         newBudget: {
@@ -152,6 +177,13 @@
       ...get('jobTitle', ['jobTitles']),
       ...get('experience', ['experiences']),
     },
+    watch: {
+      supplierFilter: () => {
+        this.filterData('supplier')
+        const arr = [...this.budgets]
+        arr.filter(e => e.supplierId === this.supplierFilter)
+      }
+    },
     mounted () {
       this.$store.dispatch('supplier/getSuppliers')
       this.$store.dispatch('budget/getBudgets')
@@ -159,6 +191,22 @@
       this.$store.dispatch('experience/getExperiences')
     },
     methods: {
+      filterData (type) {
+        switch (type) {
+          case 'supplier':
+            this.items = this.budgets.filter(e => e.supplierId === supplierFilter)
+            break
+          case 'supplier':
+            this.items = this.budgets.filter(e => e.supplierId === supplierFilter)
+            break
+          case 'supplier':
+            this.items = this.budgets.filter(e => e.supplierId === supplierFilter)
+            break;
+
+          default:
+            break;
+        }
+      },
       getJobTitleName (id) {
         const result = this.jobTitles.find(jobTitle => jobTitle.id === id)
         if (result) return result.name
