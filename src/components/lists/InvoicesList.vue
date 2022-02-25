@@ -1,18 +1,58 @@
 <template>
   <v-card>
     <v-card-title>
-      <v-text-field
-        v-model="searchWord"
-        append-icon="mdi-magnify"
-        label="Search"
-        single-line
-        hide-details
-      />
+      <v-row>
+        <v-col md="3">
+          <v-autocomplete
+            v-model="consultantFilter"
+            :items="consultants"
+            :item-text="e => e.firstname + ' ' + e.lastname"
+            item-value="id"
+            label="Danışman Filtrele"
+            @change="filterData('consultant')"
+          />
+        </v-col>
+        <v-col md="3">
+          <v-autocomplete
+            v-model="managerFilter"
+            :items="users"
+            :item-text="e => e.firstname + ' ' + e.lastname"
+            item-value="id"
+            label="Yönetici Filtrele"
+            @change="filterData('manager')"
+          />
+        </v-col>
+        <v-col md="3">
+          <v-autocomplete
+            v-model="periodFilter"
+            :items="activityPeriods"
+            item-text="name"
+            item-value="name"
+            label="Dönem Filtrele"
+            @change="filterData('period')"
+          />
+        </v-col>
+        <v-col
+          align-self="center"
+          md="3"
+        >
+          <v-btn
+            align-baseline
+            width="100%"
+            depressed
+            color="primary"
+            outlined
+            small
+            @click="filterData()"
+          >
+            Sıfırla
+          </v-btn>
+        </v-col>
+      </v-row>
     </v-card-title>
     <v-data-table
       :headers="headers"
-      :items="invoices"
-      :search="searchWord"
+      :items="items"
     >
       <!-- eslint-disable-next-line -->
       <template v-slot:item.invoiceNo="{ item }">
@@ -181,6 +221,10 @@
       return {
         searchWord: '',
         dialog: false,
+        items: [],
+        consultantFilter: '',
+        managerFilter: '',
+        periodFilter: '',
         selectedInvoice: null,
         headers: [
           {
@@ -205,14 +249,45 @@
       ...get('consultant', ['consultants']),
       ...get('supplier', ['suppliers']),
       ...get('invoice', ['invoices']),
+      ...get('activityPeriod', ['activityPeriods']),
     },
     mounted () {
       this.$store.dispatch('consultant/getAllConsultants')
       this.$store.dispatch('supplier/getSuppliers')
       this.$store.dispatch('user/getUnitManagers')
       this.$store.dispatch('invoice/getInvoices')
+      this.$store.dispatch('activityPeriod/getActivityPeriods')
+
+      setTimeout(() => {
+        this.filterData()
+      }, 500)
     },
     methods: {
+      filterData (type) {
+        switch (type) {
+          case 'consultant':
+            this.periodFilter = null
+            this.managerFilter = null
+            this.items = this.invoices.filter(e => e.consultantId === this.consultantFilter)
+            break
+          case 'manager':
+            this.consultantFilter = null
+            this.periodFilter = null
+            this.items = this.invoices.filter(e => e.unitManagerUserId === this.managerFilter)
+            break
+          case 'period':
+            this.managerFilter = null
+            this.consultantFilter = null
+            this.items = this.invoices.filter(e => e.period === this.periodFilter)
+            break
+          default:
+            this.consultantFilter = null
+            this.managerFilter = null
+            this.periodFilter = null
+            this.items = this.invoices
+            break
+        }
+      },
       showInvoice (invoice) {
         const supplier = this.suppliers.find(e => e.id === invoice.supplierId)
         this.selectedInvoice = { ...invoice, supplier }
