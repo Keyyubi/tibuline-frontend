@@ -30,7 +30,7 @@
         <v-card>
           <v-card-title>
             <v-row>
-              <v-col md="4">
+              <v-col md="3">
                 <v-autocomplete
                   v-model="supplierFilter"
                   :items="suppliers"
@@ -40,7 +40,7 @@
                   @change="filterData('supplier')"
                 />
               </v-col>
-              <v-col md="4">
+              <v-col md="3">
                 <v-autocomplete
                   v-model="titleFilter"
                   :items="jobTitles"
@@ -50,7 +50,7 @@
                   @change="filterData('title')"
                 />
               </v-col>
-              <v-col md="4">
+              <v-col md="3">
                 <v-autocomplete
                   v-model="experienceFilter"
                   :items="experiences"
@@ -59,6 +59,22 @@
                   label="Tecrübe Aralığı Ara"
                   @change="filterData('experience')"
                 />
+              </v-col>
+              <v-col
+                align-self="center"
+                md="3"
+              >
+                <v-btn
+                  align-baseline
+                  width="100%"
+                  depressed
+                  color="primary"
+                  outlined
+                  small
+                  @click="filterData()"
+                >
+                  Sıfırla
+                </v-btn>
               </v-col>
             </v-row>
           </v-card-title>
