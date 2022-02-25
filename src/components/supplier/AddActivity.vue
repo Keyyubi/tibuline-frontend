@@ -470,6 +470,13 @@
           }
         }
       },
+      checkIsPeriodInvoiced () {
+        const { date } = this.$refs.calendar.lastEnd
+        const yearMonth = date.split('-')[0] + '-' + date.split('-')[1]
+        const period = this.activityPeriods.find(e => e.name === yearMonth)
+
+        return period && period.isInvoiced
+      },
       showConfirmation (type) {
         this.confirmationType = type
 
@@ -480,8 +487,12 @@
               this.confirmationDialog = true
               break
             case 'send':
-              this.confirmationMsg = 'Aktiviteler yönetici onayına gönderilecektir. Onaylıyor musunuz?'
-              this.confirmationDialog = true
+              if (this.checkIsPeriodInvoiced()) {
+                this.$store.dispatch('app/showAlert', { message: 'Bu dönemin aktiviteleri faturalandırıldığı için değişiklik yapılamaz.', type: 'warning' })
+              } else {
+                this.confirmationMsg = 'Aktiviteler yönetici onayına gönderilecektir. Onaylıyor musunuz?'
+                this.confirmationDialog = true
+              }
               break
             case 'fill-monthly':
               this.confirmationMsg = `Varolan aktiviteler ${this.customerCompany.dailyShiftHours} saat olarak güncellenecektir. Onaylıyor musunuz?`
@@ -534,15 +545,21 @@
           this.dialog = false
           const index = this.activities.findIndex(e => e.date === this.selectedEvent.date)
 
-          if (index !== -1) {
-            this.$store.dispatch('activity/updateActivity', this.selectedEvent)
+          if (this.checkIsPeriodInvoiced()) {
+            this.$store.dispatch('app/showAlert', { message: 'Bu dönemin aktiviteleri faturalandırıldığı için değişiklik yapılamaz.', type: 'warning' })
           } else {
-            this.$store.dispatch('activity/createActivity', this.selectedEvent)
-          }
+            if (index !== -1) {
+              this.$store.dispatch('activity/updateActivity', this.selectedEvent)
+            } else {
+              this.$store.dispatch('activity/createActivity', this.selectedEvent)
+            }
 
-          this.calculateTotalHours()
-          await this.sleep(300)
-          this.selectConsultant()
+            this.createOrUpdateActivityPeriod()
+
+            this.calculateTotalHours()
+            await this.sleep(300)
+            this.selectConsultant()
+          }
         }
       },
       async confirm () {
@@ -585,7 +602,6 @@
           period.totalOverShiftHours = this.totalOverShiftHours
           period.dayOffHours = this.totalDayOffHours
           period.status = Statuses.PENDING
-          console.log('per', period)
 
           this.$store.dispatch('activityPeriod/updateActivityPeriod', period)
         } else {

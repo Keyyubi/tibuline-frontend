@@ -62,7 +62,7 @@
             >
               <v-select
                 v-model="selectedPeriod"
-                :items="activityPeriods.filter(e => e.isInvoiced === false)"
+                :items="activityPeriods.filter(e => e.isInvoiced === false && e.status === Statuses.APPROVED)"
                 :item-text="e => e.name.split('-')[1] + '/' + e.name.split('-')[0]"
                 item-value="id"
                 :disabled="!selectedConsultant"
@@ -359,7 +359,7 @@
 </template>
 
 <script>
-  import { INVOICE_TYPES as InvoiceTypes } from '@/util/globals'
+  import { INVOICE_TYPES as InvoiceTypes, ACTIVITY_STATUSES as Statuses } from '@/util/globals'
   import { CheckIsNull } from '@/util/helpers'
   import { get } from 'vuex-pathify'
   export default {
@@ -388,6 +388,7 @@
           isPaid: false,
         },
         InvoiceTypes,
+        Statuses,
       }
     },
     computed: {

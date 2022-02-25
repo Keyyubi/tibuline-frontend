@@ -160,7 +160,7 @@
                   md="6"
                 >
                   <v-text-field
-                    v-model="user.company.name"
+                    v-model="customerCompany.name"
                     label="Şirket Adı"
                   />
                 </v-col>
@@ -171,7 +171,7 @@
                   md="6"
                 >
                   <v-text-field
-                    v-model="user.company.email"
+                    v-model="customerCompany.email"
                     label="E-mail"
                     :rules="Rules.EMAIL"
                   />
@@ -183,7 +183,7 @@
                   md="6"
                 >
                   <v-text-field
-                    v-model="user.company.vkn"
+                    v-model="customerCompany.vkn"
                     v-mask="'##########'"
                     label="VKN"
                     :rules="Rules.VKN"
@@ -196,20 +196,20 @@
                   md="6"
                 >
                   <v-text-field
-                    v-model="user.company.phone"
+                    v-model="customerCompany.phone"
                     v-mask="'(###) ### ####'"
                     label="Cep Telefonu"
                     append-icon="mdi-close"
                     prepend-icon="mdi-phone"
                     :rules="Rules.PHONE"
-                    @click:append="user.company.phone = ''"
+                    @click:append="customerCompany.phone = ''"
                   />
                 </v-col>
 
                 <!-- Address -->
                 <v-col cols="12">
                   <v-textarea
-                    v-model="user.company.address"
+                    v-model="customerCompany.address"
                     label="Adres"
                     rows="1"
                   />
@@ -230,7 +230,7 @@
                   md="4"
                 >
                   <v-text-field
-                    v-model="user.company.dailyShiftHours"
+                    v-model="customerCompany.dailyShiftHours"
                     label="Günlük çalışma saati (İş günü)"
                     append-icon="mdi-clock"
                     type="number"
@@ -245,7 +245,7 @@
                   md="4"
                 >
                   <v-text-field
-                    v-model="user.company.monthlyShiftHours"
+                    v-model="customerCompany.monthlyShiftHours"
                     label="Aylık çalışma saati (Max.)"
                     append-icon="mdi-calendar-clock"
                     type="number"
@@ -290,7 +290,7 @@
       }
     },
     computed: {
-      ...get('user', ['user']),
+      ...get('user', ['user', 'customerCompany']),
     },
     methods: {
       updateUser () {
