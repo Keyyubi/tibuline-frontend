@@ -177,34 +177,39 @@
       ...get('jobTitle', ['jobTitles']),
       ...get('experience', ['experiences']),
     },
-    watch: {
-      supplierFilter: () => {
-        this.filterData('supplier')
-        const arr = [...this.budgets]
-        arr.filter(e => e.supplierId === this.supplierFilter)
-      }
-    },
     mounted () {
       this.$store.dispatch('supplier/getSuppliers')
       this.$store.dispatch('budget/getBudgets')
       this.$store.dispatch('jobTitle/getJobTitles')
       this.$store.dispatch('experience/getExperiences')
+      setTimeout(() => {
+        this.filterData()
+      }, 500)
     },
     methods: {
       filterData (type) {
         switch (type) {
           case 'supplier':
-            this.items = this.budgets.filter(e => e.supplierId === supplierFilter)
+            this.titleFilter = null
+            this.experienceFilter = null
+            this.items = this.budgets.filter(e => e.supplierId === this.supplierFilter)
             break
-          case 'supplier':
-            this.items = this.budgets.filter(e => e.supplierId === supplierFilter)
+          case 'title':
+            this.supplierFilter = null
+            this.experienceFilter = null
+            this.items = this.budgets.filter(e => e.jobTitleId === this.titleFilter)
             break
-          case 'supplier':
-            this.items = this.budgets.filter(e => e.supplierId === supplierFilter)
-            break;
-
+          case 'experience':
+            this.titleFilter = null
+            this.supplierFilter = null
+            this.items = this.budgets.filter(e => e.experienceId === this.experienceFilter)
+            break
           default:
-            break;
+            this.titleFilter = null
+            this.experienceFilter = null
+            this.supplierFilter = null
+            this.items = this.budgets
+            break
         }
       },
       getJobTitleName (id) {
