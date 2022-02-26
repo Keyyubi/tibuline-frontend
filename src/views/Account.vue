@@ -43,6 +43,7 @@
                     v-model="user.username"
                     label="Kullanıcı Adı"
                     :rules="[v => !!v || 'Kullanıcı adı boş geçilemez',]"
+                    disabled
                     @change="user.email = user.username + '@'"
                   />
                 </v-col>
@@ -56,6 +57,7 @@
                     v-model="user.email"
                     label="E-mail"
                     :rules="Rules.EMAIL"
+                    disabled
                   />
                 </v-col>
 
@@ -297,7 +299,7 @@
         this.$store.dispatch('user/updateUserAccount', { ...this.user })
       },
       updateCompany () {
-        this.$store.dispatch('user/updateCompany', { ...this.user.company })
+        this.$store.dispatch('user/updateCompany', { ...this.customerCompany })
       },
     },
   }

@@ -197,6 +197,7 @@
                 clearable
                 label="KDV Tutarı"
                 @keypress="isValidNum(invoiceTaxAmount, ...arguments)"
+                @change="invoiceTotalAmount = (invoiceTaxAmount + invoiceAmount)"
               />
             </v-col>
             <v-col

@@ -91,9 +91,9 @@ const actions = {
     if (res) {
       const user = { ...res.data }
       user.firstname = user.firstname || '-'
-      user.lastname = user.firstname || '-'
-      user.tckn = user.firstname || '-'
-      user.phone = user.firstname || '-'
+      user.lastname = user.lastname || '-'
+      user.tckn = user.tckn || '-'
+      user.phone = user.phone || '-'
       localStorage.setItem('tibuline@role', user.roleId)
 
       const customerCompany = await this.$api.company.get()
