@@ -11,11 +11,11 @@ const mutations = make.mutations(state)
 const actions = {
   async createJobTitle (context, payload) {
     store.set('app/isLoading', true)
+    console.log('pay', payload)
 
     const res = await this.$api.jobTitle.create(payload)
     if (res) {
-      payload.id = res
-      store.set('jobTitle/jobTitles', [...store.get('jobTitle/jobTitles'), payload])
+      store.set('jobTitle/jobTitles', [...store.get('jobTitle/jobTitles'), res])
       store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
     } else {
       store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })

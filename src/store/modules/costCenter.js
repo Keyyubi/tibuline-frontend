@@ -16,8 +16,7 @@ const actions = {
     console.log('res', res)
 
     if (res) {
-      payload.id = res
-      store.set('costCenter/costCenters', [...store.get('costCenter/costCenters'), payload])
+      store.set('costCenter/costCenters', [...store.get('costCenter/costCenters'), res])
       store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
     } else {
       store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })

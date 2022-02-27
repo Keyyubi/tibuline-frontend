@@ -21,10 +21,9 @@ const actions = {
     const res = await this.$api.demand.create(payload)
 
     if (res) {
-      payload.id = res
-      payload.contract = null
-      payload.consultant = null
-      store.set('demand/demands', [...store.get('demand/demands'), payload])
+      res.contract = null
+      res.consultant = null
+      store.set('demand/demands', [...store.get('demand/demands'), res])
       store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
     } else {
       store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })

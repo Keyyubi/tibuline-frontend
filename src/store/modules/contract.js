@@ -16,8 +16,7 @@ const actions = {
     const res = await this.$api.contract.create(payload)
 
     if (res) {
-      payload.id = res
-      store.set('contract/contracts', [...store.get('contract/contracts'), payload])
+      store.set('contract/contracts', [...store.get('contract/contracts'), res])
       store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
     } else {
       store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })

@@ -4,11 +4,12 @@ import { leadingSlash, trailingSlash } from '@/util/helpers'
 const refresh = () => {
   localStorage.removeItem('jwt')
 
-  axios.post(`${trailingSlash(process.env.VUE_APP_ROOT_API)}api/Auth/CreateTokenByRefreshToken`, { token: localStorage.getItem('rfrjwt') })
+  axios.post(
+    `${trailingSlash(process.env.VUE_APP_ROOT_API)}api/Auth/CreateTokenByRefreshToken`,
+    { token: localStorage.getItem('rfrjwt') })
     .then(({ data: res }) => {
       localStorage.setItem('jwt', res.data.accessToken)
       localStorage.setItem('rfrjwt', res.data.refreshToken)
-      this.$router.push({ path: '/' })
     })
     .catch(err => {
       console.log('err', err)
@@ -92,8 +93,9 @@ export class API {
 
   async create (data = {}) {
     try {
+      console.log('data', data)
       const result = await axios.post(this.getUrl(`Save${this.singular}`), data)
-      return result.data.data.id
+      return result.data.data
     } catch (err) {
       return this.handleErrors(err)
     }

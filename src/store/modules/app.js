@@ -145,7 +145,7 @@ const state = {
   isLoading: false,
   items,
   alertMessage: '',
-  alertType: '',
+  alertType: 'success',
 }
 
 const mutations = make.mutations(state)
@@ -162,7 +162,7 @@ const actions = {
   },
   hideAlert: ({ commit }) => {
     commit('alertMessage', '')
-    commit('alertType', '')
+    commit('alertType', 'success')
   },
   setLoading: (context, payload) => {
     context.commit('isLoading', payload)

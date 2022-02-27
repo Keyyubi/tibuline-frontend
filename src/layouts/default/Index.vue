@@ -12,7 +12,15 @@
       />
     </v-overlay>
 
-    <alert-box />
+    <material-snackbar
+      :dismissible="false"
+      :type="alertType"
+      :value="alertMessage.length > 0"
+      :timeout="3500"
+      @input="onDismiss"
+    >
+      {{ alertMessage }}
+    </material-snackbar>
 
     <v-app-bar-nav-icon
       class="hidden-md-and-up"
@@ -37,10 +45,6 @@
     name: 'DefaultLayout',
 
     components: {
-      AlertBox: () => import(
-        /* webpackChunkName: "default-app-bar" */
-        './Alert'
-      ),
       DefaultBar: () => import(
         /* webpackChunkName: "default-app-bar" */
         './AppBar'
@@ -63,7 +67,16 @@
       ),
     },
     computed: {
-      ...get('app', ['isLoading']),
+      ...get('app', [
+        'isLoading',
+        'alertMessage',
+        'alertType',
+      ]),
+    },
+    methods: {
+      onDismiss (res) {
+        if (!res) this.$store.dispatch('app/hideAlert')
+      },
     },
   }
 </script>

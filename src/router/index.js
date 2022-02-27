@@ -70,7 +70,6 @@ router.beforeEach((to, from, next) => {
     const role = Number(localStorage.getItem('tibuline@role'))
     if (!store.get('user/user').id) {
       store.dispatch('user/getUser', { root: true })
-      axios.defaults.headers.common.Authorization = `Bearer ${localStorage.getItem('jwt')}`
     }
 
     if (to.matched.some(record => record.meta.manager)) {

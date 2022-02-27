@@ -14,8 +14,7 @@ const actions = {
 
     const res = this.$api.experience.create(payload)
     if (res) {
-      payload.id = res
-      store.set('experience/experiences', [...store.get('experience/experiences'), payload])
+      store.set('experience/experiences', [...store.get('experience/experiences'), res])
       store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
     } else {
       store.dispatch('app/showAlert', { message: 'Bir hata oluştu ama ne olduğu henüz bilinmiyor!', type: 'error' }, { root: true })

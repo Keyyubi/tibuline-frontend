@@ -14,6 +14,9 @@
       :type="type"
       class="ma-0"
       dark
+      dense
+      border="top"
+      transition="scale-transition"
     >
       <slot />
     </material-alert>
@@ -63,7 +66,7 @@
     margin-bottom: 32px
 
     .v-alert
-      padding: 32px 16px
+      padding: 16px 16px
 
     .v-alert--material,
     .v-snack__wrapper

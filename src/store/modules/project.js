@@ -14,8 +14,7 @@ const actions = {
 
     const res = await this.$api.project.create(payload)
     if (res) {
-      payload.id = res
-      store.set('project/projects', [...store.get('project/projects'), payload])
+      store.set('project/projects', [...store.get('project/projects'), res])
       store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
     } else {
       store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })

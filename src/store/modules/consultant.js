@@ -16,8 +16,7 @@ const actions = {
     const res = await this.$api.consultant.create(payload)
 
     if (res) {
-      payload.id = res
-      store.set('consultant/consultants', [...store.get('consultant/consultants'), payload])
+      store.set('consultant/consultants', [...store.get('consultant/consultants'), res])
       store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
     } else {
       store.dispatch('app/showAlert', { message: ' Danışman oluşturulurken bir hata oluştu.', type: 'error' }, { root: true })
@@ -81,9 +80,9 @@ const actions = {
   },
   async uploadFiles (context, payload) {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
+    const { company } = store.get('user/user')
 
-    payload.formData.append('SupplierId', currUser.company.Id)
+    payload.formData.append('SupplierId', company.Id)
 
     const path = await this.$api.consultant.upload(payload.formData)
 
