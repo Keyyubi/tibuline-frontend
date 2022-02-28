@@ -1,12 +1,12 @@
 import axios from 'axios'
 import { leadingSlash, trailingSlash } from '@/util/helpers'
-import store from '@/store'
 import router from '@/router'
 
 const refresh = () => {
-  localStorage.removeItem('jwt')
+  localStorage.removeItem('tibuline@jwt')
+  const rememberMe = localStorage.getItem('tibuline@remember')
 
-  if (store.get('app/rememberMe')) {
+  if (rememberMe) {
     axios.post(
       `${trailingSlash(process.env.VUE_APP_ROOT_API)}api/Auth/CreateTokenByRefreshToken`,
       { token: localStorage.getItem('rfrjwt') })
@@ -22,6 +22,7 @@ const refresh = () => {
   } else {
     localStorage.removeItem('rfrjwt')
     axios.defaults.headers.common.Authorization = ''
+    router.push({ path: '/' })
   }
 }
 
@@ -48,7 +49,6 @@ export class API {
     // Note: here you may want to add your errors handling
     if (err.response.status === 401) {
       refresh()
-      console.log({ message: 'Please refresh the page', err })
     } else {
       console.log({ message: 'Unexpected error: ', err })
     }

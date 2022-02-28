@@ -104,8 +104,8 @@
     },
     methods: {
       validate () {
+        localStorage.setItem('tibuline@remember', this.remember)
         const val = this.$refs.form.validate()
-        this.$store.dispatch('app/setRemember', this.remember)
         if (val) {
           this.$store.dispatch('user/login', this.user)
         }

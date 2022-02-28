@@ -61,7 +61,11 @@ router.beforeEach((to, from, next) => {
   store.set('app/alertMessage', '')
   if (localStorage.getItem('tibuline@jwt') === null) {
     if (to.path !== '/login/') {
-      return next({ path: '/login/' })
+      store.set('app/alertMessage', 'Tekrar giriş yapmalısınız.')
+      store.set('app/alertType', 'error')
+      setTimeout(() => {
+        return next({ path: '/login/' })
+      }, 2000)
     } else {
       next()
     }

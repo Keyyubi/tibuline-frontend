@@ -3,7 +3,7 @@ import { make } from 'vuex-pathify'
 import axios from 'axios'
 // Globals
 import { IN_BROWSER, ROLES } from '@/util/globals'
-import { CreateURL } from '@/util/helpers'
+import { CreateURL, parsedToken } from '@/util/helpers'
 import store from '@/store/index'
 
 // Router
@@ -63,6 +63,7 @@ const actions = {
     .then(({ data: res }) => {
       localStorage.setItem('tibuline@jwt', res.data.accessToken)
       localStorage.setItem('rfrjwt', res.data.refreshToken)
+      localStorage.setItem('tibuline@role', parsedToken().RoleId)
 
       dispatch('getUser')
       router.push('/')
@@ -84,20 +85,20 @@ const actions = {
   },
   async getUser () {
     store.set('app/isLoading', true)
+
     axios.defaults.headers.common.Authorization = `Bearer ${localStorage.getItem('tibuline@jwt')}`
 
     const res = await this.$api.user.get(false)
 
     if (res) {
       const user = { ...res.data }
-      localStorage.setItem('tibuline@role', user.roleId)
 
       const customerCompany = await this.$api.company.get()
       if (customerCompany) {
         store.set('user/customerCompany', customerCompany.data[0])
 
         if (user.roleId !== ROLES.SUPPLIER) {
-          user.company = customerCompany[0]
+          user.company = customerCompany.data[0]
         } else {
           const supplier = await this.$api.supplier.getById(user.supplierId)
           user.company = { ...supplier.data }
