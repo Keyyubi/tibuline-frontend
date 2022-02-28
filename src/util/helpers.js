@@ -18,7 +18,8 @@ export const CheckIsNull = (arr) => {
 }
 export const CreateURL = (endpoint = '') => trailingSlash(process.env.VUE_APP_ROOT_API) + 'api' + (endpoint.startsWith('/') ? endpoint : '/' + endpoint)
 
-export const tokParser = token => {
+export const parsedToken = () => {
+  const token = localStorage.getItem('jwt')
   const base64Url = token.split('.')[1]
   const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
   const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {

@@ -25,7 +25,7 @@
 
       <v-divider class="mx-3 mb-2" />
 
-      <default-list :items="items.filter(e => e.role === user.roleId)" />
+      <default-list :items="items.filter(e => e.role === role)" />
     </div>
 
     <!-- <template #append>
@@ -61,6 +61,7 @@
 <script>
   // Utilities
   import { get, sync } from 'vuex-pathify'
+  import { parsedToken } from '@/util/helpers'
 
   export default {
     name: 'DefaultDrawer',
@@ -92,6 +93,10 @@
         'drawerImage',
         'mini',
       ]),
+      role () {
+        console.log('pars', parsedToken())
+        return parsedToken().RoleId
+      },
     },
   }
 </script>
