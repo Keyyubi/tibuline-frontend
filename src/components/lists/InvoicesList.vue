@@ -266,18 +266,12 @@
       filterData (type) {
         switch (type) {
           case 'consultant':
-            this.periodFilter = null
-            this.managerFilter = null
             this.items = this.invoices.filter(e => e.consultantId === this.consultantFilter)
             break
           case 'manager':
-            this.consultantFilter = null
-            this.periodFilter = null
             this.items = this.invoices.filter(e => e.unitManagerUserId === this.managerFilter)
             break
           case 'period':
-            this.managerFilter = null
-            this.consultantFilter = null
             this.items = this.invoices.filter(e => e.period === this.periodFilter)
             break
           default:

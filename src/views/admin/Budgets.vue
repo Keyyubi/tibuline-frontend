@@ -206,18 +206,12 @@
       filterData (type) {
         switch (type) {
           case 'supplier':
-            this.titleFilter = null
-            this.experienceFilter = null
             this.items = this.budgets.filter(e => e.supplierId === this.supplierFilter)
             break
           case 'title':
-            this.supplierFilter = null
-            this.experienceFilter = null
             this.items = this.budgets.filter(e => e.jobTitleId === this.titleFilter)
             break
           case 'experience':
-            this.titleFilter = null
-            this.supplierFilter = null
             this.items = this.budgets.filter(e => e.experienceId === this.experienceFilter)
             break
           default:
