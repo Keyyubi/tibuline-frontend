@@ -59,7 +59,7 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
   store.set('app/alertMessage', '')
-  if (localStorage.getItem('jwt') === null) {
+  if (localStorage.getItem('tibuline@jwt') === null) {
     if (to.path !== '/login/') {
       return next({ path: '/login/' })
     } else {

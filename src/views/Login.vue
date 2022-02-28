@@ -40,11 +40,11 @@
             @click:append="() => (showPwd = !showPwd)"
           />
 
-          <!-- <v-checkbox
-            v-model="rememberMe"
+          <v-checkbox
+            v-model="remember"
             label="Beni Hatırla"
             color="success"
-          /> -->
+          />
 
           <v-btn
             v-if="alertMessage.length > 0"
@@ -97,14 +97,15 @@
         v => !!v || 'Şifrenizi girin',
         v => (v && v.length >= 8) || 'Şifre minimum 8 karakter olmalıdır',
       ],
-      rememberMe: false,
+      remember: false,
     }),
     computed: {
-      ...get('app', ['isLoading', 'alertMessage']),
+      ...get('app', ['isLoading', 'alertMessage', 'rememberMe']),
     },
     methods: {
       validate () {
         const val = this.$refs.form.validate()
+        this.$store.dispatch('app/setRemember', this.remember)
         if (val) {
           this.$store.dispatch('user/login', this.user)
         }

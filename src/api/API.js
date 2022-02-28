@@ -1,19 +1,28 @@
 import axios from 'axios'
 import { leadingSlash, trailingSlash } from '@/util/helpers'
+import store from '@/store'
+import router from '@/router'
 
 const refresh = () => {
   localStorage.removeItem('jwt')
 
-  axios.post(
-    `${trailingSlash(process.env.VUE_APP_ROOT_API)}api/Auth/CreateTokenByRefreshToken`,
-    { token: localStorage.getItem('rfrjwt') })
-    .then(({ data: res }) => {
-      localStorage.setItem('jwt', res.data.accessToken)
-      localStorage.setItem('rfrjwt', res.data.refreshToken)
-    })
-    .catch(err => {
-      console.log('err', err)
-    })
+  if (store.get('app/rememberMe')) {
+    axios.post(
+      `${trailingSlash(process.env.VUE_APP_ROOT_API)}api/Auth/CreateTokenByRefreshToken`,
+      { token: localStorage.getItem('rfrjwt') })
+      .then(({ data: res }) => {
+        localStorage.setItem('tibuline@jwt', res.data.accessToken)
+        localStorage.setItem('rfrjwt', res.data.refreshToken)
+        axios.defaults.headers.common.Authorization = `Bearer ${localStorage.getItem('tibuline@jwt')}`
+      })
+      .catch(err => {
+        console.log('err', err)
+        axios.defaults.headers.common.Authorization = ''
+      })
+  } else {
+    localStorage.removeItem('rfrjwt')
+    axios.defaults.headers.common.Authorization = ''
+  }
 }
 
 export class API {
@@ -124,7 +133,7 @@ export class API {
   async upload (formData = {}) {
     const head = {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('jwt')}`,
+        Authorization: `Bearer ${localStorage.getItem('tibuline@jwt')}`,
         'Content-Type': 'multipart/form-data',
       },
     }

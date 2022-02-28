@@ -61,7 +61,7 @@ const actions = {
     store.set('app/isLoading', true)
     axios.post(CreateURL('Auth/CreateToken'), { email: user.email, password: user.password })
     .then(({ data: res }) => {
-      localStorage.setItem('jwt', res.data.accessToken)
+      localStorage.setItem('tibuline@jwt', res.data.accessToken)
       localStorage.setItem('rfrjwt', res.data.refreshToken)
 
       dispatch('getUser')
@@ -84,7 +84,7 @@ const actions = {
   },
   async getUser () {
     store.set('app/isLoading', true)
-    axios.defaults.headers.common.Authorization = `Bearer ${localStorage.getItem('jwt')}`
+    axios.defaults.headers.common.Authorization = `Bearer ${localStorage.getItem('tibuline@jwt')}`
 
     const res = await this.$api.user.get(false)
 

@@ -146,6 +146,7 @@ const state = {
   items,
   alertMessage: '',
   alertType: 'success',
+  rememberMe: false,
 }
 
 const mutations = make.mutations(state)
@@ -166,6 +167,9 @@ const actions = {
   },
   setLoading: (context, payload) => {
     context.commit('isLoading', payload)
+  },
+  setRemember: (context, payload) => {
+    context.commit('rememberMe', payload)
   },
 }
 
