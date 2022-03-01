@@ -91,7 +91,7 @@ const actions = {
     const path = await this.$api.consultant.upload(payload.formData)
 
     if (path) {
-      payload.sending.filePath += (payload.sending.filePath.length > 0 ? ',' : '') + path.data
+      payload.sending.filePath += (payload.sending.filePath && payload.sending.filePath.length > 0 ? ',' : '') + path.data
       const res = await this.$api.consultant.update(payload.sending)
 
       if (res) {
