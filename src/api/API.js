@@ -1,19 +1,29 @@
 import axios from 'axios'
 import { leadingSlash, trailingSlash } from '@/util/helpers'
+import router from '@/router'
 
 const refresh = () => {
   localStorage.removeItem('tibuline@jwt')
+  const rememberMe = localStorage.getItem('tibuline@remember')
 
-  axios.post(
-    `${trailingSlash(process.env.VUE_APP_ROOT_API)}api/Auth/CreateTokenByRefreshToken`,
-    { token: localStorage.getItem('rfrjwt') })
-    .then(({ data: res }) => {
-      localStorage.setItem('jwt', res.data.accessToken)
-      localStorage.setItem('rfrjwt', res.data.refreshToken)
-    })
-    .catch(err => {
-      console.log('err', err)
-    })
+  if (rememberMe) {
+    axios.post(
+      `${trailingSlash(process.env.VUE_APP_ROOT_API)}api/Auth/CreateTokenByRefreshToken`,
+      { token: localStorage.getItem('rfrjwt') })
+      .then(({ data: res }) => {
+        localStorage.setItem('tibuline@jwt', res.data.accessToken)
+        localStorage.setItem('rfrjwt', res.data.refreshToken)
+        axios.defaults.headers.common.Authorization = `Bearer ${localStorage.getItem('tibuline@jwt')}`
+      })
+      .catch(err => {
+        console.log('err', err)
+        axios.defaults.headers.common.Authorization = ''
+      })
+  } else {
+    localStorage.removeItem('rfrjwt')
+    axios.defaults.headers.common.Authorization = ''
+    router.push({ path: '/' })
+  }
 }
 
 export class API {
@@ -39,7 +49,6 @@ export class API {
     // Note: here you may want to add your errors handling
     if (err.response.status === 401) {
       refresh()
-      console.log({ message: 'Please refresh the page', err })
     } else {
       console.log({ message: 'Unexpected error: ', err })
     }
@@ -124,7 +133,7 @@ export class API {
   async upload (formData = {}) {
     const head = {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('jwt')}`,
+        Authorization: `Bearer ${localStorage.getItem('tibuline@jwt')}`,
         'Content-Type': 'multipart/form-data',
       },
     }
