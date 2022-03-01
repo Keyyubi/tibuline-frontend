@@ -258,6 +258,8 @@
           </v-btn>
         </v-btn-toggle>
       </v-col>
+
+      <!-- Contract Document -->
       <v-col
         cols="12"
         md="6"
@@ -498,6 +500,7 @@
           })
           this.$store.dispatch('consultant/uploadFiles', { formData, sending: this.consultant })
           this.closeUploadDialog()
+          this.$emit('close-dialog')
         }
       },
       createOrUpdateConsultant () {

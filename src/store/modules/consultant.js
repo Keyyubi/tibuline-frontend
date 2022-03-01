@@ -1,4 +1,5 @@
 import { make } from 'vuex-pathify'
+import { parsedToken } from '../../util/helpers'
 import store from '../index'
 
 // Data
@@ -80,9 +81,10 @@ const actions = {
   },
   async uploadFiles (context, payload) {
     store.set('app/isLoading', true)
-    const { company } = store.get('user/user')
+    const id = parsedToken().SupplierId
+    if (!id) return
 
-    payload.formData.append('SupplierId', company.Id)
+    payload.formData.append('SupplierId', id)
 
     const path = await this.$api.consultant.upload(payload.formData)
 

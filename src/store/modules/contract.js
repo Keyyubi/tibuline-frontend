@@ -83,7 +83,9 @@ const actions = {
       store.dispatch('app/showAlert', { message: 'Dosya yüklenemedi.', type: 'success' }, { root: true })
     }
 
-    store.set('app/isLoading', false)
+    setTimeout(() => {
+      store.set('app/isLoading', false)
+    }, 1000)
   },
   setLoading (c, payload) {
     store.set('contract/isLoading', payload)

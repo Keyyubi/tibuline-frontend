@@ -35,7 +35,7 @@
           class="ma-2"
           color="primary"
           dark
-          @click="editContract(item)"
+          @click="editContract(item.id)"
         >
           <b>Güncelle</b>
           <v-icon right>
@@ -65,7 +65,7 @@
         </v-chip>
       </template>
 
-      <template v-slot:item.delete="{ item }">
+      <!-- <template v-slot:item.delete="{ item }">
         <v-chip
           class="ma-2"
           color="primary"
@@ -77,7 +77,7 @@
             mdi-trash-can-outline
           </v-icon>
         </v-chip>
-      </template>
+      </template> -->
     </v-data-table>
 
     <!-- Edit Dialog -->
@@ -157,16 +157,17 @@
         editDialog: false,
         selectedContract: null,
         selectedContractId: null,
-        headers: [{
-                    text: 'Güncelle',
-                    align: 'start',
-                    value: 'id',
-                  },
-                  { text: 'Sözleşme No.', value: 'contractNo' },
-                  { text: 'Aday', value: 'consultantId' },
-                  { text: 'Başl. Tar.', value: 'startDate' },
-                  { text: 'Bit. Tar.', value: 'endDate' },
-                  { text: 'Sözleşmeyi Sil', value: 'delete' },
+        headers: [
+          {
+            text: 'Güncelle',
+            align: 'start',
+            value: 'id',
+          },
+          { text: 'Sözleşme No.', value: 'contractNo' },
+          { text: 'Aday', value: 'consultantId' },
+          { text: 'Başl. Tar.', value: 'startDate' },
+          { text: 'Bit. Tar.', value: 'endDate' },
+          // { text: 'Sözleşmeyi Sil', value: 'delete' },
         ],
       }
     },
@@ -184,8 +185,9 @@
       this.$store.dispatch('consultant/getConsultants')
     },
     methods: {
-      editContract (item) {
-        this.selectedContract = { ...item }
+      editContract (id) {
+        const contract = this.contracts.find(e => e.id === id)
+        this.selectedContract = { ...contract }
         this.editDialog = true
       },
       seeContract (item) {

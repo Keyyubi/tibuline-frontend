@@ -36,7 +36,7 @@
           class="ma-2"
           color="primary"
           dark
-          @click="showConsultant(item)"
+          @click="showConsultant(item.id)"
         >
           <b>{{ item.firstname + ' ' + item.lastname }}</b>
           <v-icon right>
@@ -161,9 +161,10 @@
       }
     },
     methods: {
-      showConsultant (consultant) {
+      showConsultant (id) {
+        const consultant = this.consultants.find(e => e.id === id)
         this.selectedConsultant = { ...consultant }
-        this.selectedConsultant.personelFiles = consultant.filePath ? consultant.filePath.split(',') : []
+        this.selectedConsultant.personalFiles = consultant.filePath ? consultant.filePath.split(',') : []
         this.dialog = true
       },
       getUnitManagerName (id) {
