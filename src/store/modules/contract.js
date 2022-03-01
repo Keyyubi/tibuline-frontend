@@ -51,7 +51,7 @@ const actions = {
   },
   async getContractsBySupplierId () {
     store.set('app/isLoading', true)
-    const { company } = store.get('user/user')
+    const { company } = JSON.parse(localStorage.getItem('tibuline@user')).user
 
     const res = await this.$api.contract.getByParams({ url: 'SupplierId', params: [company.id] })
     store.set('contract/contracts', res.data)
@@ -61,8 +61,8 @@ const actions = {
   },
   async uploadContract (context, payload) {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
-    payload.formData.append('SupplierId', currUser.company.id)
+    const { company } = JSON.parse(localStorage.getItem('tibuline@user')).user
+    payload.formData.append('SupplierId', company.id)
 
     const path = await this.$api.contract.upload(payload.formData)
 

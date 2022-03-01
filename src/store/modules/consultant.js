@@ -44,9 +44,10 @@ const actions = {
   },
   async getConsultants () {
     store.set('app/isLoading', true)
-    const { company } = store.get('user/user')
+    const id = parsedToken().SupplierId
+    if (!id) return
 
-    const res = await this.$api.consultant.getByParams({ url: 'SupplierId', params: [company.id] })
+    const res = await this.$api.consultant.getByParams({ url: 'SupplierId', params: [id] })
     store.set('consultant/consultants', res.data)
 
     store.set('app/isLoading', false)
@@ -63,7 +64,7 @@ const actions = {
   },
   async getConsultantsByManagerId () {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
+    const currUser = JSON.parse(localStorage.getItem('tibuline@user')).user
 
     const res = await this.$api.consultant.getByParams({ url: 'ManagerId', params: [currUser.id] })
     store.set('consultant/consultants', res.data)

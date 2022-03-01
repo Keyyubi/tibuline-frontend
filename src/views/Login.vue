@@ -100,7 +100,7 @@
       remember: false,
     }),
     computed: {
-      ...get('app', ['isLoading', 'alertMessage', 'rememberMe']),
+      ...get('app', ['isLoading', 'alertMessage']),
     },
     methods: {
       validate () {
