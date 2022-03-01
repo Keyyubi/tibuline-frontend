@@ -102,7 +102,6 @@ export class API {
 
   async create (data = {}) {
     try {
-      console.log('data', data)
       const result = await axios.post(this.getUrl(`Save${this.singular}`), data)
       return result.data.data
     } catch (err) {
