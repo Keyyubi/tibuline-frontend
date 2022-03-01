@@ -81,7 +81,7 @@
           >
             <!-- eslint-disable-next-line -->
             <template v-slot:item.supplierId="{ item }">
-               <v-chip
+              <v-chip
                 class="ma-2"
                 color="primary"
                 dark

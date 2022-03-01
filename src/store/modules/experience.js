@@ -12,7 +12,7 @@ const actions = {
   async createExperience (context, payload) {
     store.set('app/isLoading', true)
 
-    const res = this.$api.experience.create(payload)
+    const res = await this.$api.experience.create(payload)
     if (res) {
       store.set('experience/experiences', [...store.get('experience/experiences'), res])
       store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })

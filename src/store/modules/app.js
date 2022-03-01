@@ -125,7 +125,7 @@ const items = [
   },
   {
     title: 'Bütçeler',
-    icon: 'mdi-calculater-variant',
+    icon: 'mdi-calculator-variant',
     to: '/admin/budgets/',
     role: ROLES.ADMIN,
   },

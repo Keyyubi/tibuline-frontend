@@ -186,9 +186,10 @@
         set: function (newValue) {
           if (newValue && newValue.length > 0) {
             const amount = this.unmaskMoney(newValue)
+            const monthlyHours = this.customerCompany.monthlyShiftHours || 1
             this.budget.hourlyBudget = Math.round(amount * 100) / 100
             this.budget.dailyBudget = Math.round(amount * this.customerCompany.dailyShiftHours * 100) / 100
-            this.budget.monthlyBudget = Math.round(amount * this.customerCompany.monthlyShiftHours * 100) / 100
+            this.budget.monthlyBudget = Math.round(amount * monthlyHours * 100) / 100
           }
         },
       },
@@ -200,9 +201,10 @@
         set: function (newValue) {
           if (newValue && newValue.length > 0) {
             const amount = this.unmaskMoney(newValue)
+            const monthlyHours = this.customerCompany.monthlyShiftHours || 1
             this.budget.dailyBudget = Math.round(amount * 100) / 100
             this.budget.hourlyBudget = Math.round(amount / this.customerCompany.dailyShiftHours * 100) / 100
-            this.budget.monthlyBudget = Math.round(amount * (this.customerCompany.monthlyShiftHours / this.customerCompany.dailyShiftHours) * 100) / 100
+            this.budget.monthlyBudget = Math.round(amount * (monthlyHours / this.customerCompany.dailyShiftHours) * 100) / 100
           }
         },
       },
@@ -214,9 +216,10 @@
         set: function (newValue) {
           if (newValue && newValue.length > 0) {
             const amount = this.unmaskMoney(newValue)
+            const monthlyHours = this.customerCompany.monthlyShiftHours || 1
             this.budget.monthlyBudget = Math.round(amount * 100) / 100
-            this.budget.hourlyBudget = Math.round(amount / this.customerCompany.monthlyShiftHours * 100) / 100
-            this.budget.dailyBudget = Math.round(amount / (this.customerCompany.monthlyShiftHours / this.customerCompany.dailyShiftHours) * 100) / 100
+            this.budget.hourlyBudget = Math.round(amount / monthlyHours * 100) / 100
+            this.budget.dailyBudget = Math.round(amount / (monthlyHours / this.customerCompany.dailyShiftHours) * 100) / 100
           }
         },
       },
@@ -251,6 +254,11 @@
         } else if (this.monthly.length > 0 && this.monthly.includes(',') && this.monthly.split(',')[1].length === 2) {
           evt.preventDefault()
         } else return true
+      },
+      reset () {
+        Object.keys(this.budget).forEach(e => {
+          this.budget[e] = null
+        })
       },
     },
   }

@@ -124,7 +124,7 @@
             <v-row>
               <v-col
                 cols="12"
-                md="4"
+                md="6"
               >
                 <v-text-field
                   v-model="newExperience.name"
@@ -135,7 +135,7 @@
               </v-col>
               <v-col
                 cols="12"
-                md="4"
+                md="6"
               >
                 <v-btn
                   class="my-2"
