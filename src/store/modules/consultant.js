@@ -91,7 +91,7 @@ const actions = {
     const path = await this.$api.consultant.upload(payload.formData)
 
     if (path) {
-      payload.sending.filePath += ',' + path.data
+      payload.sending.filePath += (payload.sending.filePath.length > 0 ? ',' : '') + path.data
       const res = await this.$api.consultant.update(payload.sending)
 
       if (res) {
@@ -112,13 +112,21 @@ const actions = {
   async deletePersonalFile (c, payload) {
     store.set('app/isLoading', true)
 
-    const result = await axios.delete(`${trailingSlash(process.env.VUE_APP_ROOT_API)}api/Consultant/DeleteFile`, payload)
+    try {
+      const result = await axios.delete(`${trailingSlash(process.env.VUE_APP_ROOT_API)}api/Consultant/DeleteFile/${payload}`)
+      console.log('res', result)
 
-    if (result.status && result.status === 200) {
-      store.dispatch('app/showAlert', { message: 'Dosya silindi.', type: 'success' }, { root: true })
-    } else {
+      if (result.status && result.status === 200) {
+        store.dispatch('app/showAlert', { message: 'Dosya silindi.', type: 'success' }, { root: true })
+      } else {
+        throw new Error(result)
+      }
+    } catch (error) {
+      console.log('Error on deleting file:', error)
       store.dispatch('app/showAlert', { message: 'Dosya silinirken hata oluştu.', type: 'error' }, { root: true })
     }
+
+    store.set('app/isLoading', false)
   },
   setLoading (c, payload) {
     store.set('consultant/isLoading', payload)

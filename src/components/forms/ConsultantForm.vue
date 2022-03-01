@@ -500,9 +500,10 @@
       uploadFiles () {
         if (this.files.length) {
           const formData = new FormData()
-          Array.from(Array(this.files.length).keys()).map(x => {
-            formData.append('files', this.files[x], this.files[x].name)
-          })
+          for (let i = 0; i < this.files.length; i++) {
+            formData.append('files', this.files[i], this.files[i].name)
+          }
+
           this.$store.dispatch('consultant/uploadFiles', { formData, sending: this.consultant })
           this.closeUploadDialog()
           this.$emit('close-dialog')
@@ -541,12 +542,13 @@
       deleteFile (path) {
         if (path && path.length > 0) {
           const payload = { ...this.consultant }
-          payload.filePath = payload.personalFiles.map(e => {
-            if (e !== path) return ',' + e
-          })
+          payload.personalFiles = payload.personalFiles.filter(e => e !== path)
+          payload.filePath = payload.personalFiles.join()
 
-          this.$store.dispatch('consultant/updateConsultant', payload)
+          // this.$store.dispatch('consultant/updateConsultant', payload)
           this.$store.dispatch('consultant/deletePersonalFile', path)
+          this.dialog = false
+          this.$emit('close-dialog')
         }
       },
     },
