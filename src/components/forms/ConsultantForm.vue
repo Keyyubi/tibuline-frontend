@@ -275,7 +275,7 @@
             depressed
             outlined
             :disabled="!consultant.contractFilePath"
-            @click="listDialog = true"
+            @click="showFile(consultant.contractFilePath)"
           >
             {{ !consultant.contractFilePath ? 'Sözleşme evrakı bulunmuyor' : 'Görüntüle' }}
           </v-btn>
