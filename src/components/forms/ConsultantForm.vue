@@ -387,14 +387,19 @@
               <v-list-item
                 v-for="(item, i) in consultant.personalFiles"
                 :key="i"
-                @click="showFile(item)"
               >
-                <v-list-item-icon>
-                  <v-icon>mdi-file</v-icon>
-                </v-list-item-icon>
-                <v-list-item-content>
+                <v-list-item-avatar
+                  tile
+                  size="62"
+                >
+                  <v-img :src="item" />
+                </v-list-item-avatar>
+                <v-list-item-content @click="showFile(item)">
                   <v-list-item-title v-text="'Dosya ' + (i + 1)" />
                 </v-list-item-content>
+                <v-list-item-action @click="deleteFile(item)">
+                  <v-icon>mdi-close</v-icon>
+                </v-list-item-action>
               </v-list-item>
             </v-list-item-group>
           </v-list>
@@ -532,6 +537,17 @@
         this.consultant.birthday = this.localeDate = this.date = null
         this.consultant.projectId = this.consultant.unitManagerUserId = null
         this.consultant.jobTitleId = this.consultant.experienceId = null
+      },
+      deleteFile (path) {
+        if (path && path.length > 0) {
+          const payload = { ...this.consultant }
+          payload.filePath = payload.personalFiles.map(e => {
+            if (e !== path) return ',' + e
+          })
+
+          this.$store.dispatch('consultant/updateConsultant', payload)
+          this.$store.dispatch('consultant/deletePersonalFile', path)
+        }
       },
     },
   }

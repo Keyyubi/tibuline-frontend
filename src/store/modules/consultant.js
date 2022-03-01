@@ -1,5 +1,6 @@
+import axios from 'axios'
 import { make } from 'vuex-pathify'
-import { parsedToken } from '../../util/helpers'
+import { parsedToken, trailingSlash } from '../../util/helpers'
 import store from '../index'
 
 // Data
@@ -90,7 +91,7 @@ const actions = {
     const path = await this.$api.consultant.upload(payload.formData)
 
     if (path) {
-      payload.sending.filePath = path.data
+      payload.sending.filePath += ',' + path.data
       const res = await this.$api.consultant.update(payload.sending)
 
       if (res) {
@@ -107,6 +108,17 @@ const actions = {
     }
 
     store.set('app/isLoading', false)
+  },
+  async deletePersonalFile (c, payload) {
+    store.set('app/isLoading', true)
+
+    const result = await axios.delete(`${trailingSlash(process.env.VUE_APP_ROOT_API)}api/Consultant/DeleteFile`, payload)
+
+    if (result.status && result.status === 200) {
+      store.dispatch('app/showAlert', { message: 'Dosya silindi.', type: 'success' }, { root: true })
+    } else {
+      store.dispatch('app/showAlert', { message: 'Dosya silinirken hata oluştu.', type: 'error' }, { root: true })
+    }
   },
   setLoading (c, payload) {
     store.set('consultant/isLoading', payload)
