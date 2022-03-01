@@ -32,6 +32,7 @@ const router = new Router({
       route('unit-manager/Projects', { default: 'admin/Projects' }, 'unit-manager/projects', { manager: true }),
       route('unit-manager/Consultants', null, 'unit-manager/consultants', { manager: true }),
       route('unit-manager/ActivitiesCosts', null, 'unit-manager/activities-costs', { manager: true }),
+      route('unit-manager/Budgets', null, 'unit-manager/budgets', { manager: true }),
       route('unit-manager/Invoices', null, 'unit-manager/invoices', { manager: true }),
 
       // Supplier Routes

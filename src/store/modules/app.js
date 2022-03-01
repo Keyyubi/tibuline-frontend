@@ -68,14 +68,20 @@ const items = [
     role: ROLES.UNIT_MANAGER,
   },
   {
-    title: 'Aktiviteler ve Masraflar',
+    title: 'Aktiviteler',
     icon: 'mdi-file-document-multiple',
     to: '/unit-manager/activities-costs/',
     role: ROLES.UNIT_MANAGER,
   },
   {
+    title: 'Bütçeler',
+    icon: 'mdi-calculator-variant',
+    to: '/unit-manager/budgets/',
+    role: ROLES.UNIT_MANAGER,
+  },
+  {
     title: 'Faturalar',
-    icon: 'mdi-check-decagram',
+    icon: 'mdi-currency-try',
     to: '/unit-manager/invoices/',
     role: ROLES.UNIT_MANAGER,
   },
@@ -119,7 +125,7 @@ const items = [
   },
   {
     title: 'Bütçeler',
-    icon: 'mdi-currency-usd',
+    icon: 'mdi-calculater-variant',
     to: '/admin/budgets/',
     role: ROLES.ADMIN,
   },
@@ -131,7 +137,7 @@ const items = [
   },
   {
     title: 'Faturalar',
-    icon: 'mdi-check-decagram',
+    icon: 'mdi-currency-try',
     to: '/admin/invoices/',
     role: ROLES.ADMIN,
   },

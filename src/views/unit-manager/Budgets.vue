@@ -17,10 +17,6 @@
         Bütçe Planları
         <v-icon>mdi-currency-usd</v-icon>
       </v-tab>
-      <v-tab href="#newBudget">
-        Yeni Bütçe Planı Oluştur
-        <v-icon>mdi-plus-box-multiple</v-icon>
-      </v-tab>
     </v-tabs>
 
     <div class="py3" />
@@ -84,23 +80,14 @@
             :items="items"
           >
             <!-- eslint-disable-next-line -->
-            <template v-slot:item.id="{ item }">
-              <v-chip
+            <template v-slot:item.supplierId="{ item }">
+               <v-chip
                 class="ma-2"
                 color="primary"
                 dark
-                @click="showBudget(item)"
               >
-                <b>Güncelle</b>
-                <v-icon right>
-                  mdi-arrow-right-bold
-                </v-icon>
+                <b>{{ getSupplierName(item.supplierId) }}</b>
               </v-chip>
-            </template>
-
-            <!-- eslint-disable-next-line -->
-            <template v-slot:item.supplierId="{ item }">
-              {{ getSupplierName(item.supplierId) }}
             </template>
             <!-- eslint-disable-next-line -->
             <template v-slot:item.jobTitleId="{ item }">
@@ -125,24 +112,6 @@
             </template>
           </v-data-table>
         </v-card>
-        <v-dialog
-          v-model="dialog"
-          width="720"
-          :retain-focus="false"
-        >
-          <budget-form
-            form-type="update"
-            :budget="selectedBudget"
-            @close-dialog="closeUpdatePopup()"
-          />
-        </v-dialog>
-      </v-tab-item>
-
-      <v-tab-item value="newBudget">
-        <budget-form
-          form-type="create"
-          :budget="newBudget"
-        />
       </v-tab-item>
     </v-tabs-items>
   </v-container>
@@ -159,24 +128,8 @@
         titleFilter: '',
         experienceFilter: '',
         items: [],
-        dialog: false,
-        selectedBudget: {},
-        newBudget: {
-          supplierId: null,
-          experienceId: null,
-          jobTitleId: null,
-          hourlyBudget: 0,
-          dailyBudget: 0,
-          monthlyBudget: 0,
-          totalBudget: 0,
-        },
         headers: [
-          {
-            text: 'Güncelle',
-            align: 'start',
-            value: 'id',
-          },
-          { text: 'Şirket Adı', value: 'supplierId' },
+          { text: 'Şirket Adı', align: 'start', value: 'supplierId' },
           { text: 'Ünvan', value: 'jobTitleId' },
           { text: 'Tecrübe Aralığı', value: 'experienceId' },
           { text: 'Saatlik Bütçe', value: 'hourlyBudget' },
@@ -232,14 +185,6 @@
       },
       moneyMask (amount) {
         return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(amount)
-      },
-      showBudget (item) {
-        this.selectedBudget = { ...item }
-        this.dialog = true
-      },
-      closeUpdatePopup () {
-        this.selectedBudget = null
-        this.dialog = false
       },
     },
   }
