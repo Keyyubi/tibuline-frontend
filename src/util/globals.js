@@ -7,7 +7,7 @@ const DEMAND_STATUSES = {
 const DEMAND_STATUS_LABELS = [
   //! IT's important the arrays order. Will work with keys as indexes
   'Oluşturuldu',
-  'Aday yüklendi',
+  'Aday yüklendi, onay bekliyor',
   'Tamamlandı',
 ]
 const ACTIVITY_STATUSES = Object.freeze({

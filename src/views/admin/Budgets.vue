@@ -37,7 +37,7 @@
                   item-text="name"
                   item-value="id"
                   label="Tedarikçi Ara"
-                  @change="filterData('supplier')"
+                  @change="filterData()"
                 />
               </v-col>
               <v-col md="3">
@@ -47,7 +47,7 @@
                   item-text="name"
                   item-value="id"
                   label="Ünvan Ara"
-                  @change="filterData('title')"
+                  @change="filterData()"
                 />
               </v-col>
               <v-col md="3">
@@ -57,7 +57,7 @@
                   item-text="name"
                   item-value="id"
                   label="Tecrübe Aralığı Ara"
-                  @change="filterData('experience')"
+                  @change="filterData()"
                 />
               </v-col>
               <v-col
@@ -71,7 +71,7 @@
                   color="primary"
                   outlined
                   small
-                  @click="filterData()"
+                  @click="resetFilter()"
                 >
                   Sıfırla
                 </v-btn>
@@ -203,24 +203,18 @@
       }, 500)
     },
     methods: {
-      filterData (type) {
-        switch (type) {
-          case 'supplier':
-            this.items = this.budgets.filter(e => e.supplierId === this.supplierFilter)
-            break
-          case 'title':
-            this.items = this.budgets.filter(e => e.jobTitleId === this.titleFilter)
-            break
-          case 'experience':
-            this.items = this.budgets.filter(e => e.experienceId === this.experienceFilter)
-            break
-          default:
-            this.titleFilter = null
-            this.experienceFilter = null
-            this.supplierFilter = null
-            this.items = this.budgets
-            break
-        }
+      filterData () {
+        this.items = this.budgets
+        if (this.supplierFilter) this.items = this.items.filter(e => e.supplierId === this.supplierFilter)
+        if (this.titleFilter) this.items = this.items.filter(e => e.jobTitleId === this.titleFilter)
+        if (this.experienceFilter) this.items = this.items.filter(e => e.experienceId === this.experienceFilter)
+      },
+      resetFilter () {
+        this.supplierFilter = null
+        this.titleFilter = null
+        this.experienceFilter = null
+
+        this.filterData()
       },
       getJobTitleName (id) {
         const result = this.jobTitles.find(jobTitle => jobTitle.id === id)

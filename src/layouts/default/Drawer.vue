@@ -94,8 +94,7 @@
         'mini',
       ]),
       role () {
-        console.log('pars', parsedToken())
-        return parsedToken().RoleId
+        return Number(parsedToken().RoleId)
       },
     },
   }

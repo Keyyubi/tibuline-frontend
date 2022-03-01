@@ -177,7 +177,7 @@
             <v-text-field
               v-else
               label="Sözleşme"
-              :value="demand.contract.name"
+              :value="demand.contract ? demand.contract.name : ' - '"
               readonly
             />
           </v-col>

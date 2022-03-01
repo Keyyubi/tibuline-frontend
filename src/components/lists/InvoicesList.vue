@@ -9,7 +9,7 @@
             :item-text="e => e.firstname + ' ' + e.lastname"
             item-value="id"
             label="Danışman Filtrele"
-            @change="filterData('consultant')"
+            @change="filterData()"
           />
         </v-col>
         <v-col md="3">
@@ -19,7 +19,7 @@
             :item-text="e => e.firstname + ' ' + e.lastname"
             item-value="id"
             label="Yönetici Filtrele"
-            @change="filterData('manager')"
+            @change="filterData()"
           />
         </v-col>
         <v-col md="3">
@@ -29,7 +29,7 @@
             item-text="name"
             item-value="name"
             label="Dönem Filtrele"
-            @change="filterData('period')"
+            @change="filterData()"
           />
         </v-col>
         <v-col
@@ -43,7 +43,7 @@
             color="primary"
             outlined
             small
-            @click="filterData()"
+            @click="resetFilter()"
           >
             Sıfırla
           </v-btn>
@@ -263,24 +263,18 @@
       }, 500)
     },
     methods: {
-      filterData (type) {
-        switch (type) {
-          case 'consultant':
-            this.items = this.invoices.filter(e => e.consultantId === this.consultantFilter)
-            break
-          case 'manager':
-            this.items = this.invoices.filter(e => e.unitManagerUserId === this.managerFilter)
-            break
-          case 'period':
-            this.items = this.invoices.filter(e => e.period === this.periodFilter)
-            break
-          default:
-            this.consultantFilter = null
-            this.managerFilter = null
-            this.periodFilter = null
-            this.items = this.invoices
-            break
-        }
+      filterData () {
+        this.items = this.invoices
+        if (this.consultantFilter) this.items = this.items.filter(e => e.consultantId === this.consultantFilter)
+        if (this.managerFilter) this.items = this.items.filter(e => e.unitManagerUserId === this.managerFilter)
+        if (this.periodFilter) this.items = this.items.filter(e => e.period === this.periodFilter)
+      },
+      resetFilter () {
+        this.consultantFilter = null
+        this.managerFilter = null
+        this.periodFilter = null
+
+        this.filterData()
       },
       showInvoice (invoice) {
         const supplier = this.suppliers.find(e => e.id === invoice.supplierId)

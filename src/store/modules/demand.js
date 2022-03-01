@@ -73,9 +73,11 @@ const actions = {
         const demands = [...res.data].map(el => {
           if (el.contractId) {
             el.olderContractId = el.contractId
+
             axios.get(CreateURL(`Contract/GetContractById/${el.contractId}`))
               .then(({ data: contract }) => {
                 el.contract = contract.data
+
                 axios.get(CreateURL(`Consultant/GetConsultantById/${contract.data.consultantId}`))
                   .then(({ data: consultant }) => {
                     el.consultant = consultant.data
@@ -88,20 +90,16 @@ const actions = {
           return el
         })
 
-        return demands
-      })
-      .then(demands => {
         store.set('demand/demands', demands)
-        setTimeout(() => {
-          store.set('demand/isLoading', false)
-        }, 1500)
       })
       .catch(error => {
         console.log('Error', error)
-        store.set('demand/isLoading', false)
       })
       .finally(() => {
-        store.set('app/isLoading', false)
+        setTimeout(() => {
+          store.set('demand/isLoading', false)
+          store.set('app/isLoading', false)
+        }, 1500)
       })
   },
   setLoading (c, payload) {

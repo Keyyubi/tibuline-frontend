@@ -69,7 +69,7 @@
 
       <template v-slot:item.demandStatus="{ item }">
         <v-chip
-          :color="item.demandStatus === 0 ? 'orange' : 'green'"
+          :color="item.demandStatus === 0 ? 'orange' : (item.demandStatus === 1 ? 'green' : 'grey')"
           dark
         >
           {{ Labels[item.demandStatus] }}

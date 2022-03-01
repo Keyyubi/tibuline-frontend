@@ -2,7 +2,7 @@ import axios from 'axios'
 import { leadingSlash, trailingSlash } from '@/util/helpers'
 
 const refresh = () => {
-  localStorage.removeItem('jwt')
+  localStorage.removeItem('tibuline@jwt')
 
   axios.post(
     `${trailingSlash(process.env.VUE_APP_ROOT_API)}api/Auth/CreateTokenByRefreshToken`,

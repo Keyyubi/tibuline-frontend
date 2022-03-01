@@ -68,7 +68,7 @@ const actions = {
       router.push('/')
     })
     .catch(({ response }) => {
-      localStorage.removeItem('jwt')
+      localStorage.removeItem('tibuline@jwt')
       store.set('user/user', {})
 
       //  ? ERROR HANDLING EXAMPLE
@@ -124,9 +124,8 @@ const actions = {
     store.set('user/users', [])
     store.set('user/user', {})
     store.set('app/alertMessage', '')
-    store.set('app/alertType', '')
 
-    localStorage.removeItem('jwt')
+    localStorage.removeItem('tibuline@jwt')
     localStorage.removeItem('tibuline@role')
 
     router.push('/login/')
