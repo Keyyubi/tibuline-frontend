@@ -1,8 +1,9 @@
 import axios from 'axios'
 import { make } from 'vuex-pathify'
-import { CreateURL, GetPostHeaders } from '@/util/helpers'
-import { ROLE_IDS } from '@/util/globals'
+import { CreateURL } from '@/util/helpers'
+import { ROLES } from '@/util/globals'
 import store from '../index'
+import { trailingSlash } from '../../util/helpers'
 
 // Data
 const state = {
@@ -13,62 +14,71 @@ const state = {
 const mutations = make.mutations(state)
 
 const actions = {
-  // Create Methods
-  createDemand: (context, payload) => {
+  async createDemand (context, payload) {
     store.set('app/isLoading', true)
+    store.set('demand/isLoading', true)
 
-    axios.post(CreateURL('Demand/SaveDemand'), payload, GetPostHeaders(store.get('user/user').token))
-      .then(() => {
-        store.set('demand/demands', [...store.get('demand/demands'), payload])
-        store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
-      })
-      .catch(error => {
-        console.log('Error', error)
-        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
+    const res = await this.$api.demand.create(payload)
+
+    if (res) {
+      res.contract = null
+      res.consultant = null
+      store.set('demand/demands', [...store.get('demand/demands'), res])
+      store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
+    } else {
+      store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
+    }
+
+    setTimeout(() => {
+      store.set('app/isLoading', false)
+      store.set('demand/isLoading', false)
+    }, 1000)
   },
-  updateDemand: (context, payload) => {
+  async updateDemand (context, payload) {
     store.set('app/isLoading', true)
+    store.set('demand/isLoading', true)
     const { olderContractId } = payload
     delete payload.olderContractId
 
-    axios.put(CreateURL(`Demand/UpdateDemand/${olderContractId || -1}`), payload, GetPostHeaders(store.get('user/user').token))
+    const url = `${trailingSlash(process.env.VUE_APP_ROOT_API)}api/Demand/UpdateDemand/${olderContractId || -1}`
+    await axios.put(url, payload)
       .then(() => {
         const arr = store.get('demand/demands')
         const index = arr.findIndex(e => e.id === payload.id)
         arr[index] = payload
-        store.set('demand/demands', [...arr])
+
+        store.set('demand/demands', arr)
         store.dispatch('app/showAlert', { message: 'Başarıyla güncellendi.', type: 'success' }, { root: true })
       })
-      .catch(error => {
-        console.log('Error', error)
-        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
+      .catch(err => {
+        console.log('Error: ', err)
+        store.dispatch('app/showAlert', { message: 'Talep güncellenirken bir hata oluştu.', type: 'error' }, { root: true })
       })
       .finally(() => {
+        store.set('demand/isLoading', false)
         store.set('app/isLoading', false)
       })
   },
-  getDemandsWithDetails: (c, role) => {
+  async getDemandsWithDetails (c, role) {
     store.set('app/isLoading', true)
     store.set('demand/isLoading', true)
 
     const currUser = store.get('user/user')
-    const url = role === ROLE_IDS.UNIT_MANAGER
-      ? CreateURL(`Demand/GetDemandsByCreatedBy/${currUser.id}`)
-      : CreateURL(`Demand/GetDemandsBySupplierId/${currUser.company.id}`)
+    const url = role === ROLES.UNIT_MANAGER
+      ? `${trailingSlash(process.env.VUE_APP_ROOT_API)}api/Demand/GetDemandsByCreatedBy/${currUser.id}`
+      : `${trailingSlash(process.env.VUE_APP_ROOT_API)}api/Demand/GetDemandsBySupplierId/${currUser.company.id}`
 
-    axios.get(url, GetPostHeaders(currUser.token))
+    await axios.get(url)
       .then(({ data: res }) => {
         const demands = [...res.data].map(el => {
           if (el.contractId) {
             el.olderContractId = el.contractId
-            axios.get(CreateURL(`Contract/GetContractById/${el.contractId}`), GetPostHeaders(currUser.token))
+
+            axios.get(CreateURL(`Contract/GetContractById/${el.contractId}`))
               .then(({ data: contract }) => {
                 el.contract = contract.data
-                axios.get(CreateURL(`Consultant/GetConsultantById/${contract.data.consultantId}`), GetPostHeaders(currUser.token))
+
+                axios.get(CreateURL(`Consultant/GetConsultantById/${contract.data.consultantId}`))
                   .then(({ data: consultant }) => {
                     el.consultant = consultant.data
                   })
@@ -80,20 +90,20 @@ const actions = {
           return el
         })
 
-        return demands
-      })
-      .then(demands => {
         store.set('demand/demands', demands)
-        setTimeout(() => {
-          store.set('demand/isLoading', false)
-        }, 1500)
       })
       .catch(error => {
         console.log('Error', error)
       })
       .finally(() => {
-        store.set('app/isLoading', false)
+        setTimeout(() => {
+          store.set('demand/isLoading', false)
+          store.set('app/isLoading', false)
+        }, 1500)
       })
+  },
+  setLoading (c, payload) {
+    store.set('demand/isLoading', payload)
   },
 }
 

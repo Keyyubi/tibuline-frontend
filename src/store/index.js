@@ -2,6 +2,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import pathify from '@/plugins/vuex-pathify'
+import storePlugins from '@/plugins/storePlugins'
 
 // Modules
 import * as modules from './modules'
@@ -12,6 +13,7 @@ const store = new Vuex.Store({
   modules,
   plugins: [
     pathify.plugin,
+    storePlugins,
   ],
 })
 

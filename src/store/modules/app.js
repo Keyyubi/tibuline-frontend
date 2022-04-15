@@ -1,118 +1,145 @@
 // Pathify
 import { make } from 'vuex-pathify'
-import { ROLE_IDS } from '@/util/globals'
+import { ROLES } from '@/util/globals'
 
-const supplierItems = [
+// Drawer Items
+const items = [
+  // SUPPLIER ITEMS
   {
     title: 'Dashboard',
     icon: 'mdi-view-dashboard',
     to: '/',
+    role: ROLES.SUPPLIER,
   },
   {
     title: 'Talepler',
     icon: 'mdi-account-plus',
     to: '/supplier/demands',
+    role: ROLES.SUPPLIER,
   },
   {
     title: 'Sözleşmeler',
     icon: 'mdi-file-document',
     to: '/supplier/contracts',
+    role: ROLES.SUPPLIER,
   },
   {
     title: 'Danışmanlar',
     icon: 'mdi-account-group',
     to: '/supplier/consultants',
+    role: ROLES.SUPPLIER,
   },
   {
     title: 'Aktivite Ekle',
     icon: 'mdi-check',
     to: '/supplier/add-activity',
+    role: ROLES.SUPPLIER,
   },
   {
     title: 'Faturalar',
     icon: 'mdi-cash-register',
     to: '/supplier/invoices/',
+    role: ROLES.SUPPLIER,
   },
-]
 
-const managerItems = [
+  // MANAGER ITEMS
   {
     title: 'Dashboard',
     icon: 'mdi-view-dashboard',
     to: '/',
+    role: ROLES.UNIT_MANAGER,
   },
   {
     title: 'Talepler',
     icon: 'mdi-account-plus',
     to: '/unit-manager/demands',
+    role: ROLES.UNIT_MANAGER,
   },
   {
     title: 'Projeler',
     icon: 'mdi-folder-table-outline',
     to: '/unit-manager/projects',
+    role: ROLES.UNIT_MANAGER,
   },
   {
     title: 'Danışmanlar',
     icon: 'mdi-account-group',
     to: '/unit-manager/consultants',
+    role: ROLES.UNIT_MANAGER,
   },
   {
-    title: 'Aktiviteler ve Masraflar',
+    title: 'Aktiviteler',
     icon: 'mdi-file-document-multiple',
     to: '/unit-manager/activities-costs/',
+    role: ROLES.UNIT_MANAGER,
+  },
+  {
+    title: 'Bütçeler',
+    icon: 'mdi-calculator-variant',
+    to: '/unit-manager/budgets/',
+    role: ROLES.UNIT_MANAGER,
   },
   {
     title: 'Faturalar',
-    icon: 'mdi-check-decagram',
+    icon: 'mdi-currency-try',
     to: '/unit-manager/invoices/',
+    role: ROLES.UNIT_MANAGER,
   },
-]
 
-const adminItems = [
+  // ADMIN ITEMS
   {
     title: 'Dashboard',
     icon: 'mdi-view-dashboard',
     to: '/',
+    role: ROLES.ADMIN,
   },
   {
     title: 'Şirketler',
     icon: 'mdi-domain',
     to: '/admin/suppliers/',
+    role: ROLES.ADMIN,
   },
   {
     title: 'Kullanıcılar',
     icon: 'mdi-account',
     to: '/admin/users',
+    role: ROLES.ADMIN,
   },
   {
     title: 'Masraf Merkezleri',
     icon: 'mdi-bank',
     to: '/admin/cost-centers',
+    role: ROLES.ADMIN,
   },
   {
     title: 'Ünvanlar',
     icon: 'mdi-subtitles',
     to: '/admin/job-titles',
+    role: ROLES.ADMIN,
   },
   {
     title: 'Tecrübe Aralıkları',
     icon: 'mdi-poll',
     to: '/admin/experience-spans/',
+    role: ROLES.ADMIN,
   },
   {
     title: 'Bütçeler',
-    icon: 'mdi-currency-usd',
+    icon: 'mdi-calculator-variant',
     to: '/admin/budgets/',
+    role: ROLES.ADMIN,
   },
   {
     title: 'Projeler',
     icon: 'mdi-folder-table-outline',
     to: '/admin/projects',
+    role: ROLES.ADMIN,
   },
   {
     title: 'Faturalar',
-    icon: 'mdi-check-decagram',
+    icon: 'mdi-currency-try',
     to: '/admin/invoices/',
+    role: ROLES.ADMIN,
   },
 ]
 
@@ -122,9 +149,10 @@ const state = {
   drawerImage: true,
   mini: false,
   isLoading: false,
-  items: [],
+  items,
   alertMessage: '',
-  alertType: '',
+  alertType: 'success',
+  rememberMe: false,
 }
 
 const mutations = make.mutations(state)
@@ -134,34 +162,20 @@ const actions = {
   init: async ({ dispatch }) => {
     //
   },
-  updateItems: (context, roleId) => {
-    switch (roleId) {
-      case ROLE_IDS.SUPPLIER:
-        context.commit('items', supplierItems)
-        break
-      case ROLE_IDS.UNIT_MANAGER:
-        context.commit('items', managerItems)
-        break
-      case ROLE_IDS.ADMIN:
-        context.commit('items', adminItems)
-        break
-      default:
-        context.commit('items', supplierItems)
-        break
-    }
-  },
   showAlert: (context, payload) => {
     // Alert Types =>  'success', 'info', 'warning', 'error'
     context.commit('alertMessage', payload.message)
     context.commit('alertType', payload.type)
   },
-  hideAlert: () => {
-    setTimeout(() => {
-      this.$store.dispatch('app/showAlert', { message: '', type: '' })
-    }, 3000)
+  hideAlert: ({ commit }) => {
+    commit('alertMessage', '')
+    commit('alertType', 'success')
   },
   setLoading: (context, payload) => {
     context.commit('isLoading', payload)
+  },
+  setRemember: (context, payload) => {
+    context.commit('rememberMe', payload)
   },
 }
 

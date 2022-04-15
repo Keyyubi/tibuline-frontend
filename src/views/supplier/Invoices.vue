@@ -62,7 +62,7 @@
             >
               <v-select
                 v-model="selectedPeriod"
-                :items="activityPeriods.filter(e => e.isInvoiced === false)"
+                :items="activityPeriods.filter(e => e.isInvoiced === false && e.status === Statuses.APPROVED)"
                 :item-text="e => e.name.split('-')[1] + '/' + e.name.split('-')[0]"
                 item-value="id"
                 :disabled="!selectedConsultant"
@@ -103,7 +103,7 @@
           >
             <v-divider class="mr-3" /><span class="grey--text">Bütçe</span><v-divider class="ml-3" />
           </v-row>
-          <v-row>
+          <v-row v-if="user.company">
             <v-col
               cols="12"
               md="6"
@@ -111,7 +111,7 @@
               <v-list-item three-line>
                 <v-list-item-content>
                   <v-list-item-title>{{ selectedConsultant ? selectedConsultant.firstname + ' ' + selectedConsultant.lastname : 'Danışman' }}</v-list-item-title>
-                  <v-list-item-subtitle>{{ (experienceSpans && experienceSpans.length > 0) ? experienceSpans[0].name : 'Tecrübe Aralığı' }}</v-list-item-subtitle>
+                  <v-list-item-subtitle>{{ (experiences && experiences.length > 0) ? experiences[0].name : 'Tecrübe Aralığı' }}</v-list-item-subtitle>
                   <v-list-item-subtitle>{{ (jobTitles && jobTitles.length > 0) ? jobTitles[0].name : 'Ünvan' }}</v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
@@ -197,6 +197,7 @@
                 clearable
                 label="KDV Tutarı"
                 @keypress="isValidNum(invoiceTaxAmount, ...arguments)"
+                @change="invoiceTotalAmount = (invoiceTaxAmount + invoiceAmount)"
               />
             </v-col>
             <v-col
@@ -307,7 +308,7 @@
                 color="primary"
                 width="100%"
                 depressed
-                @click="confirmationDialog = true"
+                @click="confirm()"
               >
                 Oluştur
               </v-btn>
@@ -359,7 +360,7 @@
 </template>
 
 <script>
-  import { ACTIVITY_STATUSES as Statuses, INVOICE_TYPES as InvoiceTypes } from '@/util/globals'
+  import { INVOICE_TYPES as InvoiceTypes, ACTIVITY_STATUSES as Statuses } from '@/util/globals'
   import { CheckIsNull } from '@/util/helpers'
   import { get } from 'vuex-pathify'
   export default {
@@ -388,6 +389,7 @@
           isPaid: false,
         },
         InvoiceTypes,
+        Statuses,
       }
     },
     computed: {
@@ -395,9 +397,9 @@
       ...get('consultant', ['consultants']),
       ...get('budget', ['invoiceBudget']),
       ...get('jobTitle', ['jobTitles']),
-      ...get('experienceSpan', ['experienceSpans']),
+      ...get('experience', ['experiences']),
       ...get('activity', ['activities']),
-      ...get('supplier', ['companies']),
+      ...get('supplier', ['suppliers']),
       ...get('activityPeriod', ['activityPeriods']),
       invoiceAmount: {
         get: function () {
@@ -436,7 +438,10 @@
         },
       },
     },
-    mounted () {
+    async mounted () {
+      this.$store.dispatch('demand/setLoading', true)
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
       this.$store.dispatch('consultant/getConsultants')
       this.$store.dispatch('user/getUnitManagers')
       this.$store.dispatch('user/getCompanyDetails')
@@ -450,6 +455,15 @@
       unmaskMoney (formattedAmount) {
         return Number(formattedAmount.replaceAll('.', '').replaceAll(',', '.'))
       },
+      confirm () {
+        if (!this.selectedPeriod || !this.selectedConsultant) {
+          this.$store.dispatch('app/showAlert', { message: 'Lütfen danışman ve dönem seçiniz.', type: 'warning' })
+        } else if (!this.invoiceFile) {
+          this.$store.dispatch('app/showAlert', { message: 'Lütfen fatura dosyasını yükleyiniz.', type: 'warning' })
+        } else {
+          this.confirmationDialog = true
+        }
+      },
       isValidNum (target, evt) {
         evt = (evt) || window.event
         const charCode = (evt.which) ? evt.which : evt.keyCode
@@ -460,11 +474,11 @@
         } else return true
       },
       selectConsultant () {
-        this.$store.dispatch('experienceSpan/resetStore')
+        this.$store.dispatch('experience/resetStore')
         this.$store.dispatch('jobTitle/resetStore')
         this.$store.dispatch('budget/resetStore')
 
-        const { supplierId, experienceSpanId, jobTitleId } = this.selectedConsultant
+        const { supplierId, experienceId, jobTitleId } = this.selectedConsultant
         this.description = ''
         this.selectedPeriod = null
 
@@ -473,14 +487,14 @@
         this.$store.dispatch('app/setLoading', true)
         setTimeout(() => {
           this.$store.dispatch('jobTitle/getJobTitleById', jobTitleId)
-          this.$store.dispatch('experienceSpan/getExperienceSpanById', experienceSpanId)
-          this.$store.dispatch('budget/getBudgetsByParams', { supplierId, experienceSpanId, jobTitleId })
+          this.$store.dispatch('experience/getExperienceById', experienceId)
+          this.$store.dispatch('budget/getBudgetsByParams', { supplierId, experienceId, jobTitleId })
           this.$store.dispatch('app/setLoading', false)
         }, 500)
       },
       selectPeriod () {
         this.description = this.selectedConsultant.firstname.toUpperCase() + ' ' + this.selectedConsultant.lastname.toUpperCase() + '\n'
-        this.description += this.jobTitles[0].name + ' - ' + this.experienceSpans[0].name + '\n\n'
+        this.description += this.jobTitles[0].name + ' - ' + this.experiences[0].name + '\n\n'
         this.description += 'Dönem: ' + this.selectedPeriod.name.split('-')[1] + '/' + this.selectedPeriod.name.split('-')[0] + '\n'
 
         const shiftHours = this.selectedPeriod.totalShiftHours
@@ -508,7 +522,6 @@
           }
 
           const overshiftAmount = this.invoiceBudget.hourlyBudget * this.selectedPeriod.totalOverShiftHours * this.user.company.overtimeMultiplier
-          const dayOffAmount = this.invoiceBudget.hourlyBudget * this.selectedPeriod.dayOffHours
 
           this.description += this.moneyMask(this.invoice.amount) + '\n'
 
@@ -516,12 +529,13 @@
             this.description += this.selectedPeriod.totalOverShiftHours + 'saat fazla mesai - ' + this.moneyMask(overshiftAmount) + '\n'
           }
 
-          if (dayOffHours > 0) {
+          if (dayOffHours > 0 && this.user.company.invoiceType === this.InvoiceTypes.MONTHLY) {
+            const dayOffAmount = this.invoiceBudget.hourlyBudget * this.selectedPeriod.dayOffHours
             this.description += `${dayOffHours} saat izin (- ${this.moneyMask(dayOffHours * this.invoiceBudget.hourlyBudget)})`
+            this.invoice.amount -= dayOffAmount
           }
 
           this.invoice.amount += overshiftAmount
-          this.invoice.amount -= dayOffAmount
           this.invoice.amount = Math.round(this.invoice.amount * 100) / 100
           this.invoice.taxAmount = this.invoice.amount * 0.18
           this.invoice.totalAmount = this.invoice.amount + this.invoice.taxAmount
@@ -530,12 +544,6 @@
           this.invoice.taxAmount = 0
           this.invoice.totalAmount = 0
         }
-      },
-      getMappedActivities () {
-        return this.activities.map(e => {
-          e.activityStatus = Statuses.INVOICED
-          return e
-        })
       },
       createInvoice () {
         this.invoice.description = this.description
@@ -557,12 +565,6 @@
           this.invoice.totalAmount,
         ]
 
-        if (!this.invoiceFile) {
-          this.$store.dispatch('app/showAlert', { message: 'Lütfen fatura dosyasını yükleyiniz.', type: 'warning' })
-          this.confirmationDialog = false
-          return
-        }
-
         if (!CheckIsNull(fields)) {
           const formData = new FormData()
           formData.append('files', this.invoiceFile, this.invoiceFile.name)
@@ -570,7 +572,8 @@
           const payload = { ...this.invoice }
           this.selectedPeriod.isInvoiced = true
 
-          this.$store.dispatch('invoice/createInvoice', { invoice: payload, formData, activities: this.getMappedActivities(), period: this.selectedPeriod })
+          this.$store.dispatch('invoice/createInvoice', { invoice: payload, formData, period: this.selectedPeriod })
+          this.resetForm()
         } else {
           this.$store.dispatch('app/showAlert', { message: 'Lütfen bütün alanları doldurunuz.', type: 'warning' })
         }
@@ -590,6 +593,7 @@
           totalAmount: 0,
           isPaid: false,
         }
+        this.invoiceFile = null
       },
     },
   }

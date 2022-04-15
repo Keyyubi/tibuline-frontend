@@ -192,14 +192,14 @@
         />
       </v-col>
 
-      <!-- ExperienceSpan -->
+      <!-- Experience -->
       <v-col
         cols="12"
         md="4"
       >
         <v-select
-          v-model="consultant.experienceSpanId"
-          :items="experienceSpans"
+          v-model="consultant.experienceId"
+          :items="experiences"
           item-text="name"
           item-value="id"
           label="Tecrübe Aralığı"
@@ -258,6 +258,8 @@
           </v-btn>
         </v-btn-toggle>
       </v-col>
+
+      <!-- Contract Document -->
       <v-col
         cols="12"
         md="6"
@@ -273,7 +275,7 @@
             depressed
             outlined
             :disabled="!consultant.contractFilePath"
-            @click="listDialog = true"
+            @click="showFile(consultant.contractFilePath)"
           >
             {{ !consultant.contractFilePath ? 'Sözleşme evrakı bulunmuyor' : 'Görüntüle' }}
           </v-btn>
@@ -385,14 +387,19 @@
               <v-list-item
                 v-for="(item, i) in consultant.personalFiles"
                 :key="i"
-                @click="showFile(item)"
               >
-                <v-list-item-icon>
-                  <v-icon>mdi-file</v-icon>
-                </v-list-item-icon>
-                <v-list-item-content>
+                <v-list-item-avatar
+                  tile
+                  size="62"
+                >
+                  <v-img :src="item" />
+                </v-list-item-avatar>
+                <v-list-item-content @click="showFile(item)">
                   <v-list-item-title v-text="'Dosya ' + (i + 1)" />
                 </v-list-item-content>
+                <v-list-item-action @click="deleteFile(item)">
+                  <v-icon>mdi-close</v-icon>
+                </v-list-item-action>
               </v-list-item>
             </v-list-item-group>
           </v-list>
@@ -415,7 +422,7 @@
 </template>
 
 <script>
-  import { RULES, ROLE_IDS as Roles } from '@/util/globals'
+  import { RULES, ROLES as Roles } from '@/util/globals'
   import { CheckIsNull } from '@/util/helpers'
   import { get } from 'vuex-pathify'
   export default {
@@ -438,7 +445,7 @@
             contractId: 0,
             supplierId: 0,
             jobTitleId: 0,
-            experienceSpanId: 0,
+            experienceId: 0,
             personalFiles: '',
           }
         },
@@ -459,13 +466,13 @@
       ...get('user', ['user', 'users']),
       ...get('supplier', ['suppliers']),
       ...get('jobTitle', ['jobTitles']),
-      ...get('experienceSpan', ['experienceSpans']),
+      ...get('experience', ['experiences']),
       ...get('project', ['projects']),
     },
     mounted () {
       this.$store.dispatch('user/getUnitManagers')
       this.$store.dispatch('jobTitle/getJobTitles')
-      this.$store.dispatch('experienceSpan/getExperienceSpans')
+      this.$store.dispatch('experience/getExperiences')
       this.$store.dispatch('project/getProjects')
 
       if (this.formType !== 'create') {
@@ -493,11 +500,13 @@
       uploadFiles () {
         if (this.files.length) {
           const formData = new FormData()
-          Array.from(Array(this.files.length).keys()).map(x => {
-            formData.append('files', this.files[x], this.files[x].name)
-          })
+          for (let i = 0; i < this.files.length; i++) {
+            formData.append('files', this.files[i], this.files[i].name)
+          }
+
           this.$store.dispatch('consultant/uploadFiles', { formData, sending: this.consultant })
           this.closeUploadDialog()
+          this.$emit('close-dialog')
         }
       },
       createOrUpdateConsultant () {
@@ -510,15 +519,17 @@
           this.consultant.tckn,
           this.consultant.supplierId,
           this.consultant.jobTitleId,
-          this.consultant.experienceSpanId,
+          this.consultant.experienceId,
         ]
-        if (!CheckIsNull(fields)) {
+        if (!CheckIsNull(fields) && this.consultant.jobTitleId !== 0 && this.consultant.experienceId !== 0) {
           const payload = { ...this.consultant }
 
           if (this.formType === 'create') {
             this.$store.dispatch('consultant/createConsultant', payload)
           } else this.$store.dispatch('consultant/updateConsultant', payload)
           this.$emit('close-dialog')
+        } else {
+          this.$store.dispatch('app/showAlert', { message: 'Lütfen tüm zorunlu alanları doldurduğunuzdan emin olunuz.', type: 'warning' })
         }
       },
       reset () {
@@ -526,7 +537,19 @@
         this.consultant.firstname = this.consultant.lastname = ''
         this.consultant.birthday = this.localeDate = this.date = null
         this.consultant.projectId = this.consultant.unitManagerUserId = null
-        this.consultant.jobTitleId = this.consultant.experienceSpanId = null
+        this.consultant.jobTitleId = this.consultant.experienceId = null
+      },
+      deleteFile (path) {
+        if (path && path.length > 0) {
+          const payload = { ...this.consultant }
+          payload.personalFiles = payload.personalFiles.filter(e => e !== path)
+          payload.filePath = payload.personalFiles.join()
+
+          // this.$store.dispatch('consultant/updateConsultant', payload)
+          this.$store.dispatch('consultant/deletePersonalFile', path)
+          this.dialog = false
+          this.$emit('close-dialog')
+        }
       },
     },
   }

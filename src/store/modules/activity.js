@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { make } from 'vuex-pathify'
-import { CreateURL, GetPostHeaders } from '@/util/helpers'
+import { trailingSlash } from '../../util/helpers'
 import store from '../index'
 
 const getMappedActivities = (items = []) => {
@@ -61,108 +61,92 @@ const getMappedActivities = (items = []) => {
 // Data
 const state = {
   activities: [],
+  isLoading: false,
 }
 
 const mutations = make.mutations(state)
 
 const actions = {
-  // Create Methods
-  createActivity: (context, payload) => {
-    axios.post(CreateURL('Activity/SaveActivity'), payload, GetPostHeaders(store.get('user/user').token))
-      .then(({ data: res }) => {
-        store.set('activity/activities', [...store.get('activity/activities'), ...getMappedActivities(res.data)])
-        store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
-      })
-      .catch(error => {
-        console.log('Error', error)
-        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
-      })
-  },
-  updateActivity: (context, payload) => {
-    axios.put(CreateURL('Activity/UpdateActivity'), payload, GetPostHeaders(store.get('user/user').token))
-      .then(() => {
-        const arr = store.get('activity/activities')
-        const index = arr.findIndex(e => e.id === payload.id)
-        arr[index] = payload
-        store.set('activity/activities', [...arr])
-        store.dispatch('app/showAlert', { message: 'Aktivite başarıyla güncellendi.', type: 'success' }, { root: true })
-      })
-      .catch(error => {
-        console.log('Error', error)
-        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
-      })
-  },
-  getActivity: () => {
-    store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
-
-    axios.get(CreateURL('Activity/GetActivities'), GetPostHeaders(currUser.token))
-      .then(({ data: res }) => {
-        store.set('activity/activities', getMappedActivities(res.data))
-      })
-      .catch(error => {
-        console.log('Error', error)
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
-  },
-  getActivityById: (context, payload) => {
-    store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
-
-    axios.get(CreateURL(`Activity/GetActivityById/${payload}`), GetPostHeaders(currUser.token))
-      .then(({ data: res }) => {
-        store.set('activity/activities', getMappedActivities(res.data))
-      })
-      .catch(error => {
-        console.log('Error', error)
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
-  },
-  getActivitiesByConsultantIdAndYearMonth: (context, payload) => {
+  async createActivity (context, payload) {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL(`Activity/GetActivitiesByConsultantIdAndYearMonth/${payload.consultantId}/${payload.yearMonth}`), GetPostHeaders(store.get('user/user').token))
-      .then(({ data: res }) => {
-        store.set('activity/activities', getMappedActivities(res.data))
-      })
-      .catch(error => {
-        console.log('Error', error)
-        store.dispatch('app/showAlert', { message: 'Danışman aktiviteleri alınırken bir hata oluştu.', type: 'error' }, { root: true })
-      })
-      .finally(() => {
-        setTimeout(() => {
-          store.set('app/isLoading', false)
-        }, 1000)
-      })
+    const res = await this.$api.activity.create(payload)
+
+    if (res) {
+      store.set('activity/activities', [...store.get('activity/activities'), ...getMappedActivities(payload)])
+      store.dispatch('app/showAlert', { message: 'Başarıyla oluşturuldu.', type: 'success' }, { root: true })
+    } else {
+      store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
+    }
+    store.set('app/isLoading', false)
   },
-  getActivitiesByConsultantIdAndYearMonthAndStatus: (context, payload) => {
+  async createActivities (context, payload) {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL(`Activity/GetActivitiesByConsultantIdAndYearMonthAndStatus/${payload.consultantId}/${payload.yearMonth}/${payload.activityStatus}`), GetPostHeaders(store.get('user/user').token))
-      .then(({ data: res }) => {
-        store.set('activity/activities', getMappedActivities(res.data))
-      })
-      .catch(error => {
-        console.log('Error', error)
-        store.dispatch('app/showAlert', { message: 'Danışman aktiviteleri alınırken bir hata oluştu.', type: 'error' }, { root: true })
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
+    const result = await axios.post(`${trailingSlash(process.env.VUE_APP_ROOT_API)}api/Activity/SaveActivities`, payload)
+
+    if (result.status && result.status === 200) {
+      store.dispatch('app/showAlert', { message: 'Aylık aktiviteler başarıyla oluşturuldu.', type: 'success' }, { root: true })
+    } else {
+      store.dispatch('app/showAlert', { message: 'Aylık aktiviteler oluşturulurken bir hata oluştu.', type: 'error' }, { root: true })
+    }
   },
-  deleteActivity: (context, id) => {
-    axios.delete(CreateURL(`Activity/DeleteActivity/${id}`), GetPostHeaders(store.get('user/user').token))
-      .then(() => {
-        store.dispatch('app/showAlert', { message: 'Aktivite silindi.', type: 'error' }, { root: true })
-      })
-      .catch(error => {
-        console.log('Error', error)
-        store.dispatch('app/showAlert', { message: 'Aktivite silinirken hata oluştu.', type: 'error' }, { root: true })
-      })
+  async updateActivity (context, payload) {
+    store.set('app/isLoading', true)
+
+    const res = await this.$api.activity.update(payload)
+
+    if (res) {
+      const arr = store.get('activity/activities')
+      const index = arr.findIndex(e => e.id === payload.id)
+      arr[index] = payload
+      store.set('activity/activities', [...arr])
+      store.dispatch('app/showAlert', { message: 'Aktivite başarıyla güncellendi.', type: 'success' }, { root: true })
+    } else {
+      store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
+    }
+
+    store.set('app/isLoading', false)
+  },
+  async getActivitiesByConsultantIdAndYearMonth (context, payload) {
+    store.set('app/isLoading', true)
+
+    const res = await this.$api.activity.getByParams({ url: 'ConsultantIdAndYearMonth', params: [payload.consultantId, payload.yearMonth] })
+
+    if (res) {
+      store.set('activity/activities', getMappedActivities(res.data))
+    } else {
+      store.dispatch('app/showAlert', { message: 'Danışman aktiviteleri alınırken bir hata oluştu.', type: 'error' }, { root: true })
+    }
+
+    store.set('app/isLoading', false)
+  },
+  async deleteActivity (context, id) {
+    store.set('app/isLoading', true)
+
+    const res = await this.$api.activity.delete(id)
+
+    if (res) {
+      store.dispatch('app/showAlert', { message: 'Aktivite silindi.', type: 'error' }, { root: true })
+    } else {
+      store.dispatch('app/showAlert', { message: 'Aktivite silinirken hata oluştu.', type: 'error' }, { root: true })
+    }
+
+    store.set('app/isLoading', true)
+  },
+  async deleteActivities (context, ids) {
+    store.set('app/isLoading', true)
+
+    const result = await axios.delete(`${trailingSlash(process.env.VUE_APP_ROOT_API)}api/Activity/DeleteActivities`, { data: ids })
+
+    if (result.status && result.status === 200) {
+      store.dispatch('app/showAlert', { message: 'Aylık aktiviteler silindi.', type: 'success' }, { root: true })
+    } else {
+      store.dispatch('app/showAlert', { message: 'Aktiviteler silinirken hata oluştu.', type: 'error' }, { root: true })
+    }
+  },
+  setLoading (c, payload) {
+    store.set('activity/isLoading', payload)
   },
 }
 

@@ -51,14 +51,14 @@
       <template v-slot:item.jobTitleId="{ item }">
         {{ getJobTitleName(item.jobTitleId) }}
       </template>
-      <template v-slot:item.experienceSpanId="{ item }">
-        {{ getExperienceSpanName(item.experienceSpanId) }}
+      <template v-slot:item.experienceId="{ item }">
+        {{ getExperienceName(item.experienceId) }}
       </template>
       <template v-slot:item.projectId="{ item }">
         {{ getProjectName(item.projectId) }}
       </template>
       <template v-slot:item.contract="{ item }">
-        {{ getContractName(item) }}
+        {{ item.contract ? item.contract.name : ' - ' }}
       </template>
       <template v-slot:item.contract.startDate="{ item }">
         {{ getContractDate(item, 'start') }}
@@ -69,7 +69,7 @@
 
       <template v-slot:item.demandStatus="{ item }">
         <v-chip
-          :color="item.demandStatus === 0 ? 'orange' : 'green'"
+          :color="item.demandStatus === 0 ? 'orange' : (item.demandStatus === 1 ? 'green' : 'grey')"
           dark
         >
           {{ Labels[item.demandStatus] }}
@@ -93,7 +93,7 @@
 </template>
 
 <script>
-  import { DEMAND_STATUS_LABELS as Labels, ROLE_IDS as Roles } from '@/util/globals'
+  import { DEMAND_STATUS_LABELS as Labels, ROLES as Roles } from '@/util/globals'
   import { get } from 'vuex-pathify'
   export default {
     name: 'DemandsList',
@@ -109,7 +109,7 @@
     computed: {
       ...get('user', ['user', 'users']),
       ...get('demand', ['demands', 'isLoading']),
-      ...get('experienceSpan', ['experienceSpans']),
+      ...get('experience', ['experiences']),
       ...get('jobTitle', ['jobTitles']),
       ...get('project', ['projects']),
       ...get('supplier', ['suppliers']),
@@ -124,9 +124,9 @@
           },
           { text: 'text', value: 'changable', width: '250' },
           { text: 'Ünvan', value: 'jobTitleId', width: '200' },
-          { text: 'Tecrübe', value: 'experienceSpanId', width: '120' },
+          { text: 'Tecrübe', value: 'experienceId', width: '120' },
           { text: 'Proje', value: 'projectId', width: '150' },
-          { text: 'Sözleşme/Aday', value: 'contract', width: '200' },
+          { text: 'Sözleşme/Aday', value: 'contract', width: '250' },
           { text: 'Söz. Baş. Tar.', value: 'contract.startDate', width: '150' },
           { text: 'Söz. Bit. Tar.', value: 'contract.endDate', width: '150' },
           { text: 'Talep Durumu', value: 'demandStatus' },
@@ -137,9 +137,14 @@
         return arr
       },
     },
-    mounted () {
+    async mounted () {
+      // To be sure current user update at store
+      this.$store.dispatch('demand/setLoading', true)
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
       this.$store.dispatch('jobTitle/getJobTitles')
-      this.$store.dispatch('experienceSpan/getExperienceSpans')
+      this.$store.dispatch('experience/getExperiences')
+
       if (this.user.roleId === Roles.UNIT_MANAGER) {
         this.$store.dispatch('project/getProjectsByAssignedTo')
         this.$store.dispatch('supplier/getSuppliers')
@@ -166,7 +171,7 @@
         try {
           if (this.user.roleId === Roles.UNIT_MANAGER) {
             const result = this.suppliers.find(supplier => supplier.id === item.supplierId)
-            return result.name.slice(0, 30) + '...'
+            return result.name.length > 30 ? result.name.slice(0, 30) + '...' : result.name
           } else if (this.user.roleId === Roles.SUPPLIER) {
             const result = this.users.find(manager => manager.id === item.createdById)
             return result.firstname + ' ' + result.lastname
@@ -187,9 +192,9 @@
           return result ? result.name : 'Bulunamadı'
         } else return 'Bulunamadı'
       },
-      getExperienceSpanName (id) {
-        if (id && this.experienceSpans && this.experienceSpans.length > 0) {
-          const result = this.experienceSpans.find(experienceSpan => experienceSpan.id === id)
+      getExperienceName (id) {
+        if (id && this.experiences && this.experiences.length > 0) {
+          const result = this.experiences.find(experience => experience.id === id)
           return result ? result.name : 'Bulunamadı'
         } else return 'Bulunamadı'
       },
@@ -198,13 +203,6 @@
         if (contract) {
           const arr = type === 'starting' ? contract.startDate.split('T')[0].split('-') : contract.endDate.split('T')[0].split('-')
           return `${arr[2]}/${arr[1]}/${arr[0]}`
-        } else {
-          return ' - '
-        }
-      },
-      getContractName (demand) {
-        if (demand.contract !== null && demand.consultant !== null) {
-          return demand.contract.id + ' - ' + demand.consultant.firstname + ' ' + demand.consultant.lastname
         } else {
           return ' - '
         }

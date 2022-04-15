@@ -1,6 +1,4 @@
-import axios from 'axios'
 import { make } from 'vuex-pathify'
-import { CreateURL, GetPostHeaders } from '@/util/helpers'
 import store from '../index'
 
 // Data
@@ -11,94 +9,107 @@ const state = {
 const mutations = make.mutations(state)
 
 const actions = {
-  // Create Methods
-  createInvoice: (context, payload) => {
+  async createInvoice (context, payload) {
     store.set('app/isLoading', true)
     const currUser = store.get('user/user')
     payload.formData.append('SupplierId', currUser.company.id)
 
-    axios.post(CreateURL('Invoice/UploadInvoiceDocuments/upload'), payload.formData, {
-      headers: {
-        Authorization: `Bearer ${currUser.token}`,
-        'Content-Type': 'multipart/form-data',
-      },
-    })
-      .then(({ data: res }) => {
-        payload.invoice.invoiceFilePath = res.data
+    const path = await this.$api.invoice.upload(payload.formData)
 
-        axios.post(CreateURL('Invoice/SaveInvoice'), payload.invoice, GetPostHeaders(currUser.token))
-        .then(({ data: createdInvoice }) => {
-          store.set('invoice/invoices', [...store.get('invoice/invoices'), createdInvoice.data])
-          setTimeout(() => {
-            store.dispatch('app/showAlert', { message: 'Fatura oluşturuldu.', type: 'success' }, { root: true })
-          }, 750)
-        })
-        .then(() => {
-          store.dispatch('activityPeriod/updateActivityPeriod', payload.period)
-        })
-        .then(() => {
-          const { length } = payload.activities
-          for (let i = 0; i < length; i++) {
-            axios.put(CreateURL('Activity/UpdateActivity'), payload.activities[i], GetPostHeaders(currUser.token))
+    if (path) {
+      payload.invoice.invoiceFilePath = path.data
+      const res = await this.$api.invoice.create(payload.invoice)
+
+      if (res) {
+        payload.invoice.id = res
+        store.set('invoice/invoices', [...store.get('invoice/invoices'), payload.invoice])
+        const periodRes = await this.$api.activityPeriod.update(payload.period)
+
+        if (periodRes) {
+          try {
+            const arr = store.get('activityPeriod/activityPeriods')
+            const index = arr.findIndex(e => e.id === payload.period.id)
+            arr[index] = payload.period
+            store.set('activityPeriod/activityPeriods', [...arr])
+          } catch (err) {
+            console.log('Error on updating ActivityPeriod: ', err)
           }
-        })
-      })
-      .catch(error => {
-        console.log('Error', error)
-        store.dispatch('app/showAlert', { message: 'Fatura oluşturulamadı.', type: 'error' }, { root: true })
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
+          store.dispatch('app/showAlert', { message: 'Fatura başarıyla oluşturuldu ve ilgili aktivite dönemi güncellendi.', type: 'success' }, { root: true })
+        } else {
+          store.dispatch('app/showAlert', { message: 'Fatura başarıyla oluşturuldu fakat ilgili aktivite dönemi güncellenemedi.', type: 'error' }, { root: true })
+        }
+      } else {
+        store.dispatch('app/showAlert', { message: 'Fatura dosyası başarıyla yüklendi fakat fatura oluşturulamadı.', type: 'error' }, { root: true })
+      }
+    } else {
+      store.dispatch('app/showAlert', { message: 'Fatura dosyası yüklenemedi.', type: 'error' }, { root: true })
+    }
+
+    store.set('app/isLoading', false)
   },
-  updateInvoice: (context, payload) => {
+  async updateInvoice (context, payload) {
     store.set('app/isLoading', true)
 
-    axios.put(CreateURL('Invoice/UpdateInvoice'), payload, GetPostHeaders(store.get('user/user').token))
-      .then(() => {
+    const res = await this.$api.invoice.update(payload)
+    if (res) {
+      const arr = store.get('invoice/invoices')
+      const index = arr.findIndex(e => e.id === payload.id)
+      arr[index] = payload
+      store.set('invoice/invoices', [...arr])
+      store.dispatch('app/showAlert', { message: 'Başarıyla güncellendi.', type: 'success' }, { root: true })
+    } else {
+      store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
+    }
+
+    store.set('app/isLoading', false)
+  },
+  async getInvoices () {
+    store.set('app/isLoading', true)
+
+    const res = await this.$api.invoice.get()
+
+    store.set('invoice/invoices', res.data)
+    store.set('app/isLoading', false)
+  },
+  async getInvoicesByAssignedTo () {
+    store.set('app/isLoading', true)
+    const { id } = store.get('user/user')
+
+    const res = await this.$api.budget.getByParams({ url: 'AssignedTo', params: [id] })
+
+    if (res) {
+      store.set('budget/invoiceBudget', res.data[0])
+    } else {
+      store.dispatch('app/showAlert', { message: 'Projeler getirilirken bir hata oluştu.', type: 'error' }, { root: true })
+    }
+
+    store.set('app/isLoading', false)
+  },
+  async uploadInvoice (context, payload) {
+    store.set('app/isLoading', true)
+    const currUser = store.get('user/user')
+    payload.formData.append('SupplierId', currUser.company.id)
+
+    const path = await this.$api.invoice.upload(payload.formData)
+
+    if (path) {
+      payload.invoice.filePath = path
+      const res = await this.$api.invoice.update(payload.invoice)
+
+      if (res) {
         const arr = store.get('invoice/invoices')
-        const index = arr.findIndex(e => e.id === payload.id)
-        arr[index] = payload
-        store.set('invoice/invoices', [...arr])
-        store.dispatch('app/showAlert', { message: 'Başarıyla güncellendi.', type: 'success' }, { root: true })
-      })
-      .catch(error => {
-        console.log('Error', error)
-        store.dispatch('app/showAlert', { message: 'Bir hata oluştu.', type: 'error' }, { root: true })
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
-  },
-  getInvoices: () => {
-    store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
+        const index = arr.findIndex(e => e.id === payload.invoice.id)
+        arr[index] = payload.invoice
+        store.set('invoice/invoices', arr)
+        store.dispatch('app/showAlert', { message: 'Başarıyla yüklendi.', type: 'success' }, { root: true })
+      } else {
+        store.dispatch('app/showAlert', { message: 'Dosya başarıyla yüklendi fakat sözleşme güncellenemedi.', type: 'error' }, { root: true })
+      }
+    } else {
+      store.dispatch('app/showAlert', { message: 'Dosya yüklenemedi.', type: 'success' }, { root: true })
+    }
 
-    axios.get(CreateURL('Invoice/GetInvoices'), GetPostHeaders(currUser.token))
-      .then(({ data: res }) => {
-        store.set('invoice/invoices', res.data)
-      })
-      .catch(error => {
-        console.log('Error', error)
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
-  },
-  getInvoicesByAssignedTo: () => {
-    store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
-
-    axios.get(CreateURL(`Invoice/GetInvoicesByAssignedTo/${currUser.id}`), GetPostHeaders(currUser.token))
-      .then(({ data: res }) => {
-        store.set('invoice/invoices', res.data)
-      })
-      .catch(error => {
-        console.log('Error', error)
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
+    store.set('app/isLoading', false)
   },
 }
 

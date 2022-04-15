@@ -40,11 +40,11 @@
             @click:append="() => (showPwd = !showPwd)"
           />
 
-          <!-- <v-checkbox
-            v-model="rememberMe"
+          <v-checkbox
+            v-model="remember"
             label="Beni Hatırla"
             color="success"
-          /> -->
+          />
 
           <v-btn
             v-if="alertMessage.length > 0"
@@ -97,13 +97,14 @@
         v => !!v || 'Şifrenizi girin',
         v => (v && v.length >= 8) || 'Şifre minimum 8 karakter olmalıdır',
       ],
-      rememberMe: false,
+      remember: false,
     }),
     computed: {
       ...get('app', ['isLoading', 'alertMessage']),
     },
     methods: {
       validate () {
+        localStorage.setItem('tibuline@remember', this.remember)
         const val = this.$refs.form.validate()
         if (val) {
           this.$store.dispatch('user/login', this.user)
@@ -119,7 +120,7 @@
   height: 100%;
   margin: 0;
   padding: 0;
-  background-image: url('~@/assets/lock.jpg');
+  background-image: url('~@/assets/image1.jpg');
   background-size: cover;
   overflow: hidden;
 }

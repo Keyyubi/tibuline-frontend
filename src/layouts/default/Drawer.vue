@@ -4,7 +4,7 @@
     v-model="drawer"
     :dark="dark"
     :right="$vuetify.rtl"
-    src="~@/assets/lock.jpg"
+    :src="image"
     :mini-variant.sync="mini"
     mini-variant-width="80"
     app
@@ -25,7 +25,7 @@
 
       <v-divider class="mx-3 mb-2" />
 
-      <default-list :items="items" />
+      <default-list :items="filteredItems()" />
     </div>
 
     <!-- <template #append>
@@ -61,6 +61,7 @@
 <script>
   // Utilities
   import { get, sync } from 'vuex-pathify'
+  import { parsedToken } from '@/util/helpers'
 
   export default {
     name: 'DefaultDrawer',
@@ -81,6 +82,7 @@
         'dark',
         'gradient',
         'image',
+        'user',
       ]),
       ...get('app', [
         'items',
@@ -91,6 +93,13 @@
         'drawerImage',
         'mini',
       ]),
+    },
+
+    methods: {
+      filteredItems () {
+        const role = Number(parsedToken().RoleId)
+        return this.items.filter(e => e.role === role)
+      },
     },
   }
 </script>

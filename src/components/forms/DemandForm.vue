@@ -90,12 +90,12 @@
             md="4"
           >
             <v-select
-              v-model="demand.experienceSpanId"
-              :items="experienceSpans"
+              v-model="demand.experienceId"
+              :items="experiences"
               item-text="name"
               item-value="id"
               label="Tecrübe Aralığı"
-              @change="selectTarget('experienceSpan', demand.experienceSpanId)"
+              @change="selectTarget('experience', demand.experienceId)"
             />
           </v-col>
 
@@ -177,7 +177,7 @@
             <v-text-field
               v-else
               label="Sözleşme"
-              :value="demand.contract.name"
+              :value="demand.contract ? demand.contract.name : ' - '"
               readonly
             />
           </v-col>
@@ -246,7 +246,7 @@
 </template>
 
 <script>
-  import { DEMAND_STATUSES as Statuses, ROLE_IDS as Roles, CONTRACT_STATUSES as cStatuses } from '@/util/globals'
+  import { DEMAND_STATUSES as Statuses, ROLES as Roles, CONTRACT_STATUSES as cStatuses } from '@/util/globals'
   import { CheckIsNull } from '@/util/helpers'
   import { get } from 'vuex-pathify'
   export default {
@@ -267,7 +267,7 @@
       ...get('consultant', ['consultants']),
       ...get('contract', ['contracts']),
       ...get('costCenter', ['costCenters']),
-      ...get('experienceSpan', ['experienceSpans']),
+      ...get('experience', ['experiences']),
       ...get('jobTitle', ['jobTitles']),
       ...get('project', ['projects']),
       filteredContracts () {
@@ -286,7 +286,7 @@
     mounted () {
       this.$store.dispatch('costCenter/getCostCenters')
       this.$store.dispatch('jobTitle/getJobTitles')
-      this.$store.dispatch('experienceSpan/getExperienceSpans')
+      this.$store.dispatch('experience/getExperiences')
 
       if (this.formType === 'create') {
         this.demand.createdById = this.user.id
@@ -315,14 +315,16 @@
           this.demand.costCenterId,
           this.demand.supplierId,
           this.demand.jobTitleId,
-          this.demand.experienceSpanId,
+          this.demand.experienceId,
           this.demand.projectId,
         ]
 
         if (!CheckIsNull(arr)) {
           this.demand.demandStatus = Statuses.CREATED
           this.$store.dispatch('demand/createDemand', this.demand)
-          this.$emit('close-dialog')
+          if (this.formType !== 'create') {
+            this.$emit('close-dialog')
+          }
         } else {
           this.$store.dispatch('app/showAlert', { message: 'Lütfen tüm alanları doldurduğunuzdan emin olunuz.', type: 'warning' })
         }
@@ -336,7 +338,7 @@
           case 'jobTitle':
             this.calculateBudget()
             break
-          case 'experienceSpan':
+          case 'experience':
             this.calculateBudget()
             break
           default:
@@ -344,9 +346,9 @@
         }
       },
       calculateBudget () {
-        if (this.demand.supplierId && this.demand.jobTitleId && this.demand.experienceSpanId) {
+        if (this.demand.supplierId && this.demand.jobTitleId && this.demand.experienceId) {
           const budget = this.budgets.find(e => {
-            return e.experienceSpanId === this.demand.experienceSpanId && e.jobTitleId === this.demand.jobTitleId
+            return e.experienceId === this.demand.experienceId && e.jobTitleId === this.demand.jobTitleId
           })
           if (budget) {
             this.demand.monthlyBudget = budget.monthlyBudget
@@ -368,6 +370,7 @@
           payload.demandStatus = Statuses.COMPLITED
         } else if (this.user.roleId === Roles.SUPPLIER && payload.contractId) {
           payload.demandStatus = Statuses.REPLIED
+          payload.contract = this.contracts.find(e => e.id === payload.contractId)
         }
 
         this.$store.dispatch('demand/updateDemand', payload)

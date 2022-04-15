@@ -167,7 +167,7 @@
           class="white--text mr-3"
           color="green"
           depressed
-          :disabled="!(activities.length > 0)"
+          :disabled="isDisable"
           @click="showConfirmation('approve')"
         >
           Onayla
@@ -259,6 +259,7 @@
       period: '',
       Statuses,
       InvoiceTypes,
+      isDisable: true,
     }),
     computed: {
       ...get('user', ['user']),
@@ -278,13 +279,13 @@
         const payload = {
           consultantId: this.selectedConsultant.id,
           yearMonth: this.period,
-          activityStatus: Statuses.PENDING,
         }
-        this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonthAndStatus', payload)
+        this.$store.dispatch('activity/getActivitiesByConsultantIdAndYearMonth', payload)
         this.$store.dispatch('activityPeriod/getActivityPeriodsByConsultantId', this.selectedConsultant.id)
         setTimeout(() => {
           this.calculateTotalHours()
           this.selectedSupplier = this.suppliers.find(e => e.id === this.selectedConsultant.supplierId)
+          this.isAbleToApprove()
         }, 500)
         this.e1 = 2
       },
@@ -309,42 +310,25 @@
         this.confirmationType = type
         this.confirmationDialog = true
       },
+      isAbleToApprove () {
+        if (this.activityPeriods && this.activityPeriods.length > 0) {
+          const currPeriod = this.activityPeriods.find(e => e.name === this.period && e.consultantId === this.selectedConsultant.id)
+          this.isDisable = !(currPeriod.status === Statuses.PENDING)
+        } else {
+          this.isDisable = true
+        }
+      },
       async confirm () {
         this.$store.dispatch('app/setLoading', true)
         this.calculateTotalHours()
         this.confirmationDialog = false
 
-        const status = this.confirmationType === 'approve' ? Statuses.APPROVED : Statuses.REVISED
-        this.activities.forEach(obj => {
-          obj.activityStatus = status
-          this.$store.dispatch('activity/updateActivity', obj)
-        })
+        const period = this.activityPeriods.find(e => e.name === this.period && e.consultantId === this.selectedConsultant.id)
+        period.status = this.confirmationType === 'approve' ? Statuses.APPROVED : Statuses.REVISED
+        period.reasonOfDeny = this.reasonOfDeny
+        this.$store.dispatch('activityPeriod/updateActivityPeriod', period)
 
-        await this.sleep(1000)
-
-        if (status === Statuses.APPROVED) {
-          const isExist = this.activityPeriods.find(e => e.name === this.period && e.consultantId === this.selectedConsultant.id)
-
-          const payload = {
-            name: this.period,
-            consultantId: this.selectedConsultant.id,
-            totalShiftHours: this.totalShiftHours,
-            totalOverShiftHours: this.totalOverShiftHours,
-            dayOffHours: this.totalDayOffHours,
-            isInvoiced: false,
-          }
-
-          if (isExist && isExist.name === this.period) {
-            payload.id = isExist.id
-            this.$store.dispatch('activityPeriod/updateActivityPeriod', payload)
-          } else {
-            this.$store.dispatch('activityPeriod/createActivityPeriod', payload)
-          }
-
-          await this.sleep(500)
-        } else {
-          console.log('denied')
-        }
+        await this.sleep(500)
 
         this.confirmationType = ''
         this.selectConsultant()
@@ -354,6 +338,8 @@
         this.$store.dispatch('app/setLoading', true)
 
         await this.sleep(250)
+        const { date } = this.$refs.calendar.lastEnd
+        this.period = date.split('-')[0] + '-' + date.split('-')[1]
 
         this.selectConsultant()
       },

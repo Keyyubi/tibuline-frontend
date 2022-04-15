@@ -1,9 +1,15 @@
 <template>
-  <div
+  <material-snackbar
+    :dismissible="true"
+    :type="alertType"
+    :value="alertMessage.length > 0"
+  >
+    {{ alertMessage }}
+  </material-snackbar>
+  <!-- <div
     v-if="alertMessage.length > 0"
     style="width: auto; display: flex; justify-content: center; position: fixed; top: 10px; left: 44%; padding: 5px; z-index: 100;"
   >
-    <!-- Alert Message -->
     <v-alert
       :type="alertType"
       dense
@@ -14,7 +20,7 @@
     >
       {{ alertMessage }}
     </v-alert>
-  </div>
+  </div> -->
 </template>
 
 <script>

@@ -9,7 +9,23 @@
         hide-details
       />
     </v-card-title>
+
+    <v-sheet
+      v-if="isLoading"
+      width="100%"
+      height="400"
+      class="d-flex justify-center align-center"
+    >
+      <v-progress-circular
+        size="100"
+        width="10"
+        indeterminate
+        color="primary"
+      />
+    </v-sheet>
+
     <v-data-table
+      v-else
       :headers="headers"
       :items="consultants"
       :search="searchWord"
@@ -20,7 +36,7 @@
           class="ma-2"
           color="primary"
           dark
-          @click="showConsultant(item)"
+          @click="showConsultant(item.id)"
         >
           <b>{{ item.firstname + ' ' + item.lastname }}</b>
           <v-icon right>
@@ -85,7 +101,7 @@
 </template>
 
 <script>
-  import { ROLE_IDS as Roles } from '@/util/globals'
+  import { ROLES as Roles } from '@/util/globals'
   import { get } from 'vuex-pathify'
   export default {
     name: 'ConsultantsList',
@@ -99,10 +115,10 @@
     },
     computed: {
       ...get('user', ['user', 'users']),
-      ...get('consultant', ['consultants']),
+      ...get('consultant', ['consultants', 'isLoading']),
       ...get('supplier', ['suppliers']),
       ...get('jobTitle', ['jobTitles']),
-      ...get('experienceSpan', ['experienceSpans']),
+      ...get('experience', ['experiences']),
       ...get('project', ['projects']),
       headers () {
         const arr = [
@@ -127,9 +143,13 @@
         return arr
       },
     },
-    mounted () {
+    async mounted () {
+      // To be sure current user update at store
+      this.$store.dispatch('consultant/setLoading', true)
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
       this.$store.dispatch('jobTitle/getJobTitles')
-      this.$store.dispatch('experienceSpan/getExperienceSpans')
+      this.$store.dispatch('experience/getExperiences')
       if (this.user.roleId === Roles.UNIT_MANAGER) {
         this.$store.dispatch('consultant/getConsultantsByManagerId')
         this.$store.dispatch('project/getProjectsByAssignedTo')
@@ -141,9 +161,10 @@
       }
     },
     methods: {
-      showConsultant (consultant) {
+      showConsultant (id) {
+        const consultant = this.consultants.find(e => e.id === id)
         this.selectedConsultant = { ...consultant }
-        this.selectedConsultant.personelFiles = consultant.filePath ? consultant.filePath.split(',') : []
+        this.selectedConsultant.personalFiles = consultant.filePath ? consultant.filePath.split(',') : []
         this.dialog = true
       },
       getUnitManagerName (id) {
@@ -170,7 +191,7 @@
       },
       getTitleAndExp (consultant) {
         try {
-          const exp = this.experienceSpans.find(e => e.id === consultant.experienceSpanId)
+          const exp = this.experiences.find(e => e.id === consultant.experienceId)
           const title = this.jobTitles.find(e => e.id === consultant.jobTitleId)
           return title.name + ' / ' + exp.name
         } catch {

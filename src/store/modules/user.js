@@ -2,12 +2,14 @@
 import { make } from 'vuex-pathify'
 import axios from 'axios'
 // Globals
-import { IN_BROWSER, ROLE_IDS } from '@/util/globals'
-import { CreateURL, GetPostHeaders } from '@/util/helpers'
+import { IN_BROWSER, ROLES } from '@/util/globals'
+import { CreateURL, parsedToken } from '@/util/helpers'
 import store from '@/store/index'
 
 // Router
 import router from '../../router'
+
+const image = require.context('../../assets', false, /\.jpg$/)
 
 const state = {
   user: {},
@@ -25,11 +27,11 @@ const state = {
     'rgba(244, 67, 54, .8), rgba(244, 67, 54, .8)',
   ],
   images: [
-    '../../assets/lock.jpg',
-    'https://demos.creative-tim.com/material-dashboard-pro/assets/img/sidebar-1.jpg',
-    'https://demos.creative-tim.com/material-dashboard-pro/assets/img/sidebar-2.jpg',
-    'https://demos.creative-tim.com/material-dashboard-pro/assets/img/sidebar-3.jpg',
-    'https://demos.creative-tim.com/material-dashboard-pro/assets/img/sidebar-4.jpg',
+    image('./image1.jpg'),
+    image('./image2.jpg'),
+    image('./image3.jpg'),
+    image('./image4.jpg'),
+    image('./image5.jpg'),
   ],
   notifications: [],
   rtl: false,
@@ -39,7 +41,7 @@ const mutations = make.mutations(state)
 
 const actions = {
   fetch: ({ commit }) => {
-    const local = localStorage.getItem('vuetify@user') || '{}'
+    const local = localStorage.getItem('tibuline@user') || '{}'
     const user = JSON.parse(local)
 
     for (const key in user) {
@@ -53,56 +55,61 @@ const actions = {
   update: ({ state }) => {
     if (!IN_BROWSER) return
 
-    localStorage.setItem('vuetify@user', JSON.stringify(state))
+    localStorage.setItem('tibuline@user', JSON.stringify(state))
   },
-  login: (context, user) => {
+  login: ({ dispatch }, user) => {
     store.set('app/isLoading', true)
-
     axios.post(CreateURL('Auth/CreateToken'), { email: user.email, password: user.password })
-    .then(({ data: res }) => res.data.accessToken)
-    .then(token => {
-      axios.get(CreateURL('User/GetUser'), GetPostHeaders(token))
-      .then(({ data: res }) => {
-        return {
-          ...res.data,
-          isLogged: true,
-          token,
-        }
-      })
-      .then(loggedUser => {
-        axios.get(CreateURL('Company/GetCompanies'), GetPostHeaders(loggedUser.token))
-        .then(({ data: res }) => {
-          store.set('user/customerCompany', res.data[0])
-          loggedUser = {
-            ...loggedUser,
-            company: res.data[0],
-          }
-          if (loggedUser.roleId === ROLE_IDS.SUPPLIER) {
-            axios.get(CreateURL(`Supplier/GetSupplierById/${loggedUser.supplierId}`), GetPostHeaders(loggedUser.token))
-              .then(({ data: comp }) => {
-                loggedUser.company = comp.data
-              })
-          }
+    .then(({ data: res }) => {
+      localStorage.setItem('tibuline@jwt', res.data.accessToken)
+      localStorage.setItem('rfrjwt', res.data.refreshToken)
+      localStorage.setItem('tibuline@role', parsedToken().RoleId)
 
-          store.set('user/user', loggedUser)
-          context.dispatch('app/updateItems', loggedUser.roleId, { root: true })
-          store.set('app/alertMessage', '')
-          router.push('/')
-        })
-      })
+      dispatch('getUser')
+      router.push('/')
     })
     .catch(({ response }) => {
+      localStorage.removeItem('tibuline@jwt')
       store.set('user/user', {})
 
       //  ? ERROR HANDLING EXAMPLE
       //  * response has the all info about error. Like Status or Data
       const res = response.data
       store.set('app/alertMessage', res.error.errors[0])
-    })
-    .finally(() => setTimeout(() => {
+
+      setTimeout(() => {
         store.set('app/isLoading', false)
         store.set('app/alertMessage', '')
-      }, 2000))
+      }, 2000)
+    })
+  },
+  async getUser () {
+    store.set('app/isLoading', true)
+
+    axios.defaults.headers.common.Authorization = `Bearer ${localStorage.getItem('tibuline@jwt')}`
+
+    const res = await this.$api.user.get(false)
+
+    if (res) {
+      const user = { ...res.data }
+
+      const customerCompany = await this.$api.company.get()
+      if (customerCompany) {
+        store.set('user/customerCompany', customerCompany.data[0])
+
+        if (user.roleId !== ROLES.SUPPLIER) {
+          user.company = customerCompany.data[0]
+        } else {
+          const supplier = await this.$api.supplier.getById(user.supplierId)
+          user.company = { ...supplier.data }
+        }
+
+        store.set('user/user', user)
+      } else {
+        store.set('app/alertMessage', res)
+      }
+    }
+    store.set('app/isLoading', false)
   },
   logout: () => {
     store.set('activity/activities', [])
@@ -112,14 +119,15 @@ const actions = {
     store.set('consultant/consultants', [])
     store.set('contract/contracts', [])
     store.set('demand/demands', [])
-    store.set('experienceSpan/experienceSpans', [])
+    store.set('experience/experiences', [])
     store.set('jobTitle/jobTitles', [])
     store.set('project/projects', [])
     store.set('user/users', [])
     store.set('user/user', {})
-    store.set('app/items', [])
     store.set('app/alertMessage', '')
-    store.set('app/alertType', '')
+
+    localStorage.removeItem('tibuline@jwt')
+    localStorage.removeItem('tibuline@role')
 
     router.push('/login/')
   },
@@ -141,7 +149,7 @@ const actions = {
   updateUser: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.put(CreateURL('User/UpdateUser'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.put(CreateURL('User/UpdateUser'), payload)
       .then(() => {
         const arr = store.get('user/users')
         const index = arr.findIndex(e => e.id === payload.id)
@@ -161,7 +169,7 @@ const actions = {
   updateUserAccount: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.put(CreateURL('User/UpdateUser'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.put(CreateURL('User/UpdateUser'), payload)
       .then(() => {
         store.set('user/user', payload)
         store.dispatch('app/showAlert', { message: 'Başarıyla güncellendi.', type: 'success' }, { root: true })
@@ -177,7 +185,7 @@ const actions = {
   updateCompany: (context, payload) => {
     store.set('app/isLoading', true)
 
-    axios.put(CreateURL('Company/UpdateCompany'), payload, GetPostHeaders(store.get('user/user').token))
+    axios.put(CreateURL('Company/UpdateCompany'), payload)
       .then(() => {
         const user = store.get('user/user')
         user.company = payload
@@ -193,39 +201,26 @@ const actions = {
         store.set('app/isLoading', false)
       })
   },
-  getUnitManagers: () => {
+  async getUnitManagers () {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL(`User/GetUsersByRoleId/${ROLE_IDS.UNIT_MANAGER}`), GetPostHeaders(store.get('user/user').token))
-      .then(({ data: res }) => {
-        store.set('user/users', res.data)
-      })
-      .catch(error => {
-        console.log('Error', error)
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
+    const res = await this.$api.user.getByParams({ url: 'RoleId', params: [ROLES.UNIT_MANAGER] })
+    store.set('user/users', res.data)
+
+    store.set('app/isLoading', false)
   },
-  getSuppliers: () => {
+  async getSuppliers () {
     store.set('app/isLoading', true)
 
-    axios.get(CreateURL(`User/GetUsersByRoleId/${ROLE_IDS.SUPPLIER}`), GetPostHeaders(store.get('user/user').token))
-      .then(({ data: res }) => {
-        store.set('user/users', res.data)
-      })
-      .catch(error => {
-        console.log('Error', error)
-      })
-      .finally(() => {
-        store.set('app/isLoading', false)
-      })
+    const res = await this.$api.user.getByParams({ url: 'RoleId', params: [ROLES.SUPPLIER] })
+    store.set('user/users', res.data)
+
+    store.set('app/isLoading', false)
   },
   getCompanyDetails: (context, payload) => {
     store.set('app/isLoading', true)
-    const currUser = store.get('user/user')
 
-    axios.get(CreateURL('Company/GetCompanies'), GetPostHeaders(currUser.token))
+    axios.get(CreateURL('Company/GetCompanies'))
       .then(({ data: res }) => {
         store.set('user/customerCompany', res.data[0])
       })

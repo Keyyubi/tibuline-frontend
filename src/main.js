@@ -6,6 +6,7 @@ import './plugins'
 import store from './store'
 import { sync } from 'vuex-router-sync'
 import VueMask from 'v-mask'
+import './plugins/mixins'
 
 Vue.config.productionTip = false
 Vue.use(VueMask)

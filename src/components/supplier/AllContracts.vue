@@ -10,7 +10,22 @@
       />
     </v-card-title>
 
+    <v-sheet
+      v-if="isLoading"
+      width="100%"
+      height="400"
+      class="d-flex justify-center align-center"
+    >
+      <v-progress-circular
+        size="100"
+        width="10"
+        indeterminate
+        color="primary"
+      />
+    </v-sheet>
+
     <v-data-table
+      v-else
       :headers="headers"
       :items="contracts"
       :search="searchWord"
@@ -20,9 +35,9 @@
           class="ma-2"
           color="primary"
           dark
-          @click="editContract(item)"
+          @click="editContract(item.id)"
         >
-          <b>{{ item.id }}</b>
+          <b>Güncelle</b>
           <v-icon right>
             mdi-arrow-right-bold
           </v-icon>
@@ -50,7 +65,7 @@
         </v-chip>
       </template>
 
-      <template v-slot:item.delete="{ item }">
+      <!-- <template v-slot:item.delete="{ item }">
         <v-chip
           class="ma-2"
           color="primary"
@@ -62,7 +77,7 @@
             mdi-trash-can-outline
           </v-icon>
         </v-chip>
-      </template>
+      </template> -->
     </v-data-table>
 
     <!-- Edit Dialog -->
@@ -144,29 +159,35 @@
         selectedContractId: null,
         headers: [
           {
-            text: 'Sözleşme No.',
+            text: 'Güncelle',
             align: 'start',
             value: 'id',
           },
+          { text: 'Sözleşme No.', value: 'contractNo' },
           { text: 'Aday', value: 'consultantId' },
           { text: 'Başl. Tar.', value: 'startDate' },
           { text: 'Bit. Tar.', value: 'endDate' },
-          { text: 'Sözleşmeyi Sil', value: 'delete' },
+          // { text: 'Sözleşmeyi Sil', value: 'delete' },
         ],
       }
     },
     computed: {
       ...get('user', ['user']),
-      ...get('contract', ['contracts']),
+      ...get('contract', ['contracts', 'isLoading']),
       ...get('consultant', ['consultants']),
     },
-    mounted () {
+    async mounted () {
+      // To be sure current user update at store
+      this.$store.dispatch('contract/setLoading', true)
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
       this.$store.dispatch('contract/getContractsBySupplierId')
       this.$store.dispatch('consultant/getConsultants')
     },
     methods: {
-      editContract (item) {
-        this.selectedContract = { ...item }
+      editContract (id) {
+        const contract = this.contracts.find(e => e.id === id)
+        this.selectedContract = { ...contract }
         this.editDialog = true
       },
       seeContract (item) {

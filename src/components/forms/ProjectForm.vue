@@ -197,7 +197,7 @@
 </template>
 
 <script>
-  import { ROLE_IDS as Roles } from '@/util/globals'
+  import { ROLES as Roles } from '@/util/globals'
   import { CheckIsNull } from '@/util/helpers'
   import { get } from 'vuex-pathify'
   import createNumberMask from 'text-mask-addons/dist/createNumberMask'
