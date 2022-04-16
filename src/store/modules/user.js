@@ -65,8 +65,6 @@ const actions = {
       localStorage.setItem('tibuline@refresh', res.data.refreshToken)
       localStorage.setItem('tibuline@role', parsedToken().RoleId)
 
-      axios.defaults.headers.common.Authorization = `Bearer ${localStorage.getItem('tibuline@jwt')}`
-
       dispatch('getUser')
       router.push('/')
     })
@@ -87,6 +85,7 @@ const actions = {
   },
   async getUser () {
     store.set('app/isLoading', true)
+    axios.defaults.headers.common.Authorization = `Bearer ${localStorage.getItem('tibuline@jwt')}`
 
     const res = await this.$api.user.get(false)
 
