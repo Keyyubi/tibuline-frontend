@@ -59,19 +59,17 @@ const router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
-  store.set('app/alertMessage', '')
   if (localStorage.getItem('tibuline@jwt') === null) {
     if (to.path !== '/login/') {
-      store.set('app/alertMessage', 'Tekrar giriş yapmalısınız.')
-      store.set('app/alertType', 'error')
-      setTimeout(() => {
-        return next({ path: '/login/' })
-      }, 2000)
+      return next({ path: '/login/' })
     } else {
       next()
     }
   } else {
     const role = Number(localStorage.getItem('tibuline@role'))
+
+    // If the client refreshes the page VUEX store will be empty therefore the following lines will check the user object in VUEX store.
+    // If it's empty re-filling user
     if (!store.get('user/user').id) {
       store.dispatch('user/getUser', { root: true })
     }
