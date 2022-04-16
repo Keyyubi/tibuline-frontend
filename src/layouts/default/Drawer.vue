@@ -61,7 +61,6 @@
 <script>
   // Utilities
   import { get, sync } from 'vuex-pathify'
-  import { parsedToken } from '@/util/helpers'
 
   export default {
     name: 'DefaultDrawer',
@@ -97,7 +96,7 @@
 
     methods: {
       filteredItems () {
-        const role = Number(parsedToken().RoleId)
+        const role = Number(localStorage.getItem('tibuline@role'))
         return this.items.filter(e => e.role === role)
       },
     },
