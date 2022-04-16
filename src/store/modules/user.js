@@ -62,7 +62,7 @@ const actions = {
     axios.post(CreateURL('Auth/CreateToken'), { email: user.email, password: user.password })
     .then(({ data: res }) => {
       localStorage.setItem('tibuline@jwt', res.data.accessToken)
-      localStorage.setItem('rfrjwt', res.data.refreshToken)
+      localStorage.setItem('tibuline@refresh', res.data.refreshToken)
       localStorage.setItem('tibuline@role', parsedToken().RoleId)
 
       dispatch('getUser')
@@ -128,6 +128,8 @@ const actions = {
 
     localStorage.removeItem('tibuline@jwt')
     localStorage.removeItem('tibuline@role')
+    localStorage.removeItem('tibuline@refresh')
+    axios.defaults.headers.common.Authorization = ''
 
     router.push('/login/')
   },

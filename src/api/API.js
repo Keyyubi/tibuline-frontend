@@ -1,29 +1,30 @@
 import axios from 'axios'
 import { leadingSlash, trailingSlash } from '@/util/helpers'
-import router from '@/router'
+import store from '@/store'
 
-const refresh = () => {
+const logout = () => {
+  store.set('app/alertMessage', 'Tekrar giriş yapmalısınız.')
+  setTimeout(() => {
+    return store.dispatch('user/logout')
+  }, 2000)
+}
+
+const refresh = async () => {
   localStorage.removeItem('tibuline@jwt')
-  const rememberMe = localStorage.getItem('tibuline@remember')
+  const rememberMe = JSON.parse(localStorage.getItem('tibuline@remember'))
 
-  if (rememberMe) {
-    axios.post(
-      `${trailingSlash(process.env.VUE_APP_ROOT_API)}api/Auth/CreateTokenByRefreshToken`,
-      { token: localStorage.getItem('rfrjwt') })
-      .then(({ data: res }) => {
-        localStorage.setItem('tibuline@jwt', res.data.accessToken)
-        localStorage.setItem('rfrjwt', res.data.refreshToken)
-        axios.defaults.headers.common.Authorization = `Bearer ${localStorage.getItem('tibuline@jwt')}`
-      })
-      .catch(err => {
-        console.log('err', err)
-        axios.defaults.headers.common.Authorization = ''
-      })
-  } else {
-    localStorage.removeItem('rfrjwt')
-    axios.defaults.headers.common.Authorization = ''
-    router.push({ path: '/' })
+  if (!rememberMe) {
+    logout()
+    return false
   }
+
+  const { data: res } = await axios.post(
+    `${trailingSlash(process.env.VUE_APP_ROOT_API)}api/Auth/CreateTokenByRefreshToken`,
+    { token: localStorage.getItem('tibuline@refresh') })
+
+  localStorage.setItem('tibuline@jwt', res.data.accessToken)
+  localStorage.setItem('tibuline@refresh', res.data.refreshToken)
+  axios.defaults.headers.common.Authorization = `Bearer ${localStorage.getItem('tibuline@jwt')}`
 }
 
 export class API {
@@ -45,23 +46,31 @@ export class API {
     return `${this.baseUrl}api/${this.singular}${leadingSlash(endpoint)}`
   }
 
-  handleErrors (err) {
-    // Note: here you may want to add your errors handling
-    if (err.response.status === 401) {
-      refresh()
-    } else {
-      console.log({ message: 'Unexpected error: ', err })
-    }
+  async handleErrors (err) {
+    console.log('Unexpected error : ', err)
+    logout()
     return false
   }
 
   async get (plural = true) {
     try {
-      const response = await axios.get(this.getUrl(`Get${plural ? this.plural : this.singular}`))
+      const { data } = await axios.get(this.getUrl(`Get${plural ? this.plural : this.singular}`))
 
-      return response.data
+      return data
     } catch (err) {
-      return this.handleErrors(err)
+      if (err.response.status === 401) {
+        try {
+          await refresh()
+
+          const { data } = await axios.get(this.getUrl(`Get${plural ? this.plural : this.singular}`))
+
+          return data
+        } catch (error) {
+          return this.handleErrors(error)
+        }
+      } else {
+        this.handleErrors(err)
+      }
     }
   }
 
@@ -69,11 +78,23 @@ export class API {
     try {
       if (!id) throw Error('Id is not provided')
 
-      const response = await axios.get(this.getUrl(`Get${this.singular}ById/${id}`))
+      const { data } = await axios.get(this.getUrl(`Get${this.singular}ById/${id}`))
 
-      return response.data
+      return data
     } catch (err) {
-      return this.handleErrors(err)
+      if (err.response.status === 401) {
+        try {
+          await refresh()
+
+          const { data } = await axios.get(this.getUrl(`Get${this.singular}ById/${id}`))
+
+          return data
+        } catch (error) {
+          return this.handleErrors(error)
+        }
+      } else {
+        this.handleErrors(err)
+      }
     }
   }
 
@@ -84,19 +105,31 @@ export class API {
    * @returns
    */
   async getByParams (obj) {
+    if (!obj || !obj.params || obj.params.length === 0) throw Error('Parameters are not provided')
+
+    let url = this.getUrl(`Get${this.plural}By${obj.url}`)
+    obj.params.forEach(e => {
+      url += `/${e}`
+    })
+
     try {
-      if (!obj || !obj.params || obj.params.length === 0) throw Error('Parameters are not provided')
+      const { data } = await axios.get(url)
 
-      let url = this.getUrl(`Get${this.plural}By${obj.url}`)
-      obj.params.forEach(e => {
-        url += `/${e}`
-      })
-
-      const response = await axios.get(url)
-
-      return response.data
+      return data
     } catch (err) {
-      return this.handleErrors(err)
+      if (err.response.status === 401) {
+        try {
+          await refresh()
+
+          const { data } = await axios.get(url)
+
+          return data
+        } catch (error) {
+          return this.handleErrors(error)
+        }
+      } else {
+        this.handleErrors(err)
+      }
     }
   }
 
@@ -105,7 +138,19 @@ export class API {
       const result = await axios.post(this.getUrl(`Save${this.singular}`), data)
       return result.data.data
     } catch (err) {
-      return this.handleErrors(err)
+      if (err.response.status === 401) {
+        try {
+          await refresh()
+
+          const response = await axios.post(this.getUrl(`Save${this.singular}`), data)
+
+          return response.data.data
+        } catch (error) {
+          return this.handleErrors(error)
+        }
+      } else {
+        this.handleErrors(err)
+      }
     }
   }
 
@@ -114,7 +159,18 @@ export class API {
       await axios.put(this.getUrl(`Update${this.singular}`), data)
       return true
     } catch (err) {
-      return this.handleErrors(err)
+      if (err.response.status === 401) {
+        try {
+          await refresh()
+          await axios.put(this.getUrl(`Update${this.singular}`), data)
+
+          return true
+        } catch (error) {
+          return this.handleErrors(error)
+        }
+      } else {
+        this.handleErrors(err)
+      }
     }
   }
 
@@ -125,7 +181,18 @@ export class API {
       await axios.delete(this.getUrl(`Delete${this.singular}/${id}`))
       return true
     } catch (err) {
-      return this.handleErrors(err)
+      if (err.response.status === 401) {
+        try {
+          await refresh()
+          await axios.delete(this.getUrl(`Delete${this.singular}/${id}`))
+
+          return true
+        } catch (error) {
+          return this.handleErrors(error)
+        }
+      } else {
+        this.handleErrors(err)
+      }
     }
   }
 
@@ -141,7 +208,19 @@ export class API {
       const response = await axios.post(this.getUrl(`Upload${this.singular}Documents/upload`), formData, head)
       return response.data
     } catch (err) {
-      return this.handleErrors(err)
+      if (err.response.status === 401) {
+        try {
+          await refresh()
+
+          const { data } = await axios.post(this.getUrl(`Upload${this.singular}Documents/upload`), formData, head)
+
+          return data.data
+        } catch (error) {
+          return this.handleErrors(error)
+        }
+      } else {
+        this.handleErrors(err)
+      }
     }
   }
 }
